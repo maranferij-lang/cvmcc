@@ -3,3 +3,6 @@ maxUploadSize = 10
 
 [browser]
 gatherUsageStats = false
+
+[theme]
+primaryColor = "#5B4FE9"

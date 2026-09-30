@@ -51,3 +51,20 @@ class GrillTurn(BaseModel):
 class GrillResult(BaseModel):
     new_facts: List[str]
     edits: List[Edit]
+
+
+class Direction(BaseModel):
+    role: str  # назва ролі англійською, як у вакансіях
+    company_type: str  # одне значення зі списку profile.COMPANY_TYPES
+    fit_score: int  # 0..100: реалістичний шанс отримати офер найближчим часом
+    why_fits: List[str]  # докази з CV
+    gaps: List[str]
+    first_steps: List[str]
+    search_keywords: List[str]
+
+
+class CareerMatch(BaseModel):
+    candidate_summary: str
+    strongest_assets: List[str]
+    directions: List[Direction]
+    general_advice: str

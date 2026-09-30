@@ -8,7 +8,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any
 
-from .schemas import Analysis, CriterionScore, Edit, Gap, GrillResult, GrillTurn
+from .schemas import Analysis, CareerMatch, CriterionScore, Direction, Edit, Gap, GrillResult, GrillTurn
 
 DEMO_QUESTIONS = [
     ("In your Student Council role, how many events did you organise and how many people came?",
@@ -50,6 +50,8 @@ class _Messages:
                     )
                 ],
             )
+        elif fmt is CareerMatch:
+            out = demo_career()
         else:
             raise ValueError(f"Unknown output format: {fmt}")
         return SimpleNamespace(stop_reason="end_turn", parsed_output=out)
@@ -141,3 +143,42 @@ Member of Student Council
 PERSONAL
 Date of birth: 01.01.2004
 """
+
+
+def demo_career() -> CareerMatch:
+    return CareerMatch(
+        candidate_summary="Студентка економіки з досвідом у продажах і звітності в Excel, "
+        "з першим проєктом на даних і лідерським досвідом у студраді.",
+        strongest_assets=["Стажування в продажах", "Excel-звітність", "Економічна освіта КШЕ"],
+        directions=[
+            Direction(
+                role="Sales Operations Intern",
+                company_type="FMCG / ритейл / індустрія",
+                fit_score=72,
+                why_fits=["Вже є стажування в продажах.", "Робила звіти в Excel для команди."],
+                gaps=["Немає чисел про результати звітів."],
+                first_steps=["Додати в CV результати звітів.", "Податись у 10 компаній FMCG через LinkedIn."],
+                search_keywords=["Sales Operations Intern", "Commercial Analyst Intern", "Sales Support"],
+            ),
+            Direction(
+                role="Junior Data Analyst",
+                company_type="Фінтех / банк",
+                fit_score=48,
+                why_fits=["Економіка та великі дані дає базу зі статистики."],
+                gaps=["Немає SQL і проєктів на ньому."],
+                first_steps=["Пройти курс SQL.", "Зробити один проєкт на публічному датасеті."],
+                search_keywords=["Junior Data Analyst", "Data Analyst Intern", "BI Analyst Intern"],
+            ),
+            Direction(
+                role="Business Analyst Intern",
+                company_type="Консалтинг (Big 4, MBB, локальний)",
+                fit_score=41,
+                why_fits=["Лідерство в студраді і комунікація з командою."],
+                gaps=["Немає кейс-чемпіонатів."],
+                first_steps=["Взяти участь у кейс-чемпіонаті."],
+                search_keywords=["Business Analyst Intern", "Consulting Intern"],
+            ),
+        ],
+        general_advice="Найшвидший шлях зараз через продажі й операції, де досвід уже є. "
+        "Паралельно почни SQL, щоб за 2-3 місяці відкрити напрям аналітики.",
+    )
