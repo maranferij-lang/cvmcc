@@ -10,6 +10,7 @@ from cvmax.edits import apply_edits, changes_markdown, text_to_docx, unverified_
 from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
 from cvmax.profile import COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
+from ui.account import profile_value, require_login, save_result, take_limit
 from ui.common import consent, cv_picker, demo_banner, get_llm
 
 PRIORITY_LABEL = {"high": "🔴 важливо", "medium": "🟡 бажано", "low": "⚪ дрібниця"}
@@ -37,7 +38,16 @@ def all_edits(s):
 
 
 # ---------- Шапка ----------
+require_login("Аналіз CV")
 s = state()
+# Значення з профілю підставляються в форму один раз за сесію.
+if not s.get("analyze_defaults_set"):
+    s["analyze_defaults_set"] = True
+    if profile_value("program") in PROGRAMS:
+        s["analyze_program"] = profile_value("program")
+    if profile_value("status") in STATUSES:
+        s["analyze_status"] = profile_value("status")
+    s["analyze_background"] = profile_value("background", "")
 # Перехід зі сторінки «Куди податись»: підставляємо обраний напрям у форму.
 if "prefill_role" in st.session_state:
     st.session_state["target_role"] = st.session_state.pop("prefill_role")
@@ -52,10 +62,11 @@ if not consent("analyze"):
 # ---------- Онбординг ----------
 st.header("1. Про тебе і твою ціль")
 col1, col2 = st.columns(2)
-program = col1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get)
-status = col2.selectbox("Статус", STATUSES)
+program = col1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="analyze_program")
+status = col2.selectbox("Статус", STATUSES, key="analyze_status")
 background = st.text_area(
     "Де ти зараз вчишся, працюєш або працював(-ла)?",
+    key="analyze_background",
     placeholder="Напр.: 3 курс, літнє стажування в продажах, волонтер у студраді",
     height=80,
 )
@@ -95,11 +106,13 @@ st.header("2. Твоє CV")
 cv = cv_picker("analyze")
 
 can_run = bool(target_role.strip()) and cv is not None
-if st.button("Проаналізувати CV", type="primary", disabled=not can_run):
+if st.button("Проаналізувати CV", type="primary", disabled=not can_run) and take_limit("analysis"):
     try:
         with st.spinner("Аналізую CV, це займає до хвилини..."):
             s.analysis = analyze_cv(get_client(), profile, cv)
         s.cv, s.profile = cv, profile
+        save_result("analysis", f"{target_role} · {s.analysis.overall_score}/100",
+                    {"role": target_role, "company_type": company_type, "analysis": s.analysis.model_dump()})
         s.grill, s.grill_result = None, None
         for k in [k for k in st.session_state if str(k).startswith("accept_")]:
             del st.session_state[k]
@@ -176,7 +189,7 @@ with tab_grill:
         "Відповіді допоможуть написати сильніші пункти. Я нічого не вигадую, тільки те, що ти скажеш."
     )
     if s.grill is None:
-        if st.button("Почати Grill me"):
+        if st.button("Почати Grill me") and take_limit("grill"):
             s.grill = GrillSession()
             try:
                 with st.spinner("Думаю над першим питанням..."):

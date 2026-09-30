@@ -7,9 +7,19 @@ import streamlit as st
 from cvmax.career import CareerPrefs, match_careers
 from cvmax.llm import LLMError
 from cvmax.profile import FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES
+from ui.account import profile_value, require_login, save_result, take_limit
 from ui.common import consent, cv_picker, demo_banner, get_llm
 
 JOB_BOARDS = "LinkedIn, Djinni, Work.ua, DOU, Robota.ua і кар'єрний центр КШЕ"
+
+require_login("Куди податись")
+if not st.session_state.get("career_defaults_set"):
+    st.session_state["career_defaults_set"] = True
+    if profile_value("program") in PROGRAMS:
+        st.session_state["career_program"] = profile_value("program")
+    if profile_value("status") in STATUSES:
+        st.session_state["career_status"] = profile_value("status")
+    st.session_state["career_interests"] = profile_value("goal", "")
 
 st.title("Куди податись")
 st.caption(
@@ -26,6 +36,7 @@ program = c1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func
 status = c2.selectbox("Статус", STATUSES, key="career_status")
 interests = st.text_area(
     "Що тобі цікаво? (необов'язково)",
+    key="career_interests",
     placeholder="Напр.: люблю працювати з даними, цікавлять фінанси і стартапи",
     height=70,
 )
@@ -47,10 +58,13 @@ prefs = CareerPrefs(
     region=region,
     feedback_language=FEEDBACK_LANGUAGES[lang],
 )
-if st.button("Знайти напрями", type="primary", disabled=cv is None):
+if st.button("Знайти напрями", type="primary", disabled=cv is None) and take_limit("career"):
     try:
         with st.spinner("Дивлюсь, де твій досвід цінують найбільше..."):
             st.session_state["career_result"] = match_careers(get_llm(), prefs, cv)
+        top = st.session_state["career_result"].directions
+        save_result("career", ", ".join(d.role for d in top[:2]) or "Напрями",
+                    {"career": st.session_state["career_result"].model_dump()})
     except LLMError as e:
         st.error(str(e))
 

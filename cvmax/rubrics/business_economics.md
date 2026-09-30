@@ -1,16 +1,33 @@
 # Program rubric: Business Economics (KSE)
 
-Typical targets: consulting analyst, business analyst, marketing analyst, finance/FP&A intern,
-investment analyst, product/project coordinator, sales/partnerships in tech, founder's associate.
+Typical targets: consulting analyst, business analyst, finance/FP&A, investment banking analyst,
+Big 4, marketing analyst, founder's associate.
 
-Signals employers look for:
-- Structured problem solving: case competitions, consulting clubs, real client projects.
-- Excel and PowerPoint at a professional level, financial modelling, basic SQL for analyst roles.
-- Business outcomes in numbers: revenue, cost, conversion, users, time saved, budget managed.
-- Leadership in student organisations, events organised (scale, budget, sponsors).
-- Commercial awareness: the CV shows understanding of the industry targeted.
+What recruiters look for:
+- Evidence of impact, drive, problem solving, achievement and leadership, shown through examples,
+  never claimed (McKinsey: "no need to restate those in your resume").
+- Strong grades throughout, with context (BCG, McKinsey). Test scores relevant for consulting/finance.
+- Particular, non-generic achievements with their scale (McKinsey).
+- Leadership outside class: positions of responsibility, societies, volunteering, sport, initiative.
+- Languages with honest levels.
+- Clarity and structure: "quality over quantity" (BCG); one-page business-style format.
+- Finance: technical skills (modelling, valuation), markets knowledge, finance club involvement;
+  2-4 major entries with specifics and results (Mergers & Inquisitions).
 
-Typical mistakes:
-- Generic "strong analytical and communication skills" with no proof.
-- Activities described as membership rather than contribution.
-- No tools or methods named in analyst-type experience.
+Common mistakes (Bain and BCG recruiters): irrelevant information; key facts hard to find;
+responsibilities instead of achievements; being too general; unsupported self-descriptions; buzzwords;
+weak verbs ("supported", "responsible for", "assisted"). For banking: more than one page, tiny margins
+and fonts, a summary section at the top.
+
+Format: one page; name large; Education first (GPA with scale, honors, scholarships) ->
+Work & Leadership Experience -> Skills, Activities & Interests (languages, software, certifications,
+genuine interests). No objective, no photo. Right-aligned dates, strictly consistent formatting.
+
+Example bullets (style reference only):
+- Built a 3-statement financial model for a startup's seed round; the founders used the base case to
+  set a $1.2M raise target.
+- Led a 4-person team analysing market entry for a grocery chain; placed 2nd of 38 teams in a case
+  competition.
+- Benchmarked unit costs of 6 logistics competitors using public filings and 11 expert calls; identified
+  $180K in annual savings.
+- Organised a 300-guest charity auction with 5 corporate sponsors, raising UAH 450K for an NGO.

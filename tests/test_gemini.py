@@ -28,6 +28,8 @@ def make(responses, models=("m1", "m2")):
     g = GeminiLLM.__new__(GeminiLLM)
     g.client = SimpleNamespace(models=SimpleNamespace(generate_content=generate_content))
     g.models = list(models)
+    g.light_models = list(models)
+    llm_mod._EXHAUSTED.clear()
     return g, calls
 
 
@@ -72,3 +74,26 @@ def test_provider_choice(monkeypatch):
     assert make_llm() is None
     assert isinstance(make_llm(gemini_key="k", anthropic_key="a"), GeminiLLM)
     assert make_llm(anthropic_key="a").provider.startswith("Claude")
+
+
+def daily_quota():
+    return errors.ClientError(429, {"error": {"code": 429, "status": "RESOURCE_EXHAUSTED",
+        "message": "Quota exceeded: GenerateRequestsPerDayPerProjectPerModel-FreeTier"}})
+
+
+def test_daily_quota_model_is_skipped_until_reset(monkeypatch):
+    g, calls = make([daily_quota(), OK, OK])
+    assert ask(g) == OK and calls == ["m1", "m2"]
+    assert ask(g) == OK and calls == ["m1", "m2", "m2"]  # m1 більше не пробуємо сьогодні
+    monkeypatch.setattr(llm_mod, "_pacific_day", lambda: "2099-01-01")
+    g2, calls2 = make([OK])
+    llm_mod._EXHAUSTED["m1"] = "2000-01-01"
+    assert ask(g2) == OK and calls2 == ["m1"]  # новий день, модель знову доступна
+
+
+def test_light_tasks_use_light_chain():
+    g, calls = make([OK])
+    g.light_models = ["lite"]
+    blocks = [{"type": "text", "text": "hi"}]
+    g.ask(system="s", content=blocks, output_model=GrillTurn, effort="low")
+    assert calls == ["lite"]

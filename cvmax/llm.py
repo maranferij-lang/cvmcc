@@ -30,14 +30,46 @@ _GEMINI_TRY_NEXT = {429, 500, 503, 504}
 RETRY_PAUSE_SECONDS = 5
 
 
+def _pacific_day() -> str:
+    """Денні ліміти Gemini скидаються опівночі за тихоокеанським часом."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    return datetime.now(ZoneInfo("America/Los_Angeles")).date().isoformat()
+
+
+# Моделі, які сьогодні вже вичерпали денний ліміт: не витрачаємо на них час до скидання.
+_EXHAUSTED: dict[str, str] = {}
+
+
+def _is_daily_quota(error: Any) -> bool:
+    text = str(error)
+    return getattr(error, "code", None) == 429 and ("PerDay" in text or "per day" in text.lower())
+
+
 class GeminiLLM:
     provider = "Google Gemini API"
 
-    def __init__(self, api_key: str | None = None, models: list[str] | None = None) -> None:
+    def __init__(
+        self,
+        api_key: str | None = None,
+        models: list[str] | None = None,
+        light_models: list[str] | None = None,
+    ) -> None:
         from google import genai
+        from google.genai import types
 
-        self.client = genai.Client(api_key=api_key) if api_key else genai.Client()
-        self.models = models or config.GEMINI_MODELS
+        # Власні повтори SDK вимкнено: ми самі переходимо на іншу модель, так швидше.
+        http = types.HttpOptions(retry_options=types.HttpRetryOptions(attempts=1), timeout=180_000)
+        self.client = genai.Client(api_key=api_key, http_options=http) if api_key else genai.Client(http_options=http)
+        self.models = models or config.GEMINI_MODELS_HEAVY
+        self.light_models = light_models or config.GEMINI_MODELS_LIGHT
+
+    def _chain(self, effort: str) -> list[str]:
+        chain = self.light_models if effort == "low" else self.models
+        today = _pacific_day()
+        available = [m for m in chain if _EXHAUSTED.get(m) != today]
+        return available or chain
 
     @staticmethod
     def _parts(content: list[dict]) -> list[Any]:
@@ -72,27 +104,31 @@ class GeminiLLM:
         for round_no in range(2):
             if round_no:
                 time.sleep(RETRY_PAUSE_SECONDS)
-            result = self._try_models(parts, cfg, output_model)
+            result = self._try_models(self._chain(effort), parts, cfg, output_model)
             if isinstance(result, Exception):
                 last_error = result
                 continue
             return result
 
         if last_error is not None and getattr(last_error, "code", None) == 429:
-            raise LLMError("Вичерпано безплатний ліміт Gemini. Спробуй за хвилину або завтра.") from last_error
+            raise LLMError(
+                "На сьогодні вичерпано безплатний ліміт моделі. Спробуй за хвилину, а якщо не допоможе, то завтра."
+            ) from last_error
         raise LLMError("Усі моделі Gemini зараз перевантажені. Спробуй за хвилину.") from last_error
 
-    def _try_models(self, parts: list[Any], cfg: Any, output_model: Type[T]) -> T | Exception:
+    def _try_models(self, models: list[str], parts: list[Any], cfg: Any, output_model: Type[T]) -> T | Exception:
         """Повертає відповідь, або останню тимчасову помилку, якщо всі моделі зайняті."""
         from google.genai import errors
 
         last_error: Exception = LLMError("no models configured")
-        for model in self.models:
+        for model in models:
             try:
                 response = self.client.models.generate_content(model=model, contents=parts, config=cfg)
             except errors.APIError as e:
                 last_error = e
-                if e.code in _GEMINI_TRY_NEXT:
+                if _is_daily_quota(e):
+                    _EXHAUSTED[model] = _pacific_day()
+                if e.code in _GEMINI_TRY_NEXT or e.code == 404:
                     continue
                 if e.code in (401, 403) or "API key" in str(e):
                     raise LLMError("Невірний ключ Gemini. Перевір GEMINI_API_KEY.") from e

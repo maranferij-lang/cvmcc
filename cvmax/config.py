@@ -11,14 +11,24 @@ MODEL = os.environ.get("CVMAX_MODEL", "claude-opus-5-5")
 # Якщо Claude відмовить через фільтр безпеки, API сам повторить запит на запасній моделі.
 USE_FALLBACKS = os.environ.get("CVMAX_FALLBACKS", "1") == "1"
 
-# Gemini: пробуємо моделі по черзі, якщо попередня перевантажена або вичерпала ліміт.
-GEMINI_MODELS = [
-    m.strip()
-    for m in os.environ.get(
-        "CVMAX_GEMINI_MODELS", "gemini-3.5-flash,gemini-flash-latest,gemini-3.1-flash-lite"
-    ).split(",")
-    if m.strip()
-]
+# Gemini: на безплатному тарифі кожна модель має окремий денний ліміт запитів
+# (у повних Flash-моделей це лише 20 на день на проєкт). Тому пробуємо моделі по черзі:
+# денні ліміти різних моделей додаються.
+def _models(env: str, default: str) -> list[str]:
+    return [m.strip() for m in os.environ.get(env, default).split(",") if m.strip()]
+
+
+# Важкі задачі (аналіз, «Куди податись», збирання CV): спершу найкращі моделі.
+GEMINI_MODELS_HEAVY = _models(
+    "CVMAX_GEMINI_MODELS",
+    "gemini-3.5-flash,gemini-3.6-flash,gemini-3.8-flash,gemini-3.7-flash,gemini-3-flash-preview,"
+    "gemini-flash-latest,gemini-3.5-flash-lite,gemini-3.1-flash-lite",
+)
+# Легкі задачі (питання Grill me): спершу Lite-моделі, щоб берегти ліміт повних.
+GEMINI_MODELS_LIGHT = _models(
+    "CVMAX_GEMINI_MODELS_LIGHT",
+    "gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-flash-lite-latest,gemini-3.6-flash,gemini-3-flash-preview",
+)
 
 # Глибина міркувань моделі: low | medium | high.
 # Аналіз CV важливий, тому high. Питання Grill me прості, тому low.
@@ -32,3 +42,12 @@ GRILL_MAX_QUESTIONS = 8
 
 # Максимальний розмір файлу CV.
 MAX_FILE_MB = 10
+
+# Денні ліміти використання: (на одного юзера, на весь сайт). None = без обмеження.
+# Загальні ліміти підібрані під безплатний Gemini, щоб сайт не «впирався» в ліміт моделей.
+LIMITS = {
+    "analysis": (5, 60),
+    "career": (3, 40),
+    "grill": (3, 30),
+    "builder": (2, 20),
+}

@@ -8,7 +8,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any
 
-from .schemas import Analysis, CareerMatch, CriterionScore, Direction, Edit, Gap, GrillResult, GrillTurn
+from .schemas import Analysis, BuiltCV, CVEducation, CVEntry, CVSkillGroup, CareerMatch, CriterionScore, Direction, Edit, Gap, GrillResult, GrillTurn
 
 DEMO_QUESTIONS = [
     ("In your Student Council role, how many events did you organise and how many people came?",
@@ -52,6 +52,8 @@ class _Messages:
             )
         elif fmt is CareerMatch:
             out = demo_career()
+        elif fmt is BuiltCV:
+            out = demo_built_cv()
         else:
             raise ValueError(f"Unknown output format: {fmt}")
         return SimpleNamespace(stop_reason="end_turn", parsed_output=out)
@@ -181,4 +183,24 @@ def demo_career() -> CareerMatch:
         ],
         general_advice="Найшвидший шлях зараз через продажі й операції, де досвід уже є. "
         "Паралельно почни SQL, щоб за 2-3 місяці відкрити напрям аналітики.",
+    )
+
+
+def demo_built_cv() -> BuiltCV:
+    return BuiltCV(
+        full_name="Olena Petrenko",
+        contact_line=["Kyiv, Ukraine", "olena@example.com", "linkedin.com/in/olena"],
+        summary="Economics and Big Data student with sales internship experience, seeking a data analyst internship.",
+        education=[CVEducation(institution="Kyiv School of Economics", degree="BA in Economics and Big Data",
+                               location="Kyiv, Ukraine", dates="Sep 2023 - Jun 2027 (expected)",
+                               details=["Relevant coursework: Econometrics, Statistics, Databases"])],
+        experience=[CVEntry(title="Sales Intern", organization="Company X", location="Kyiv", dates="Jun 2025 - Aug 2025",
+                            bullets=["Built [N] weekly Excel sales reports for a regional team of [X] people"])],
+        projects=[],
+        activities=[CVEntry(title="Member", organization="KSE Student Council", location="", dates="2024 - Present",
+                            bullets=["Organised 3 events for 150+ students, including a case championship"])],
+        skills=[CVSkillGroup(category="Tools", items=["Excel", "Python"])],
+        languages=["Ukrainian: Native", "English: B2"],
+        awards=[],
+        notes_for_user=["Заміни [N] і [X] на реальні числа.", "Додай один проєкт на даних: це найбільше підсилить CV."],
     )

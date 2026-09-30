@@ -68,3 +68,38 @@ class CareerMatch(BaseModel):
     strongest_assets: List[str]
     directions: List[Direction]
     general_advice: str
+
+
+class CVEntry(BaseModel):
+    title: str
+    organization: str
+    location: str
+    dates: str
+    bullets: List[str]
+
+
+class CVEducation(BaseModel):
+    institution: str
+    degree: str
+    location: str
+    dates: str
+    details: List[str]
+
+
+class CVSkillGroup(BaseModel):
+    category: str
+    items: List[str]
+
+
+class BuiltCV(BaseModel):
+    full_name: str
+    contact_line: List[str]
+    summary: str
+    education: List[CVEducation]
+    experience: List[CVEntry]
+    projects: List[CVEntry]
+    activities: List[CVEntry]
+    skills: List[CVSkillGroup]
+    languages: List[str]
+    awards: List[str]
+    notes_for_user: List[str]
