@@ -10,9 +10,9 @@ from cvmax import config
 from cvmax.analyze import analyze_cv
 from cvmax.cv_input import CVFile, CVReadError, load_cv
 from cvmax.demo import DEMO_CV_TEXT, FakeClient
-from cvmax.edits import apply_edits, changes_markdown, text_to_docx
+from cvmax.edits import apply_edits, changes_markdown, text_to_docx, unverified_terms
 from cvmax.grill import GrillSession, answer, finalize, next_question
-from cvmax.llm import LLMError, make_client
+from cvmax.llm import LLMError, make_llm
 from cvmax.profile import COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
 
 st.set_page_config(page_title="CVMAX", page_icon="📄", layout="centered")
@@ -20,20 +20,30 @@ st.set_page_config(page_title="CVMAX", page_icon="📄", layout="centered")
 PRIORITY_LABEL = {"high": "🔴 важливо", "medium": "🟡 бажано", "low": "⚪ дрібниця"}
 
 
-def get_api_key() -> str | None:
+def secret(name: str) -> str | None:
     try:
-        key = st.secrets.get("ANTHROPIC_API_KEY")
+        value = st.secrets.get(name)
     except Exception:  # немає secrets.toml
-        key = None
-    return key or os.environ.get("ANTHROPIC_API_KEY")
-
-
-DEMO = os.environ.get("CVMAX_DEMO") == "1" or not get_api_key()
+        value = None
+    return value or os.environ.get(name)
 
 
 @st.cache_resource
+def get_llm():
+    llm = make_llm(gemini_key=secret("GEMINI_API_KEY"), anthropic_key=secret("ANTHROPIC_API_KEY"))
+    return llm if llm is not None and os.environ.get("CVMAX_DEMO") != "1" else FakeClient()
+
+
 def get_client():
-    return FakeClient() if DEMO else make_client(get_api_key())
+    return get_llm()
+
+
+try:
+    DEMO = isinstance(get_llm(), FakeClient)
+except LLMError as e:
+    st.error(str(e))
+    st.stop()
+PROVIDER = "демо" if DEMO else get_llm().provider
 
 
 def state():
@@ -58,13 +68,17 @@ s = state()
 st.title("CVMAX")
 st.caption("AI-помічник для CV. Пілот для студентів КШЕ, безплатно.")
 if DEMO:
-    st.info("Демо-режим: API-ключ не налаштовано, тому відповіді заготовлені. Так можна подивитись інтерфейс.")
+    st.info("Демо-режим: ключ моделі не налаштовано, тому відповіді заготовлені. Так можна подивитись інтерфейс.")
 
 # ---------- Згода ----------
+PRIVACY_NOTE = {
+    "Google Gemini API": " На безплатному тарифі Google може переглядати надіслані дані і використовувати їх "
+    "для покращення своїх продуктів, тому краще прибери з CV телефон і адресу.",
+}
 consent = st.checkbox(
-    "Я погоджуюсь на обробку мого CV. CV містить персональні дані. Він надсилається в Claude API "
-    "(Anthropic) тільки для аналізу, CVMAX його ніде не зберігає і нікому не передає. "
-    "Після закриття вкладки дані зникають."
+    f"Я погоджуюсь на обробку мого CV. CV містить персональні дані. Він надсилається в {PROVIDER} "
+    "тільки для аналізу, CVMAX його ніде не зберігає. Після закриття вкладки дані зникають."
+    + PRIVACY_NOTE.get(PROVIDER, "")
 )
 if not consent:
     st.stop()
@@ -159,8 +173,19 @@ with tab_overview:
         for x in a.strengths:
             st.write(f"- {x}")
 
+def known_facts(s) -> str:
+    """Усе, що юзер сам про себе сказав: CV, онбординг і відповіді в Grill me."""
+    parts = [s.cv.text, s.profile.background]
+    if s.grill:
+        parts += [t.answer for t in s.grill.turns]
+    return "\n".join(parts)
+
+
 with tab_edits:
-    st.caption("Відміть правки, які приймаєш. Числа в [дужках] заміни на свої.")
+    st.caption(
+        "Відміть правки, які приймаєш. Усе в [дужках] заміни на своє або прибери, якщо це неправда."
+    )
+    facts = known_facts(s)
     for i, e in enumerate(all_edits(s)):
         with st.container(border=True):
             st.markdown(f"**{e.section}** · {PRIORITY_LABEL[e.priority]}")
@@ -170,6 +195,12 @@ with tab_edits:
             c2.markdown("**Стало**")
             c2.write(e.after or "_(прибрати)_")
             st.caption(e.reason)
+            flagged = unverified_terms(e.after, facts)
+            if flagged:
+                st.warning(
+                    "Цього немає ні в CV, ні у твоїх відповідях: " + ", ".join(flagged)
+                    + ". Залиш тільки те, що правда."
+                )
             st.checkbox("Приймаю", key=f"accept_{i}")
 
 with tab_gaps:

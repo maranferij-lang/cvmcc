@@ -121,3 +121,19 @@ def test_exports():
     md = changes_markdown(demo_analysis().edits)
     assert "**Було:**" in md and "(прибрати)" in md
     assert text_to_docx("a\nb")[:2] == b"PK"
+
+
+def test_unverified_terms_flags_invented_tools_and_numbers():
+    from cvmax.edits import unverified_terms
+    known = "Skills: Excel, Python, SQL. Made 4 reports in 12 branches. Kyiv School of Economics"
+    after = "Built 4 reports for 12 branches using Python (BeautifulSoup, Pandas), SQL (PostgreSQL), VLOOKUP and Power BI, saving 30%"
+    flagged = unverified_terms(after, known)
+    assert {"BeautifulSoup", "Pandas", "PostgreSQL", "VLOOKUP", "Power Bi", "30"} <= set(flagged)
+    assert not {"Python", "SQL", "4", "12", "Built"} & set(flagged)
+
+
+def test_unverified_terms_ignores_placeholders_and_known_facts():
+    from cvmax.edits import unverified_terms
+    assert unverified_terms("Used [Pandas?] to clean [X] rows in Excel", "Excel") == []
+    assert unverified_terms("Analysed 20,000 listings", "20000 оголошень") == []
+    assert unverified_terms("a | linkedin.com/in/andrii", "a") == ["linkedin.com/in/andrii"]
