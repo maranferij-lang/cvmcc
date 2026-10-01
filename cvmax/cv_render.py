@@ -12,6 +12,8 @@ from docx.shared import Inches, Pt, RGBColor
 
 from .schemas import BuiltCV, CVEntry
 
+FONTS_DIR = __import__("pathlib").Path(__file__).resolve().parents[1] / "assets" / "fonts"
+
 PAGE_WIDTH_IN = 8.27  # A4
 MARGIN_IN = 0.6
 RIGHT_TAB = Inches(PAGE_WIDTH_IN - 2 * MARGIN_IN)
@@ -37,6 +39,23 @@ def _bottom_border(paragraph) -> None:
 def _spacing(paragraph, before: float = 0, after: float = 0) -> None:
     paragraph.paragraph_format.space_before = Pt(before)
     paragraph.paragraph_format.space_after = Pt(after)
+
+
+def split_gpa(details: list[str]) -> tuple[str, list[str]]:
+    """Короткий рядок з GPA виносимо праворуч у рядок ступеня, як у класичних CV."""
+    for i, d in enumerate(details):
+        if d.strip().upper().startswith("GPA") and len(d) <= 30:
+            return d.strip(), details[:i] + details[i + 1 :]
+    return "", details
+
+
+def has_placeholders(cv: BuiltCV) -> list[str]:
+    """Заповнювачі на кшталт [X] чи github.com/..., які юзер ще не замінив."""
+    texts = cv.contact_line + [cv.summary]
+    for group in (cv.experience, cv.projects, cv.activities):
+        texts += [b for e in group for b in e.bullets]
+    texts += [d for e in cv.education for d in e.details]
+    return [t for t in texts if "[" in t or "..." in t]
 
 
 def _heading(doc, text: str) -> None:
@@ -71,12 +90,14 @@ def _entries(doc, title: str, entries: list[CVEntry]) -> None:
         return
     _heading(doc, title)
     for e in entries:
-        _line_with_date(doc, e.title, e.dates)
         org = ", ".join(x for x in (e.organization, e.location) if x.strip())
         if org:
+            _line_with_date(doc, org, e.dates)
             p = doc.add_paragraph()
             _spacing(p)
-            p.add_run(org).italic = True
+            p.add_run(e.title).italic = True
+        else:
+            _line_with_date(doc, e.title, e.dates)
         _bullets(doc, e.bullets)
 
 
@@ -106,18 +127,16 @@ def render_docx(cv: BuiltCV) -> bytes:
     if cv.education:
         _heading(doc, "Education")
         for ed in cv.education:
-            _line_with_date(doc, ed.institution, ed.dates)
-            degree = ", ".join(x for x in (ed.degree, ed.location) if x.strip())
-            if degree:
-                p = doc.add_paragraph()
-                _spacing(p)
-                p.add_run(degree).italic = True
-            _bullets(doc, ed.details)
+            _line_with_date(doc, ", ".join(x for x in (ed.institution, ed.location) if x.strip()), ed.dates)
+            gpa, details = split_gpa(ed.details)
+            if ed.degree.strip() or gpa:
+                _line_with_date(doc, ed.degree, gpa, bold=False, italic=True)
+            _bullets(doc, details)
     _entries(doc, "Experience", cv.experience)
     _entries(doc, "Projects", cv.projects)
     _entries(doc, "Leadership & Activities", cv.activities)
     if cv.skills or cv.languages:
-        _heading(doc, "Skills & Languages")
+        _heading(doc, "Additional Information")
         for group in cv.skills:
             p = doc.add_paragraph()
             _spacing(p)
@@ -161,7 +180,7 @@ def render_markdown(cv: BuiltCV) -> str:
     entries("Projects", cv.projects)
     entries("Leadership & Activities", cv.activities)
     if cv.skills or cv.languages:
-        out.append("#### SKILLS & LANGUAGES")
+        out.append("#### ADDITIONAL INFORMATION")
         out.extend(f"- **{g.category}:** {', '.join(g.items)}" for g in cv.skills)
         if cv.languages:
             out.append(f"- **Languages:** {'; '.join(cv.languages)}")
@@ -170,3 +189,103 @@ def render_markdown(cv: BuiltCV) -> str:
         out.append("#### AWARDS")
         out.extend(f"- {a}" for a in cv.awards)
     return "\n".join(out)
+
+
+# ---------------- PDF ----------------
+
+
+def render_pdf(cv: BuiltCV) -> bytes:
+    """Оформлене CV у PDF: A4, один стовпчик, без таблиць і картинок, текст виділяється (ATS)."""
+    from fpdf import FPDF
+
+    pdf = FPDF(format="A4", unit="mm")
+    margin = 14
+    pdf.set_margins(margin, 12, margin)
+    pdf.set_auto_page_break(True, margin=12)
+    family = "Liberation"
+    for style, name in (("", "Regular"), ("B", "Bold"), ("I", "Italic"), ("BI", "BoldItalic")):
+        pdf.add_font(family, style, str(FONTS_DIR / f"LiberationSans-{name}.ttf"))
+    pdf.add_page()
+    width = pdf.w - 2 * margin
+    body = 10
+    line = 4.6
+
+    def heading(text: str) -> None:
+        pdf.ln(2.2)
+        pdf.set_font(family, "B", 10.5)
+        pdf.cell(0, 5, text.upper(), new_x="LMARGIN", new_y="NEXT")
+        y = pdf.get_y()
+        pdf.set_draw_color(60, 60, 60)
+        pdf.set_line_width(0.3)
+        pdf.line(margin, y, margin + width, y)
+        pdf.ln(1.2)
+
+    def left_right(left: str, right: str, style_left: str = "B", style_right: str = "") -> None:
+        pdf.set_font(family, style_right, body)
+        right_w = pdf.get_string_width(right) + 1 if right else 0
+        pdf.set_font(family, style_left, body)
+        pdf.cell(width - right_w, line, left)
+        if right:
+            pdf.set_font(family, style_right, body)
+            pdf.cell(right_w, line, right, align="R")
+        pdf.ln(line)
+
+    def bullets(items: list[str]) -> None:
+        pdf.set_font(family, "", body)
+        indent = 4
+        for item in items:
+            pdf.set_x(margin + 1)
+            pdf.cell(indent - 1, line, "\u2022")
+            pdf.multi_cell(width - indent, line, item.strip(), align="L", new_x="LMARGIN", new_y="NEXT")
+
+    def entries(title: str, items: list[CVEntry]) -> None:
+        if not items:
+            return
+        heading(title)
+        for e in items:
+            org = ", ".join(x for x in (e.organization, e.location) if x.strip())
+            if org:
+                left_right(org, e.dates, "B", "")
+                pdf.set_font(family, "I", body)
+                pdf.cell(0, line, e.title, new_x="LMARGIN", new_y="NEXT")
+            else:
+                left_right(e.title, e.dates, "B", "")
+            bullets(e.bullets)
+            pdf.ln(0.8)
+
+    pdf.set_font(family, "B", 17)
+    pdf.cell(0, 8, cv.full_name, align="C", new_x="LMARGIN", new_y="NEXT")
+    if cv.contact_line:
+        pdf.set_font(family, "", body)
+        pdf.cell(0, line + 0.5, " | ".join(cv.contact_line), align="C", new_x="LMARGIN", new_y="NEXT")
+    if cv.summary.strip():
+        pdf.ln(1)
+        pdf.set_font(family, "", body)
+        pdf.multi_cell(0, line, cv.summary.strip(), align="L", new_x="LMARGIN", new_y="NEXT")
+
+    if cv.education:
+        heading("Education")
+        for ed in cv.education:
+            left_right(", ".join(x for x in (ed.institution, ed.location) if x.strip()), ed.dates)
+            gpa, details = split_gpa(ed.details)
+            if ed.degree.strip() or gpa:
+                left_right(ed.degree, gpa, "I", "")
+            bullets(details)
+    entries("Experience", cv.experience)
+    entries("Projects", cv.projects)
+    entries("Leadership & Activities", cv.activities)
+    if cv.skills or cv.languages:
+        heading("Additional Information")
+        rows = [(g.category, ", ".join(g.items)) for g in cv.skills]
+        if cv.languages:
+            rows.insert(len([r for r in rows if r[0].lower() != "interests"]), ("Languages", ", ".join(cv.languages)))
+        for label, text in rows:
+            pdf.set_font(family, "B", body)
+            label_w = pdf.get_string_width(f"{label}: ") + 0.5
+            pdf.cell(label_w, line, f"{label}: ")
+            pdf.set_font(family, "", body)
+            pdf.multi_cell(width - label_w, line, text, align="L", new_x="LMARGIN", new_y="NEXT")
+    if cv.awards:
+        heading("Awards")
+        bullets(cv.awards)
+    return bytes(pdf.output())

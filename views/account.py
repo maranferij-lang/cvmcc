@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from cvmax.cv_render import render_docx, render_markdown
+from cvmax.cv_render import render_docx, render_markdown, render_pdf
 from cvmax.db import DBError
 from cvmax.profile import PROGRAMS, STATUSES
 from cvmax.schemas import Analysis, BuiltCV, CareerMatch
@@ -50,8 +50,11 @@ with tab_history:
                 elif item["kind"] == "builder" and "cv" in payload:
                     cv = BuiltCV.model_validate(payload["cv"])
                     st.markdown(render_markdown(cv))
-                    st.download_button("Завантажити DOCX", render_docx(cv), f"cv_{cv.full_name}.docx",
-                                       key=f"dl_{item['id']}")
+                    name = cv.full_name.replace(" ", "_") or "cv"
+                    c1, c2 = st.columns(2)
+                    c1.download_button("PDF", render_pdf(cv), f"{name}_CV.pdf", mime="application/pdf",
+                                       key=f"pdf_{item['id']}")
+                    c2.download_button("DOCX", render_docx(cv), f"{name}_CV.docx", key=f"dl_{item['id']}")
 
 with tab_profile:
     with st.form("profile"):

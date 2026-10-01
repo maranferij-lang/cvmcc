@@ -4,7 +4,7 @@ import streamlit as st
 
 from cvmax import config
 from cvmax.builder import BuilderDraft, build_cv, next_builder_question
-from cvmax.cv_render import render_docx, render_markdown
+from cvmax.cv_render import render_docx, render_markdown, render_pdf
 from cvmax.grill import GrillSession, answer
 from cvmax.llm import LLMError
 from cvmax.profile import FEEDBACK_LANGUAGES, PROGRAMS, STATUSES
@@ -127,13 +127,15 @@ if cv.notes_for_user:
             st.markdown(f"- {n}")
 with st.container(border=True):
     st.markdown(render_markdown(cv))
-c1, c2 = st.columns(2)
-c1.download_button("Завантажити DOCX", render_docx(cv), f"cv_{cv.full_name.replace(' ', '_')}.docx", type="primary")
-if c2.button("Почати заново"):
+name = cv.full_name.replace(" ", "_") or "cv"
+c1, c2, c3 = st.columns(3)
+c1.download_button("Завантажити PDF", render_pdf(cv), f"{name}_CV.pdf", mime="application/pdf", type="primary")
+c2.download_button("Завантажити DOCX", render_docx(cv), f"{name}_CV.docx")
+if c3.button("Почати заново"):
     for k in ("builder_grill", "builder_draft", "builder_cv"):
         s.pop(k, None)
     st.rerun()
 st.caption(
-    "DOCX відкривається у Word або Google Docs. Там заміни все в [дужках] і збережи як PDF. "
+    "Якщо в CV є [дужки], завантаж DOCX, заміни їх у Word або Google Docs і збережи як PDF. "
     "Потім перевір результат на сторінці «Аналіз CV» під конкретну вакансію."
 )

@@ -147,11 +147,60 @@ begin
            where u.email = lower(p_email) and r.id = p_id);
 end $$;
 
+-- Which suggested edits users accept. Used to see which kinds of edits are useful (no CV files, only edit texts).
+create table if not exists public.cvmax_edit_feedback (
+  id bigint generated always as identity primary key,
+  user_key text not null,
+  analysis_id text not null,
+  source text not null,          -- 'analysis' or 'grill'
+  target_role text,
+  program text,
+  section text,
+  priority text,
+  before_text text,
+  after_text text,
+  accepted boolean not null,
+  created_at timestamptz not null default now(),
+  unique (analysis_id, source, before_text, after_text)
+);
+create index if not exists cvmax_edit_feedback_time on public.cvmax_edit_feedback (created_at);
+alter table public.cvmax_edit_feedback enable row level security;
+revoke all on public.cvmax_edit_feedback from anon, authenticated;
+
+create or replace function public.cvmax_log_edit_feedback(
+  p_token text, p_user_key text, p_analysis_id text, p_target_role text, p_program text, p_items jsonb)
+returns int language plpgsql security definer set search_path = '' as $$
+declare v_count int := 0; item jsonb;
+begin
+  perform cvmax_private.check_token(p_token);
+  for item in select * from jsonb_array_elements(coalesce(p_items, '[]'::jsonb)) loop
+    insert into public.cvmax_edit_feedback
+      (user_key, analysis_id, source, target_role, program, section, priority, before_text, after_text, accepted)
+    values (p_user_key, p_analysis_id, coalesce(item->>'source', 'analysis'), p_target_role, p_program,
+            item->>'section', item->>'priority', coalesce(item->>'before', ''), coalesce(item->>'after', ''),
+            coalesce((item->>'accepted')::boolean, false))
+    on conflict (analysis_id, source, before_text, after_text)
+    do update set accepted = excluded.accepted, created_at = now();
+    v_count := v_count + 1;
+  end loop;
+  return v_count;
+end $$;
+
+-- Acceptance rate by section and priority over the last 30 days (read in the SQL editor).
+create or replace view cvmax_private.edit_acceptance as
+  select section, priority, count(*) as edits,
+         round(100.0 * avg(case when accepted then 1 else 0 end), 1) as accepted_pct
+    from public.cvmax_edit_feedback
+   where created_at > now() - interval '30 days'
+   group by section, priority
+   order by edits desc;
+
 create or replace function public.cvmax_delete_my_data(p_token text, p_email text)
 returns void language plpgsql security definer set search_path = '' as $$
 begin
   perform cvmax_private.check_token(p_token);
   delete from public.cvmax_usage where user_key = lower(p_email);
+  delete from public.cvmax_edit_feedback where user_key = lower(p_email);
   delete from public.cvmax_users where email = lower(p_email);
 end $$;
 
@@ -166,7 +215,8 @@ begin
     'public.cvmax_save_result(text, text, text, text, jsonb)',
     'public.cvmax_list_results(text, text, int)',
     'public.cvmax_get_result(text, text, uuid)',
-    'public.cvmax_delete_my_data(text, text)'
+    'public.cvmax_delete_my_data(text, text)',
+    'public.cvmax_log_edit_feedback(text, text, text, text, text, jsonb)'
   ] loop
     execute format('revoke all on function %s from public, authenticated', f);
     execute format('grant execute on function %s to anon', f);

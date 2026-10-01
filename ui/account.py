@@ -22,6 +22,7 @@ LIMIT_NAMES = {
     "career": "пошуків напрямів",
     "grill": "сесій Grill me",
     "builder": "збирань CV",
+    "export": "оформлень CV",
 }
 
 
@@ -139,3 +140,13 @@ def save_result(kind: str, title: str, payload: dict) -> None:
     except DBError as e:
         log.warning("save_result failed: %s", e)
         st.toast("Не вдалося зберегти результат, але він є на цій сторінці.")
+
+
+def log_edit_feedback(analysis_id: str, target_role: str, program: str, items: list[dict]) -> None:
+    """Зберігає, які правки прийнято. Помилка тут не повинна заважати юзеру завантажити CV."""
+    if not items or not get_db().persistent:
+        return
+    try:
+        get_db().log_edit_feedback(_user_key(), analysis_id, target_role, program, items)
+    except DBError as e:
+        log.warning("log_edit_feedback failed: %s", e)

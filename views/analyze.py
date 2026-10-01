@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+import uuid
+
 import streamlit as st
 
 from cvmax import config
 from cvmax.analyze import analyze_cv
-from cvmax.edits import apply_edits, changes_markdown, text_to_docx, unverified_terms
+from cvmax.cv_render import has_placeholders, render_docx, render_pdf
+from cvmax.edits import apply_edits, changes_markdown, unverified_terms
 from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
 from cvmax.profile import COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
-from ui.account import profile_value, require_login, save_result, take_limit
+from cvmax.structure import changed_bullets, structure_cv
+from ui.account import log_edit_feedback, profile_value, require_login, save_result, take_limit
 from ui.common import consent, cv_picker, demo_banner, get_llm
 
 PRIORITY_LABEL = {"high": "🔴 важливо", "medium": "🟡 бажано", "low": "⚪ дрібниця"}
@@ -27,6 +31,7 @@ def state():
     s.setdefault("profile", None)
     s.setdefault("grill", None)
     s.setdefault("grill_result", None)
+    s.setdefault("analysis_id", "")
     return s
 
 
@@ -35,6 +40,27 @@ def all_edits(s):
     if s.grill_result:
         edits += list(s.grill_result.edits)
     return edits
+
+
+def edit_sources(s) -> list[str]:
+    n_analysis = len(s.analysis.edits) if s.analysis else 0
+    n_grill = len(s.grill_result.edits) if s.grill_result else 0
+    return ["analysis"] * n_analysis + ["grill"] * n_grill
+
+
+def send_feedback(s) -> None:
+    """Один раз на аналіз (і ще раз, якщо змінився вибір): які правки прийнято, а які ні."""
+    edits = all_edits(s)
+    items = [
+        {"source": src, "section": e.section, "priority": e.priority, "before": e.before, "after": e.after,
+         "accepted": bool(st.session_state.get(f"accept_{i}"))}
+        for i, (e, src) in enumerate(zip(edits, edit_sources(s)))
+    ]
+    signature = tuple(x["accepted"] for x in items)
+    if s.get("feedback_sent") == signature:
+        return
+    s["feedback_sent"] = signature
+    log_edit_feedback(s.analysis_id, s.profile.target_role, s.profile.program, items)
 
 
 # ---------- Шапка ----------
@@ -111,6 +137,9 @@ if st.button("Проаналізувати CV", type="primary", disabled=not can
         with st.spinner("Аналізую CV, це займає до хвилини..."):
             s.analysis = analyze_cv(get_client(), profile, cv)
         s.cv, s.profile = cv, profile
+        s.analysis_id = uuid.uuid4().hex
+        s.pop("feedback_sent", None)
+        s.pop("formatted_cv", None)
         save_result("analysis", f"{target_role} · {s.analysis.overall_score}/100",
                     {"role": target_role, "company_type": company_type, "analysis": s.analysis.model_dump()})
         s.grill, s.grill_result = None, None
@@ -251,20 +280,53 @@ with tab_export:
         st.info("Спершу прийми хоча б одну правку у вкладці «Правки».")
     elif not s.cv.text.strip():
         st.warning("З цього PDF не вдалося витягти текст (схоже на скан). Бери правки зі списку нижче.")
-        st.download_button("Завантажити список правок (.md)", changes_markdown(accepted), "cvmax_changes.md")
+        st.download_button("Завантажити список правок (.md)", changes_markdown(accepted), "cvmax_changes.md",
+                           on_click=send_feedback, args=(s,))
     else:
         report = apply_edits(s.cv.text, accepted)
-        st.caption(
-            "Це текстова версія CV з твоїми правками. Перенеси її у свій шаблон, "
-            "бо оформлення оригіналу тут не зберігається."
-        )
-        st.text_area("CV з правками", report.text, height=400)
         if report.not_found:
             st.warning(
                 f"{len(report.not_found)} правок не вдалося знайти в тексті автоматично. "
                 "Внеси їх вручну, вони є у списку правок."
             )
-        c1, c2, c3 = st.columns(3)
-        c1.download_button("CV (.docx)", text_to_docx(report.text), "cv_cvmax.docx")
-        c2.download_button("CV (.txt)", report.text, "cv_cvmax.txt")
-        c3.download_button("Список правок (.md)", changes_markdown(accepted), "cvmax_changes.md")
+        with st.expander("Текст CV з правками", expanded=False):
+            text = st.text_area("Можна підправити перед оформленням", report.text, height=400,
+                                key=f"export_text_{hash(report.text)}")
+
+        st.subheader("Оформлене CV")
+        st.caption("Один шаблон, перевірений рекрутерами: шрифт без засічок, чіткі розділи, дати праворуч.")
+        formatted = s.get("formatted_cv")
+        if formatted is None or formatted[0] != text:
+            if st.button("Оформити CV (PDF і DOCX)", type="primary") and take_limit("export"):
+                try:
+                    with st.spinner("Розкладаю CV по розділах..."):
+                        s["formatted_cv"] = (text, structure_cv(get_client(), text))
+                    send_feedback(s)
+                    st.rerun()
+                except LLMError as e:
+                    st.error(str(e))
+        else:
+            built = formatted[1]
+            changed = changed_bullets(text, built)
+            if changed:
+                st.warning(
+                    "Ці пункти в оформленому CV відрізняються від твого тексту. Перевір їх перед відправкою:\n\n"
+                    + "\n".join(f"- {b}" for b in changed)
+                )
+            holes = has_placeholders(built)
+            if holes:
+                st.warning("Заміни або прибери заповнювачі в цих рядках:\n\n" + "\n".join(f"- {h}" for h in holes))
+            pdf = render_pdf(built)
+            name = built.full_name.replace(" ", "_") or "cv"
+            c1, c2 = st.columns(2)
+            c1.download_button("Завантажити PDF", pdf, f"{name}_CV.pdf", mime="application/pdf",
+                               type="primary", on_click=send_feedback, args=(s,))
+            c2.download_button("Завантажити DOCX", render_docx(built), f"{name}_CV.docx",
+                               on_click=send_feedback, args=(s,))
+            st.caption("DOCX можна відкрити у Word або Google Docs, якщо хочеш щось змінити вручну.")
+
+        st.divider()
+        c1, c2 = st.columns(2)
+        c1.download_button("Текст CV (.txt)", text, "cv_cvmax.txt", on_click=send_feedback, args=(s,))
+        c2.download_button("Список правок (.md)", changes_markdown(accepted), "cvmax_changes.md",
+                           on_click=send_feedback, args=(s,))

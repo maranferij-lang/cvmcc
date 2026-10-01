@@ -6,15 +6,19 @@
 
 Запуск:  python evals/run_evals.py                 # evals/cases + evals/private
          python evals/run_evals.py шлях/до/кейсів   # інша папка
+         python evals/run_evals.py --runs 3         # кожен кейс 3 рази, щоб бачити розкид
+         CVMAX_PROVIDER=claude python evals/run_evals.py   # те саме на Claude (потрібен ANTHROPIC_API_KEY)
 
 Справжні CV клади тільки в evals/private/ (ця папка не потрапляє в git).
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import time
+from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,7 +61,11 @@ def check(expect: dict, analysis) -> tuple[bool, str]:
 
 
 def main() -> int:
-    dirs = [Path(a) for a in sys.argv[1:]] or [ROOT / "evals" / "cases", ROOT / "evals" / "private"]
+    parser = argparse.ArgumentParser(description="Перевірка якості аналізу CV")
+    parser.add_argument("dirs", nargs="*", type=Path, help="папки з кейсами")
+    parser.add_argument("--runs", type=int, default=1, help="скільки разів проганяти кожен кейс")
+    args = parser.parse_args()
+    dirs = args.dirs or [ROOT / "evals" / "cases", ROOT / "evals" / "private"]
     cases = [p for d in dirs if d.exists() for p in sorted(d.glob("*.json"))]
     if not cases:
         print("Кейсів не знайдено.")
@@ -66,24 +74,37 @@ def main() -> int:
     if llm is None:
         print("Потрібен GEMINI_API_KEY або ANTHROPIC_API_KEY.")
         return 1
-    total = passed = 0
-    for path in cases:
-        case = json.loads(path.read_text(encoding="utf-8"))
-        cv = load_case_cv(path.parent / case["cv_file"])
-        started = time.time()
-        try:
-            analysis = analyze_cv(llm, Profile(**case["profile"]), cv)
-        except LLMError as e:
-            print(f"[{path.stem}] ПОМИЛКА МОДЕЛІ: {e}")
-            continue
-        print(f"\n[{path.stem}] {case.get('name', '')} ({time.time() - started:.0f} с, оцінка {analysis.overall_score})")
-        for expect in case["expect"]:
-            ok, detail = check(expect, analysis)
-            total += 1
-            passed += ok
-            print(f"  {'OK  ' if ok else 'FAIL'} {expect['id']}: {expect.get('description', '')}")
-            if not ok:
-                print(f"       {detail}")
+    print(f"Модель: {type(llm).__name__}, прогонів на кейс: {args.runs}")
+    # (кейс, перевірка) -> скільки прогонів пройшло
+    results: dict[tuple[str, str], list[bool]] = defaultdict(list)
+    descriptions: dict[tuple[str, str], str] = {}
+    for run in range(1, args.runs + 1):
+        for path in cases:
+            case = json.loads(path.read_text(encoding="utf-8"))
+            cv = load_case_cv(path.parent / case["cv_file"])
+            started = time.time()
+            try:
+                analysis = analyze_cv(llm, Profile(**case["profile"]), cv)
+            except LLMError as e:
+                print(f"[{path.stem}] ПОМИЛКА МОДЕЛІ: {e}")
+                continue
+            label = f"[{path.stem}]" + (f" прогін {run}" if args.runs > 1 else "")
+            print(f"\n{label} {case.get('name', '')} ({time.time() - started:.0f} с, оцінка {analysis.overall_score})")
+            for expect in case["expect"]:
+                ok, detail = check(expect, analysis)
+                key = (path.stem, expect["id"])
+                results[key].append(ok)
+                descriptions[key] = expect.get("description", "")
+                print(f"  {'OK  ' if ok else 'FAIL'} {expect['id']}: {descriptions[key]}")
+                if not ok:
+                    print(f"       {detail}")
+    total = sum(len(v) for v in results.values())
+    passed = sum(sum(v) for v in results.values())
+    if args.runs > 1:
+        print("\nСтабільність (скільки прогонів пройшло):")
+        for (case_id, check_id), oks in sorted(results.items(), key=lambda kv: sum(kv[1]) / len(kv[1])):
+            mark = "  " if all(oks) else "!!"
+            print(f"  {mark} {sum(oks)}/{len(oks)}  {case_id}/{check_id}: {descriptions[(case_id, check_id)]}")
     print(f"\nРазом: {passed}/{total}")
     return 0 if passed == total else 2
 

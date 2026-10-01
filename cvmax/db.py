@@ -69,6 +69,12 @@ class SupabaseDB:
     def delete_my_data(self, email: str) -> None:
         self._rpc("cvmax_delete_my_data", p_email=email)
 
+    def log_edit_feedback(self, user_key: str, analysis_id: str, target_role: str, program: str,
+                          items: list[dict]) -> int:
+        """Які правки юзер прийняв, а які ні. items: source, section, priority, before, after, accepted."""
+        return self._rpc("cvmax_log_edit_feedback", p_user_key=user_key, p_analysis_id=analysis_id,
+                         p_target_role=target_role, p_program=program, p_items=items) or 0
+
 
 class MemoryDB:
     """Запасний варіант без Supabase: ліміти в пам'яті процесу, нічого не зберігається надовго."""
@@ -110,3 +116,7 @@ class MemoryDB:
 
     def delete_my_data(self, email: str) -> None:
         self._users.pop(email.lower(), None)
+
+    def log_edit_feedback(self, user_key: str, analysis_id: str, target_role: str, program: str,
+                          items: list[dict]) -> int:
+        return 0
