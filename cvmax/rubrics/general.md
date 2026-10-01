@@ -49,13 +49,20 @@ would value it. Flag for cutting or shortening:
   exam, credit transfers, exemptions, "granted advanced credit". To a recruiter this reads as showing off
   and says little about job performance. Keep only if the target is academic or quantitative research
   and the fact is rare, and then at most half a line.
+  Not the same as a rank or percentile against other people ("Ranked 1st of admitted students",
+  "national exam top 3%", "2nd of 65 teams"): those compare the candidate with peers and are strong signal.
+- Generic interests ("Gym", "Travel"), unless they start a conversation relevant to the role. An interest
+  with a distinctive achievement ("Speedcubing, national champion") is worth keeping: it is memorable.
 - Coursework lists that are long, generic or unrelated to the target. Keep 2-4 courses that map directly
   to the role, or none.
-- Generic interests ("Gym", "Travel"), unless they start a conversation relevant to the role.
 - Bullets that describe content or topics instead of the candidate's contribution
-  ("Recent episodes cover X, Y, Z").
+  ("Recent episodes cover X, Y, Z", "Our posts covered..."). Such a bullet is never a keep for any target:
+  cut it. Do not invent an action ("researched the sectors") to keep the topics on the page.
 - Counts that do not show impact or scale for this target (e.g. episode counts for a non-media role).
 - Anything that repeats information already given elsewhere on the page.
+- Typos: a recruiter reads them as carelessness. Judge spelling from the rendered document, not from
+  extracted text: PDF text extraction often inserts spaces inside words that look fine on the page.
+A signed offer listed as "Incoming <role>, <start date>" is a strong signal and stays.
 - Skills listed without evidence anywhere in the CV.
 Education for students: university, degree, dates, GPA with scale, and at most one line of relevant
 coursework or honours. Longer education sections are justified only for research roles.

@@ -14,6 +14,23 @@ What recruiters look for:
 - Finance: technical skills (modelling, valuation), markets knowledge, finance club involvement;
   2-4 major entries with specifics and results (Mergers & Inquisitions).
 
+What a strong private equity / M&A student CV looks like (patterns from a real CV of a student who was
+hired in private equity; no personal details kept):
+- Every bullet is written in deal language with scale: due diligence, LOI, IOI, CIM, EV/EBITDA multiples,
+  "screened 4,000+ companies down to 700 targets", "evaluated 15 CIMs".
+- A "Selected Transaction Experience" block under a role: one sub-entry per deal with sector and revenue
+  size, then what was analysed (recurring revenue share, customer concentration, backlog, returns) and the
+  conclusion or concern raised. This shows judgment, not only tasks.
+- Case competitions with placement out of N teams and the quantified recommendation (EBITDA uplift,
+  multiple rerating, NPV, IRR, payback).
+- Education with rank and percentile, not process details.
+- Certifications that map to the work (FMVA, Bloomberg Market Concepts, modelling courses) and a
+  Technical line of methods (LBO, DCF, comparable companies, precedent transactions), not software lists.
+- A signed incoming role at the top of Experience.
+For finance targets, Grill me should ask whether the candidate has ever valued a company, built a model,
+written a stock pitch or investment memo, screened companies, or taken part in an investment club or case
+competition, even informally.
+
 Common mistakes (Bain and BCG recruiters): irrelevant information; key facts hard to find;
 responsibilities instead of achievements; being too general; unsupported self-descriptions; buzzwords;
 weak verbs ("supported", "responsible for", "assisted"). For banking: more than one page, tiny margins

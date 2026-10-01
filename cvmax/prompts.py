@@ -60,12 +60,25 @@ Produce a full review:
   disappeared, would a recruiter hiring for this exact target miss it? Does it raise their opinion, or
   does it take space, look like filler, or read as showing off?" Then give a verdict:
   keep, cut, shorten, rewrite or move, with a one-sentence reason. Be as willing to cut as to rewrite:
-  removing a weak line is often the most valuable edit. Judge relevance to this target, not in general.
+  removing a weak line is often the most valuable edit. Judge relevance to this target, not in general:
+  the same line can be a keep for one target and a cut for another. Do not strip the page bare either:
+  when the CV has little that is directly relevant, keep the strongest transferable items
+  (communication, ownership, measurable results) and say so in the reason.
+  Follow the <length> note: if the CV is over one page, the cuts must add up to what it asks for.
+  Check every line against the rest of the page: a line that repeats information given in another line
+  (the same sectors, the same numbers, the same project) is a cut, even if the information is relevant.
+  For every bullet under experience or projects, a keep requires an action the candidate performed in
+  that very line (built, led, analysed, sourced...). Start the reason of a keep with that action. A bullet
+  that only lists topics or content, with no action of the candidate, cannot be a keep: cut it.
+  Never invent an action ("researched", "analysed") to save such a line.
 - edits: concrete changes, most important first, at most 15. Every cut, shorten, rewrite or move verdict
   in line_review must have a matching edit (a cut has an empty "after"). Do not rewrite strong bullets
   just to add keywords: a bullet that already has a concrete action, a specific finding or a measurable
   result should get keep. A rewrite must keep every concrete fact, number and finding of the original;
-  never replace a specific finding with a generic phrase. "before" must be copied exactly from the CV,
+  never replace a specific finding with a generic phrase. A rewrite may change wording and emphasis for
+  the target, but never what the candidate actually did: sourcing podcast guests is not "analysing
+  industries", running social media is not "managing stakeholders". If the real activity does not fit the
+  target, say so in the reason instead of disguising it. "before" must be copied exactly from the CV,
   character for character, so the app can find it. Leave "before" empty for a new item and set "section"
   to where it goes. Leave "after" empty for an item to remove. One edit per bullet or line.
 - gaps: things to learn or do outside the CV (skills, certificates, projects, language tests) that would
@@ -78,6 +91,16 @@ def grill_system(profile: Profile, max_questions: int) -> str:
     return _base(profile) + f"""
 
 You are running "Grill me" mode: an interview that pulls out experience the CV undersells or omits.
+There are two kinds of questions, and each turn tells you which one to ask:
+- discover: a broad question that surfaces experience, projects or skills the CV does not mention at all
+  but that recruiters for this target value (see "What recruiters look for" in the rubric). People often
+  leave out things they do not think count. Name concrete examples so it is easy to recognise, e.g. for
+  finance: "Have you ever valued a company, built a financial model or written a stock pitch, even for
+  a class, a club or yourself?"; for AI: "Have you built anything with an AI model that other people used,
+  even a small bot?"
+- deepen: a question that adds numbers, scale or results to an item already on the CV.
+The examples above are in English only for illustration: always ask in {profile.feedback_language}.
+Set kind to the kind you asked.
 Ask exactly one question per turn, about one thing, in at most two short sentences.
 No greeting, praise, recap or preamble: just the question. Target the gaps that would most improve the CV for this target:
 missing numbers and results, unclear responsibilities, projects without outcomes, hidden experience
@@ -104,6 +127,9 @@ Turn what they said into CV improvements:
   numbers, clients). If a bullet would get too long, propose a second bullet instead of cutting.
 - Plans, applications and intentions are not achievements. Never write that the candidate was selected,
   accepted, won or completed something they only applied for or plan to do; such items usually do not
-  belong on the CV yet. Mention them in new_facts only.
+  belong on the CV yet. Mention them in new_facts only. A signed offer is different: it can be listed as
+  "Incoming <role>" with the start date.
+- New items found through discover questions are the most valuable output: turn each into a full CV entry
+  (title, organisation, dates, 1-3 bullets) with an empty "before".
 - Do not attribute tools to a system unless the candidate said the system uses them; if they only said
   they built it "with" a tool, say so plainly or ask in the reason."""

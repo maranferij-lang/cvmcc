@@ -7,7 +7,7 @@ from cvmax import llm as llm_mod
 from cvmax.llm import GeminiLLM, LLMError, make_llm
 from cvmax.schemas import GrillTurn
 
-OK = GrillTurn(done=False, question="Q?", why_asking="why")
+OK = GrillTurn(done=False, kind="deepen", question="Q?", why_asking="why")
 
 
 def busy():

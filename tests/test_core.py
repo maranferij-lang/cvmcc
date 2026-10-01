@@ -169,3 +169,22 @@ def test_apply_edits_tolerates_small_quote_mistakes():
     unrelated = Edit(section="X", before="Completely different sentence about something else entirely",
                      after="y", reason="r", priority="low")
     assert apply_edits(text, [unrelated]).not_found == [unrelated]
+
+
+def test_length_note_asks_for_cuts_only_when_over_one_page():
+    from cvmax.analyze import length_note
+    from cvmax.cv_input import CVFile
+    short = CVFile("a.txt", "word " * 300)
+    long = CVFile("b.txt", "word " * 900)
+    two_pages = CVFile("c.pdf", "word " * 500, pages=2)
+    assert "fits on one page" in length_note(short)
+    assert "ONE page" in length_note(long) and "300 words" in length_note(long)
+    assert "ONE page" in length_note(two_pages)
+    assert length_note(CVFile("scan.pdf", "")) == ""
+
+
+def test_grill_alternates_discover_and_deepen():
+    from cvmax.grill import QA, GrillSession, next_question_instruction
+    assert "DISCOVER" in next_question_instruction(GrillSession())
+    one = GrillSession(turns=[QA("q", "", "a")])
+    assert "DEEPEN" in next_question_instruction(one)

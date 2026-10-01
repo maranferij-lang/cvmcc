@@ -33,9 +33,9 @@ class _Messages:
             asked = sum(1 for c in self.owner.calls if c["output_format"] is GrillTurn) - 1
             if asked < len(DEMO_QUESTIONS):
                 q, why = DEMO_QUESTIONS[asked]
-                out = GrillTurn(done=False, question=q, why_asking=why)
+                out = GrillTurn(done=False, kind="deepen", question=q, why_asking=why)
             else:
-                out = GrillTurn(done=True, question="", why_asking="")
+                out = GrillTurn(done=True, kind="deepen", question="", why_asking="")
         elif fmt is GrillResult:
             out = GrillResult(
                 new_facts=["Organised 6 events for 300+ students as Student Council member."],

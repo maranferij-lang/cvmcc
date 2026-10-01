@@ -54,6 +54,7 @@ class Analysis(BaseModel):
 
 class GrillTurn(BaseModel):
     done: bool
+    kind: Literal["discover", "deepen"]
     question: str
     why_asking: str
 

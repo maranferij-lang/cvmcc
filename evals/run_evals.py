@@ -41,6 +41,12 @@ def check(expect: dict, analysis) -> tuple[bool, str]:
 
     reviewed = [v for v in analysis.line_review if hits(v.line)]
     edited = [e for e in analysis.edits if hits(e.before)]
+    forbidden = [w.lower() for w in expect.get("after_must_not_contain", [])]
+    bad = [e.after for e in edited if any(w in e.after.lower() for w in forbidden)]
+    if bad:
+        return False, f"заборонене формулювання в правці: {bad[0][:80]}"
+    if wanted == {"any"}:  # кейс перевіряє лише заборонені формулювання
+        return True, "ok"
     if "keep" in wanted:
         touched = [v.verdict for v in reviewed if v.verdict != "keep"] + ["edit"] * len(edited)
         return (not touched, f"verdicts={[v.verdict for v in reviewed]} edits={len(edited)}")

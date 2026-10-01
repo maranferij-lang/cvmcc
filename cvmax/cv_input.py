@@ -19,6 +19,11 @@ class CVFile:
     filename: str
     text: str  # Витягнутий текст: для застосування правок і для Grill me.
     pdf_bytes: bytes | None = None  # Оригінал PDF, щоб модель бачила й верстку.
+    pages: int | None = None  # Для PDF: кількість сторінок.
+
+    @property
+    def word_count(self) -> int:
+        return len(self.text.split())
 
     def as_content_blocks(self) -> list[dict]:
         """CV у форматі блоків для запиту до Claude."""
@@ -37,10 +42,11 @@ class CVFile:
         return [{"type": "text", "text": f"<cv filename=\"{self.filename}\">\n{self.text}\n</cv>"}]
 
 
-def _pdf_text(data: bytes) -> str:
+def _pdf_text(data: bytes) -> tuple[str, int]:
     try:
         reader = PdfReader(io.BytesIO(data))
-        return "\n".join((page.extract_text() or "") for page in reader.pages).strip()
+        text = "\n".join((page.extract_text() or "") for page in reader.pages).strip()
+        return text, len(reader.pages)
     except Exception as e:  # pypdf кидає різні типи помилок на битих файлах
         raise CVReadError("Не вдалося прочитати PDF. Можливо, файл пошкоджений.") from e
 
@@ -63,9 +69,9 @@ def _docx_text(data: bytes) -> str:
 def load_cv(filename: str, data: bytes) -> CVFile:
     name = filename.lower()
     if name.endswith(".pdf"):
-        text = _pdf_text(data)
+        text, pages = _pdf_text(data)
         # Скановані PDF не мають тексту, але модель усе одно прочитає їх як картинку.
-        return CVFile(filename=filename, text=text, pdf_bytes=data)
+        return CVFile(filename=filename, text=text, pdf_bytes=data, pages=pages)
     if name.endswith(".docx"):
         text = _docx_text(data)
         if not text:

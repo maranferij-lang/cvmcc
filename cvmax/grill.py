@@ -80,6 +80,11 @@ def next_question_instruction(session: GrillSession) -> str:
     """Інструкція на кожен хід. Список уже обговорених пунктів тут, а не лише в системному промпті:
     менші моделі так краще не повертаються до тієї самої теми."""
     lines = [f"Questions asked so far: {len(session.turns)} of {session.max_questions}."]
+    # Питання чергуються: знайти нове (парні ходи) і уточнити наявне (непарні).
+    if len(session.turns) % 2 == 0:
+        lines.append("This turn: ask a DISCOVER question about something the CV does not mention yet.")
+    else:
+        lines.append("This turn: ask a DEEPEN question that adds numbers or results to an item on the CV.")
     if session.turns:
         lines.append(
             "These CV items are already covered. Do NOT ask about any of them again, in any form, "
