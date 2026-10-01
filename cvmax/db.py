@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import logging
 import threading
 from collections import defaultdict
 from datetime import datetime
@@ -14,6 +15,8 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 import requests
+
+log = logging.getLogger("cvmax")
 
 
 class DBError(RuntimeError):
@@ -41,9 +44,12 @@ class SupabaseDB:
             r = self.http.post(self.base + name, json={"p_token": self.token, **params},
                                headers=self.headers, timeout=self.timeout)
         except requests.RequestException as e:
-            raise DBError("Немає зв'язку з базою даних.") from e
+            log.warning("supabase %s: %s", name, type(e).__name__)
+            raise DBError("Немає зв'язку з базою даних. Спробуй трохи пізніше.") from e
         if r.status_code >= 400:
-            raise DBError(f"База даних відповіла помилкою {r.status_code}: {r.text[:200]}")
+            # Деталі тільки в журнал сервера: юзеру вони не потрібні і можуть розкрити будову бази.
+            log.warning("supabase %s -> %s: %s", name, r.status_code, r.text[:200])
+            raise DBError("База даних тимчасово недоступна. Спробуй трохи пізніше.")
         return r.json() if r.content else None
 
     def touch_user(self, email: str, name: str | None) -> dict:

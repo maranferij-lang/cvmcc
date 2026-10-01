@@ -6,6 +6,7 @@ gatherUsageStats = false
 
 [client]
 toolbarMode = "minimal"
+showErrorDetails = "none"
 
 [theme]
 base = "light"

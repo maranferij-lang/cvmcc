@@ -5,6 +5,7 @@ import streamlit as st
 from cvmax.cv_render import render_docx, render_markdown, render_pdf
 from cvmax.db import DBError
 from cvmax.profile import PROGRAMS, STATUSES
+from cvmax.safe_text import md_escape
 from cvmax.schemas import Analysis, BuiltCV, CareerMatch
 from ui.account import current_email, get_db, save_profile, user_row
 
@@ -29,24 +30,28 @@ with tab_history:
         if not items:
             st.write("Тут з'являться твої аналізи, напрями і зібрані CV.")
         for item in items:
-            label = f"{KIND_LABEL.get(item['kind'], item['kind'])} · {item['title']} · {item['created_at'][:10]}"
+            label = f"{KIND_LABEL.get(item['kind'], item['kind'])} · {md_escape(item['title'])} · {item['created_at'][:10]}"
             with st.expander(label):
                 if not st.toggle("Показати", key=f"show_{item['id']}"):
                     continue
-                full = get_db().get_result(email, item["id"]) or {}
+                try:
+                    full = get_db().get_result(email, item["id"]) or {}
+                except DBError as e:
+                    st.error(str(e))
+                    continue
                 payload = full.get("payload") or {}
                 if item["kind"] == "analysis" and "analysis" in payload:
                     payload["analysis"].setdefault("line_review", [])  # старі результати без перевірки рядків
                     a = Analysis.model_validate(payload["analysis"])
                     st.metric("Готовність CV", f"{a.overall_score}/100")
-                    st.write(a.summary)
+                    st.markdown(md_escape(a.summary))
                     for e in a.edits:
-                        st.markdown(f"- **{e.section}:** {e.after or '(прибрати)'}")
+                        st.markdown(f"- **{md_escape(e.section)}:** {md_escape(e.after) or '(прибрати)'}")
                 elif item["kind"] == "career" and "career" in payload:
                     c = CareerMatch.model_validate(payload["career"])
-                    st.write(c.general_advice)
+                    st.markdown(md_escape(c.general_advice))
                     for d in c.directions:
-                        st.markdown(f"- **{d.role}** ({d.company_type}): {d.fit_score}%")
+                        st.markdown(f"- **{md_escape(d.role)}** ({md_escape(d.company_type)}): {d.fit_score}%")
                 elif item["kind"] == "builder" and "cv" in payload:
                     cv = BuiltCV.model_validate(payload["cv"])
                     st.markdown(render_markdown(cv))
@@ -63,8 +68,8 @@ with tab_profile:
                                index=programs.index(row["program"]) if row.get("program") in programs else 0)
         status = st.selectbox("Статус", STATUSES,
                               index=STATUSES.index(row["status"]) if row.get("status") in STATUSES else 0)
-        background = st.text_area("Твій досвід коротко", value=row.get("background") or "", height=80)
-        goal = st.text_input("Чого хочеш досягти?", value=row.get("goal") or "")
+        background = st.text_area("Твій досвід коротко", max_chars=1500, value=row.get("background") or "", height=80)
+        goal = st.text_input("Чого хочеш досягти?", max_chars=300, value=row.get("goal") or "")
         if st.form_submit_button("Зберегти", type="primary"):
             try:
                 save_profile(program, status, background, goal)

@@ -50,5 +50,6 @@ LIMITS = {
     "career": (3, 40),
     "grill": (3, 30),
     "builder": (2, 20),
+    "build": (4, 30),
     "export": (5, 30),
 }

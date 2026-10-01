@@ -10,6 +10,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
 
+from .safe_text import md_escape
 from .schemas import BuiltCV, CVEntry
 
 FONTS_DIR = __import__("pathlib").Path(__file__).resolve().parents[1] / "assets" / "fonts"
@@ -157,37 +158,40 @@ def render_docx(cv: BuiltCV) -> bytes:
 
 
 def render_markdown(cv: BuiltCV) -> str:
-    out = [f"## {cv.full_name}", " | ".join(cv.contact_line), ""]
+    """CV як Markdown для показу на сайті. Усі поля екрановані: це текст від моделі."""
+    m = md_escape
+    out = [f"## {m(cv.full_name)}", " \\| ".join(m(c) for c in cv.contact_line), ""]
     if cv.summary.strip():
-        out += [cv.summary.strip(), ""]
+        out += [m(cv.summary.strip()), ""]
 
     def entries(title: str, items: list[CVEntry]) -> None:
         if not items:
             return
         out.append(f"#### {title.upper()}")
         for e in items:
-            out.append(f"**{e.title}**, {e.organization}{', ' + e.location if e.location else ''} · _{e.dates}_")
-            out.extend(f"- {b}" for b in e.bullets)
+            place = f", {m(e.location)}" if e.location else ""
+            out.append(f"**{m(e.title)}**, {m(e.organization)}{place} · _{m(e.dates)}_")
+            out.extend(f"- {m(b)}" for b in e.bullets)
             out.append("")
 
     if cv.education:
         out.append("#### EDUCATION")
         for ed in cv.education:
-            out.append(f"**{ed.institution}**, {ed.degree} · _{ed.dates}_")
-            out.extend(f"- {d}" for d in ed.details)
+            out.append(f"**{m(ed.institution)}**, {m(ed.degree)} · _{m(ed.dates)}_")
+            out.extend(f"- {m(d)}" for d in ed.details)
             out.append("")
     entries("Experience", cv.experience)
     entries("Projects", cv.projects)
     entries("Leadership & Activities", cv.activities)
     if cv.skills or cv.languages:
         out.append("#### ADDITIONAL INFORMATION")
-        out.extend(f"- **{g.category}:** {', '.join(g.items)}" for g in cv.skills)
+        out.extend(f"- **{m(g.category)}:** {', '.join(m(i) for i in g.items)}" for g in cv.skills)
         if cv.languages:
-            out.append(f"- **Languages:** {'; '.join(cv.languages)}")
+            out.append(f"- **Languages:** {'; '.join(m(x) for x in cv.languages)}")
         out.append("")
     if cv.awards:
         out.append("#### AWARDS")
-        out.extend(f"- {a}" for a in cv.awards)
+        out.extend(f"- {m(a)}" for a in cv.awards)
     return "\n".join(out)
 
 

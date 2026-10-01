@@ -85,3 +85,44 @@ def test_log_edit_feedback_rpc_payload():
     assert body == {"p_token": "tok", "p_user_key": "a@b.c", "p_analysis_id": "an1",
                     "p_target_role": "BA", "p_program": "econ", "p_items": items}
     assert MemoryDB().log_edit_feedback("a@b.c", "an1", "BA", "econ", items) == 0
+
+
+def test_docx_zip_bomb_rejected_fast():
+    import time
+    import zipfile
+
+    import pytest
+
+    from cvmax.cv_input import CVReadError, load_cv
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("word/document.xml", b"0" * (20 * 1024 * 1024))
+    started = time.time()
+    with pytest.raises(CVReadError):
+        load_cv("bomb.docx", buf.getvalue())
+    assert time.time() - started < 5
+
+
+def test_pdf_with_too_many_pages_rejected():
+    import pytest
+    from fpdf import FPDF
+
+    from cvmax.cv_input import CVReadError, load_cv
+
+    pdf = FPDF()
+    pdf.set_font("Helvetica", size=12)
+    for i in range(8):
+        pdf.add_page()
+        pdf.cell(text=f"Page {i}")
+    with pytest.raises(CVReadError, match="8 сторінок"):
+        load_cv("long.pdf", bytes(pdf.output()))
+
+
+def test_broken_pdf_rejected():
+    import pytest
+
+    from cvmax.cv_input import CVReadError, load_cv
+
+    with pytest.raises(CVReadError):
+        load_cv("cv.pdf", b"%PDF-1.7 not really a pdf")

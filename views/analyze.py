@@ -13,6 +13,7 @@ from cvmax.edits import apply_edits, changes_markdown, unverified_terms
 from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
 from cvmax.profile import COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
+from cvmax.safe_text import md_escape
 from cvmax.structure import changed_bullets, structure_cv
 from ui.account import log_edit_feedback, profile_value, require_login, save_result, take_limit
 from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
@@ -93,22 +94,25 @@ with card("goal"):
     status = col2.selectbox("Статус", STATUSES, key="analyze_status")
     background = st.text_area(
         "Де ти зараз вчишся, працюєш або працював(-ла)?",
+        max_chars=1500,
         key="analyze_background",
         placeholder="Напр.: 3 курс, літнє стажування в продажах, волонтер у студраді",
         height=80,
     )
 
     st.subheader("Куди хочеш потрапити")
-    target_role = st.text_input("Роль", key="target_role", placeholder="Напр.: Business Analyst, Junior Data Analyst, UX Researcher")
+    target_role = st.text_input("Роль", key="target_role", max_chars=120, placeholder="Напр.: Business Analyst, Junior Data Analyst, UX Researcher")
     col1, col2 = st.columns(2)
     company_type = col1.selectbox("Тип компанії", COMPANY_TYPES, key="company_type")
     level = col2.selectbox("Рівень", LEVELS)
     company_details = st.text_input(
-        "Конкретна компанія або індустрія (необов'язково)", placeholder="Напр.: Monobank, McKinsey, EdTech-стартап"
+        "Конкретна компанія або індустрія (необов'язково)", placeholder="Напр.: Monobank, McKinsey, EdTech-стартап",
+        max_chars=200,
     )
     region = st.selectbox("Ринок", REGIONS)
     vacancy_text = st.text_area(
         "Текст вакансії (дуже бажано)",
+        max_chars=8000,
         placeholder="Встав сюди повний опис вакансії: обов'язки і вимоги. Це найбільше покращує поради.",
         height=160,
     )
@@ -164,13 +168,13 @@ tab_overview, tab_edits, tab_gaps, tab_grill, tab_export = st.tabs(
 
 with tab_overview:
     st.metric("Готовність CV під ціль", f"{a.overall_score}/100")
-    st.write(a.summary)
+    st.write(md_escape(a.summary))
     with st.expander("Як я зрозумів твою ціль (виправ у формі, якщо не так)"):
         for t in a.target_assumptions:
-            st.write(f"- {t}")
+            st.markdown(f"- {md_escape(t)}")
     st.subheader("Оцінки за критеріями")
     for c in a.scores:
-        st.write(f"**{c.criterion}**: {'●' * c.score}{'○' * (5 - c.score)}  {c.comment}")
+        st.markdown(f"**{md_escape(c.criterion)}**: {'●' * c.score}{'○' * (5 - c.score)}  {md_escape(c.comment)}")
     flagged = [v for v in a.line_review if v.verdict != "keep"]
     if a.line_review:
         st.subheader("Перевірка кожного рядка")
@@ -178,14 +182,14 @@ with tab_overview:
             f"Переглянуто {len(a.line_review)} рядків, до {len(flagged)} є зауваження. "
             "Відповідні правки у вкладці «Правки»."
         )
-        verdict_label = {"cut": "🗑 прибрати", "shorten": "✂️ скоротити", "rewrite": "✏️ переписати",
-                         "move": "↕️ перенести"}
+        verdict_label = {"cut": ":red-badge[Прибрати]", "shorten": ":orange-badge[Скоротити]",
+                         "rewrite": ":blue-badge[Переписати]", "move": ":violet-badge[Перенести]"}
         for v in flagged:
-            st.markdown(f"- **{verdict_label.get(v.verdict, v.verdict)}:** {v.line}  \n  {v.reason}")
+            st.markdown(f"- {verdict_label.get(v.verdict, v.verdict)} {md_escape(v.line)}  \n  {md_escape(v.reason)}")
     if a.strengths:
         st.subheader("Що вже добре")
         for x in a.strengths:
-            st.write(f"- {x}")
+            st.markdown(f"- {md_escape(x)}")
 
 def known_facts(s) -> str:
     """Усе, що юзер сам про себе сказав: CV, онбординг і відповіді в Grill me."""
@@ -202,15 +206,15 @@ with tab_edits:
     facts = known_facts(s)
     for i, e in enumerate(all_edits(s)):
         with card(f"edit-{i}"):
-            st.markdown(f"**{e.section}** · {PRIORITY_LABEL[e.priority]}")
+            st.markdown(f"**{md_escape(e.section)}** · {PRIORITY_LABEL[e.priority]}")
             c1, c2 = st.columns(2)
             with c1.container(key=f"before-{i}"):
                 st.caption("БУЛО")
-                st.write(e.before or "_(новий пункт)_")
+                st.markdown(md_escape(e.before) or "_(новий пункт)_")
             with c2.container(key=f"after-{i}"):
                 st.caption("СТАЛО")
-                st.write(e.after or "_(прибрати)_")
-            st.caption(e.reason)
+                st.markdown(md_escape(e.after) or "_(прибрати)_")
+            st.caption(md_escape(e.reason))
             flagged = unverified_terms(e.after, facts)
             if flagged:
                 st.warning(
@@ -223,9 +227,9 @@ with tab_gaps:
     st.caption("Що зробити поза CV, щоб сильно підняти шанси. Від найважливішого.")
     for j, g in enumerate(a.gaps):
         with card(f"gap-{j}"):
-            st.markdown(f"**{g.item}** · {PRIORITY_LABEL[g.impact]} · {g.time_estimate}")
-            st.write(g.why_it_matters)
-            st.write(f"**Як:** {g.how_to_close}")
+            st.markdown(f"**{md_escape(g.item)}** · {PRIORITY_LABEL[g.impact]} · {md_escape(g.time_estimate)}")
+            st.markdown(md_escape(g.why_it_matters))
+            st.markdown(f"**Як:** {md_escape(g.how_to_close)}")
 
 with tab_grill:
     st.caption(
@@ -247,14 +251,14 @@ with tab_grill:
             if g.finished and not t.answer:
                 continue
             with st.chat_message("assistant", avatar=BOT_AVATAR):
-                st.write(f"**{i}.** {t.question}")
-                st.caption(t.why_asking)
+                st.markdown(f"**{i}.** {md_escape(t.question)}")
+                st.caption(md_escape(t.why_asking))
             if t.answer:
                 with st.chat_message("user"):
-                    st.write(t.answer)
+                    st.markdown(md_escape(t.answer))
         if g.pending is not None:
             with st.form("grill_answer", clear_on_submit=True):
-                reply = st.text_area("Твоя відповідь")
+                reply = st.text_area("Твоя відповідь", max_chars=1500)
                 c1, c2 = st.columns(2)
                 send = c1.form_submit_button("Відповісти", type="primary")
                 skip = c2.form_submit_button("Пропустити")
@@ -294,7 +298,7 @@ with tab_export:
                 "Внеси їх вручну, вони є у списку правок."
             )
         with st.expander("Текст CV з правками", expanded=False):
-            text = st.text_area("Можна підправити перед оформленням", report.text, height=400,
+            text = st.text_area("Можна підправити перед оформленням", report.text, height=400, max_chars=40_000,
                                 key=f"export_text_{hash(report.text)}")
 
         st.subheader("Оформлене CV")

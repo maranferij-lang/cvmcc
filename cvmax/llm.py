@@ -218,8 +218,14 @@ def make_llm(gemini_key: str | None = None, anthropic_key: str | None = None) ->
     return None
 
 
+MAX_REQUEST_CHARS = 200_000  # промпт із рубриками ~15 тис. символів, CV до 40 тис., решта форми до 15 тис.
+
+
 def ask_structured(llm: Any, *, system: str, content: list[dict], output_model: Type[T], effort: str) -> T:
     """Надсилає один запит і повертає відповідь, перевірену за pydantic-схемою."""
+    size = len(system) + sum(len(b.get("text", "")) for b in content)
+    if size > MAX_REQUEST_CHARS:  # захист від гігантських запитів в обхід обмежень форми
+        raise LLMError("Запит завеликий. Скороти текст вакансії або відповіді й спробуй ще раз.")
     if not hasattr(llm, "ask"):
         # Сирий клієнт у стилі Anthropic SDK (напр. фейковий клієнт у демо й тестах).
         llm = ClaudeLLM(client=llm)

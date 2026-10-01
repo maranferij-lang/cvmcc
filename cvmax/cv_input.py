@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import base64
-import io
+import json
+import subprocess
+import sys
+import threading
 from dataclasses import dataclass
-
-from docx import Document
-from pypdf import PdfReader
+from pathlib import Path
 
 
 class CVReadError(ValueError):
@@ -42,28 +43,48 @@ class CVFile:
         return [{"type": "text", "text": f"<cv filename=\"{self.filename}\">\n{self.text}\n</cv>"}]
 
 
-def _pdf_text(data: bytes) -> tuple[str, int]:
+MAX_PAGES = 5  # CV студента: 1-2 сторінки. Більше майже завжди не CV.
+MAX_TEXT_CHARS = 40_000  # ~6000 слів, утричі більше за найдовше розумне CV.
+PARSE_TIMEOUT_S = 12
+ROOT = Path(__file__).resolve().parents[1]
+# Не більше двох розборів одночасно, щоб кілька важких файлів разом не забрали всю пам'ять сервера.
+_PARSE_SLOTS = threading.BoundedSemaphore(2)
+
+
+def _parse(kind: str, data: bytes) -> dict:
+    """Розбирає файл в окремому процесі з лімітом пам'яті й часу."""
+    label = kind.upper()
     try:
-        reader = PdfReader(io.BytesIO(data))
-        text = "\n".join((page.extract_text() or "") for page in reader.pages).strip()
-        return text, len(reader.pages)
-    except Exception as e:  # pypdf кидає різні типи помилок на битих файлах
-        raise CVReadError("Не вдалося прочитати PDF. Можливо, файл пошкоджений.") from e
+        with _PARSE_SLOTS:
+            proc = subprocess.run(
+                [sys.executable, "-m", "cvmax.parse_worker", kind, str(MAX_PAGES)],
+                input=data,
+                capture_output=True,
+                timeout=PARSE_TIMEOUT_S,
+                cwd=ROOT,
+            )
+        result = json.loads(proc.stdout or b"{}")
+    except (subprocess.TimeoutExpired, ValueError) as e:
+        raise CVReadError(f"Не вдалося прочитати {label}: файл завеликий або пошкоджений.") from e
+    error = result.get("error")
+    if error == "pages":
+        raise CVReadError(f"У файлі {result.get('pages')} сторінок. CV має бути на 1-2 сторінки, максимум {MAX_PAGES}.")
+    if error == "too_big":
+        raise CVReadError(f"Не вдалося прочитати {label}: файл завеликий або пошкоджений.")
+    if "text" not in result:  # битий файл або процес упав через ліміт пам'яті чи CPU
+        raise CVReadError(f"Не вдалося прочитати {label}. Можливо, файл пошкоджений.")
+    if len(result["text"]) > MAX_TEXT_CHARS:
+        raise CVReadError("У файлі забагато тексту для CV. Залиш тільки саме CV, без додатків.")
+    return result
+
+
+def _pdf_text(data: bytes) -> tuple[str, int]:
+    result = _parse("pdf", data)
+    return result["text"], result["pages"]
 
 
 def _docx_text(data: bytes) -> str:
-    try:
-        doc = Document(io.BytesIO(data))
-    except Exception as e:
-        raise CVReadError("Не вдалося прочитати DOCX. Можливо, файл пошкоджений.") from e
-    lines = [p.text for p in doc.paragraphs]
-    # Багато шаблонів CV тримають текст у таблицях.
-    for table in doc.tables:
-        for row in table.rows:
-            cells = [c.text.strip() for c in row.cells if c.text.strip()]
-            if cells:
-                lines.append(" | ".join(dict.fromkeys(cells)))
-    return "\n".join(lines).strip()
+    return _parse("docx", data)["text"]
 
 
 def load_cv(filename: str, data: bytes) -> CVFile:

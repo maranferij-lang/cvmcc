@@ -21,7 +21,8 @@ LIMIT_NAMES = {
     "analysis": "аналізів CV",
     "career": "пошуків напрямів",
     "grill": "сесій Grill me",
-    "builder": "збирань CV",
+    "builder": "інтерв'ю в конструкторі",
+    "build": "збирань CV",
     "export": "оформлень CV",
 }
 
@@ -34,6 +35,12 @@ def auth_configured() -> bool:
 
 
 @st.cache_resource
+def _fallback_db() -> MemoryDB:
+    """Лічильники в пам'яті на випадок, коли Supabase недоступний: ліміти не вимикаються."""
+    return MemoryDB()
+
+
+@st.cache_resource
 def get_db():
     url, key, token = secret("SUPABASE_URL"), secret("SUPABASE_KEY"), secret("CVMAX_DB_TOKEN")
     if url and key and token:
@@ -42,7 +49,10 @@ def get_db():
 
 
 def is_logged_in() -> bool:
-    return auth_configured() and bool(getattr(st.user, "is_logged_in", False))
+    """Увійшов через Google і має підтверджений email: без підтвердження не можна бути певним, що email його."""
+    if not auth_configured() or not getattr(st.user, "is_logged_in", False):
+        return False
+    return st.user.get("email_verified") in (True, "true")
 
 
 def current_email() -> str | None:
@@ -91,6 +101,10 @@ def require_login(page_title: str) -> None:
     if not auth_configured() or is_logged_in():
         return
     st.title(page_title)
+    if getattr(st.user, "is_logged_in", False):  # увійшов, але Google не підтвердив email
+        st.warning("Google не підтвердив email цього акаунта. Увійди з іншим акаунтом.")
+        st.button("Вийти", on_click=st.logout)
+        st.stop()
     with card("login"):
         st.subheader("Увійди, щоб продовжити")
         st.write(
@@ -116,8 +130,8 @@ def take_limit(kind: str) -> bool:
     try:
         result = get_db().consume(_user_key(), kind, user_limit, global_limit)
     except DBError as e:
-        log.warning("consume failed, allowing: %s", e)
-        return True
+        log.warning("consume failed, counting in memory: %s", e)
+        result = _fallback_db().consume(_user_key(), kind, user_limit, global_limit)
     if result.get("allowed"):
         return True
     what = LIMIT_NAMES.get(kind, "запитів")

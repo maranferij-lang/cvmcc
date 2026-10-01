@@ -7,6 +7,7 @@ import streamlit as st
 from cvmax.career import CareerPrefs, match_careers
 from cvmax.llm import LLMError
 from cvmax.profile import FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES
+from cvmax.safe_text import md_escape
 from ui.account import profile_value, require_login, save_result, take_limit
 from ui.common import card, consent, cv_picker, demo_banner, get_llm
 
@@ -37,11 +38,12 @@ with card("about-you"):
     status = c2.selectbox("Статус", STATUSES, key="career_status")
     interests = st.text_area(
         "Що тобі цікаво? (необов'язково)",
+        max_chars=600,
         key="career_interests",
         placeholder="Напр.: люблю працювати з даними, цікавлять фінанси і стартапи",
         height=70,
     )
-    avoid = st.text_input("Чого точно не хочеш? (необов'язково)", placeholder="Напр.: холодні дзвінки, чистий код")
+    avoid = st.text_input("Чого точно не хочеш? (необов'язково)", max_chars=300, placeholder="Напр.: холодні дзвінки, чистий код")
     c1, c2 = st.columns(2)
     level = c1.selectbox("Рівень", LEVELS, key="career_level")
     region = c2.selectbox("Ринок", REGIONS, key="career_region")
@@ -75,31 +77,31 @@ if result is None:
     st.stop()
 
 st.header("3. Твої напрями")
-st.write(result.candidate_summary)
+st.markdown(md_escape(result.candidate_summary))
 if result.strongest_assets:
-    st.markdown("**Твої найсильніші сторони:** " + "; ".join(result.strongest_assets))
-st.info(result.general_advice)
+    st.markdown("**Твої найсильніші сторони:** " + "; ".join(md_escape(x) for x in result.strongest_assets))
+st.info(md_escape(result.general_advice))
 
 for i, d in enumerate(result.directions):
     with card(f"direction-{i}"):
         top_l, top_r = st.columns([3, 1])
-        top_l.subheader(d.role)
-        top_l.caption(d.company_type)
+        top_l.subheader(md_escape(d.role))
+        top_l.caption(md_escape(d.company_type))
         top_r.metric("Шанс", f"{d.fit_score}%")
         st.progress(d.fit_score / 100)
         c1, c2 = st.columns(2)
         with c1:
             st.markdown("**Чому підходить**")
             for x in d.why_fits:
-                st.markdown(f"- {x}")
+                st.markdown(f"- {md_escape(x)}")
         with c2:
             st.markdown("**Чого бракує**")
             for x in d.gaps:
-                st.markdown(f"- {x}")
+                st.markdown(f"- {md_escape(x)}")
         st.markdown("**Що зробити цього місяця**")
         for x in d.first_steps:
-            st.markdown(f"- {x}")
-        st.markdown("**Що шукати:** " + ", ".join(f"`{k}`" for k in d.search_keywords))
+            st.markdown(f"- {md_escape(x)}")
+        st.markdown("**Що шукати:** " + ", ".join(f"`{k.replace('`', '')}`" for k in d.search_keywords))
         if st.button("Покращити CV під цей напрям", key=f"go_analyze_{i}"):
             st.session_state["prefill_role"] = d.role
             st.session_state["prefill_company"] = d.company_type

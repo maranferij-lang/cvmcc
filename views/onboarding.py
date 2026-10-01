@@ -1,12 +1,15 @@
 """Онбординг після першого входу: знайомство з платформою і короткий профіль."""
 
+import html
+
 import streamlit as st
 
 from cvmax.profile import PROGRAMS, STATUSES
 from cvmax.db import DBError
 from ui.account import save_profile, user_row
+
 row = user_row() or {}
-first_name = (row.get("name") or "").split(" ")[0]
+first_name = html.escape((row.get("name") or "").split(" ")[0])
 
 st.markdown(
     f"""
@@ -31,9 +34,10 @@ with st.form("onboarding"):
     status = col2.selectbox("Статус", STATUSES)
     background = st.text_area(
         "Твій досвід коротко", placeholder="Напр.: стажування в продажах, волонтер у студраді, курс з Python",
+        max_chars=1500,
         height=80,
     )
-    goal = st.text_input("Чого хочеш досягти?", placeholder="Напр.: літнє стажування в консалтингу або аналітиці")
+    goal = st.text_input("Чого хочеш досягти?", max_chars=300, placeholder="Напр.: літнє стажування в консалтингу або аналітиці")
     submitted = st.form_submit_button("Почати користуватись", type="primary")
 
 if submitted:

@@ -199,7 +199,8 @@ create or replace function public.cvmax_delete_my_data(p_token text, p_email tex
 returns void language plpgsql security definer set search_path = '' as $$
 begin
   perform cvmax_private.check_token(p_token);
-  delete from public.cvmax_usage where user_key = lower(p_email);
+  -- Сьогоднішні лічильники лишаються: інакше «видалити дані» обнуляло б денні ліміти.
+  delete from public.cvmax_usage where user_key = lower(p_email) and created_at < cvmax_private.day_start();
   delete from public.cvmax_edit_feedback where user_key = lower(p_email);
   delete from public.cvmax_users where email = lower(p_email);
 end $$;
@@ -224,3 +225,10 @@ begin
 end $$;
 revoke all on function cvmax_private.check_token(text) from public;
 revoke all on function cvmax_private.day_start() from public;
+
+-- Hardening: the token table is closed too, and objects created later in public are not open to the API by default.
+alter table cvmax_private.app_config enable row level security;
+revoke all on cvmax_private.app_config from public, anon, authenticated;
+alter default privileges in schema public revoke all on tables from anon, authenticated;
+alter default privileges in schema public revoke all on sequences from anon, authenticated;
+alter default privileges in schema public revoke all on functions from anon, authenticated, public;
