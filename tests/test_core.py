@@ -142,3 +142,11 @@ def test_unverified_terms_ignores_placeholders_and_known_facts():
 def test_unverified_terms_understands_number_words():
     from cvmax.edits import unverified_terms
     assert unverified_terms("Automated ~50% of daily posts", "roughly half of the posts") == []
+
+
+def test_next_question_instruction_lists_covered_items():
+    from cvmax.grill import QA, GrillSession, next_question_instruction
+    g = GrillSession(turns=[QA("About the GEO audit?", "", "it was a side project")])
+    text = next_question_instruction(g)
+    assert "About the GEO audit?" in text and "Do NOT ask" in text
+    assert "Do NOT ask" not in next_question_instruction(GrillSession())

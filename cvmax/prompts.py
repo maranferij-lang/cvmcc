@@ -78,8 +78,10 @@ missing numbers and results, unclear responsibilities, projects without outcomes
 (volunteering, student organisations, case competitions, coursework projects, freelance).
 Make each question concrete and easy to answer, e.g. "In the Coursera data project, how many rows did
 the dataset have and what did you find?" rather than "Tell me about your projects".
-Build on the previous answers. If the candidate answers "no", "don't know" or skips, never return
-to that topic: move to a different part of the CV. Never ask twice about the same thing.
+Build on the previous answers. If an answer does not give the requested facts (a "no", "don't know",
+a skip, or a vague or evasive reply such as "it was just a side project"), drop that topic for good and
+move to a different part of the CV. Never ask twice about the same item, even from another angle.
+Never ask for anything the CV already states (numbers, names, dates); ask only for what is missing.
 You may ask at most {max_questions} questions in total. Set done=true when you have enough or when
 the limit is reached; then question and why_asking may be empty."""
 

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from . import config
-from .grill import QA, GrillSession
+from .grill import QA, GrillSession, next_question_instruction
 from .llm import ask_structured
 from .profile import PROGRAMS
 from .prompts import load_rubric
@@ -64,7 +64,8 @@ You are interviewing the candidate to collect material for their CV. Ask exactly
 about one thing, in at most two short sentences, with no greeting or recap.
 Prioritise what the CV needs most: experience or projects with concrete results and numbers, tools used,
 student activities and roles, volunteering, competitions, awards, language levels with certificates.
-Build on previous answers. If the candidate answers "no" or skips, never return to that topic.
+Build on previous answers. If an answer does not give the requested facts (a "no", a skip, or a vague
+or evasive reply), drop that topic for good. Never ask twice about the same item or for facts already given.
 At most {max_questions} questions in total. Set done=true when you have enough material."""
 
 
@@ -94,8 +95,7 @@ def next_builder_question(llm: Any, draft: BuilderDraft, session: GrillSession) 
         return None
     content = [{"type": "text", "text": (
         f"{draft.to_prompt()}\n\n<interview_so_far>\n{session.transcript()}\n</interview_so_far>\n\n"
-        f"Questions asked so far: {len(session.turns)} of {session.max_questions}. "
-        "Ask the next question, or set done=true."
+        f"{next_question_instruction(session)}"
     )}]
     turn = ask_structured(llm, system=builder_question_system(draft, session.max_questions),
                           content=content, output_model=GrillTurn, effort=config.EFFORT_GRILL)

@@ -61,16 +61,10 @@ def next_question(client: Any, profile: Profile, cv: CVFile, session: GrillSessi
     if len(session.turns) >= session.max_questions:
         session.finished = True
         return None
-    asked = len(session.turns)
     turn = ask_structured(
         client,
         system=grill_system(profile, session.max_questions),
-        content=_content(
-            profile,
-            cv,
-            session,
-            f"Questions asked so far: {asked} of {session.max_questions}. Ask the next question, or set done=true.",
-        ),
+        content=_content(profile, cv, session, next_question_instruction(session)),
         output_model=GrillTurn,
         effort=config.EFFORT_GRILL,
     )
@@ -80,6 +74,21 @@ def next_question(client: Any, profile: Profile, cv: CVFile, session: GrillSessi
     qa = QA(question=turn.question.strip(), why_asking=turn.why_asking.strip())
     session.turns.append(qa)
     return qa
+
+
+def next_question_instruction(session: GrillSession) -> str:
+    """Інструкція на кожен хід. Список уже обговорених пунктів тут, а не лише в системному промпті:
+    менші моделі так краще не повертаються до тієї самої теми."""
+    lines = [f"Questions asked so far: {len(session.turns)} of {session.max_questions}."]
+    if session.turns:
+        lines.append(
+            "These CV items are already covered. Do NOT ask about any of them again, in any form, "
+            "even if the answer was short or vague:"
+        )
+        lines += [f"- {t.question}" for t in session.turns]
+        lines.append("Pick a different experience, project or section of the CV.")
+    lines.append("Ask the next question, or set done=true if nothing important is left.")
+    return "\n".join(lines)
 
 
 def answer(session: GrillSession, text: str) -> None:
