@@ -55,7 +55,11 @@ Produce a full review:
 - summary: 2-4 sentences, the single most important thing first.
 - scores: one entry per rubric criterion, score 1-5.
 - strengths: what already works and must be kept.
-- edits: concrete changes, most important first, at most 15. "before" must be copied exactly from the CV,
+- edits: concrete changes, most important first, at most 15. Only propose an edit that is clearly better
+  for this target. Leave strong bullets alone: a bullet that already has a concrete action, a specific
+  finding or a measurable result must not be rewritten just to add keywords. A rewrite must keep every
+  concrete fact, number and finding of the original; never replace a specific finding with a generic phrase.
+  A strong CV legitimately gets few edits. "before" must be copied exactly from the CV,
   character for character, so the app can find it. Leave "before" empty for a new item and set "section"
   to where it goes. Leave "after" empty for an item to remove. One edit per bullet or line.
 - gaps: things to learn or do outside the CV (skills, certificates, projects, language tests) that would

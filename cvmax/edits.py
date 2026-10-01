@@ -111,8 +111,20 @@ def _suspicious(token: str) -> bool:
     return any(c.isupper() for c in token[1:]) and any(c.islower() for c in token)  # PostgreSQL, NumPy
 
 
+# Числа, які в CV часто написані словами.
+_NUMBER_WORDS = {
+    "half": "50", "quarter": "25", "third": "33", "twice": "2", "double": "2", "triple": "3",
+    "one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7",
+    "eight": "8", "nine": "9", "ten": "10", "dozen": "12", "hundred": "100", "thousand": "1000",
+}
+
+
 def _numbers(text: str) -> set[str]:
-    return {re.sub(r"\D", "", n) for n in re.findall(r"\d[\d.,]*", text)}
+    found = {re.sub(r"\D", "", n) for n in re.findall(r"\d[\d.,]*", text)}
+    for word in re.findall(r"[a-z]+", text.lower()):
+        if word in _NUMBER_WORDS:
+            found.add(_NUMBER_WORDS[word])
+    return found
 
 
 def unverified_terms(after: str, known_text: str) -> list[str]:

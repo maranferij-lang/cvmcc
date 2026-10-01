@@ -137,3 +137,8 @@ def test_unverified_terms_ignores_placeholders_and_known_facts():
     assert unverified_terms("Used [Pandas?] to clean [X] rows in Excel", "Excel") == []
     assert unverified_terms("Analysed 20,000 listings", "20000 оголошень") == []
     assert unverified_terms("a | linkedin.com/in/andrii", "a") == ["linkedin.com/in/andrii"]
+
+
+def test_unverified_terms_understands_number_words():
+    from cvmax.edits import unverified_terms
+    assert unverified_terms("Automated ~50% of daily posts", "roughly half of the posts") == []
