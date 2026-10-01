@@ -9,13 +9,13 @@ import streamlit as st
 from cvmax import config
 from cvmax.analyze import analyze_cv
 from cvmax.cv_render import has_placeholders, pdf_preview, render_docx, render_pdf
-from cvmax.edits import apply_edits, changes_markdown, unverified_terms
+from cvmax.edits import apply_edits, changes_markdown, lost_facts, unverified_terms
 from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
 from cvmax.profile import COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
 from cvmax.safe_text import md_escape
 from cvmax.structure import changed_bullets, structure_cv
-from ui.account import log_edit_feedback, profile_value, require_login, save_result, take_limit
+from ui.account import log_edit_feedback, profile_value, require_login, save_result, send_feedback, take_limit
 from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
 
 PRIORITY_LABEL = {"high": ":red-badge[Важливо]", "medium": ":orange-badge[Бажано]", "low": ":gray-badge[Дрібниця]"}
@@ -41,6 +41,16 @@ def all_edits(s):
     if s.grill_result:
         edits += list(s.grill_result.edits)
     return edits
+
+
+def latest_per_line(edits: list) -> list:
+    """Якщо дві прийняті правки змінюють той самий рядок, лишаємо пізнішу: Grill me знає більше фактів."""
+    by_line: dict[str, object] = {}
+    for e in edits:
+        key = " ".join(e.before.lower().split()) or f"new:{id(e)}"
+        by_line.pop(key, None)
+        by_line[key] = e
+    return list(by_line.values())
 
 
 def edit_sources(s) -> list[str]:
@@ -190,6 +200,14 @@ with tab_overview:
         st.subheader("Що вже добре")
         for x in a.strengths:
             st.markdown(f"- {md_escape(x)}")
+    with card("rate-analysis"):
+        st.markdown("**Чи корисний цей аналіз?**")
+        rated = st.feedback("thumbs", key=f"rate_{s.analysis_id}")
+        if rated is not None and s.get("rated_analysis") != s.analysis_id:
+            s["rated_analysis"] = s.analysis_id
+            if send_feedback("analysis", rated, f"{s.profile.program} · {s.profile.target_role}"[:200]):
+                st.toast("Дякуємо за оцінку!")
+        st.page_link("views/feedback.py", label="Розповісти детальніше", icon=":material/chat:")
 
 def known_facts(s) -> str:
     """Усе, що юзер сам про себе сказав: CV, онбординг і відповіді в Grill me."""
@@ -215,6 +233,12 @@ with tab_edits:
                 st.caption("СТАЛО")
                 st.markdown(md_escape(e.after) or "_(прибрати)_")
             st.caption(md_escape(e.reason))
+            dropped = lost_facts(e.before, e.after)
+            if dropped:
+                st.warning(
+                    "Ця правка прибирає з пункту факти: " + ", ".join(dropped)
+                    + ". Якщо вони правдиві й важливі, краще не приймай її або допиши їх у текст."
+                )
             flagged = unverified_terms(e.after, facts)
             if flagged:
                 st.warning(
@@ -283,7 +307,7 @@ with tab_grill:
 
 with tab_export:
     edits = all_edits(s)
-    accepted = [e for i, e in enumerate(edits) if st.session_state.get(f"accept_{i}")]
+    accepted = latest_per_line([e for i, e in enumerate(edits) if st.session_state.get(f"accept_{i}")])
     if not accepted:
         st.info("Спершу прийми хоча б одну правку у вкладці «Правки».")
     elif not s.cv.text.strip():

@@ -24,14 +24,18 @@ LIMIT_NAMES = {
     "builder": "інтерв'ю в конструкторі",
     "build": "збирань CV",
     "export": "оформлень CV",
+    "feedback": "відгуків",
 }
 
 
 def auth_configured() -> bool:
+    """Вхід через Google налаштовано повністю. Якщо в Secrets лишились заглушки, сайт працює без входу."""
     try:
-        return "auth" in st.secrets
+        auth = st.secrets.get("auth")
+        client_id = str(auth["google"]["client_id"]) if auth else ""
     except Exception:
         return False
+    return client_id.endswith(".apps.googleusercontent.com") and "ВСТАВ" not in client_id
 
 
 @st.cache_resource
@@ -164,3 +168,17 @@ def log_edit_feedback(analysis_id: str, target_role: str, program: str, items: l
         get_db().log_edit_feedback(_user_key(), analysis_id, target_role, program, items)
     except DBError as e:
         log.warning("log_edit_feedback failed: %s", e)
+
+
+def send_feedback(page: str, rating: int | None, message: str) -> bool:
+    """Зберігає анонімний відгук. Повертає True, якщо вдалося."""
+    if not take_limit("feedback"):
+        return False
+    try:
+        get_db().save_feedback(page, rating, message.strip()[:2000])
+    except DBError as e:
+        log.warning("save_feedback failed: %s", e)
+        st.error("Не вдалося надіслати відгук. Спробуй трохи пізніше.")
+        return False
+    return True
+

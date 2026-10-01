@@ -9,7 +9,7 @@
   },
   "expect": [
     {"id": "external-exam", "description": "прибрати або скоротити хвастощі про екстернат",
-     "line_contains": ["external examination", "granted credit"], "verdicts": ["cut", "shorten"]},
+     "line_contains": ["placement test", "ECTS credits"], "verdicts": ["cut", "shorten"]},
     {"id": "generic-coursework", "description": "скоротити список курсів до релевантних",
      "line_contains": ["Relevant coursework"], "verdicts": ["cut", "shorten", "rewrite"]},
     {"id": "content-not-contribution", "description": "пункт про теми постів замість внеску",

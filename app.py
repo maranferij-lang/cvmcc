@@ -31,6 +31,7 @@ else:
             st.Page("views/about.py", title="Про нас", icon=":material/info:"),
             st.Page("views/privacy.py", title="Конфіденційність", icon=":material/shield:"),
             st.Page("views/terms.py", title="Умови", icon=":material/gavel:"),
+            st.Page("views/feedback.py", title="Відгук", icon=":material/chat:"),
         ],
     }
 

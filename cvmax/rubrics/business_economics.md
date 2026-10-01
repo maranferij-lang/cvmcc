@@ -14,10 +14,10 @@ What recruiters look for:
 - Finance: technical skills (modelling, valuation), markets knowledge, finance club involvement;
   2-4 major entries with specifics and results (Mergers & Inquisitions).
 
-What a strong private equity / M&A student CV looks like (patterns from a real CV of a student who was
-hired in private equity; no personal details kept):
+What a strong private equity / M&A student CV looks like (common patterns in CVs of students hired
+into PE and M&A):
 - Every bullet is written in deal language with scale: due diligence, LOI, IOI, CIM, EV/EBITDA multiples,
-  "screened 4,000+ companies down to 700 targets", "evaluated 15 CIMs".
+  how many companies were screened and how many made the shortlist, how many teasers or CIMs were reviewed.
 - A "Selected Transaction Experience" block under a role: one sub-entry per deal with sector and revenue
   size, then what was analysed (recurring revenue share, customer concentration, backlog, returns) and the
   conclusion or concern raised. This shows judgment, not only tasks.

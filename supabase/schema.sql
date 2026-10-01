@@ -232,3 +232,25 @@ revoke all on cvmax_private.app_config from public, anon, authenticated;
 alter default privileges in schema public revoke all on tables from anon, authenticated;
 alter default privileges in schema public revoke all on sequences from anon, authenticated;
 alter default privileges in schema public revoke all on functions from anon, authenticated, public;
+
+-- Anonymous feedback from the site: no email or user id, only the page, a thumbs rating and an optional message.
+create table if not exists public.cvmax_feedback (
+  id bigint generated always as identity primary key,
+  created_at timestamptz not null default now(),
+  page text not null,
+  rating smallint check (rating between 0 and 1),
+  message text check (char_length(message) <= 2000)
+);
+alter table public.cvmax_feedback enable row level security;
+revoke all on public.cvmax_feedback from anon, authenticated;
+
+create or replace function public.cvmax_save_feedback(p_token text, p_page text, p_rating int, p_message text)
+returns void language plpgsql security definer set search_path = '' as $$
+begin
+  perform cvmax_private.check_token(p_token);
+  insert into public.cvmax_feedback (page, rating, message)
+  values (left(coalesce(p_page, ''), 40), p_rating, nullif(left(coalesce(p_message, ''), 2000), ''));
+end $$;
+revoke all on function public.cvmax_save_feedback(text, text, int, text) from public, authenticated;
+grant execute on function public.cvmax_save_feedback(text, text, int, text) to anon;
+

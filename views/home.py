@@ -85,8 +85,8 @@ st.markdown(
     <p>Лишити, скоротити, переписати чи прибрати. Пункти без дії й результату, дублі та «вихваляння»,
     яке не працює на ціль, CVmax позначає окремо. Якщо CV не влазить на сторінку, підкаже, що різати першим.</p>
     <div class="cvx-diff">
-      <div class="was"><span class="tag">Прибрати</span>Passed the external independent examination with high scores</div>
-      <div class="now"><span class="tag">Лишити</span>Top 5% of the cohort, GPA 3.9/4.0</div>
+      <div class="was"><span class="tag">Прибрати</span>Interests: travelling, music, gym</div>
+      <div class="now"><span class="tag">Лишити</span>Chess: 2nd place, Kyiv U-18 championship</div>
     </div>
   </div>
   <div class="cvx-tile">
@@ -95,7 +95,7 @@ st.markdown(
     <p>Розпитує про числа, масштаб і досвід, якого немає в CV. З відповідей виходять нові пункти.</p>
     <div class="cvx-bubbles">
       <div class="cvx-bubble">Ти робив(-ла) щось з AI для себе?</div>
-      <div class="cvx-bubble me">Бот, що збирає тендери Prozorro</div>
+      <div class="cvx-bubble me">Скрипт, що щодня збирає ціни конкурентів у таблицю</div>
     </div>
   </div>
   <div class="cvx-tile">
@@ -202,6 +202,7 @@ with st.container(horizontal=True, gap="medium"):
     st.page_link("views/about.py", label="Про нас")
     st.page_link("views/privacy.py", label="Конфіденційність")
     st.page_link("views/terms.py", label="Умови")
+    st.page_link("views/feedback.py", label="Відгук")
 st.markdown(
     '<div class="cvx-footer">© 2026 CVmax · незалежний студентський проєкт, не є офіційним сервісом '
     "Київської школи економіки.</div>",

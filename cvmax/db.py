@@ -75,6 +75,10 @@ class SupabaseDB:
     def delete_my_data(self, email: str) -> None:
         self._rpc("cvmax_delete_my_data", p_email=email)
 
+    def save_feedback(self, page: str, rating: int | None, message: str) -> None:
+        """Анонімний відгук: без email, тільки сторінка, оцінка і текст."""
+        self._rpc("cvmax_save_feedback", p_page=page, p_rating=rating, p_message=message)
+
     def log_edit_feedback(self, user_key: str, analysis_id: str, target_role: str, program: str,
                           items: list[dict]) -> int:
         """Які правки юзер прийняв, а які ні. items: source, section, priority, before, after, accepted."""
@@ -91,6 +95,7 @@ class MemoryDB:
         self._lock = threading.Lock()
         self._usage: dict[tuple[str, str, str], int] = defaultdict(int)
         self._users: dict[str, dict] = {}
+        self.feedback: list[dict] = []
 
     def touch_user(self, email: str, name: str | None) -> dict:
         return self._users.setdefault(email.lower(), {"email": email.lower(), "name": name, "onboarded_at": None})
@@ -126,3 +131,7 @@ class MemoryDB:
     def log_edit_feedback(self, user_key: str, analysis_id: str, target_role: str, program: str,
                           items: list[dict]) -> int:
         return 0
+
+    def save_feedback(self, page: str, rating: int | None, message: str) -> None:
+        self.feedback.append({"page": page, "rating": rating, "message": message})
+

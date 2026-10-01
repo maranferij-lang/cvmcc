@@ -5,8 +5,6 @@ import streamlit as st
 from cvmax import config
 from ui.common import card, secret
 
-REPO = "https://github.com/maranferij-lang/cvmcc"
-
 st.title("Про CVmax")
 st.markdown(
     '<p class="cvx-page-lead">CVmax допомагає студентам зробити англомовне CV, яке читається за шість секунд '
@@ -64,11 +62,10 @@ for i, (title, text) in enumerate(steps):
 
 st.header("Що всередині")
 st.markdown(
-    f"- **Модель:** Google Gemini (безплатний тариф на час пілоту). Код готовий працювати і з Claude.\n"
-    f"- **Критерії:** загальні правила сильного CV і окремі для кожної програми. Список джерел відкритий: "
-    f"[docs/sources.md]({REPO}/blob/main/docs/sources.md).\n"
-    "- **Перевірка якості:** набір CV з відомими проблемами, на якому ми проганяємо кожну зміну.\n"
-    f"- **Код:** відкритий, [GitHub]({REPO})."
+    "- **Модель:** Google Gemini (безплатний тариф на час пілоту).\n"
+    "- **Критерії:** загальні правила сильного CV і окремі для кожної програми, зібрані з порад рекрутерів "
+    "консалтингових і технологічних компаній, кар'єрних центрів університетів і досліджень про те, як читають CV.\n"
+    "- **Перевірка якості:** набір вигаданих CV з відомими проблемами, на якому ми проганяємо кожну зміну."
 )
 
 st.header("Статус і відгуки")
@@ -77,6 +74,7 @@ st.write(
     "всіх. Найцінніше для нас зараз: випадки, де CVmax помилився або порадив дурницю. Напиши, що саме "
     "сталось, і ми додамо це в тести."
 )
+st.page_link("views/feedback.py", label="Залишити відгук", icon=":material/chat:")
 contact = secret("CVMAX_CONTACT")
 if contact:
     st.write(f"Зв'язатися з нами: {contact}")

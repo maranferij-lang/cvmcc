@@ -146,22 +146,22 @@ def test_unverified_terms_understands_number_words():
 
 def test_next_question_instruction_lists_covered_items():
     from cvmax.grill import QA, GrillSession, next_question_instruction
-    g = GrillSession(turns=[QA("About the GEO audit?", "", "it was a side project")])
+    g = GrillSession(turns=[QA("About the survey project?", "", "it was a side project")])
     text = next_question_instruction(g)
-    assert "About the GEO audit?" in text and "Do NOT ask" in text
+    assert "About the survey project?" in text and "Do NOT ask" in text
     assert "Do NOT ask" not in next_question_instruction(GrillSession())
 
 
 def test_unverified_terms_understands_ukrainian_answers():
     from cvmax.edits import unverified_terms
-    known = "публікуємо в тік ток, інстаграм; планую зйомки ще з пятьма, випустили 10 епізодів"
-    assert unverified_terms("Published on TikTok and Instagram; 10 episodes, 5 more planned", known) == []
+    known = "вели тік ток та інстаграм клубу; провели 10 зустрічей, ще п'ять заплановано"
+    assert unverified_terms("Ran TikTok and Instagram for the club; 10 meetups, 5 more planned", known) == []
     assert unverified_terms("Used Kubernetes", known) == ["Kubernetes"]
 
 
 def test_apply_edits_tolerates_small_quote_mistakes():
-    text = "EXPERIENCE\n• Built a Telegram bot that cuts long interviews into clips\nstraight from timecodes and a link\nPROJECTS"
-    e = Edit(section="Experience", before="Build a Telegram bot that cuts long interviews into clips straight from timecodes and a link",
+    text = "EXPERIENCE\n• Built a Telegram bot that reminds club members about meetings\nand collects RSVPs in a sheet\nPROJECTS"
+    e = Edit(section="Experience", before="Build a Telegram bot that reminds club members about meetings and collects RSVPs in a sheet",
              after="Built a bot that saves 1 hour daily", reason="r", priority="high")
     report = apply_edits(text, [e])
     assert report.applied == [e]

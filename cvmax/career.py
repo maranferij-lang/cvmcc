@@ -48,7 +48,7 @@ they have the best realistic chance of getting an internship or entry-level offe
 rank by realistic chance, not by prestige or by what sounds exciting. A direction the CV already
 supports well beats a dream role that needs a year of preparation.
 
-Write every explanation in {prefs.feedback_language}. Write role titles and search keywords in English,
+Write every explanation in {prefs.feedback_language}. In Ukrainian, address the student informally with «ти», never «ви». Write role titles and search keywords in English,
 exactly as they appear in job postings.
 
 Rules:

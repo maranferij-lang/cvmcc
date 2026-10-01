@@ -38,3 +38,12 @@ def test_db_error_does_not_leak_response_body():
     with pytest.raises(DBError) as e:
         db.consume("a@b.c", "analysis", 5, 60)
     assert "app_config" not in str(e.value) and "err" not in str(e.value)
+
+
+def test_lost_facts_flags_numbers_dropped_by_a_rewrite():
+    from cvmax.edits import lost_facts
+
+    before = "- Ran a loyalty campaign for 3 cafes that grew repeat customers from 18% to 26% in two months"
+    assert lost_facts(before, "- Managed social media for [N] locations, growing engagement by [X]%") == ["3", "18%", "26%"]
+    assert lost_facts(before, "- Grew repeat customers at 3 cafes from 18% to 26% in two months with a loyalty campaign") == []
+    assert lost_facts(before, "") == []  # видалення перевіряється окремо, вердиктом cut

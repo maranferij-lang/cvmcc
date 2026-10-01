@@ -130,6 +130,9 @@ TECH_TERMS = {
     "figma", "miro", "canva", "hubspot", "salesforce", "sap", "1c", "crm", "a/b", "etl", "api",
     "javascript", "typescript", "react", "node", "java", "kotlin", "swift", "c++", "c#", "go", "django",
     "flask", "fastapi", "langchain", "llm", "gpt",
+    # маркетинг і продуктова аналітика
+    "google analytics", "ga4", "meta business suite", "ads manager", "google ads", "semrush", "ahrefs",
+    "mailchimp", "hotjar", "amplitude", "mixpanel", "dbt", "seo", "ppc", "cac", "ltv", "roas", "ctr", "cpc", "cpa",
 }
 _TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9+#./-]*[A-Za-z0-9+#]|[A-Za-z]|\d[\d.,]*")
 _PHRASES = sorted((t for t in TECH_TERMS if " " in t), key=len, reverse=True)
@@ -223,3 +226,23 @@ def unverified_terms(after: str, known_text: str) -> list[str]:
         if token not in flagged:
             flagged.append(token)
     return flagged
+
+
+_FACT_NUMBER = re.compile(r"\d[\d.,]*\s?%?")
+
+
+def lost_facts(before: str, after: str) -> list[str]:
+    """Числа з початкового пункту, які зникли в переписаному. Порожній after (видалення) не перевіряємо.
+
+    Сильний пункт тримається на цифрах, і модель іноді губить їх, коли переписує. Юзер має це бачити.
+    """
+    if not before.strip() or not after.strip():
+        return []
+    after_digits = {re.sub(r"\D", "", n) for n in _FACT_NUMBER.findall(after)}
+    lost = []
+    for raw in _FACT_NUMBER.findall(before):
+        number = raw.strip().rstrip(".,")
+        if re.sub(r"\D", "", number) not in after_digits and number not in lost:
+            lost.append(number)
+    return lost
+
