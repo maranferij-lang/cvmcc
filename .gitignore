@@ -4,3 +4,6 @@ __pycache__/
 .env
 .streamlit/secrets.toml
 .pytest_cache/
+
+# Справжні CV для перевірки якості
+evals/private/

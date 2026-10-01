@@ -36,6 +36,7 @@ with tab_history:
                 full = get_db().get_result(email, item["id"]) or {}
                 payload = full.get("payload") or {}
                 if item["kind"] == "analysis" and "analysis" in payload:
+                    payload["analysis"].setdefault("line_review", [])  # старі результати без перевірки рядків
                     a = Analysis.model_validate(payload["analysis"])
                     st.metric("Готовність CV", f"{a.overall_score}/100")
                     st.write(a.summary)

@@ -31,12 +31,22 @@ class Gap(BaseModel):
     impact: Priority
 
 
+Verdict = Literal["keep", "cut", "shorten", "rewrite", "move"]
+
+
+class LineVerdict(BaseModel):
+    line: str  # рядок або пункт CV, скорочено до перших слів
+    verdict: Verdict
+    reason: str
+
+
 class Analysis(BaseModel):
     overall_score: int  # 0..100
     summary: str
     target_assumptions: List[str]
     scores: List[CriterionScore]
     strengths: List[str]
+    line_review: List[LineVerdict]  # вердикт кожному рядку CV, до правок
     edits: List[Edit]
     gaps: List[Gap]
     missing_info: List[str]

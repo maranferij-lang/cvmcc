@@ -140,6 +140,17 @@ with tab_overview:
     st.subheader("Оцінки за критеріями")
     for c in a.scores:
         st.write(f"**{c.criterion}**: {'●' * c.score}{'○' * (5 - c.score)}  {c.comment}")
+    flagged = [v for v in a.line_review if v.verdict != "keep"]
+    if a.line_review:
+        st.subheader("Перевірка кожного рядка")
+        st.caption(
+            f"Переглянуто {len(a.line_review)} рядків, до {len(flagged)} є зауваження. "
+            "Відповідні правки у вкладці «Правки»."
+        )
+        verdict_label = {"cut": "🗑 прибрати", "shorten": "✂️ скоротити", "rewrite": "✏️ переписати",
+                         "move": "↕️ перенести"}
+        for v in flagged:
+            st.markdown(f"- **{verdict_label.get(v.verdict, v.verdict)}:** {v.line}  \n  {v.reason}")
     if a.strengths:
         st.subheader("Що вже добре")
         for x in a.strengths:

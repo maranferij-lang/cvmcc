@@ -1,0 +1,22 @@
+{
+  "name": "Вигаданий студент: зайве в освіті, контент замість внеску, загальні інтереси",
+  "cv_file": "example_student.txt",
+  "profile": {
+    "program": "business_economics", "status": "2 курс", "background": "",
+    "target_role": "Marketing Analyst Intern", "company_type": "FMCG / ритейл / індустрія",
+    "company_details": "", "level": "Стажування", "region": "Міжнародні компанії в Україні",
+    "vacancy_text": "", "feedback_language": "Ukrainian"
+  },
+  "expect": [
+    {"id": "external-exam", "description": "прибрати або скоротити хвастощі про екстернат",
+     "line_contains": ["external examination", "granted credit"], "verdicts": ["cut", "shorten"]},
+    {"id": "generic-coursework", "description": "скоротити список курсів до релевантних",
+     "line_contains": ["Relevant coursework"], "verdicts": ["cut", "shorten", "rewrite"]},
+    {"id": "content-not-contribution", "description": "пункт про теми постів замість внеску",
+     "line_contains": ["Our posts covered"], "verdicts": ["cut", "rewrite"]},
+    {"id": "generic-interests", "description": "загальні інтереси",
+     "line_contains": ["Interests"], "verdicts": ["cut", "shorten"]},
+    {"id": "keep-strong-bullet", "description": "сильний пункт з результатом не чіпати",
+     "line_contains": ["grew repeat customers"], "verdicts": ["keep"]}
+  ]
+}

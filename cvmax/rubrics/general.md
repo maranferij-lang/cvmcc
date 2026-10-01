@@ -25,8 +25,8 @@ recruiters (McKinsey, BCG, Bain, Google) and practitioner guides. See docs/sourc
 
 ## Section order for students
 Header (name; city and country; email; phone; LinkedIn; GitHub/portfolio when relevant) ->
-Education (university, program, expected graduation, GPA with scale, honors, relevant coursework,
-thesis, exchange, scholarships) -> Experience -> Projects -> Leadership & Activities ->
+Education (university, program, expected graduation, GPA with scale; at most one line of
+target-relevant coursework, honors, thesis, exchange or scholarship) -> Experience -> Projects -> Leadership & Activities ->
 Skills (grouped) -> Languages (CEFR level or test score) -> optional Awards / Interests.
 Move Projects above Experience when projects are more relevant. No "Objective" paragraph;
 a 1-2 line summary only if it is specific.
@@ -41,6 +41,24 @@ Photo, date of birth or age, marital status, nationality, gender, full street ad
 "Curriculum Vitae", references or "references available on request", soft-skill lists without evidence,
 casual hobbies. City and country are enough (LSE, Harvard, MIT, UK National Careers Service).
 School achievements only if exceptional (olympiad medal) and the candidate is in years 1-2.
+
+## Signal vs noise (check every line)
+Space on one page is the scarcest resource. A line earns its place only if a recruiter for this target
+would value it. Flag for cutting or shortening:
+- Details of how a requirement was met rather than what was achieved: passing a course by external
+  exam, credit transfers, exemptions, "granted advanced credit". To a recruiter this reads as showing off
+  and says little about job performance. Keep only if the target is academic or quantitative research
+  and the fact is rare, and then at most half a line.
+- Coursework lists that are long, generic or unrelated to the target. Keep 2-4 courses that map directly
+  to the role, or none.
+- Generic interests ("Gym", "Travel"), unless they start a conversation relevant to the role.
+- Bullets that describe content or topics instead of the candidate's contribution
+  ("Recent episodes cover X, Y, Z").
+- Counts that do not show impact or scale for this target (e.g. episode counts for a non-media role).
+- Anything that repeats information already given elsewhere on the page.
+- Skills listed without evidence anywhere in the CV.
+Education for students: university, degree, dates, GPA with scale, and at most one line of relevant
+coursework or honours. Longer education sections are justified only for research roles.
 
 ## Things students usually undersell (ask about them in Grill me)
 Case competitions and hackathons (placement out of N), student organisation roles, volunteering,

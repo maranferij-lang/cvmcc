@@ -55,11 +55,17 @@ Produce a full review:
 - summary: 2-4 sentences, the single most important thing first.
 - scores: one entry per rubric criterion, score 1-5.
 - strengths: what already works and must be kept.
-- edits: concrete changes, most important first, at most 15. Only propose an edit that is clearly better
-  for this target. Leave strong bullets alone: a bullet that already has a concrete action, a specific
-  finding or a measurable result must not be rewritten just to add keywords. A rewrite must keep every
-  concrete fact, number and finding of the original; never replace a specific finding with a generic phrase.
-  A strong CV legitimately gets few edits. "before" must be copied exactly from the CV,
+- line_review: go through EVERY line and bullet of the CV in order, including education, skills,
+  languages and interests (skip only the name and section titles). For each one ask: "If this line
+  disappeared, would a recruiter hiring for this exact target miss it? Does it raise their opinion, or
+  does it take space, look like filler, or read as showing off?" Then give a verdict:
+  keep, cut, shorten, rewrite or move, with a one-sentence reason. Be as willing to cut as to rewrite:
+  removing a weak line is often the most valuable edit. Judge relevance to this target, not in general.
+- edits: concrete changes, most important first, at most 15. Every cut, shorten, rewrite or move verdict
+  in line_review must have a matching edit (a cut has an empty "after"). Do not rewrite strong bullets
+  just to add keywords: a bullet that already has a concrete action, a specific finding or a measurable
+  result should get keep. A rewrite must keep every concrete fact, number and finding of the original;
+  never replace a specific finding with a generic phrase. "before" must be copied exactly from the CV,
   character for character, so the app can find it. Leave "before" empty for a new item and set "section"
   to where it goes. Leave "after" empty for an item to remove. One edit per bullet or line.
 - gaps: things to learn or do outside the CV (skills, certificates, projects, language tests) that would

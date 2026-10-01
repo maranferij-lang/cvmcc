@@ -8,7 +8,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any
 
-from .schemas import Analysis, BuiltCV, CVEducation, CVEntry, CVSkillGroup, CareerMatch, CriterionScore, Direction, Edit, Gap, GrillResult, GrillTurn
+from .schemas import Analysis, BuiltCV, LineVerdict, CVEducation, CVEntry, CVSkillGroup, CareerMatch, CriterionScore, Direction, Edit, Gap, GrillResult, GrillTurn
 
 DEMO_QUESTIONS = [
     ("In your Student Council role, how many events did you organise and how many people came?",
@@ -84,6 +84,14 @@ def demo_analysis() -> Analysis:
             CriterionScore(criterion="Language quality", score=4, comment="Кілька змін часу в одному пункті."),
         ],
         strengths=["Сильна освіта з релевантними курсами.", "Є проєкт на реальних даних."],
+        line_review=[
+            LineVerdict(line="Responsible for making reports in Excel", verdict="rewrite",
+                        reason="Обов'язок замість результату."),
+            LineVerdict(line="Helped the team with client database", verdict="keep",
+                        reason="Можна лишити, але це слабкий пункт."),
+            LineVerdict(line="Date of birth: 01.01.2004", verdict="cut",
+                        reason="Міжнародним компаніям дата народження не потрібна."),
+        ],
         edits=[
             Edit(
                 section="Experience",
