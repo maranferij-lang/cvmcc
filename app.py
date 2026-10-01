@@ -37,5 +37,5 @@ else:
 
 page = st.navigation(pages, position="top")
 # Назва вкладки браузера: що за сторінка і чий сайт.
-st.set_page_config(page_title="CVmax: CV під вакансію" if page.title == "Головна" else f"{page.title} · CVmax")
+st.set_page_config(page_title="CVmax: AI-помічник для англомовного CV студента" if page.title == "Головна" else f"{page.title} · CVmax")
 page.run()
