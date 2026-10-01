@@ -289,3 +289,21 @@ def render_pdf(cv: BuiltCV) -> bytes:
         heading("Awards")
         bullets(cv.awards)
     return bytes(pdf.output())
+
+
+def pdf_preview(pdf: bytes, scale: float = 1.6) -> list[bytes]:
+    """Сторінки PDF як PNG, щоб показати CV на сайті таким, яким його завантажать."""
+    import pypdfium2 as pdfium
+
+    doc = pdfium.PdfDocument(pdf)
+    pages = []
+    try:
+        for page in doc:
+            image = page.render(scale=scale).to_pil()
+            buf = io.BytesIO()
+            image.save(buf, format="PNG", optimize=True)
+            pages.append(buf.getvalue())
+    finally:
+        doc.close()
+    return pages
+

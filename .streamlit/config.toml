@@ -4,5 +4,19 @@ maxUploadSize = 10
 [browser]
 gatherUsageStats = false
 
+[client]
+toolbarMode = "minimal"
+
 [theme]
-primaryColor = "#5B4FE9"
+base = "light"
+primaryColor = "#0A7CFF"
+backgroundColor = "#F5F6FA"
+secondaryBackgroundColor = "#EEF0F5"
+textColor = "#1D1D1F"
+linkColor = "#0A7CFF"
+font = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, 'Segoe UI', Roboto, sans-serif"
+headingFont = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, 'Segoe UI', Roboto, sans-serif"
+baseRadius = "14px"
+buttonRadius = "full"
+borderColor = "#E3E5EC"
+showWidgetBorder = false

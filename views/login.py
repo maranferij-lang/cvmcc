@@ -2,8 +2,10 @@
 
 import streamlit as st
 
-st.title("Увійти в CVMAX")
-with st.container(border=True):
+from ui.common import card
+
+st.title("Увійти в CVmax")
+with card("login"):
     st.write(
         "Увійди через Google, щоб користуватись інструментами. Ми збережемо твій профіль і результати, "
         "і ти зможеш повернутись до них будь-коли. Видалити всі дані можна в «Мій кабінет»."

@@ -8,7 +8,7 @@ from cvmax.career import CareerPrefs, match_careers
 from cvmax.llm import LLMError
 from cvmax.profile import FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES
 from ui.account import profile_value, require_login, save_result, take_limit
-from ui.common import consent, cv_picker, demo_banner, get_llm
+from ui.common import card, consent, cv_picker, demo_banner, get_llm
 
 JOB_BOARDS = "LinkedIn, Djinni, Work.ua, DOU, Robota.ua і кар'єрний центр КШЕ"
 
@@ -30,24 +30,26 @@ demo_banner()
 if not consent("career"):
     st.stop()
 
-st.header("1. Трохи про тебе")
-c1, c2 = st.columns(2)
-program = c1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="career_program")
-status = c2.selectbox("Статус", STATUSES, key="career_status")
-interests = st.text_area(
-    "Що тобі цікаво? (необов'язково)",
-    key="career_interests",
-    placeholder="Напр.: люблю працювати з даними, цікавлять фінанси і стартапи",
-    height=70,
-)
-avoid = st.text_input("Чого точно не хочеш? (необов'язково)", placeholder="Напр.: холодні дзвінки, чистий код")
-c1, c2 = st.columns(2)
-level = c1.selectbox("Рівень", LEVELS, key="career_level")
-region = c2.selectbox("Ринок", REGIONS, key="career_region")
-lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True, key="career_lang")
+with card("about-you"):
+    st.header("1. Трохи про тебе")
+    c1, c2 = st.columns(2)
+    program = c1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="career_program")
+    status = c2.selectbox("Статус", STATUSES, key="career_status")
+    interests = st.text_area(
+        "Що тобі цікаво? (необов'язково)",
+        key="career_interests",
+        placeholder="Напр.: люблю працювати з даними, цікавлять фінанси і стартапи",
+        height=70,
+    )
+    avoid = st.text_input("Чого точно не хочеш? (необов'язково)", placeholder="Напр.: холодні дзвінки, чистий код")
+    c1, c2 = st.columns(2)
+    level = c1.selectbox("Рівень", LEVELS, key="career_level")
+    region = c2.selectbox("Ринок", REGIONS, key="career_region")
+    lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True, key="career_lang")
 
-st.header("2. Твоє CV")
-cv = cv_picker("career")
+with card("career-cv"):
+    st.header("2. Твоє CV")
+    cv = cv_picker("career")
 
 prefs = CareerPrefs(
     program=program,
@@ -79,7 +81,7 @@ if result.strongest_assets:
 st.info(result.general_advice)
 
 for i, d in enumerate(result.directions):
-    with st.container(border=True):
+    with card(f"direction-{i}"):
         top_l, top_r = st.columns([3, 1])
         top_l.subheader(d.role)
         top_l.caption(d.company_type)

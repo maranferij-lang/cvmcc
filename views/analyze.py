@@ -8,16 +8,16 @@ import streamlit as st
 
 from cvmax import config
 from cvmax.analyze import analyze_cv
-from cvmax.cv_render import has_placeholders, render_docx, render_pdf
+from cvmax.cv_render import has_placeholders, pdf_preview, render_docx, render_pdf
 from cvmax.edits import apply_edits, changes_markdown, unverified_terms
 from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
 from cvmax.profile import COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
 from cvmax.structure import changed_bullets, structure_cv
 from ui.account import log_edit_feedback, profile_value, require_login, save_result, take_limit
-from ui.common import consent, cv_picker, demo_banner, get_llm
+from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
 
-PRIORITY_LABEL = {"high": "🔴 важливо", "medium": "🟡 бажано", "low": "⚪ дрібниця"}
+PRIORITY_LABEL = {"high": ":red-badge[Важливо]", "medium": ":orange-badge[Бажано]", "low": ":gray-badge[Дрібниця]"}
 
 
 def get_client():
@@ -86,32 +86,33 @@ if not consent("analyze"):
     st.stop()
 
 # ---------- Онбординг ----------
-st.header("1. Про тебе і твою ціль")
-col1, col2 = st.columns(2)
-program = col1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="analyze_program")
-status = col2.selectbox("Статус", STATUSES, key="analyze_status")
-background = st.text_area(
-    "Де ти зараз вчишся, працюєш або працював(-ла)?",
-    key="analyze_background",
-    placeholder="Напр.: 3 курс, літнє стажування в продажах, волонтер у студраді",
-    height=80,
-)
+with card("goal"):
+    st.header("1. Про тебе і твою ціль")
+    col1, col2 = st.columns(2)
+    program = col1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="analyze_program")
+    status = col2.selectbox("Статус", STATUSES, key="analyze_status")
+    background = st.text_area(
+        "Де ти зараз вчишся, працюєш або працював(-ла)?",
+        key="analyze_background",
+        placeholder="Напр.: 3 курс, літнє стажування в продажах, волонтер у студраді",
+        height=80,
+    )
 
-st.subheader("Куди хочеш потрапити")
-target_role = st.text_input("Роль", key="target_role", placeholder="Напр.: Business Analyst, Junior Data Analyst, UX Researcher")
-col1, col2 = st.columns(2)
-company_type = col1.selectbox("Тип компанії", COMPANY_TYPES, key="company_type")
-level = col2.selectbox("Рівень", LEVELS)
-company_details = st.text_input(
-    "Конкретна компанія або індустрія (необов'язково)", placeholder="Напр.: Monobank, McKinsey, EdTech-стартап"
-)
-region = st.selectbox("Ринок", REGIONS)
-vacancy_text = st.text_area(
-    "Текст вакансії (дуже бажано)",
-    placeholder="Встав сюди повний опис вакансії: обов'язки і вимоги. Це найбільше покращує поради.",
-    height=160,
-)
-feedback_lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True)
+    st.subheader("Куди хочеш потрапити")
+    target_role = st.text_input("Роль", key="target_role", placeholder="Напр.: Business Analyst, Junior Data Analyst, UX Researcher")
+    col1, col2 = st.columns(2)
+    company_type = col1.selectbox("Тип компанії", COMPANY_TYPES, key="company_type")
+    level = col2.selectbox("Рівень", LEVELS)
+    company_details = st.text_input(
+        "Конкретна компанія або індустрія (необов'язково)", placeholder="Напр.: Monobank, McKinsey, EdTech-стартап"
+    )
+    region = st.selectbox("Ринок", REGIONS)
+    vacancy_text = st.text_area(
+        "Текст вакансії (дуже бажано)",
+        placeholder="Встав сюди повний опис вакансії: обов'язки і вимоги. Це найбільше покращує поради.",
+        height=160,
+    )
+    feedback_lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True)
 
 profile = Profile(
     program=program,
@@ -128,8 +129,9 @@ profile = Profile(
 clarity, hint = profile.target_clarity()
 {"висока": st.success, "середня": st.warning, "низька": st.error}[clarity](f"Чіткість цілі: {clarity}. {hint}")
 
-st.header("2. Твоє CV")
-cv = cv_picker("analyze")
+with card("cv"):
+    st.header("2. Твоє CV")
+    cv = cv_picker("analyze")
 
 can_run = bool(target_role.strip()) and cv is not None
 if st.button("Проаналізувати CV", type="primary", disabled=not can_run) and take_limit("analysis"):
@@ -199,13 +201,15 @@ with tab_edits:
     )
     facts = known_facts(s)
     for i, e in enumerate(all_edits(s)):
-        with st.container(border=True):
+        with card(f"edit-{i}"):
             st.markdown(f"**{e.section}** · {PRIORITY_LABEL[e.priority]}")
             c1, c2 = st.columns(2)
-            c1.markdown("**Було**")
-            c1.write(e.before or "_(новий пункт)_")
-            c2.markdown("**Стало**")
-            c2.write(e.after or "_(прибрати)_")
+            with c1.container(key=f"before-{i}"):
+                st.caption("БУЛО")
+                st.write(e.before or "_(новий пункт)_")
+            with c2.container(key=f"after-{i}"):
+                st.caption("СТАЛО")
+                st.write(e.after or "_(прибрати)_")
             st.caption(e.reason)
             flagged = unverified_terms(e.after, facts)
             if flagged:
@@ -217,8 +221,8 @@ with tab_edits:
 
 with tab_gaps:
     st.caption("Що зробити поза CV, щоб сильно підняти шанси. Від найважливішого.")
-    for g in a.gaps:
-        with st.container(border=True):
+    for j, g in enumerate(a.gaps):
+        with card(f"gap-{j}"):
             st.markdown(f"**{g.item}** · {PRIORITY_LABEL[g.impact]} · {g.time_estimate}")
             st.write(g.why_it_matters)
             st.write(f"**Як:** {g.how_to_close}")
@@ -242,7 +246,7 @@ with tab_grill:
         for i, t in enumerate(g.turns, 1):
             if g.finished and not t.answer:
                 continue
-            with st.chat_message("assistant"):
+            with st.chat_message("assistant", avatar=BOT_AVATAR):
                 st.write(f"**{i}.** {t.question}")
                 st.caption(t.why_asking)
             if t.answer:
@@ -317,6 +321,9 @@ with tab_export:
             if holes:
                 st.warning("Заміни або прибери заповнювачі в цих рядках:\n\n" + "\n".join(f"- {h}" for h in holes))
             pdf = render_pdf(built)
+            with card("export-preview"):
+                for page in pdf_preview(pdf):
+                    st.image(page, width="stretch")
             name = built.full_name.replace(" ", "_") or "cv"
             c1, c2 = st.columns(2)
             c1.download_button("Завантажити PDF", pdf, f"{name}_CV.pdf", mime="application/pdf",

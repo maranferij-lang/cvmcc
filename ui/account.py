@@ -13,7 +13,7 @@ import streamlit as st
 
 from cvmax import config
 from cvmax.db import DBError, MemoryDB, SupabaseDB
-from ui.common import secret
+from ui.common import card, secret
 
 log = logging.getLogger("cvmax")
 
@@ -91,11 +91,11 @@ def require_login(page_title: str) -> None:
     if not auth_configured() or is_logged_in():
         return
     st.title(page_title)
-    with st.container(border=True):
+    with card("login"):
         st.subheader("Увійди, щоб продовжити")
         st.write(
             "Вхід через Google займає кілька секунд. Так ми збережемо твої результати, "
-            "а ти зможеш повернутись до них пізніше. CVMAX безплатний."
+            "а ти зможеш повернутись до них пізніше. CVmax безплатний."
         )
         st.button("Увійти через Google", type="primary", icon=":material/login:", on_click=st.login, args=("google",))
     st.stop()
@@ -125,7 +125,7 @@ def take_limit(kind: str) -> bool:
         st.warning(f"На сьогодні ти використав(-ла) всі {result.get('limit')} {what}. Повертайся завтра.")
     else:
         st.warning(
-            "CVMAX зараз безплатний, і сьогодні загальний ліміт вичерпано. Повертайся завтра, ліміт оновлюється щодня."
+            "CVmax зараз безплатний, і сьогодні загальний ліміт вичерпано. Повертайся завтра, ліміт оновлюється щодня."
         )
     return False
 

@@ -4,58 +4,60 @@ import streamlit as st
 
 from cvmax import config
 from cvmax.builder import BuilderDraft, build_cv, next_builder_question
-from cvmax.cv_render import render_docx, render_markdown, render_pdf
+from cvmax.cv_render import pdf_preview, render_docx, render_pdf
 from cvmax.grill import GrillSession, answer
 from cvmax.llm import LLMError
 from cvmax.profile import FEEDBACK_LANGUAGES, PROGRAMS, STATUSES
 from ui.account import current_email, profile_value, require_login, save_result, take_limit
-from ui.common import consent, demo_banner, get_llm
+from ui.common import BOT_AVATAR, card, consent, demo_banner, get_llm
 
 require_login("Конструктор CV")
 s = st.session_state
 st.title("Конструктор CV")
 st.caption(
     "Немає CV? Заповни основне, розкажи про себе своїми словами, дай відповідь на кілька питань, "
-    "і CVMAX збере CV англійською в правильній структурі."
+    "і CVmax збере CV англійською в правильній структурі."
 )
 demo_banner()
 if not consent("builder"):
     st.stop()
 
 # ---------- 1. Основне ----------
-st.header("1. Основне")
-c1, c2 = st.columns(2)
-full_name = c1.text_input("Ім'я та прізвище латиницею", placeholder="Olena Petrenko")
-email = c2.text_input("Email", value=current_email() or "", placeholder="olena@example.com")
-c1, c2 = st.columns(2)
-phone = c1.text_input("Телефон (необов'язково)")
-city = c2.text_input("Місто", value="Kyiv, Ukraine")
-links = st.text_input("LinkedIn, GitHub чи портфоліо (необов'язково)", placeholder="linkedin.com/in/olena")
+with card("basics"):
+    st.header("1. Основне")
+    c1, c2 = st.columns(2)
+    full_name = c1.text_input("Ім'я та прізвище латиницею", placeholder="Olena Petrenko")
+    email = c2.text_input("Email", value=current_email() or "", placeholder="olena@example.com")
+    c1, c2 = st.columns(2)
+    phone = c1.text_input("Телефон (необов'язково)")
+    city = c2.text_input("Місто", value="Kyiv, Ukraine")
+    links = st.text_input("LinkedIn, GitHub чи портфоліо (необов'язково)", placeholder="linkedin.com/in/olena")
 
-programs = list(PROGRAMS)
-default_program = profile_value("program")
-c1, c2, c3 = st.columns([2, 1, 1])
-program = c1.selectbox("Програма в КШЕ", programs, format_func=PROGRAMS.get,
-                       index=programs.index(default_program) if default_program in programs else 0)
-default_status = profile_value("status")
-status = c2.selectbox("Статус", STATUSES, index=STATUSES.index(default_status) if default_status in STATUSES else 0)
-grad_year = c3.text_input("Рік випуску", placeholder="2027")
-c1, c2 = st.columns(2)
-gpa = c1.text_input("Середній бал (необов'язково)", placeholder="3.7/4.0 або 92/100")
-target_role = c2.text_input("Роль, на яку цілишся (необов'язково)", value=profile_value("goal", ""))
+    programs = list(PROGRAMS)
+    default_program = profile_value("program")
+    c1, c2, c3 = st.columns([2, 1, 1])
+    program = c1.selectbox("Програма в КШЕ", programs, format_func=PROGRAMS.get,
+                           index=programs.index(default_program) if default_program in programs else 0)
+    default_status = profile_value("status")
+    status = c2.selectbox("Статус", STATUSES, index=STATUSES.index(default_status) if default_status in STATUSES else 0)
+    grad_year = c3.text_input("Рік випуску", placeholder="2027")
+    c1, c2 = st.columns(2)
+    gpa = c1.text_input("Середній бал (необов'язково)", placeholder="3.7/4.0 або 92/100")
+    target_role = c2.text_input("Роль, на яку цілишся (необов'язково)", value=profile_value("goal", ""))
 
 # ---------- 2. Про себе ----------
-st.header("2. Розкажи про себе")
-notes = st.text_area(
-    "Своїми словами, можна українською",
-    value=profile_value("background", ""),
-    placeholder=(
-        "Де працював(-ла) чи стажувався(-лась), що там робив(-ла) і чого досяг(-ла). Навчальні й особисті проєкти. "
-        "Студрада, волонтерство, кейс-чемпіонати, олімпіади. Навички й програми. Мови і рівень."
-    ),
-    height=200,
-)
-lang = st.radio("Мова підказок", list(FEEDBACK_LANGUAGES), horizontal=True, key="builder_lang")
+with card("story"):
+    st.header("2. Розкажи про себе")
+    notes = st.text_area(
+        "Своїми словами, можна українською",
+        value=profile_value("background", ""),
+        placeholder=(
+            "Де працював(-ла) чи стажувався(-лась), що там робив(-ла) і чого досяг(-ла). Навчальні й особисті проєкти. "
+            "Студрада, волонтерство, кейс-чемпіонати, олімпіади. Навички й програми. Мови і рівень."
+        ),
+        height=200,
+    )
+    lang = st.radio("Мова підказок", list(FEEDBACK_LANGUAGES), horizontal=True, key="builder_lang")
 
 draft = BuilderDraft(
     full_name=full_name, email=email, phone=phone, city=city, links=links, program=program, status=status,
@@ -86,7 +88,7 @@ draft = s.get("builder_draft", draft)
 for i, t in enumerate(g.turns, 1):
     if g.finished and not t.answer:
         continue
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=BOT_AVATAR):
         st.write(f"**{i}.** {t.question}")
     if t.answer:
         with st.chat_message("user"):
@@ -121,15 +123,17 @@ if cv is None:
     st.stop()
 st.header("4. Твоє CV")
 if cv.notes_for_user:
-    with st.container(border=True):
+    with card("todo"):
         st.markdown("**Що доробити**")
         for n in cv.notes_for_user:
             st.markdown(f"- {n}")
-with st.container(border=True):
-    st.markdown(render_markdown(cv))
+pdf = render_pdf(cv)
+with card("preview"):
+    for page in pdf_preview(pdf):
+        st.image(page, width="stretch")
 name = cv.full_name.replace(" ", "_") or "cv"
 c1, c2, c3 = st.columns(3)
-c1.download_button("Завантажити PDF", render_pdf(cv), f"{name}_CV.pdf", mime="application/pdf", type="primary")
+c1.download_button("Завантажити PDF", pdf, f"{name}_CV.pdf", mime="application/pdf", type="primary")
 c2.download_button("Завантажити DOCX", render_docx(cv), f"{name}_CV.docx")
 if c3.button("Почати заново"):
     for k in ("builder_grill", "builder_draft", "builder_cv"):

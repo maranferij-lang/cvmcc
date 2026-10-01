@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import streamlit as st
 
@@ -56,16 +57,21 @@ PRIVACY_NOTE = {
 def consent(page: str) -> bool:
     """Згода на обробку. Дається один раз і діє на всіх сторінках до закриття вкладки."""
     provider = provider_name()
-    given = st.checkbox(
-        f"Я погоджуюсь на обробку мого CV. CV містить персональні дані. Він надсилається в {provider} "
-        "тільки для аналізу, CVMAX його ніде не зберігає. Після закриття вкладки дані зникають."
-        + PRIVACY_NOTE.get(provider, ""),
-        value=st.session_state.get("consented", False),
-        key=f"consent_{page}",
-    )
-    st.session_state["consented"] = given
-    if given:
+    already = st.session_state.get("consented", False)
+    box = st.container() if already else card(f"consent-{page}")
+    with box:
+        if not already:
+            st.markdown("**Перед початком**")
+            st.caption("CV містить персональні дані, тому нам потрібна твоя згода. Це один раз за сесію.")
+        given = st.checkbox(
+            f"Я погоджуюсь, що моє CV і відповіді надсилаються в {provider} лише для аналізу. "
+            "Файл CV CVmax не зберігає, він зникає після закриття вкладки."
+            + PRIVACY_NOTE.get(provider, ""),
+            value=already,
+            key=f"consent_{page}",
+        )
         st.page_link("views/privacy.py", label="Як ми обробляємо дані", icon=":material/shield:")
+    st.session_state["consented"] = given
     return given
 
 
@@ -98,20 +104,19 @@ def cv_picker(page: str) -> CVFile | None:
     return cv
 
 
-CSS = """
-<style>
-.block-container {padding-top: 3.5rem;}
-.cvx-hero {padding: 2.2rem 0 1.2rem 0;}
-.cvx-hero h1 {font-size: 3rem; line-height: 1.1; margin: 0 0 .8rem 0; padding: 0;}
-.cvx-hero p {font-size: 1.15rem; opacity: .8; max-width: 38rem; margin: 0;}
-.cvx-badge {display: inline-block; font-size: .8rem; font-weight: 600; letter-spacing: .02em;
-  padding: .25rem .7rem; border-radius: 999px; margin-bottom: 1rem;
-  background: rgba(91, 79, 233, .12); color: #5B4FE9;}
-.cvx-step {font-size: 2rem; font-weight: 700; color: #5B4FE9; line-height: 1;}
-.cvx-footer {opacity: .6; font-size: .85rem; padding-top: 1rem;}
-</style>
-"""
+STYLE_FILE = Path(__file__).resolve().parents[1] / "assets" / "style.css"
+BOT_AVATAR = str(Path(__file__).resolve().parents[1] / "assets" / "icon.png")
+
+
+def _css() -> str:
+    return STYLE_FILE.read_text(encoding="utf-8")
 
 
 def inject_css() -> None:
-    st.markdown(CSS, unsafe_allow_html=True)
+    """Стилі сайту. Викликається один раз на кожен показ сторінки (в app.py)."""
+    st.html(f"<style>{_css()}</style>")
+
+
+def card(key: str, **kwargs):
+    """Скляна картка. Ключ потрібен, щоб CSS її знайшов (клас st-key-card-...)."""
+    return st.container(key=f"card-{key}", **kwargs)

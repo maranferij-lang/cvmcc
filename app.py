@@ -1,11 +1,13 @@
-"""CVMAX: вебзастосунок. Запуск: streamlit run app.py"""
+"""CVmax: вебзастосунок. Запуск: streamlit run app.py"""
 
 import streamlit as st
 
 from ui.account import auth_configured, is_logged_in, needs_onboarding
+from ui.common import inject_css
 
-st.set_page_config(page_title="CVMAX", page_icon="📄", layout="centered")
+st.set_page_config(page_title="CVmax: CV під вакансію", page_icon="assets/icon.png", layout="wide")
 st.logo("assets/logo.svg", size="large")
+inject_css()
 
 home = st.Page("views/home.py", title="Головна", icon=":material/home:", default=True)
 
@@ -25,7 +27,7 @@ else:
         main.append(st.Page("views/login.py", title="Увійти", icon=":material/login:"))
     pages = {
         "": main,
-        "Про CVMAX": [
+        "Про CVmax": [
             st.Page("views/about.py", title="Про нас", icon=":material/info:"),
             st.Page("views/privacy.py", title="Конфіденційність", icon=":material/shield:"),
             st.Page("views/terms.py", title="Умови", icon=":material/gavel:"),

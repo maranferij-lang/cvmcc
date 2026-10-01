@@ -5,18 +5,15 @@ import streamlit as st
 from cvmax.profile import PROGRAMS, STATUSES
 from cvmax.db import DBError
 from ui.account import save_profile, user_row
-from ui.common import inject_css
-
-inject_css()
 row = user_row() or {}
 first_name = (row.get("name") or "").split(" ")[0]
 
 st.markdown(
     f"""
 <div class="cvx-hero">
-  <span class="cvx-badge">Крок 1 з 1</span>
-  <h1>Вітаємо в CVMAX{', ' + first_name if first_name else ''}!</h1>
-  <p>Розкажи трохи про себе. Це займе хвилину, і ми підставлятимемо ці дані в усі інструменти,
+  <span class="cvx-eyebrow"><i></i>Одна хвилина</span>
+  <h1>Вітаємо в CVmax{', ' + first_name if first_name else ''}!</h1>
+  <p class="lead">Розкажи трохи про себе. Це займе хвилину, і ми підставлятимемо ці дані в усі інструменти,
   щоб поради були точнішими.</p>
 </div>
 """,

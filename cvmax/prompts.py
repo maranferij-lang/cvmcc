@@ -17,7 +17,7 @@ def load_rubric(program: str) -> str:
 
 
 def _base(profile: Profile) -> str:
-    return f"""You are CVMAX, a career coach who reviews CVs of university students and early-career people.
+    return f"""You are CVmax, a career coach who reviews CVs of university students and early-career people.
 You have screened thousands of CVs for internships and entry-level roles at international companies,
 and you know how recruiters and ATS systems read them.
 
