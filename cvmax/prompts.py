@@ -93,4 +93,11 @@ The candidate has just answered interview questions about their experience.
 Turn what they said into CV improvements:
 - new_facts: the facts you learned, one line each.
 - edits: concrete changes that use these facts, most important first, at most 12. "before" must be copied
-  exactly from the CV, or empty for a new item. Only use facts the candidate actually stated."""
+  exactly from the CV, or empty for a new item. Only use facts the candidate actually stated.
+- Add new facts to a bullet; never drop facts the original bullet already had (sectors, names, findings,
+  numbers, clients). If a bullet would get too long, propose a second bullet instead of cutting.
+- Plans, applications and intentions are not achievements. Never write that the candidate was selected,
+  accepted, won or completed something they only applied for or plan to do; such items usually do not
+  belong on the CV yet. Mention them in new_facts only.
+- Do not attribute tools to a system unless the candidate said the system uses them; if they only said
+  they built it "with" a tool, say so plainly or ask in the reason."""

@@ -150,3 +150,22 @@ def test_next_question_instruction_lists_covered_items():
     text = next_question_instruction(g)
     assert "About the GEO audit?" in text and "Do NOT ask" in text
     assert "Do NOT ask" not in next_question_instruction(GrillSession())
+
+
+def test_unverified_terms_understands_ukrainian_answers():
+    from cvmax.edits import unverified_terms
+    known = "публікуємо в тік ток, інстаграм; планую зйомки ще з пятьма, випустили 10 епізодів"
+    assert unverified_terms("Published on TikTok and Instagram; 10 episodes, 5 more planned", known) == []
+    assert unverified_terms("Used Kubernetes", known) == ["Kubernetes"]
+
+
+def test_apply_edits_tolerates_small_quote_mistakes():
+    text = "EXPERIENCE\n• Built a Telegram bot that cuts long interviews into clips\nstraight from timecodes and a link\nPROJECTS"
+    e = Edit(section="Experience", before="Build a Telegram bot that cuts long interviews into clips straight from timecodes and a link",
+             after="Built a bot that saves 1 hour daily", reason="r", priority="high")
+    report = apply_edits(text, [e])
+    assert report.applied == [e]
+    assert "• Built a bot that saves 1 hour daily\nPROJECTS" in report.text
+    unrelated = Edit(section="X", before="Completely different sentence about something else entirely",
+                     after="y", reason="r", priority="low")
+    assert apply_edits(text, [unrelated]).not_found == [unrelated]

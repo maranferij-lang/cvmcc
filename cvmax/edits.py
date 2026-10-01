@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import difflib
 import io
 import re
 from dataclasses import dataclass, field
@@ -25,6 +26,36 @@ def _loose_pattern(snippet: str) -> re.Pattern[str]:
     return re.compile(r"\s+".join(re.escape(w) for w in words))
 
 
+def _norm(text: str) -> str:
+    return " ".join(text.lower().split())
+
+
+def _fuzzy_span(text: str, snippet: str, threshold: float = 0.9) -> tuple[int, int] | None:
+    """Шукає фрагмент, майже однаковий зі snippet (модель інколи цитує з дрібною помилкою: Build/Built).
+
+    Порівнюємо snippet з вікнами з 1-6 сусідніх рядків і беремо найсхожіше, якщо схожість не менше threshold.
+    """
+    target = _norm(snippet)
+    if len(target) < 20:
+        return None
+    lines = text.split("\n")
+    offsets, pos = [], 0
+    for line in lines:
+        offsets.append(pos)
+        pos += len(line) + 1
+    best: tuple[float, int, int] | None = None
+    for i in range(len(lines)):
+        for j in range(i, min(i + 6, len(lines))):
+            window = "\n".join(lines[i : j + 1])
+            ratio = difflib.SequenceMatcher(None, _norm(window), target).ratio()
+            if best is None or ratio > best[0]:
+                start = offsets[i] + (len(lines[i]) - len(lines[i].lstrip(" •-\t")))
+                best = (ratio, start, offsets[j] + len(lines[j]))
+    if best and best[0] >= threshold:
+        return best[1], best[2]
+    return None
+
+
 def apply_edits(cv_text: str, edits: list[Edit]) -> ApplyReport:
     report = ApplyReport(text=cv_text)
     for edit in edits:
@@ -40,6 +71,12 @@ def apply_edits(cv_text: str, edits: list[Edit]) -> ApplyReport:
         match = _loose_pattern(before).search(report.text)
         if match:
             report.text = report.text[: match.start()] + edit.after.strip() + report.text[match.end() :]
+            report.applied.append(edit)
+            continue
+        span = _fuzzy_span(report.text, before)
+        if span:
+            start, end = span
+            report.text = report.text[:start] + edit.after.strip() + report.text[end:]
             report.applied.append(edit)
         else:
             report.not_found.append(edit)
@@ -119,12 +156,41 @@ _NUMBER_WORDS = {
 }
 
 
+# Українські числівники за основою: «п'ять», «пятьма», «десяти»...
+_UA_NUMBER_STEMS = {
+    "один": "1", "одн": "1", "два": "2", "дві": "2", "двох": "2", "три": "3", "трьох": "3",
+    "чотир": "4", "п'ят": "5", "пят": "5", "шіст": "6", "шест": "6", "сім": "7", "сем": "7",
+    "вісім": "8", "восьм": "8", "дев'ят": "9", "девят": "9", "десят": "10", "двадцят": "20",
+    "тридцят": "30", "сорок": "40", "сто": "100", "тисяч": "1000", "половин": "50",
+}
+
+# Назви платформ, які юзери пишуть кирилицею.
+_ALIASES = {
+    "tiktok": ("тік ток", "тікток", "тик ток", "тикток"),
+    "instagram": ("інстаграм", "инстаграм", "інста"),
+    "youtube": ("ютуб", "ютюб"),
+    "telegram": ("телеграм", "тг"),
+    "linkedin": ("лінкедин", "лінкедін"),
+    "claude": ("клод", "клоді", "клода"),
+    "github": ("гітхаб", "гитхаб"),
+}
+
+
 def _numbers(text: str) -> set[str]:
     found = {re.sub(r"\D", "", n) for n in re.findall(r"\d[\d.,]*", text)}
     for word in re.findall(r"[a-z]+", text.lower()):
         if word in _NUMBER_WORDS:
             found.add(_NUMBER_WORDS[word])
+    for word in re.findall(r"[а-яіїєґ']+", text.lower()):
+        for stem, value in _UA_NUMBER_STEMS.items():
+            if word.startswith(stem) and len(word) <= len(stem) + 4:
+                found.add(value)
+                break
     return found
+
+
+def _known_alias(token: str, known_low: str) -> bool:
+    return any(alias in known_low for alias in _ALIASES.get(token.lower(), ()))
 
 
 def unverified_terms(after: str, known_text: str) -> list[str]:
@@ -151,6 +217,8 @@ def unverified_terms(after: str, known_text: str) -> list[str]:
             if not digits or digits in known_nums or digits.rstrip("0") in known_nums:
                 continue
         elif re.search(r"(?<![a-z0-9])" + re.escape(token.lower()) + r"(?![a-z0-9])", known_low):
+            continue
+        elif _known_alias(token, known_low):
             continue
         if token not in flagged:
             flagged.append(token)
