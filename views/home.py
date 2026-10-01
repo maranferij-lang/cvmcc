@@ -38,6 +38,7 @@ with left:
     if c2.button("Немає CV? Зібрати", width="stretch"):
         st.switch_page("views/builder.py")
     st.caption("Вхід через Google · PDF або DOCX англійською · файл CV не зберігається")
+    st.caption("Free AI CV checker for students: tailor your English CV to a real vacancy, without invented facts.")
 
 with right:
     st.markdown(

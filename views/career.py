@@ -8,7 +8,7 @@ from cvmax.career import CareerPrefs, match_careers
 from cvmax.llm import LLMError
 from cvmax.profile import FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES
 from cvmax.safe_text import md_escape
-from ui.account import profile_value, require_login, save_result, take_limit
+from ui.account import limit_caption, profile_value, require_login, save_result, take_limit
 from ui.common import card, consent, cv_picker, demo_banner, get_llm
 
 JOB_BOARDS = "LinkedIn, Djinni, Work.ua, DOU, Robota.ua і кар'єрний центр КШЕ"
@@ -62,6 +62,7 @@ prefs = CareerPrefs(
     region=region,
     feedback_language=FEEDBACK_LANGUAGES[lang],
 )
+limit_caption("career")
 if st.button("Знайти напрями", type="primary", disabled=cv is None) and take_limit("career"):
     try:
         with st.spinner("Дивлюсь, де твій досвід цінують найбільше..."):

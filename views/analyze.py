@@ -15,7 +15,7 @@ from cvmax.llm import LLMError
 from cvmax.profile import COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
 from cvmax.safe_text import md_escape
 from cvmax.structure import changed_bullets, structure_cv
-from ui.account import log_edit_feedback, profile_value, require_login, save_result, send_feedback, take_limit
+from ui.account import limit_caption, log_edit_feedback, profile_value, require_login, save_result, send_feedback, take_limit
 from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
 
 PRIORITY_LABEL = {"high": ":red-badge[Важливо]", "medium": ":orange-badge[Бажано]", "low": ":gray-badge[Дрібниця]"}
@@ -148,6 +148,7 @@ with card("cv"):
     cv = cv_picker("analyze")
 
 can_run = bool(target_role.strip()) and cv is not None
+limit_caption("analysis")
 if st.button("Проаналізувати CV", type="primary", disabled=not can_run) and take_limit("analysis"):
     try:
         with st.spinner("Аналізую CV, це займає до хвилини..."):

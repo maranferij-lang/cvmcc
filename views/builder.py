@@ -9,7 +9,7 @@ from cvmax.grill import GrillSession, answer
 from cvmax.llm import LLMError
 from cvmax.profile import FEEDBACK_LANGUAGES, PROGRAMS, STATUSES
 from cvmax.safe_text import md_escape
-from ui.account import current_email, profile_value, require_login, save_result, take_limit
+from ui.account import current_email, limit_caption, profile_value, require_login, save_result, take_limit
 from ui.common import BOT_AVATAR, card, consent, demo_banner, get_llm
 
 require_login("Конструктор CV")
@@ -74,6 +74,7 @@ if not ready:
 st.header("3. Кілька питань")
 g: GrillSession | None = s.get("builder_grill")
 if g is None:
+    limit_caption("builder")
     if st.button("Почати", type="primary", disabled=not ready):
         if take_limit("builder"):
             s["builder_grill"] = GrillSession()
