@@ -20,7 +20,7 @@ log = logging.getLogger("cvmax")
 LIMIT_NAMES = {
     "analysis": "аналізів CV",
     "career": "пошуків напрямів",
-    "grill": "сесій Grill me",
+    "grill": "опитувань",
     "builder": "інтерв'ю в конструкторі",
     "build": "збирань CV",
     "export": "оформлень CV",

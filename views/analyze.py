@@ -1,4 +1,4 @@
-"""Сторінка «Аналіз CV»: правки під вакансію, план навчання, Grill me, готове CV."""
+"""Сторінка «Аналіз CV»: огляд, опитування про досвід, правки, план навчання, готове CV."""
 
 from __future__ import annotations
 
@@ -17,6 +17,27 @@ from cvmax.safe_text import md_escape
 from cvmax.structure import changed_bullets, structure_cv
 from ui.account import limit_caption, log_edit_feedback, profile_value, require_login, save_result, send_feedback, take_limit
 from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
+
+# Назви критеріїв з рубрики, щоб в українському інтерфейсі не було англійських заголовків.
+CRITERIA_UK = {
+    "target fit": "Відповідність цілі",
+    "impact bullets": "Пункти з результатом",
+    "evidence and numbers": "Докази й числа",
+    "structure and scannability": "Структура",
+    "length and density": "Довжина",
+    "ats-friendliness": "Читабельність для ATS",
+    "language quality": "Якість мови",
+}
+
+
+def plural(n: int, one: str, few: str, many: str) -> str:
+    """Українська форма слова після числа: 1 рядок, 2 рядки, 5 рядків."""
+    if n % 10 == 1 and n % 100 != 11:
+        return one
+    if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14:
+        return few
+    return many
+
 
 PRIORITY_LABEL = {"high": ":red-badge[Важливо]", "medium": ":orange-badge[Бажано]", "low": ":gray-badge[Дрібниця]"}
 
@@ -44,7 +65,7 @@ def all_edits(s):
 
 
 def latest_per_line(edits: list) -> list:
-    """Якщо дві прийняті правки змінюють той самий рядок, лишаємо пізнішу: Grill me знає більше фактів."""
+    """Якщо дві прийняті правки змінюють той самий рядок, лишаємо пізнішу: опитування знає більше фактів."""
     by_line: dict[str, object] = {}
     for e in edits:
         key = " ".join(e.before.lower().split()) or f"new:{id(e)}"
@@ -92,7 +113,7 @@ if "prefill_role" in st.session_state:
     s["open_form"] = True  # нова ціль: показати форму, навіть якщо є старий результат
 
 st.title("Аналіз CV")
-st.caption("Правки під конкретну роль, план навчання і Grill me.")
+st.caption("Правки під конкретну роль, опитування про твій досвід і план навчання.")
 demo_banner()
 if not consent("analyze"):
     st.stop()
@@ -161,7 +182,7 @@ with form_box:
     limit_caption("analysis")
     if st.button("Проаналізувати CV", type="primary", disabled=not can_run) and take_limit("analysis"):
         try:
-            with st.spinner("Аналізую CV, це займає до хвилини..."):
+            with st.spinner("Аналізую CV. Зазвичай це до хвилини, у години пік безплатна модель думає до 2–3 хвилин..."):
                 s.analysis = analyze_cv(get_client(), profile, cv)
             s.cv, s.profile = cv, profile
             s.analysis_id = uuid.uuid4().hex
@@ -187,9 +208,10 @@ a = s.analysis
 st.header("Результат")
 company = "" if s.profile.company_type == "Не знаю / будь-яка" else s.profile.company_type
 st.caption(" · ".join(md_escape(x) for x in (s.profile.target_role, company, s.cv.filename) if x))
-tab_overview, tab_edits, tab_gaps, tab_grill, tab_export = st.tabs(
-    ["Огляд", "Правки", "Що вивчити", "Grill me", "Готове CV"]
+tab_overview, tab_grill, tab_edits, tab_gaps, tab_export = st.tabs(
+    ["Огляд", "Опитування", "Правки", "Що вивчити", "Готове CV"]
 )
+ukrainian = s.profile.feedback_language != "English"
 
 with tab_overview:
     st.metric("Готовність CV під ціль", f"{a.overall_score}/100")
@@ -199,13 +221,16 @@ with tab_overview:
             st.markdown(f"- {md_escape(t)}")
     st.subheader("Оцінки за критеріями")
     for c in a.scores:
-        st.markdown(f"**{md_escape(c.criterion)}**: {'●' * c.score}{'○' * (5 - c.score)}  {md_escape(c.comment)}")
+        name = CRITERIA_UK.get(c.criterion.strip().lower(), c.criterion) if ukrainian else c.criterion
+        st.markdown(f"**{md_escape(name)}**: {'●' * c.score}{'○' * (5 - c.score)}  {md_escape(c.comment)}")
     flagged = [v for v in a.line_review if v.verdict != "keep"]
     if a.line_review:
         st.subheader("Перевірка кожного рядка")
+        n = len(a.line_review)
         st.caption(
-            f"Переглянуто {len(a.line_review)} рядків, до {len(flagged)} є зауваження. "
-            "Відповідні правки у вкладці «Правки»."
+            f"Переглянуто {n} {plural(n, 'рядок', 'рядки', 'рядків')}. "
+            + (f"Зауваження є до {len(flagged)}, правки до них у вкладці «Правки»." if flagged
+               else "Зауважень до окремих рядків немає.")
         )
         verdict_label = {"cut": ":red-badge[Прибрати]", "shorten": ":orange-badge[Скоротити]",
                          "rewrite": ":blue-badge[Переписати]", "move": ":violet-badge[Перенести]"}
@@ -215,6 +240,12 @@ with tab_overview:
         st.subheader("Що вже добре")
         for x in a.strengths:
             st.markdown(f"- {md_escape(x)}")
+    if s.grill is None:
+        st.info(
+            f"**Далі: опитування.** До {config.GRILL_MAX_QUESTIONS} коротких питань про твій досвід. "
+            "З відповідей CVmax візьме числа й факти, яких немає в CV, і зробить з них сильніші правки.",
+            icon=":material/forum:",
+        )
     with card("rate-analysis"):
         st.markdown("**Чи корисний цей аналіз?**")
         rated = st.feedback("thumbs", key=f"rate_{s.analysis_id}")
@@ -225,7 +256,7 @@ with tab_overview:
         st.page_link("views/feedback.py", label="Розповісти детальніше", icon=":material/chat:")
 
 def known_facts(s) -> str:
-    """Усе, що юзер сам про себе сказав: CV, онбординг і відповіді в Grill me."""
+    """Усе, що юзер сам про себе сказав: CV, онбординг і відповіді в опитуванні."""
     parts = [s.cv.text, s.profile.background]
     if s.grill:
         parts += [t.answer for t in s.grill.turns]
@@ -233,9 +264,19 @@ def known_facts(s) -> str:
 
 
 with tab_edits:
-    st.caption(
-        "Відміть правки, які приймаєш. Усе в [дужках] заміни на своє або прибери, якщо це неправда."
-    )
+    if not all_edits(s) and s.grill_result is None:
+        st.info(
+            "Поки правок немає: CV вже непогано читається під цю ціль. Щоб з'явились правки, пройди "
+            "**«Опитування»** (попередня вкладка): з твоїх відповідей CVmax допише числа й факти.",
+            icon=":material/forum:",
+        )
+    elif s.grill_result is None:
+        st.info(
+            "Це правки лише з тексту CV. Найсильніші з'являться після **«Опитування»** (попередня вкладка).",
+            icon=":material/forum:",
+        )
+    if all_edits(s):
+        st.caption("Відміть правки, які приймаєш. Усе в [дужках] заміни на своє або прибери, якщо це неправда.")
     facts = known_facts(s)
     for i, e in enumerate(all_edits(s)):
         with card(f"edit-{i}"):
@@ -272,20 +313,27 @@ with tab_gaps:
 
 with tab_grill:
     st.caption(
-        f"Я поставлю до {config.GRILL_MAX_QUESTIONS} питань про твій досвід. "
-        "Відповіді допоможуть написати сильніші пункти. Я нічого не вигадую, тільки те, що ти скажеш."
+        f"До {config.GRILL_MAX_QUESTIONS} питань про твій досвід: числа, масштаб і те, чого немає в CV. "
+        "З відповідей вийдуть сильніші правки. Нічого не вигадую, беру лише те, що ти скажеш. "
+        "Можна пропускати питання і завершити будь-коли."
     )
+    if s.get("grill_error"):  # помилка з попереднього проходу, до st.rerun()
+        st.error(s.pop("grill_error"))
     if s.grill is None:
-        if st.button("Почати Grill me") and take_limit("grill"):
-            s.grill = GrillSession()
+        if st.button("Почати опитування", type="primary") and take_limit("grill"):
+            g = GrillSession()
             try:
                 with st.spinner("Думаю над першим питанням..."):
-                    next_question(get_client(), s.profile, s.cv, s.grill)
+                    next_question(get_client(), s.profile, s.cv, g)
+                s.grill = g
+                st.rerun()
             except LLMError as e:
                 st.error(str(e))
-            st.rerun()
     else:
         g = s.grill
+        if g.finished and not g.turns:
+            st.info("CVmax не знайшов, про що розпитати: у CV вже є числа й деталі. "
+                    "Переходь до вкладки «Правки».")
         for i, t in enumerate(g.turns, 1):
             if g.finished and not t.answer:
                 continue
@@ -307,8 +355,17 @@ with tab_grill:
                     with st.spinner("Наступне питання..."):
                         next_question(get_client(), s.profile, s.cv, g)
                 except LLMError as e:
-                    st.error(str(e))
+                    s["grill_error"] = str(e)
                 st.rerun()
+        elif not g.finished and g.turns and len(g.turns) < g.max_questions and s.grill_result is None:
+            # Наступне питання не прийшло (модель була зайнята): даємо спробувати ще раз.
+            if st.button("Наступне питання"):
+                try:
+                    with st.spinner("Наступне питання..."):
+                        next_question(get_client(), s.profile, s.cv, g)
+                    st.rerun()
+                except LLMError as e:
+                    st.error(str(e))
         if s.grill_result is None and any(t.answer for t in g.turns):
             if st.button("Завершити і отримати правки", type="primary" if g.pending is None else "secondary"):
                 try:
@@ -358,11 +415,11 @@ with tab_export:
             if changed:
                 st.warning(
                     "Ці пункти в оформленому CV відрізняються від твого тексту. Перевір їх перед відправкою:\n\n"
-                    + "\n".join(f"- {b}" for b in changed)
+                    + "\n".join(f"- {md_escape(b)}" for b in changed)
                 )
             holes = has_placeholders(built)
             if holes:
-                st.warning("Заміни або прибери заповнювачі в цих рядках:\n\n" + "\n".join(f"- {h}" for h in holes))
+                st.warning("Заміни або прибери заповнювачі в цих рядках:\n\n" + "\n".join(f"- {md_escape(h)}" for h in holes))
             pdf = render_pdf(built)
             with card("export-preview"):
                 for page in pdf_preview(pdf):

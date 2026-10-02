@@ -47,3 +47,12 @@ def test_lost_facts_flags_numbers_dropped_by_a_rewrite():
     assert lost_facts(before, "- Managed social media for [N] locations, growing engagement by [X]%") == ["3", "18%", "26%"]
     assert lost_facts(before, "- Grew repeat customers at 3 cafes from 18% to 26% in two months with a loyalty campaign") == []
     assert lost_facts(before, "") == []  # видалення перевіряється окремо, вердиктом cut
+
+
+def test_fact_checker_accepts_ukrainian_names():
+    from cvmax.edits import unverified_terms
+    known = "Відбір у ШІ-школу КШЕ, робив звіти в ексель"
+    assert unverified_terms("Built a pipeline for the KSE AI School in Excel", known) == []
+    assert unverified_terms("Built dashboards in Tableau", known) == ["Tableau"]
+
+    assert unverified_terms("Used AI tools", "Інші проєкти, кращі результати") == ["AI"]

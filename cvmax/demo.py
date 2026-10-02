@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+import re
+
 from types import SimpleNamespace
 from typing import Any
 
@@ -30,7 +32,9 @@ class _Messages:
         if fmt is Analysis:
             out: Any = demo_analysis()
         elif fmt is GrillTurn:
-            asked = sum(1 for c in self.owner.calls if c["output_format"] is GrillTurn) - 1
+            # Номер питання беремо з інструкції цієї сесії, а не з усіх викликів процесу.
+            found = re.search(r"Questions asked so far: (\d+)", str(kwargs.get("messages", "")))
+            asked = int(found.group(1)) if found else 0
             if asked < len(DEMO_QUESTIONS):
                 q, why = DEMO_QUESTIONS[asked]
                 out = GrillTurn(done=False, kind="deepen", question=q, why_asking=why)

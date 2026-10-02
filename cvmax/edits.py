@@ -176,6 +176,10 @@ _ALIASES = {
     "linkedin": ("лінкедин", "лінкедін"),
     "claude": ("клод", "клоді", "клода"),
     "github": ("гітхаб", "гитхаб"),
+    "ai": ("ші", "штучн", "llm", "gpt", "чатгпт", "chatgpt", "claude", "gemini"),
+    "kse": ("кше", "київська школа економіки"),
+    "sql": ("скл", "сікуель"),
+    "excel": ("ексель", "эксель"),
 }
 
 
@@ -193,7 +197,9 @@ def _numbers(text: str) -> set[str]:
 
 
 def _known_alias(token: str, known_low: str) -> bool:
-    return any(alias in known_low for alias in _ALIASES.get(token.lower(), ()))
+    # Синонім має стояти на початку слова: «ші» в «ШІ-школа» рахується, а в «інші» ні.
+    return any(re.search(r"(?<![a-zа-яіїєґ])" + re.escape(alias), known_low)
+               for alias in _ALIASES.get(token.lower(), ()))
 
 
 def unverified_terms(after: str, known_text: str) -> list[str]:

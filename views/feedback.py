@@ -14,7 +14,7 @@ st.markdown(
 with card("feedback-form"):
     with st.form("feedback", clear_on_submit=True, border=False):
         topic = st.segmented_control(
-            "Про що відгук", ["Аналіз CV", "Grill me", "Готове CV", "Куди податись", "Конструктор", "Інше"],
+            "Про що відгук", ["Аналіз CV", "Опитування", "Готове CV", "Куди податись", "Конструктор", "Інше"],
             default="Аналіз CV",
         )
         rating = st.feedback("thumbs")

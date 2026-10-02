@@ -94,7 +94,7 @@ st.markdown(
   </div>
   <div class="cvx-tile">
     <div class="num">{config.GRILL_MAX_QUESTIONS}</div>
-    <h4>питань Grill me</h4>
+    <h4>питань в опитуванні</h4>
     <p>Розпитує про числа, масштаб і досвід, якого немає в CV. З відповідей виходять нові пункти.</p>
     <div class="cvx-bubbles">
       <div class="cvx-bubble">Ти робив(-ла) щось з AI для себе?</div>
@@ -140,7 +140,7 @@ st.markdown(
   <div class="cvx-step"><b class="n">2</b><div><div class="t">Завантаж CV</div>
     <div class="d">PDF або DOCX англійською. Файл живе тільки у вкладці браузера і не зберігається.</div></div></div>
   <div class="cvx-step"><b class="n">3</b><div><div class="t">Прийми правки й завантаж PDF</div>
-    <div class="d">Кожну правку приймаєш сам(-а). Grill me додасть те, про що ти забув(-ла) написати.</div></div></div>
+    <div class="d">Кожну правку приймаєш сам(-а). Опитування додасть те, про що ти забув(-ла) написати.</div></div></div>
 </div>
 """,
     unsafe_allow_html=True,
