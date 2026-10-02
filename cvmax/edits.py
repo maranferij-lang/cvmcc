@@ -252,3 +252,22 @@ def lost_facts(before: str, after: str) -> list[str]:
             lost.append(number)
     return lost
 
+
+
+def changed_action(before: str, after: str) -> tuple[str, str] | None:
+    """Головне дієслово пункту змінилось на інше, якого в оригіналі не було («Produce» -> «Research»).
+
+    Так модель іноді видає один досвід за інший. Повертає (було, стало) або None.
+    """
+    def first_word(text: str) -> str:
+        m = re.match(r"[\s•▪\-–—*]*([A-Za-z]+)", text)
+        return m.group(1) if m else ""
+
+    old, new = first_word(before), first_word(after)
+    if not old or not new or old[:4].lower() == new[:4].lower():
+        return None
+    if not old[0].isupper() or not new[0].isupper():
+        return None  # не пункт, що починається з дієслова
+    if re.search(r"\b" + re.escape(new[:5].lower()), before.lower()):
+        return None  # нове слово вже є в оригіналі
+    return old, new

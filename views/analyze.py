@@ -9,7 +9,7 @@ import streamlit as st
 from cvmax import config
 from cvmax.analyze import analyze_cv
 from cvmax.cv_render import has_placeholders, pdf_preview, render_docx, render_pdf
-from cvmax.edits import apply_edits, changes_markdown, lost_facts, unverified_terms
+from cvmax.edits import apply_edits, changed_action, changes_markdown, lost_facts, unverified_terms
 from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
 from cvmax.profile import ANY_COMPANY, COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
@@ -271,6 +271,12 @@ with tab_edits:
                 st.caption("AFTER")
                 st.markdown(md_escape(e.after) or "_(remove)_")
             st.caption(md_escape(e.reason))
+            swapped = changed_action(e.before, e.after) if e.before and e.after else None
+            if swapped:
+                st.warning(
+                    f"This edit changes what you did: «{md_escape(swapped[0])}» became «{md_escape(swapped[1])}». "
+                    "Accept it only if that is really what you did; a recruiter may ask about it."
+                )
             dropped = lost_facts(e.before, e.after)
             if dropped:
                 st.warning(

@@ -20,13 +20,19 @@ def cv_thumbnail() -> str:
     return base64.b64encode(png).decode()
 
 
+@st.cache_data
+def asset(name: str) -> str:
+    """3D renders from assets/ as base64, so they sit inside the page HTML."""
+    return base64.b64encode(open(f"assets/{name}", "rb").read()).decode()
+
+
 # ---------- Hero ----------
 left, right = st.columns([1.05, 1], gap="large", vertical_alignment="center")
 with left:
     st.markdown(
         """
 <div class="cvx-hero">
-  <span class="cvx-eyebrow"><i></i>Free AI CV coach</span>
+  <span class="cvx-eyebrow">Free AI CV coach</span>
   <h1>Get your CV <em class="hl">noticed</em></h1>
   <p class="lead">Upload your CV and a job posting. CVmax shows what a recruiter will skip and what will land,
   rewrites weak lines and asks about experience you undersell. Never makes things up.</p>
@@ -43,30 +49,14 @@ with left:
 
 with right:
     st.markdown(
-        """
-<div class="cvx-device">
-  <span class="cvx-float">+26 points after edits</span>
-  <div class="cvx-row">
-    <div>
-      <div class="cvx-muted">REVIEW FOR ROLE</div>
-      <div class="cvx-title">Business Analyst · fintech</div>
-    </div>
-    <div class="cvx-score" style="--p:84"><b>84</b></div>
+        f"""
+<div class="cvx-stage">
+  <img src="data:image/webp;base64,{asset('hero.webp')}" alt="A CV under a glass card showing a fit score of 84">
+  <div class="cvx-glass cvx-glass-edit">
+    <span class="tag">After</span>Built <span class="cvx-ph">[N]</span> weekly Excel sales reports for the
+    regional team, cutting prep time by <span class="cvx-ph">[X]%</span>
   </div>
-  <div class="cvx-diff">
-    <div class="was"><span class="tag">Before</span>Responsible for making reports in Excel</div>
-    <div class="now"><span class="tag">After</span>Built <span class="cvx-ph">[N]</span> weekly Excel sales reports
-    for the regional team, cutting preparation time by <span class="cvx-ph">[X]%</span></div>
-  </div>
-  <div class="cvx-bubbles">
-    <div class="cvx-bubble">How many people came to the events you organized?</div>
-    <div class="cvx-bubble me">Usually 250 to 300, and 400 at the case competition final</div>
-  </div>
-  <div class="cvx-chips">
-    <span class="cvx-chip">BA in fintech<em>82%</em></span>
-    <span class="cvx-chip">Product Analyst<em>74%</em></span>
-    <span class="cvx-chip">Consulting Intern<em>61%</em></span>
-  </div>
+  <div class="cvx-glass cvx-glass-q">How many people came to the events you organized?</div>
 </div>
 """,
         unsafe_allow_html=True,
@@ -83,6 +73,7 @@ st.markdown(
 </div>
 <div class="cvx-bento">
   <div class="cvx-tile w4">
+    <img class="cvx-ico" alt="" src="data:image/webp;base64,{asset('ico_check.webp')}">
     <h4>Every line checked</h4>
     <p>Keep, shorten, rewrite or cut. CVmax flags bullets with no action or result, duplicates and bragging
     that doesn't serve your goal. If your CV runs past one page, it tells you what to cut first.</p>
@@ -92,8 +83,8 @@ st.markdown(
     </div>
   </div>
   <div class="cvx-tile">
-    <div class="num">{config.GRILL_MAX_QUESTIONS}</div>
-    <h4>questions in the Q&amp;A</h4>
+    <img class="cvx-ico" alt="" src="data:image/webp;base64,{asset('ico_chat.webp')}">
+    <h4>{config.GRILL_MAX_QUESTIONS} questions in the Q&amp;A</h4>
     <p>Asks about numbers, scale and experience missing from your CV. Your answers become new bullets.</p>
     <div class="cvx-bubbles">
       <div class="cvx-bubble">Have you built anything with AI for yourself?</div>
@@ -101,6 +92,7 @@ st.markdown(
     </div>
   </div>
   <div class="cvx-tile">
+    <img class="cvx-ico" alt="" src="data:image/webp;base64,{asset('ico_arrow.webp')}">
     <h4>Where to apply</h4>
     <p>Roles where your CV has the best odds, and what to search for on LinkedIn and job boards.</p>
     <div class="cvx-fit">

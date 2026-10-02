@@ -9,7 +9,7 @@ from . import config
 from .cv_input import CVFile
 from .llm import ask_structured
 from .profile import COMPANY_TYPES, PROGRAMS
-from .prompts import load_rubric
+from .prompts import load_rubric, today
 from .schemas import CareerMatch
 
 DEFAULT_COMPANY_TYPE = COMPANY_TYPES[0]
@@ -41,6 +41,7 @@ class CareerPrefs:
 def career_system(prefs: CareerPrefs) -> str:
     company_types = "\n".join(f"- {c}" for c in COMPANY_TYPES)
     return f"""You are CVmax, a career coach for university students and early-career people.
+Today is {today()}.
 You know entry-level job markets well: the US, Canada, the UK, the EU, Ukraine and Eastern Europe, and remote roles.
 
 The candidate does not know where to apply. From their CV and preferences, find the directions where

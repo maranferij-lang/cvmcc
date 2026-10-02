@@ -188,3 +188,53 @@ def test_grill_alternates_discover_and_deepen():
     assert "DISCOVER" in next_question_instruction(GrillSession())
     one = GrillSession(turns=[QA("q", "", "a")])
     assert "DEEPEN" in next_question_instruction(one)
+
+
+def test_cosmetic_edits_and_off_topic_gaps_are_dropped():
+    from cvmax.analyze import drop_noise, is_cosmetic
+    from cvmax.demo import demo_analysis
+    from cvmax.schemas import Edit, Gap
+
+    assert is_cosmetic("Sep 2023 – Jun 2024", "September 2023 - June 2024")
+    assert is_cosmetic("Data Analyst, ACME | 2023-2024", "Data Analyst, Acme · 2023 – 2024")
+    assert not is_cosmetic("Built 5 reports", "Built 12 weekly reports")
+    assert not is_cosmetic("Date of birth: 01.01.2004", "")  # видалення не косметика
+
+    a = demo_analysis()
+    a.edits.append(Edit(section="Experience", before="Analyst, Acme, Sep 2023 - Jun 2024",
+                        after="Analyst, Acme, September 2023 – June 2024", reason="date format", priority="low"))
+    a.gaps.append(Gap(item="Networking", why_it_matters="x", how_to_close="Coffee chats with analysts",
+                      time_estimate="ongoing", impact="medium"))
+    a = drop_noise(a)
+    assert all("September 2023" not in e.after for e in a.edits)
+    assert all("Networking" != g.item for g in a.gaps)
+    assert any("SQL" in g.item for g in a.gaps)  # корисні поради лишаються
+
+
+def test_date_only_edits_are_dropped():
+    from cvmax.analyze import is_cosmetic
+    from cvmax.prompts import analysis_system
+    from datetime import date
+
+    assert is_cosmetic("Kyiv School of Economics Expected Graduation: June 2030",
+                       "Kyiv School of Economics Expected Graduation: June [2028?]")
+    assert is_cosmetic("Prozorro Defense Procurement Digest Sep 2026", "Prozorro Defense Procurement Digest [Sep 2024?]")
+    assert not is_cosmetic("Economics Media Producer", "Operations & Data Analyst (Media Production)")
+    assert str(date.today().year) in analysis_system(make_profile())
+
+
+def test_changed_action_and_already_known_skill():
+    from cvmax.analyze import drop_noise
+    from cvmax.demo import demo_analysis
+    from cvmax.edits import changed_action
+    from cvmax.schemas import Gap
+
+    assert changed_action("• Produce the outlet's podcast: source guests", "• Research industrial sectors") == ("Produce", "Research")
+    assert changed_action("• Introduced automated clip production", "• Automated the clip pipeline") is None
+    assert changed_action("Built 5 reports", "Built 12 weekly reports") is None
+
+    a = demo_analysis()  # у правках є «SQL (joins...)», але без знака питання
+    a.edits[1].after = "Python, [SQL?]"
+    a.gaps = [Gap(item="SQL (joins)", why_it_matters="x", how_to_close="Take a course.", time_estimate="3 weeks", impact="high")]
+    a = drop_noise(a)
+    assert a.gaps[0].how_to_close.startswith("If you already use it")

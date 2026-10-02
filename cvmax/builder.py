@@ -9,7 +9,7 @@ from . import config
 from .grill import QA, GrillSession, next_question_instruction
 from .llm import ask_structured
 from .profile import PROGRAMS
-from .prompts import load_rubric
+from .prompts import load_rubric, today
 from .schemas import BuiltCV, GrillTurn
 
 
@@ -44,6 +44,7 @@ class BuilderDraft:
 
 def _base(draft: BuilderDraft) -> str:
     return f"""You are CVmax, a career coach helping a university student write their first strong CV in English
+Today is {today()}.
 for internships and entry-level roles at international companies.
 The candidate may write in Ukrainian or English. Write every question and note in {draft.feedback_language}. In Ukrainian, address the student informally with «ти», never «ви».
 Write all CV content in English.
