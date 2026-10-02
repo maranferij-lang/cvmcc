@@ -28,7 +28,7 @@ class CareerPrefs:
     def to_prompt(self) -> str:
         return (
             "<candidate_preferences>\n"
-            f"University program: {PROGRAMS.get(self.program, self.program)} (Kyiv School of Economics)\n"
+            f"Field of study: {PROGRAMS.get(self.program, self.program)}\n"
             f"Study status: {self.status}\n"
             f"Interests: {self.interests.strip() or '(not provided)'}\n"
             f"Does not want: {self.avoid.strip() or '(not provided)'}\n"
@@ -41,7 +41,7 @@ class CareerPrefs:
 def career_system(prefs: CareerPrefs) -> str:
     company_types = "\n".join(f"- {c}" for c in COMPANY_TYPES)
     return f"""You are CVmax, a career coach for university students and early-career people.
-You know the entry-level job market in Ukraine and for international companies well.
+You know entry-level job markets well: the US, Canada, the UK, the EU, Ukraine and Eastern Europe, and remote roles.
 
 The candidate does not know where to apply. From their CV and preferences, find the directions where
 they have the best realistic chance of getting an internship or entry-level offer soon. Be honest:

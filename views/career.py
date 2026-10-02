@@ -11,9 +11,9 @@ from cvmax.safe_text import md_escape
 from ui.account import limit_caption, profile_value, require_login, save_result, take_limit
 from ui.common import card, consent, cv_picker, demo_banner, get_llm
 
-JOB_BOARDS = "LinkedIn, Djinni, Work.ua, DOU, Robota.ua і кар'єрний центр КШЕ"
+JOB_BOARDS = "LinkedIn, Indeed, Glassdoor, Wellfound and your university's career center"
 
-require_login("Куди податись")
+require_login("Where to apply")
 if not st.session_state.get("career_defaults_set"):
     st.session_state["career_defaults_set"] = True
     if profile_value("program") in PROGRAMS:
@@ -22,10 +22,10 @@ if not st.session_state.get("career_defaults_set"):
         st.session_state["career_status"] = profile_value("status")
     st.session_state["career_interests"] = profile_value("goal", "")
 
-st.title("Куди податись")
+st.title("Where to apply")
 st.caption(
-    "Є CV, але не знаєш, куди з ним іти? Я подивлюсь на твій досвід і запропоную напрями, "
-    "де в тебе найбільше шансів отримати офер уже зараз."
+    "Have a CV but not sure where to take it? CVmax looks at your experience and suggests directions "
+    "where you have the best shot at an offer right now."
 )
 demo_banner()
 if not consent("career"):
@@ -33,30 +33,30 @@ if not consent("career"):
 
 # Після результату форма згортається, щоб напрями були одразу під заголовком.
 form_box = (
-    st.expander("Про тебе і CV: змінити й шукати знову", icon=":material/tune:")
+    st.expander("About you and your CV: edit and search again", icon=":material/tune:")
     if st.session_state.get("career_result") is not None else st.container()
 )
 with form_box:
     with card("about-you"):
-        st.header("1. Трохи про тебе")
+        st.header("1. A bit about you")
         c1, c2 = st.columns(2)
-        program = c1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="career_program")
-        status = c2.selectbox("Статус", STATUSES, key="career_status")
+        program = c1.selectbox("Field of study", list(PROGRAMS), format_func=PROGRAMS.get, key="career_program")
+        status = c2.selectbox("Status", STATUSES, key="career_status")
         interests = st.text_area(
-            "Що тобі цікаво? (необов'язково)",
+            "What interests you? (optional)",
             max_chars=600,
             key="career_interests",
-            placeholder="Напр.: люблю працювати з даними, цікавлять фінанси і стартапи",
+            placeholder="E.g.: I like working with data, interested in finance and startups",
             height=70,
         )
-        avoid = st.text_input("Чого точно не хочеш? (необов'язково)", max_chars=300, placeholder="Напр.: холодні дзвінки, чистий код", key="career_avoid")
+        avoid = st.text_input("Anything you definitely don't want? (optional)", max_chars=300, placeholder="E.g.: cold calling, pure coding", key="career_avoid")
         c1, c2 = st.columns(2)
-        level = c1.selectbox("Рівень", LEVELS, key="career_level")
-        region = c2.selectbox("Ринок", REGIONS, key="career_region")
-        lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True, key="career_lang")
+        level = c1.selectbox("Level", LEVELS, key="career_level")
+        region = c2.selectbox("Market", REGIONS, key="career_region")
+        lang = st.radio("Feedback language", list(FEEDBACK_LANGUAGES), horizontal=True, key="career_lang")
 
     with card("career-cv"):
-        st.header("2. Твоє CV")
+        st.header("2. Your CV")
         cv = cv_picker("career")
 
     prefs = CareerPrefs(
@@ -69,12 +69,12 @@ with form_box:
         feedback_language=FEEDBACK_LANGUAGES[lang],
     )
     limit_caption("career")
-    if st.button("Знайти напрями", type="primary", disabled=cv is None) and take_limit("career"):
+    if st.button("Find directions", type="primary", disabled=cv is None) and take_limit("career"):
         try:
-            with st.spinner("Дивлюсь, де твій досвід цінують найбільше..."):
+            with st.spinner("Looking for where your experience is valued most..."):
                 st.session_state["career_result"] = match_careers(get_llm(), prefs, cv)
             top = st.session_state["career_result"].directions
-            save_result("career", ", ".join(d.role for d in top[:2]) or "Напрями",
+            save_result("career", ", ".join(d.role for d in top[:2]) or "Directions",
                         {"career": st.session_state["career_result"].model_dump()})
             st.rerun()  # згорнути форму і показати напрями зверху
         except LLMError as e:
@@ -84,10 +84,10 @@ result = st.session_state.get("career_result")
 if result is None:
     st.stop()
 
-st.header("Твої напрями")
+st.header("Your directions")
 st.markdown(md_escape(result.candidate_summary))
 if result.strongest_assets:
-    st.markdown("**Твої найсильніші сторони:** " + "; ".join(md_escape(x) for x in result.strongest_assets))
+    st.markdown("**Your strongest assets:** " + "; ".join(md_escape(x) for x in result.strongest_assets))
 st.info(md_escape(result.general_advice))
 
 for i, d in enumerate(result.directions):
@@ -95,24 +95,24 @@ for i, d in enumerate(result.directions):
         top_l, top_r = st.columns([3, 1])
         top_l.subheader(md_escape(d.role))
         top_l.caption(md_escape(d.company_type))
-        top_r.metric("Шанс", f"{d.fit_score}%")
+        top_r.metric("Chance", f"{d.fit_score}%")
         st.progress(d.fit_score / 100)
         c1, c2 = st.columns(2)
         with c1:
-            st.markdown("**Чому підходить**")
+            st.markdown("**Why it fits**")
             for x in d.why_fits:
                 st.markdown(f"- {md_escape(x)}")
         with c2:
-            st.markdown("**Чого бракує**")
+            st.markdown("**What's missing**")
             for x in d.gaps:
                 st.markdown(f"- {md_escape(x)}")
-        st.markdown("**Що зробити цього місяця**")
+        st.markdown("**What to do this month**")
         for x in d.first_steps:
             st.markdown(f"- {md_escape(x)}")
-        st.markdown("**Що шукати:** " + ", ".join(f"`{k.replace('`', '')}`" for k in d.search_keywords))
-        if st.button("Покращити CV під цей напрям", key=f"go_analyze_{i}"):
+        st.markdown("**Search for:** " + ", ".join(f"`{k.replace('`', '')}`" for k in d.search_keywords))
+        if st.button("Tailor my CV to this direction", key=f"go_analyze_{i}"):
             st.session_state["prefill_role"] = d.role
             st.session_state["prefill_company"] = d.company_type
             st.switch_page("views/analyze.py")
 
-st.caption(f"Де шукати вакансії: {JOB_BOARDS}. Шанс це оцінка моделі, а не гарантія.")
+st.caption(f"Where to look for jobs: {JOB_BOARDS}. The chance is the model's estimate, not a guarantee.")

@@ -1,4 +1,4 @@
-# Program rubric: Economics and Big Data (KSE)
+# Program rubric: Economics and Big Data
 
 Typical targets: data analyst, business/financial analyst, research assistant or predoc, junior
 economist, risk analyst in banks, product analyst.

@@ -115,7 +115,7 @@ def test_pdf_with_too_many_pages_rejected():
     for i in range(8):
         pdf.add_page()
         pdf.cell(text=f"Page {i}")
-    with pytest.raises(CVReadError, match="8 сторінок"):
+    with pytest.raises(CVReadError, match="8 pages"):
         load_cv("long.pdf", bytes(pdf.output()))
 
 

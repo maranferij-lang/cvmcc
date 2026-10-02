@@ -112,9 +112,9 @@ class GeminiLLM:
 
         if last_error is not None and getattr(last_error, "code", None) == 429:
             raise LLMError(
-                "На сьогодні вичерпано безплатний ліміт моделі. Спробуй за хвилину, а якщо не допоможе, то завтра."
+                "The free AI model has hit its daily limit. Try again in a minute, and if that fails, tomorrow."
             ) from last_error
-        raise LLMError("Усі моделі Gemini зараз перевантажені. Спробуй за хвилину.") from last_error
+        raise LLMError("The free AI models are overloaded right now. Try again in a minute.") from last_error
 
     def _try_models(self, models: list[str], parts: list[Any], cfg: Any, output_model: Type[T]) -> T | Exception:
         """Повертає відповідь, або останню тимчасову помилку, якщо всі моделі зайняті."""
@@ -131,10 +131,10 @@ class GeminiLLM:
                 if e.code in _GEMINI_TRY_NEXT or e.code == 404:
                     continue
                 if e.code in (401, 403) or "API key" in str(e):
-                    raise LLMError("Невірний ключ Gemini. Перевір GEMINI_API_KEY.") from e
-                raise LLMError(f"Gemini відхилив запит ({e.code}): {e.message}") from e
+                    raise LLMError("Invalid Gemini key. Check GEMINI_API_KEY.") from e
+                raise LLMError(f"Gemini rejected the request ({e.code}): {e.message}") from e
             except Exception as e:  # мережа
-                raise LLMError("Немає зв'язку з Gemini API. Перевір інтернет.") from e
+                raise LLMError("Cannot reach the Gemini API. Try again in a minute.") from e
 
             parsed = response.parsed
             if isinstance(parsed, output_model):
@@ -145,7 +145,7 @@ class GeminiLLM:
                 except ValueError:
                     pass
             reason = response.candidates[0].finish_reason if response.candidates else "no candidates"
-            raise LLMError(f"Gemini повернув відповідь у неочікуваному форматі ({reason}). Спробуй ще раз.")
+            raise LLMError(f"The model returned an unexpected format ({reason}). Please try again.")
         return last_error
 
 
@@ -180,22 +180,22 @@ class ClaudeLLM:
         try:
             response = self.client.messages.parse(**kwargs)
         except anthropic.AuthenticationError as e:
-            raise LLMError("Невірний API-ключ. Перевір ANTHROPIC_API_KEY.") from e
+            raise LLMError("Invalid API key. Check ANTHROPIC_API_KEY.") from e
         except anthropic.RateLimitError as e:
-            raise LLMError("Забагато запитів. Спробуй ще раз за хвилину.") from e
+            raise LLMError("Too many requests. Try again in a minute.") from e
         except anthropic.BadRequestError as e:
-            raise LLMError(f"Запит відхилено: {e.message}") from e
+            raise LLMError(f"Request rejected: {e.message}") from e
         except anthropic.APIConnectionError as e:
-            raise LLMError("Немає зв'язку з API. Перевір інтернет.") from e
+            raise LLMError("Cannot reach the API. Try again in a minute.") from e
         except anthropic.APIStatusError as e:
-            raise LLMError(f"Помилка API ({e.status_code}). Спробуй пізніше.") from e
+            raise LLMError(f"API error ({e.status_code}). Try again later.") from e
 
         if response.stop_reason == "refusal":
-            raise LLMError("Модель відмовилась обробити цей запит. Спробуй змінити текст.")
+            raise LLMError("The model declined this request. Try changing the text.")
         if response.stop_reason == "max_tokens":
-            raise LLMError("Відповідь вийшла задовгою й обрізалась. Спробуй ще раз.")
+            raise LLMError("The answer was too long and got cut off. Please try again.")
         if response.parsed_output is None:
-            raise LLMError("Модель повернула відповідь у неочікуваному форматі.")
+            raise LLMError("The model returned an unexpected format.")
         return response.parsed_output
 
 
@@ -209,11 +209,11 @@ def make_llm(gemini_key: str | None = None, anthropic_key: str | None = None) ->
     choice = config.PROVIDER
     if choice == "gemini" or (choice == "auto" and gemini_key):
         if not gemini_key:
-            raise LLMError("CVMAX_PROVIDER=gemini, але GEMINI_API_KEY не задано.")
+            raise LLMError("CVMAX_PROVIDER=gemini, but GEMINI_API_KEY is not set.")
         return GeminiLLM(api_key=gemini_key)
     if choice == "claude" or (choice == "auto" and anthropic_key):
         if not anthropic_key:
-            raise LLMError("CVMAX_PROVIDER=claude, але ANTHROPIC_API_KEY не задано.")
+            raise LLMError("CVMAX_PROVIDER=claude, but ANTHROPIC_API_KEY is not set.")
         return ClaudeLLM(api_key=anthropic_key)
     return None
 
@@ -225,7 +225,7 @@ def ask_structured(llm: Any, *, system: str, content: list[dict], output_model: 
     """Надсилає один запит і повертає відповідь, перевірену за pydantic-схемою."""
     size = len(system) + sum(len(b.get("text", "")) for b in content)
     if size > MAX_REQUEST_CHARS:  # захист від гігантських запитів в обхід обмежень форми
-        raise LLMError("Запит завеликий. Скороти текст вакансії або відповіді й спробуй ще раз.")
+        raise LLMError("The request is too large. Shorten the job posting or your answers and try again.")
     if not hasattr(llm, "ask"):
         # Сирий клієнт у стилі Anthropic SDK (напр. фейковий клієнт у демо й тестах).
         llm = ClaudeLLM(client=llm)

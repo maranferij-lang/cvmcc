@@ -55,7 +55,7 @@ def test_second_round_after_pause(monkeypatch):
 def test_all_busy_gives_friendly_error(monkeypatch):
     monkeypatch.setattr(llm_mod.time, "sleep", lambda s: None)
     g, _ = make([busy()] * 4)
-    with pytest.raises(LLMError, match="перевантажені"):
+    with pytest.raises(LLMError, match="overloaded"):
         ask(g)
 
 

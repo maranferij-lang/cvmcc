@@ -1,4 +1,4 @@
-# Program rubric: Law (KSE)
+# Program rubric: Law
 
 Typical targets: law firm intern, in-house legal in tech or banks, compliance, policy analyst,
 international organisations, legal tech.

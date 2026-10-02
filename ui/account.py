@@ -18,13 +18,13 @@ from ui.common import card, secret
 log = logging.getLogger("cvmax")
 
 LIMIT_NAMES = {
-    "analysis": "аналізів CV",
-    "career": "пошуків напрямів",
-    "grill": "опитувань",
-    "builder": "інтерв'ю в конструкторі",
-    "build": "збирань CV",
-    "export": "оформлень CV",
-    "feedback": "відгуків",
+    "analysis": "CV reviews",
+    "career": "career searches",
+    "grill": "Q&A sessions",
+    "builder": "builder interviews",
+    "build": "CV builds",
+    "export": "PDF exports",
+    "feedback": "feedback messages",
 }
 
 
@@ -106,16 +106,16 @@ def require_login(page_title: str) -> None:
         return
     st.title(page_title)
     if getattr(st.user, "is_logged_in", False):  # увійшов, але Google не підтвердив email
-        st.warning("Google не підтвердив email цього акаунта. Увійди з іншим акаунтом.")
-        st.button("Вийти", on_click=st.logout)
+        st.warning("Google has not verified this account's email. Sign in with another account.")
+        st.button("Sign out", on_click=st.logout)
         st.stop()
     with card("login"):
-        st.subheader("Увійди, щоб продовжити")
+        st.subheader("Sign in to continue")
         st.write(
-            "Вхід через Google займає кілька секунд. Так ми збережемо твої результати, "
-            "а ти зможеш повернутись до них пізніше. CVmax безплатний."
+            "Signing in with Google takes a few seconds. We will save your results "
+            "so you can come back to them later. CVmax is free."
         )
-        st.button("Увійти через Google", type="primary", icon=":material/login:", on_click=st.login, args=("google",))
+        st.button("Sign in with Google", type="primary", icon=":material/login:", on_click=st.login, args=("google",))
     st.stop()
 
 
@@ -138,12 +138,12 @@ def take_limit(kind: str) -> bool:
         result = _fallback_db().consume(_user_key(), kind, user_limit, global_limit)
     if result.get("allowed"):
         return True
-    what = LIMIT_NAMES.get(kind, "запитів")
+    what = LIMIT_NAMES.get(kind, "requests")
     if result.get("reason") == "user":
-        st.warning(f"На сьогодні ти використав(-ла) всі {result.get('limit')} {what}. Повертайся завтра.")
+        st.warning(f"You have used all {result.get('limit')} {what} for today. Come back tomorrow.")
     else:
         st.warning(
-            "CVmax зараз безплатний, і сьогодні загальний ліміт вичерпано. Повертайся завтра, ліміт оновлюється щодня."
+            "CVmax is free, and today's site-wide limit has been reached. Come back tomorrow; limits reset daily."
         )
     return False
 
@@ -154,10 +154,10 @@ def save_result(kind: str, title: str, payload: dict) -> None:
         return
     try:
         get_db().save_result(email, kind, title, payload)
-        st.toast("Збережено в «Мій кабінет»", icon=":material/bookmark:")
+        st.toast("Saved to My account", icon=":material/bookmark:")
     except DBError as e:
         log.warning("save_result failed: %s", e)
-        st.toast("Не вдалося зберегти результат, але він є на цій сторінці.")
+        st.toast("Could not save the result, but it is still on this page.")
 
 
 def log_edit_feedback(analysis_id: str, target_role: str, program: str, items: list[dict]) -> None:
@@ -178,7 +178,7 @@ def send_feedback(page: str, rating: int | None, message: str) -> bool:
         get_db().save_feedback(page, rating, message.strip()[:2000])
     except DBError as e:
         log.warning("save_feedback failed: %s", e)
-        st.error("Не вдалося надіслати відгук. Спробуй трохи пізніше.")
+        st.error("Could not send your feedback. Try again a bit later.")
         return False
     return True
 
@@ -186,5 +186,5 @@ def send_feedback(page: str, rating: int | None, message: str) -> bool:
 def limit_caption(kind: str) -> None:
     """Показує денний ліміт заздалегідь, щоб він не був сюрпризом посеред роботи."""
     user_limit, _ = config.LIMITS[kind]
-    st.caption(f"Безплатно: до {user_limit} {LIMIT_NAMES.get(kind, 'запитів')} на день. Ліміт оновлюється щодня.")
+    st.caption(f"Free: up to {user_limit} {LIMIT_NAMES.get(kind, 'requests')} a day. Limits reset daily.")
 

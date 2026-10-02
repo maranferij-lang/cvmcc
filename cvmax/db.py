@@ -45,11 +45,11 @@ class SupabaseDB:
                                headers=self.headers, timeout=self.timeout)
         except requests.RequestException as e:
             log.warning("supabase %s: %s", name, type(e).__name__)
-            raise DBError("Немає зв'язку з базою даних. Спробуй трохи пізніше.") from e
+            raise DBError("Cannot reach the database. Try again a bit later.") from e
         if r.status_code >= 400:
             # Деталі тільки в журнал сервера: юзеру вони не потрібні і можуть розкрити будову бази.
             log.warning("supabase %s -> %s: %s", name, r.status_code, r.text[:200])
-            raise DBError("База даних тимчасово недоступна. Спробуй трохи пізніше.")
+            raise DBError("The database is temporarily unavailable. Try again a bit later.")
         return r.json() if r.content else None
 
     def touch_user(self, email: str, name: str | None) -> dict:

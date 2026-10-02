@@ -12,34 +12,18 @@ from cvmax.cv_render import has_placeholders, pdf_preview, render_docx, render_p
 from cvmax.edits import apply_edits, changes_markdown, lost_facts, unverified_terms
 from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
-from cvmax.profile import COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
+from cvmax.profile import ANY_COMPANY, COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
 from cvmax.safe_text import md_escape
 from cvmax.structure import changed_bullets, structure_cv
 from ui.account import limit_caption, log_edit_feedback, profile_value, require_login, save_result, send_feedback, take_limit
 from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
 
-# Назви критеріїв з рубрики, щоб в українському інтерфейсі не було англійських заголовків.
-CRITERIA_UK = {
-    "target fit": "Відповідність цілі",
-    "impact bullets": "Пункти з результатом",
-    "evidence and numbers": "Докази й числа",
-    "structure and scannability": "Структура",
-    "length and density": "Довжина",
-    "ats-friendliness": "Читабельність для ATS",
-    "language quality": "Якість мови",
-}
+def plural(n: int, word: str) -> str:
+    """Число з англійським словом: 1 line, 5 lines."""
+    return f"{n} {word}" if n == 1 else f"{n} {word}s"
 
 
-def plural(n: int, one: str, few: str, many: str) -> str:
-    """Українська форма слова після числа: 1 рядок, 2 рядки, 5 рядків."""
-    if n % 10 == 1 and n % 100 != 11:
-        return one
-    if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14:
-        return few
-    return many
-
-
-PRIORITY_LABEL = {"high": ":red-badge[Важливо]", "medium": ":orange-badge[Бажано]", "low": ":gray-badge[Дрібниця]"}
+PRIORITY_LABEL = {"high": ":red-badge[High]", "medium": ":orange-badge[Medium]", "low": ":gray-badge[Low]"}
 
 
 def get_client():
@@ -80,7 +64,7 @@ def edit_sources(s) -> list[str]:
     return ["analysis"] * n_analysis + ["grill"] * n_grill
 
 
-def send_feedback(s) -> None:
+def log_accepted_edits(s) -> None:
     """Один раз на аналіз (і ще раз, якщо змінився вибір): які правки прийнято, а які ні."""
     edits = all_edits(s)
     items = [
@@ -96,7 +80,7 @@ def send_feedback(s) -> None:
 
 
 # ---------- Шапка ----------
-require_login("Аналіз CV")
+require_login("CV review")
 s = state()
 # Значення з профілю підставляються в форму один раз за сесію.
 if not s.get("analyze_defaults_set"):
@@ -112,8 +96,8 @@ if "prefill_role" in st.session_state:
     st.session_state["company_type"] = st.session_state.pop("prefill_company")
     s["open_form"] = True  # нова ціль: показати форму, навіть якщо є старий результат
 
-st.title("Аналіз CV")
-st.caption("Правки під конкретну роль, опитування про твій досвід і план навчання.")
+st.title("CV review")
+st.caption("Edits tailored to a specific role, a short Q&A about your experience, and a plan for what to learn.")
 demo_banner()
 if not consent("analyze"):
     st.stop()
@@ -121,40 +105,40 @@ if not consent("analyze"):
 # ---------- Онбординг ----------
 # Після аналізу форма згортається, щоб результат був одразу під заголовком.
 form_box = (
-    st.expander("Ціль і CV: змінити й проаналізувати знову", icon=":material/tune:", expanded=s.get("open_form", False))
+    st.expander("Goal and CV: edit and run again", icon=":material/tune:", expanded=s.get("open_form", False))
     if s.analysis is not None else st.container()
 )
 with form_box:
     with card("goal"):
-        st.header("1. Про тебе і твою ціль")
+        st.header("1. About you and your goal")
         col1, col2 = st.columns(2)
-        program = col1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="analyze_program")
-        status = col2.selectbox("Статус", STATUSES, key="analyze_status")
+        program = col1.selectbox("Field of study", list(PROGRAMS), format_func=PROGRAMS.get, key="analyze_program")
+        status = col2.selectbox("Status", STATUSES, key="analyze_status")
         background = st.text_area(
-            "Де ти зараз вчишся, працюєш або працював(-ла)?",
+            "Where do you study or work now, or where have you worked?",
             max_chars=1500,
             key="analyze_background",
-            placeholder="Напр.: 3 курс, літнє стажування в продажах, волонтер у студраді",
+            placeholder="E.g.: third-year student, summer sales internship, student council volunteer",
             height=80,
         )
 
-        st.subheader("Куди хочеш потрапити")
-        target_role = st.text_input("Роль", key="target_role", max_chars=120, placeholder="Напр.: Business Analyst, Junior Data Analyst, UX Researcher")
+        st.subheader("Where you want to go")
+        target_role = st.text_input("Role", key="target_role", max_chars=120, placeholder="E.g.: Business Analyst, Junior Data Analyst, UX Researcher")
         col1, col2 = st.columns(2)
-        company_type = col1.selectbox("Тип компанії", COMPANY_TYPES, key="company_type")
-        level = col2.selectbox("Рівень", LEVELS, key="analyze_level")
+        company_type = col1.selectbox("Company type", COMPANY_TYPES, key="company_type")
+        level = col2.selectbox("Level", LEVELS, key="analyze_level")
         company_details = st.text_input(
-            "Конкретна компанія або індустрія (необов'язково)", placeholder="Напр.: Monobank, McKinsey, EdTech-стартап",
+            "Specific company or industry (optional)", placeholder="E.g.: Stripe, McKinsey, an EdTech startup",
             max_chars=200, key="analyze_company_details",
         )
-        region = st.selectbox("Ринок", REGIONS, key="analyze_region")
+        region = st.selectbox("Market", REGIONS, key="analyze_region")
         vacancy_text = st.text_area(
-            "Текст вакансії (дуже бажано)",
+            "Job posting text (highly recommended)",
             max_chars=8000,
-            placeholder="Встав сюди повний опис вакансії: обов'язки і вимоги. Це найбільше покращує поради.",
+            placeholder="Paste the full job posting here: responsibilities and requirements. This improves the advice the most.",
             height=160, key="analyze_vacancy",
         )
-        feedback_lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True, key="analyze_lang")
+        feedback_lang = st.radio("Feedback language", list(FEEDBACK_LANGUAGES), horizontal=True, key="analyze_lang")
 
     profile = Profile(
         program=program,
@@ -169,20 +153,20 @@ with form_box:
         feedback_language=FEEDBACK_LANGUAGES[feedback_lang],
     )
     clarity, hint = profile.target_clarity()
-    if target_role.strip() and clarity == "висока":
-        st.success(f"Ціль зрозуміла. {hint}", icon=":material/target:")
+    if target_role.strip() and clarity == "high":
+        st.success(f"Clear goal. {hint}", icon=":material/target:")
     elif target_role.strip():
-        st.info(f"Порада: {hint}", icon=":material/lightbulb:")
+        st.info(f"Tip: {hint}", icon=":material/lightbulb:")
 
     with card("cv"):
-        st.header("2. Твоє CV")
+        st.header("2. Your CV")
         cv = cv_picker("analyze")
 
     can_run = bool(target_role.strip()) and cv is not None
     limit_caption("analysis")
-    if st.button("Проаналізувати CV", type="primary", disabled=not can_run) and take_limit("analysis"):
+    if st.button("Review my CV", type="primary", disabled=not can_run) and take_limit("analysis"):
         try:
-            with st.spinner("Аналізую CV. Зазвичай це до хвилини, у години пік безплатна модель думає до 2–3 хвилин..."):
+            with st.spinner("Reviewing your CV. Usually under a minute; at peak times the free model can take 2–3 minutes..."):
                 s.analysis = analyze_cv(get_client(), profile, cv)
             s.cv, s.profile = cv, profile
             s.analysis_id = uuid.uuid4().hex
@@ -198,62 +182,60 @@ with form_box:
         except LLMError as e:
             st.error(str(e))
     if not target_role.strip():
-        st.caption("Щоб почати, вкажи роль.")
+        st.caption("Enter a role to get started.")
 
 if s.analysis is None:
     st.stop()
 
 # ---------- Результати ----------
 a = s.analysis
-st.header("Результат")
-company = "" if s.profile.company_type == "Не знаю / будь-яка" else s.profile.company_type
+st.header("Results")
+company = "" if s.profile.company_type == ANY_COMPANY else s.profile.company_type
 st.caption(" · ".join(md_escape(x) for x in (s.profile.target_role, company, s.cv.filename) if x))
 tab_overview, tab_grill, tab_edits, tab_gaps, tab_export = st.tabs(
-    ["Огляд", "Опитування", "Правки", "Що вивчити", "Готове CV"]
+    ["Overview", "Q&A", "Edits", "Skills to build", "Final CV"]
 )
-ukrainian = s.profile.feedback_language != "English"
 
 with tab_overview:
-    st.metric("Готовність CV під ціль", f"{a.overall_score}/100")
+    st.metric("CV fit for this goal", f"{a.overall_score}/100")
     st.write(md_escape(a.summary))
-    with st.expander("Як я зрозумів твою ціль (виправ у формі, якщо не так)"):
+    with st.expander("How I understood your goal (fix it in the form if it's off)"):
         for t in a.target_assumptions:
             st.markdown(f"- {md_escape(t)}")
-    st.subheader("Оцінки за критеріями")
+    st.subheader("Scores by criterion")
     for c in a.scores:
-        name = CRITERIA_UK.get(c.criterion.strip().lower(), c.criterion) if ukrainian else c.criterion
-        st.markdown(f"**{md_escape(name)}**: {'●' * c.score}{'○' * (5 - c.score)}  {md_escape(c.comment)}")
+        st.markdown(f"**{md_escape(c.criterion)}**: {'●' * c.score}{'○' * (5 - c.score)}  {md_escape(c.comment)}")
     flagged = [v for v in a.line_review if v.verdict != "keep"]
     if a.line_review:
-        st.subheader("Перевірка кожного рядка")
+        st.subheader("Line-by-line check")
         n = len(a.line_review)
         st.caption(
-            f"Переглянуто {n} {plural(n, 'рядок', 'рядки', 'рядків')}. "
-            + (f"Зауваження є до {len(flagged)}, правки до них у вкладці «Правки»." if flagged
-               else "Зауважень до окремих рядків немає.")
+            f"Checked {plural(n, 'line')}. "
+            + (f"{len(flagged)} {'has' if len(flagged) == 1 else 'have'} issues, see the Edits tab." if flagged
+               else "No line-level issues.")
         )
-        verdict_label = {"cut": ":red-badge[Прибрати]", "shorten": ":orange-badge[Скоротити]",
-                         "rewrite": ":blue-badge[Переписати]", "move": ":violet-badge[Перенести]"}
+        verdict_label = {"cut": ":red-badge[Cut]", "shorten": ":orange-badge[Shorten]",
+                         "rewrite": ":blue-badge[Rewrite]", "move": ":violet-badge[Move]"}
         for v in flagged:
             st.markdown(f"- {verdict_label.get(v.verdict, v.verdict)} {md_escape(v.line)}  \n  {md_escape(v.reason)}")
     if a.strengths:
-        st.subheader("Що вже добре")
+        st.subheader("What already works")
         for x in a.strengths:
             st.markdown(f"- {md_escape(x)}")
     if s.grill is None:
         st.info(
-            f"**Далі: опитування.** До {config.GRILL_MAX_QUESTIONS} коротких питань про твій досвід. "
-            "З відповідей CVmax візьме числа й факти, яких немає в CV, і зробить з них сильніші правки.",
+            f"**Next: Q&A.** Up to {config.GRILL_MAX_QUESTIONS} short questions about your experience. "
+            "CVmax uses your answers to find numbers and facts missing from your CV and turns them into stronger edits.",
             icon=":material/forum:",
         )
     with card("rate-analysis"):
-        st.markdown("**Чи корисний цей аналіз?**")
+        st.markdown("**Was this review useful?**")
         rated = st.feedback("thumbs", key=f"rate_{s.analysis_id}")
         if rated is not None and s.get("rated_analysis") != s.analysis_id:
             s["rated_analysis"] = s.analysis_id
             if send_feedback("analysis", rated, f"{s.profile.program} · {s.profile.target_role}"[:200]):
-                st.toast("Дякуємо за оцінку!")
-        st.page_link("views/feedback.py", label="Розповісти детальніше", icon=":material/chat:")
+                st.toast("Thanks for the rating!")
+        st.page_link("views/feedback.py", label="Tell us more", icon=":material/chat:")
 
 def known_facts(s) -> str:
     """Усе, що юзер сам про себе сказав: CV, онбординг і відповіді в опитуванні."""
@@ -266,64 +248,64 @@ def known_facts(s) -> str:
 with tab_edits:
     if not all_edits(s) and s.grill_result is None:
         st.info(
-            "Поки правок немає: CV вже непогано читається під цю ціль. Щоб з'явились правки, пройди "
-            "**«Опитування»** (попередня вкладка): з твоїх відповідей CVmax допише числа й факти.",
+            "No edits yet: your CV already reads well for this goal. To get edits, do the **Q&A** "
+            "(previous tab): CVmax will turn your answers into numbers and facts for your CV.",
             icon=":material/forum:",
         )
     elif s.grill_result is None:
         st.info(
-            "Це правки лише з тексту CV. Найсильніші з'являться після **«Опитування»** (попередня вкладка).",
+            "These edits come from your CV text only. The strongest ones appear after the **Q&A** (previous tab).",
             icon=":material/forum:",
         )
     if all_edits(s):
-        st.caption("Відміть правки, які приймаєш. Усе в [дужках] заміни на своє або прибери, якщо це неправда.")
+        st.caption("Tick the edits you accept. Replace anything in [brackets] with your own details, or remove it if it isn't true.")
     facts = known_facts(s)
     for i, e in enumerate(all_edits(s)):
         with card(f"edit-{i}"):
             st.markdown(f"**{md_escape(e.section)}** · {PRIORITY_LABEL[e.priority]}")
             c1, c2 = st.columns(2)
             with c1.container(key=f"before-{i}"):
-                st.caption("БУЛО")
-                st.markdown(md_escape(e.before) or "_(новий пункт)_")
+                st.caption("BEFORE")
+                st.markdown(md_escape(e.before) or "_(new line)_")
             with c2.container(key=f"after-{i}"):
-                st.caption("СТАЛО")
-                st.markdown(md_escape(e.after) or "_(прибрати)_")
+                st.caption("AFTER")
+                st.markdown(md_escape(e.after) or "_(remove)_")
             st.caption(md_escape(e.reason))
             dropped = lost_facts(e.before, e.after)
             if dropped:
                 st.warning(
-                    "Ця правка прибирає з пункту факти: " + ", ".join(dropped)
-                    + ". Якщо вони правдиві й важливі, краще не приймай її або допиши їх у текст."
+                    "This edit drops facts from the line: " + ", ".join(dropped)
+                    + ". If they're true and important, skip this edit or add them back into the text."
                 )
             flagged = unverified_terms(e.after, facts)
             if flagged:
                 st.warning(
-                    "Цього немає ні в CV, ні у твоїх відповідях: " + ", ".join(flagged)
-                    + ". Залиш тільки те, що правда."
+                    "This isn't in your CV or your answers: " + ", ".join(flagged)
+                    + ". Keep only what's true."
                 )
-            st.checkbox("Приймаю", key=f"accept_{i}")
+            st.checkbox("Accept", key=f"accept_{i}")
 
 with tab_gaps:
-    st.caption("Що зробити поза CV, щоб сильно підняти шанси. Від найважливішого.")
+    st.caption("What to do beyond your CV to boost your chances, most important first.")
     for j, g in enumerate(a.gaps):
         with card(f"gap-{j}"):
             st.markdown(f"**{md_escape(g.item)}** · {PRIORITY_LABEL[g.impact]} · {md_escape(g.time_estimate)}")
             st.markdown(md_escape(g.why_it_matters))
-            st.markdown(f"**Як:** {md_escape(g.how_to_close)}")
+            st.markdown(f"**How:** {md_escape(g.how_to_close)}")
 
 with tab_grill:
     st.caption(
-        f"До {config.GRILL_MAX_QUESTIONS} питань про твій досвід: числа, масштаб і те, чого немає в CV. "
-        "З відповідей вийдуть сильніші правки. Нічого не вигадую, беру лише те, що ти скажеш. "
-        "Можна пропускати питання і завершити будь-коли."
+        f"Up to {config.GRILL_MAX_QUESTIONS} questions about your experience: numbers, scale and what's missing from your CV. "
+        "Your answers become stronger edits. Nothing is made up, CVmax only uses what you say. "
+        "You can skip questions and finish at any time."
     )
     if s.get("grill_error"):  # помилка з попереднього проходу, до st.rerun()
         st.error(s.pop("grill_error"))
     if s.grill is None:
-        if st.button("Почати опитування", type="primary") and take_limit("grill"):
+        if st.button("Start Q&A", type="primary") and take_limit("grill"):
             g = GrillSession()
             try:
-                with st.spinner("Думаю над першим питанням..."):
+                with st.spinner("Thinking of the first question..."):
                     next_question(get_client(), s.profile, s.cv, g)
                 s.grill = g
                 st.rerun()
@@ -332,8 +314,8 @@ with tab_grill:
     else:
         g = s.grill
         if g.finished and not g.turns:
-            st.info("CVmax не знайшов, про що розпитати: у CV вже є числа й деталі. "
-                    "Переходь до вкладки «Правки».")
+            st.info("CVmax found nothing to ask about: your CV already has numbers and details. "
+                    "Go to the Edits tab.")
         for i, t in enumerate(g.turns, 1):
             if g.finished and not t.answer:
                 continue
@@ -345,67 +327,67 @@ with tab_grill:
                     st.markdown(md_escape(t.answer))
         if g.pending is not None:
             with st.form("grill_answer", clear_on_submit=True):
-                reply = st.text_area("Твоя відповідь", max_chars=1500)
+                reply = st.text_area("Your answer", max_chars=1500)
                 c1, c2 = st.columns(2)
-                send = c1.form_submit_button("Відповісти", type="primary")
-                skip = c2.form_submit_button("Пропустити")
+                send = c1.form_submit_button("Answer", type="primary")
+                skip = c2.form_submit_button("Skip")
             if send or skip:
                 answer(g, "" if skip else reply)
                 try:
-                    with st.spinner("Наступне питання..."):
+                    with st.spinner("Next question..."):
                         next_question(get_client(), s.profile, s.cv, g)
                 except LLMError as e:
                     s["grill_error"] = str(e)
                 st.rerun()
         elif not g.finished and g.turns and len(g.turns) < g.max_questions and s.grill_result is None:
             # Наступне питання не прийшло (модель була зайнята): даємо спробувати ще раз.
-            if st.button("Наступне питання"):
+            if st.button("Next question"):
                 try:
-                    with st.spinner("Наступне питання..."):
+                    with st.spinner("Next question..."):
                         next_question(get_client(), s.profile, s.cv, g)
                     st.rerun()
                 except LLMError as e:
                     st.error(str(e))
         if s.grill_result is None and any(t.answer for t in g.turns):
-            if st.button("Завершити і отримати правки", type="primary" if g.pending is None else "secondary"):
+            if st.button("Finish and get edits", type="primary" if g.pending is None else "secondary"):
                 try:
-                    with st.spinner("Перетворюю відповіді на правки..."):
+                    with st.spinner("Turning your answers into edits..."):
                         s.grill_result = finalize(get_client(), s.profile, s.cv, g)
                     st.rerun()
                 except LLMError as e:
                     st.error(str(e))
         if s.grill_result is not None:
-            st.success(f"Готово: {len(s.grill_result.edits)} нових правок додано у вкладку «Правки».")
+            st.success(f"Done: {plural(len(s.grill_result.edits), 'new edit')} added to the Edits tab.")
 
 with tab_export:
     edits = all_edits(s)
     accepted = latest_per_line([e for i, e in enumerate(edits) if st.session_state.get(f"accept_{i}")])
     if not accepted:
-        st.info("Спершу прийми хоча б одну правку у вкладці «Правки».")
+        st.info("First, accept at least one edit in the Edits tab.")
     elif not s.cv.text.strip():
-        st.warning("З цього PDF не вдалося витягти текст (схоже на скан). Бери правки зі списку нижче.")
-        st.download_button("Завантажити список правок (.md)", changes_markdown(accepted), "cvmax_changes.md",
-                           on_click=send_feedback, args=(s,))
+        st.warning("Couldn't extract text from this PDF (it looks like a scan). Use the list of edits below.")
+        st.download_button("Download list of edits (.md)", changes_markdown(accepted), "cvmax_changes.md",
+                           on_click=log_accepted_edits, args=(s,))
     else:
         report = apply_edits(s.cv.text, accepted)
         if report.not_found:
             st.warning(
-                f"{len(report.not_found)} правок не вдалося знайти в тексті автоматично. "
-                "Внеси їх вручну, вони є у списку правок."
+                f"Couldn't place {plural(len(report.not_found), 'edit')} in the text automatically. "
+                "Add them by hand, they're in the list of edits."
             )
-        with st.expander("Текст CV з правками", expanded=False):
-            text = st.text_area("Можна підправити перед оформленням", report.text, height=400, max_chars=40_000,
+        with st.expander("CV text with edits", expanded=False):
+            text = st.text_area("You can tweak it before formatting", report.text, height=400, max_chars=40_000,
                                 key=f"export_text_{hash(report.text)}")
 
-        st.subheader("Оформлене CV")
-        st.caption("Один шаблон, перевірений рекрутерами: шрифт без засічок, чіткі розділи, дати праворуч.")
+        st.subheader("Formatted CV")
+        st.caption("One recruiter-tested template: sans-serif font, clear sections, dates on the right.")
         formatted = s.get("formatted_cv")
         if formatted is None or formatted[0] != text:
-            if st.button("Оформити CV (PDF і DOCX)", type="primary") and take_limit("export"):
+            if st.button("Format my CV (PDF and DOCX)", type="primary") and take_limit("export"):
                 try:
-                    with st.spinner("Розкладаю CV по розділах..."):
+                    with st.spinner("Splitting your CV into sections..."):
                         s["formatted_cv"] = (text, structure_cv(get_client(), text))
-                    send_feedback(s)
+                    log_accepted_edits(s)
                     st.rerun()
                 except LLMError as e:
                     st.error(str(e))
@@ -414,26 +396,26 @@ with tab_export:
             changed = changed_bullets(text, built)
             if changed:
                 st.warning(
-                    "Ці пункти в оформленому CV відрізняються від твого тексту. Перевір їх перед відправкою:\n\n"
+                    "These lines in the formatted CV differ from your text. Check them before you send it:\n\n"
                     + "\n".join(f"- {md_escape(b)}" for b in changed)
                 )
             holes = has_placeholders(built)
             if holes:
-                st.warning("Заміни або прибери заповнювачі в цих рядках:\n\n" + "\n".join(f"- {md_escape(h)}" for h in holes))
+                st.warning("Replace or remove the placeholders in these lines:\n\n" + "\n".join(f"- {md_escape(h)}" for h in holes))
             pdf = render_pdf(built)
             with card("export-preview"):
                 for page in pdf_preview(pdf):
                     st.image(page, width="stretch")
             name = built.full_name.replace(" ", "_") or "cv"
             c1, c2 = st.columns(2)
-            c1.download_button("Завантажити PDF", pdf, f"{name}_CV.pdf", mime="application/pdf",
-                               type="primary", on_click=send_feedback, args=(s,))
-            c2.download_button("Завантажити DOCX", render_docx(built), f"{name}_CV.docx",
-                               on_click=send_feedback, args=(s,))
-            st.caption("DOCX можна відкрити у Word або Google Docs, якщо хочеш щось змінити вручну.")
+            c1.download_button("Download PDF", pdf, f"{name}_CV.pdf", mime="application/pdf",
+                               type="primary", on_click=log_accepted_edits, args=(s,))
+            c2.download_button("Download DOCX", render_docx(built), f"{name}_CV.docx",
+                               on_click=log_accepted_edits, args=(s,))
+            st.caption("Open the DOCX in Word or Google Docs if you want to change anything by hand.")
 
         st.divider()
         c1, c2 = st.columns(2)
-        c1.download_button("Текст CV (.txt)", text, "cv_cvmax.txt", on_click=send_feedback, args=(s,))
-        c2.download_button("Список правок (.md)", changes_markdown(accepted), "cvmax_changes.md",
-                           on_click=send_feedback, args=(s,))
+        c1.download_button("CV text (.txt)", text, "cv_cvmax.txt", on_click=log_accepted_edits, args=(s,))
+        c2.download_button("List of edits (.md)", changes_markdown(accepted), "cvmax_changes.md",
+                           on_click=log_accepted_edits, args=(s,))

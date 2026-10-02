@@ -11,16 +11,16 @@ from ui.account import current_email, get_db, save_profile, user_row
 
 row = user_row() or {}
 email = current_email()
-st.title("Мій кабінет")
-st.caption(f"Ти увійшов(-ла) як {email}")
+st.title("My account")
+st.caption(f"Signed in as {email}")
 
-KIND_LABEL = {"analysis": "Аналіз CV", "career": "Куди податись", "builder": "Конструктор"}
+KIND_LABEL = {"analysis": "CV review", "career": "Where to apply", "builder": "CV builder"}
 
-tab_history, tab_profile, tab_data = st.tabs(["Мої результати", "Профіль", "Дані й вихід"])
+tab_history, tab_profile, tab_data = st.tabs(["My results", "Profile", "Data and sign out"])
 
 with tab_history:
     if not get_db().persistent:
-        st.info("Збереження результатів ще не налаштоване на цьому сайті.")
+        st.info("Saving results isn't set up on this site yet.")
     else:
         try:
             items = get_db().list_results(email)
@@ -28,11 +28,11 @@ with tab_history:
             st.error(str(e))
             items = []
         if not items:
-            st.write("Тут з'являться твої аналізи, напрями і зібрані CV.")
+            st.write("Your CV reviews, career directions and built CVs will show up here.")
         for item in items:
             label = f"{KIND_LABEL.get(item['kind'], item['kind'])} · {md_escape(item['title'])} · {item['created_at'][:10]}"
             with st.expander(label):
-                if not st.toggle("Показати", key=f"show_{item['id']}"):
+                if not st.toggle("Show", key=f"show_{item['id']}"):
                     continue
                 try:
                     full = get_db().get_result(email, item["id"]) or {}
@@ -43,10 +43,10 @@ with tab_history:
                 if item["kind"] == "analysis" and "analysis" in payload:
                     payload["analysis"].setdefault("line_review", [])  # старі результати без перевірки рядків
                     a = Analysis.model_validate(payload["analysis"])
-                    st.metric("Готовність CV", f"{a.overall_score}/100")
+                    st.metric("CV fit", f"{a.overall_score}/100")
                     st.markdown(md_escape(a.summary))
                     for e in a.edits:
-                        st.markdown(f"- **{md_escape(e.section)}:** {md_escape(e.after) or '(прибрати)'}")
+                        st.markdown(f"- **{md_escape(e.section)}:** {md_escape(e.after) or '(remove)'}")
                 elif item["kind"] == "career" and "career" in payload:
                     c = CareerMatch.model_validate(payload["career"])
                     st.markdown(md_escape(c.general_advice))
@@ -64,29 +64,29 @@ with tab_history:
 with tab_profile:
     with st.form("profile"):
         programs = list(PROGRAMS)
-        program = st.selectbox("Програма в КШЕ", programs, format_func=PROGRAMS.get,
+        program = st.selectbox("Field of study", programs, format_func=PROGRAMS.get,
                                index=programs.index(row["program"]) if row.get("program") in programs else 0)
-        status = st.selectbox("Статус", STATUSES,
+        status = st.selectbox("Status", STATUSES,
                               index=STATUSES.index(row["status"]) if row.get("status") in STATUSES else 0)
-        background = st.text_area("Твій досвід коротко", max_chars=1500, value=row.get("background") or "", height=80)
-        goal = st.text_input("Чого хочеш досягти?", max_chars=300, value=row.get("goal") or "")
-        if st.form_submit_button("Зберегти", type="primary"):
+        background = st.text_area("Your experience in brief", max_chars=1500, value=row.get("background") or "", height=80)
+        goal = st.text_input("What do you want to achieve?", max_chars=300, value=row.get("goal") or "")
+        if st.form_submit_button("Save", type="primary"):
             try:
                 save_profile(program, status, background, goal)
-                st.success("Збережено.")
+                st.success("Saved.")
             except DBError as e:
                 st.error(str(e))
 
 with tab_data:
-    st.write("Ти можеш будь-коли видалити всі свої дані: профіль, збережені результати й історію використання.")
-    confirm = st.checkbox("Так, я хочу назавжди видалити свої дані")
-    if st.button("Видалити мої дані", disabled=not confirm):
+    st.write("You can delete all your data at any time: your profile, saved results and usage history.")
+    confirm = st.checkbox("Yes, I want to permanently delete my data")
+    if st.button("Delete my data", disabled=not confirm):
         try:
             get_db().delete_my_data(email)
             st.session_state.pop("user_row", None)
-            st.success("Дані видалено.")
+            st.success("Your data has been deleted.")
             st.logout()
         except DBError as e:
             st.error(str(e))
     st.divider()
-    st.button("Вийти", icon=":material/logout:", on_click=st.logout)
+    st.button("Sign out", icon=":material/logout:", on_click=st.logout)

@@ -1,59 +1,60 @@
-"""Про нас."""
+"""About."""
 
 import streamlit as st
 
 from cvmax import config
 from ui.common import card, secret
 
-st.title("Про CVmax")
+st.title("About CVmax")
 st.markdown(
-    '<p class="cvx-page-lead">CVmax допомагає студентам зробити англомовне CV, яке читається за шість секунд '
-    "і пояснює рекрутеру, чому тебе варто покликати. Без шаблонних порад і без вигаданого досвіду.</p>",
+    '<p class="cvx-page-lead">CVmax is a free AI CV coach for students and early-career people applying to '
+    "international companies. It helps you build an English CV that reads in six seconds and tells a recruiter "
+    "why you are worth a call. No generic tips, no invented experience.</p>",
     unsafe_allow_html=True,
 )
 st.markdown(
     f"""
 <div class="cvx-facts">
-  <div><b>6</b><span>програм КШЕ з окремими критеріями оцінки</span></div>
-  <div><b>47</b><span>джерел, з яких зібрані критерії: рекрутери, кар'єрні центри, дослідження</span></div>
-  <div><b>{config.GRILL_MAX_QUESTIONS}</b><span>питань в опитуванні, щоб знайти досвід, якого немає в CV</span></div>
+  <div><b>6</b><span>fields of study with their own criteria</span></div>
+  <div><b>47</b><span>sources behind the criteria: recruiters, career centers, research</span></div>
+  <div><b>{config.GRILL_MAX_QUESTIONS}</b><span>questions in the Q&amp;A to find experience missing from your CV</span></div>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
-st.header("Навіщо це")
+st.header("Why")
 st.write(
-    "Студентам потрібне сильне англомовне CV для стажувань і першої роботи, але скласти його складно. "
-    "Порад в інтернеті багато, і вони суперечать одна одній. Кар'єрні консультанти не можуть сісти з кожним "
-    "над кожною вакансією. А загальні чат-боти охоче переписують CV красивими словами, яких рекрутер "
-    "не повірить, бо за ними немає фактів."
+    "You need a strong English CV for internships and your first job, but writing one is hard. "
+    "There is plenty of advice online, and most of it contradicts itself. Career advisors can't sit with "
+    "everyone over every job posting. And general chatbots are happy to rewrite your CV in polished words "
+    "a recruiter won't believe, because there are no facts behind them."
 )
 st.write(
-    "Проєкт почав студент Київської школи економіки, який сам пройшов цей шлях: довго шукав приклади, "
-    "переписував CV вручну і лише потім дізнався, що головне було не в словах, а в тому, що саме лишити, "
-    "що прибрати і як показати результат."
+    "CVmax was built by a student who went through rewriting their own CV many times: hunting for examples, "
+    "editing line by line, and only then learning that what matters isn't the wording. It's what to keep, "
+    "what to cut and how to show results."
 )
 
-st.header("Як CVmax думає")
+st.header("How CVmax thinks")
 steps = [
-    ("Спершу ціль, потім CV",
-     "Той самий пункт сильний для консалтингу і зайвий для розробки. Тому аналіз починається з ролі, типу "
-     "компанії і, найкраще, повного тексту вакансії."),
-    ("Кожен рядок окремо",
-     "Модель дає вердикт кожному рядку: лишити, скоротити, переписати, перенести чи прибрати. Пункт, "
-     "де є лише тема без дії й результату, не лишається. Дублі й «вихваляння», яке не працює на ціль, теж."),
-    ("Довжина під одну сторінку",
-     "Ми рахуємо слова і сторінки. Якщо CV задовге, CVmax каже, що різати першим, з огляду на твою ціль."),
-    ("Нічого не вигадує",
-     "Де бракує числа, з'являється [X], а не вигадане число. Окремий перевіряльник підсвічує в правках "
-     "навички, числа й посилання, яких немає ні в CV, ні у твоїх відповідях."),
-    ("Розпитує, а не здогадується",
-     "Опитування чергує два типи питань: уточнити числа в наявних пунктах і знайти досвід, про який ти не "
-     "написав(-ла): проєкти, AI-інструменти, дослідження, волонтерство."),
-    ("Вчиться на відгуках",
-     "Ми бачимо, які правки студенти приймають, а які відхиляють, і змінюємо критерії. Кожну знайдену "
-     "помилку додаємо в набір тестів, щоб вона не повторилась."),
+    ("Goal first, then the CV",
+     "The same line can be strong for consulting and useless for software. So every review starts with the "
+     "role, the type of company and, ideally, the full job posting."),
+    ("Every line on its own",
+     "The model gives each line a verdict: keep, shorten, rewrite, move or cut. A bullet that names a topic "
+     "with no action or result doesn't stay. Neither do duplicates or bragging that doesn't serve your goal."),
+    ("One page",
+     "We count words and pages. If your CV runs long, CVmax tells you what to cut first, based on your goal."),
+    ("Never makes things up",
+     "Where a number is missing, you get [X], not an invented figure. A separate checker flags skills, numbers "
+     "and links in the edits that appear neither in your CV nor in your answers."),
+    ("Asks instead of guessing",
+     "The Q&A alternates two kinds of questions: pinning down numbers in your existing bullets and finding "
+     "experience you left out: projects, AI tools, research, volunteering."),
+    ("Learns from feedback",
+     "We see which edits people accept and which they reject, and we adjust the criteria. Every mistake we "
+     "find goes into our test set so it doesn't happen again."),
 ]
 for row in range(0, len(steps), 2):
     for col, (i, (title, text)) in zip(st.columns(2), enumerate(steps[row:row + 2], start=row)):
@@ -61,26 +62,20 @@ for row in range(0, len(steps), 2):
             st.markdown(f"**{title}**")
             st.write(text)
 
-st.header("Що всередині")
+st.header("What's inside")
 st.markdown(
-    "- **Модель:** Google Gemini (безплатний тариф на час пілоту).\n"
-    "- **Критерії:** загальні правила сильного CV і окремі для кожної програми, зібрані з порад рекрутерів "
-    "консалтингових і технологічних компаній, кар'єрних центрів університетів і досліджень про те, як читають CV.\n"
-    "- **Перевірка якості:** набір вигаданих CV з відомими проблемами, на якому ми проганяємо кожну зміну."
+    "- **Model:** Google Gemini (free tier).\n"
+    "- **Criteria:** general rules for a strong CV plus separate ones for each field, built from advice by "
+    "recruiters at consulting and tech companies, university career centers and research on how CVs are read.\n"
+    "- **Quality checks:** a set of made-up CVs with known problems that we run every change against."
 )
 
-st.header("Статус і відгуки")
+st.header("Status and feedback")
 st.write(
-    "Зараз це безплатний пілот для студентів КШЕ. Ліміти на день потрібні, щоб сервіс лишався безплатним для "
-    "всіх. Найцінніше для нас зараз: випадки, де CVmax помилився або порадив дурницю. Напиши, що саме "
-    "сталось, і ми додамо це в тести."
+    "CVmax is free. Daily limits keep it free for everyone. The most useful thing you can send us: cases where "
+    "CVmax got it wrong. Tell us what happened and we'll add it to our tests."
 )
-st.page_link("views/feedback.py", label="Залишити відгук", icon=":material/chat:")
+st.page_link("views/feedback.py", label="Leave feedback", icon=":material/chat:")
 contact = secret("CVMAX_CONTACT")
 if contact:
-    st.write(f"Зв'язатися з нами: {contact}")
-
-st.caption(
-    "CVmax це незалежний студентський проєкт. Він зроблений для студентів КШЕ, але не є офіційним сервісом "
-    "Київської школи економіки, і школа не відповідає за його роботу."
-)
+    st.write(f"Contact us: {contact}")

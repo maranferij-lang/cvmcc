@@ -4,44 +4,46 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-# Програми КШЕ, під які є окремі рубрики. Ключ = ім'я файлу в cvmax/rubrics/.
+# Напрями навчання, під які є окремі рубрики. Ключ = ім'я файлу в cvmax/rubrics/.
 PROGRAMS: dict[str, str] = {
-    "economics_big_data": "Економіка та великі дані",
-    "business_economics": "Бізнес-економіка",
-    "software_engineering": "Програмна інженерія",
-    "artificial_intelligence": "Штучний інтелект",
-    "psychology": "Психологія",
-    "law": "Право",
-    "other": "Інша програма",
+    "economics_big_data": "Economics & data science",
+    "business_economics": "Business & economics",
+    "software_engineering": "Software engineering",
+    "artificial_intelligence": "AI & machine learning",
+    "psychology": "Psychology",
+    "law": "Law",
+    "other": "Other",
 }
 
-STATUSES = ["1 курс", "2 курс", "3 курс", "4 курс", "Магістратура", "Випускник"]
+STATUSES = ["1st year", "2nd year", "3rd year", "4th year", "Master's", "Graduate"]
 
-LEVELS = ["Стажування", "Junior / перша робота", "Middle"]
+LEVELS = ["Internship", "Junior / first job", "Mid-level"]
 
 COMPANY_TYPES = [
-    "Не знаю / будь-яка",
-    "Консалтинг (Big 4, MBB, локальний)",
-    "Фінтех / банк",
-    "Big Tech / продуктова IT-компанія",
-    "IT-аутсорс / аутстаф",
-    "Стартап",
-    "FMCG / ритейл / індустрія",
-    "Інвестиційний фонд / фінанси",
-    "Держсектор / міжнародна організація / NGO",
-    "Юридична фірма",
-    "Дослідницька лабораторія / академія",
-    "Інше",
+    "Any / not sure",
+    "Consulting (Big 4, MBB, boutique)",
+    "Fintech / bank",
+    "Big Tech / product company",
+    "IT services / outsourcing",
+    "Startup",
+    "FMCG / retail / industry",
+    "Investment fund / finance",
+    "Government / international org / NGO",
+    "Law firm",
+    "Research lab / academia",
+    "Other",
 ]
+ANY_COMPANY = COMPANY_TYPES[0]
 
 REGIONS = [
-    "Міжнародні компанії в Україні",
-    "Європа",
-    "США / Канада",
-    "Віддалено, будь-де",
+    "US / Canada",
+    "UK",
+    "EU",
+    "Ukraine / Eastern Europe",
+    "Remote, anywhere",
 ]
 
-FEEDBACK_LANGUAGES = {"Українська": "Ukrainian", "English": "English"}
+FEEDBACK_LANGUAGES = {"English": "English", "Українська": "Ukrainian"}
 
 
 @dataclass
@@ -55,18 +57,18 @@ class Profile:
     level: str
     region: str
     vacancy_text: str
-    feedback_language: str  # "Ukrainian" або "English"
+    feedback_language: str  # "English" або "Ukrainian"
 
     def target_clarity(self) -> tuple[str, str]:
         """Наскільки чітко описана ціль. Від цього прямо залежить якість порад."""
         if len(self.vacancy_text.strip()) >= 300:
-            return "висока", "Є текст вакансії, поради будуть під конкретні вимоги."
-        specific_company = self.company_type not in ("Не знаю / будь-яка", "Інше") or self.company_details.strip()
+            return "high", "You added a job posting, so the advice will match its requirements."
+        specific_company = self.company_type not in (ANY_COMPANY, "Other") or self.company_details.strip()
         if self.target_role.strip() and specific_company:
-            return "середня", "Роль і тип компанії є. Текст реальної вакансії зробить поради точнішими."
-        return "низька", (
-            "Одна назва ролі означає різне в різних компаніях. Бізнес-аналітик у консалтингу "
-            "і у фінтеху мають різні вимоги. Додай тип компанії або встав текст вакансії."
+            return "medium", "Role and company type are set. Pasting a real job posting makes the advice sharper."
+        return "low", (
+            "The same job title means different things at different companies: a business analyst in consulting "
+            "and one in fintech need different CVs. Add a company type or paste the job posting."
         )
 
     def to_prompt(self) -> str:
@@ -74,7 +76,7 @@ class Profile:
         vacancy = self.vacancy_text.strip() or "(not provided)"
         return (
             "<candidate_profile>\n"
-            f"University program: {program} (Kyiv School of Economics)\n"
+            f"Field of study: {program}\n"
             f"Study status: {self.status}\n"
             f"Background in their own words: {self.background.strip() or '(not provided)'}\n"
             "</candidate_profile>\n"

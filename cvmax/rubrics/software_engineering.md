@@ -1,4 +1,4 @@
-# Program rubric: Software Engineering (KSE)
+# Program rubric: Software Engineering
 
 Typical targets: backend, frontend, full-stack, mobile, QA automation, DevOps intern/junior.
 

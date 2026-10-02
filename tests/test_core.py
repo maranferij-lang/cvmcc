@@ -17,7 +17,7 @@ from cvmax.schemas import Edit
 def make_profile(**over):
     base = dict(
         program="economics_big_data", status="3 курс", background="", target_role="Data Analyst",
-        company_type="Фінтех / банк", company_details="", level="Стажування", region="Європа",
+        company_type="Fintech / bank", company_details="", level="Internship", region="EU",
         vacancy_text="", feedback_language="Ukrainian",
     )
     base.update(over)
@@ -38,9 +38,9 @@ def _docx_bytes(text):
 
 
 def test_target_clarity_levels():
-    assert make_profile(company_type="Не знаю / будь-яка").target_clarity()[0] == "низька"
-    assert make_profile().target_clarity()[0] == "середня"
-    assert make_profile(vacancy_text="x" * 300).target_clarity()[0] == "висока"
+    assert make_profile(company_type="Any / not sure").target_clarity()[0] == "low"
+    assert make_profile().target_clarity()[0] == "medium"
+    assert make_profile(vacancy_text="x" * 300).target_clarity()[0] == "high"
 
 
 def test_every_program_has_rubric():
@@ -119,7 +119,7 @@ def test_grill_respects_question_limit():
 
 def test_exports():
     md = changes_markdown(demo_analysis().edits)
-    assert "**Було:**" in md and "(прибрати)" in md
+    assert "**Before:**" in md and "(remove)" in md
     assert text_to_docx("a\nb")[:2] == b"PK"
 
 

@@ -1,4 +1,4 @@
-# Program rubric: Business Economics (KSE)
+# Program rubric: Business Economics
 
 Typical targets: consulting analyst, business analyst, finance/FP&A, investment banking analyst,
 Big 4, marketing analyst, founder's associate.

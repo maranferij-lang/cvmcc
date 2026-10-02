@@ -1,4 +1,4 @@
-# Program rubric: Psychology (KSE)
+# Program rubric: Psychology
 
 Typical targets: HR and people analytics, UX research, research assistant, NGO psychosocial programmes,
 L&D, customer research.

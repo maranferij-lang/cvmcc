@@ -1,4 +1,4 @@
-"""Умови користування."""
+"""Terms of use."""
 
 import streamlit as st
 
@@ -6,51 +6,50 @@ from cvmax import config
 from ui.account import auth_configured
 from ui.common import secret
 
-st.title("Умови користування")
-st.caption("Остання редакція: 1 жовтня 2026")
+st.title("Terms")
+st.caption("Last updated: October 2, 2026")
 st.markdown(
-    '<p class="cvx-page-lead">Коротко: CVmax безплатний і дає поради, але рішення, що писати в CV, '
-    "ухвалюєш ти. Пиши тільки правду.</p>",
+    '<p class="cvx-page-lead">In short: CVmax is free and gives advice, but you decide what goes in your CV. '
+    "Only write the truth.</p>",
     unsafe_allow_html=True,
 )
 
 limits = config.LIMITS
 sections = [
-    ("Що таке CVmax",
-     "CVmax це безплатний експериментальний інструмент, який за допомогою штучного інтелекту дає поради "
-     "щодо CV і кар'єрних напрямів. Зараз він працює як пілот для студентів КШЕ. Це незалежний студентський "
-     "проєкт, не офіційний сервіс Київської школи економіки."),
-    ("Без гарантій",
-     "Поради створює мовна модель, і вона може помилятися. CVmax не гарантує запрошень на співбесіду чи "
-     "працевлаштування. Сервіс надається «як є», і в пілотному режимі він може бути недоступний, змінюватися "
-     "або припинити роботу."),
-    ("Твоя відповідальність",
-     "Ти сам(-а) вирішуєш, які правки приймати. Перевіряй кожну з них і вказуй у CV тільки правду. "
-     "Якщо правка містить факт, якого в тебе немає, прибери його. Заповнювачі на кшталт [X] заміни на "
-     "реальні числа або прибери."),
-    ("Допустиме використання",
-     "Не завантажуй чужі CV без згоди власника, файли зі шкідливим вмістом або дані, які не стосуються CV. "
-     "Не намагайся обійти ліміти, отримати доступ до чужих даних, перевантажити сервіс чи змусити модель "
-     "робити щось, крім допомоги з CV. За таке ми можемо закрити доступ."),
-    ("Акаунт і ліміти",
-     ("Вхід здійснюється через Google. " if auth_configured() else "Реєстрація не потрібна. ")
-     + "Щоб сервіс лишався безплатним, кількість дій на день обмежена: "
-     f"аналізів CV {limits['analysis'][0]}, пошуків напрямів {limits['career'][0]}, опитувань "
-     f"{limits['grill'][0]}, інтерв'ю в конструкторі {limits['builder'][0]}, збирань CV {limits['build'][0]}, оформлень у PDF {limits['export'][0]}. "
-     "Є і загальний денний ліміт на весь сайт. Ліміти оновлюються щодня."),
-    ("Твій контент",
-     "CV і відповіді лишаються твоїми. Ти дозволяєш нам обробляти їх лише для того, щоб показати тобі "
-     "результат, і зберігати тексти правок, щоб покращувати поради. Готове CV можна використовувати як завгодно."),
-    ("Дані",
-     "Як ми обробляємо дані, описано на сторінці «Конфіденційність»."
-     + (" Свої дані можна видалити в «Мій кабінет»." if auth_configured() else "")),
-    ("Зміни",
-     "Ми можемо оновлювати ці умови. Актуальна версія завжди на цій сторінці."),
+    ("What CVmax is",
+     "CVmax is a free experimental tool that uses AI to give advice on CVs and career directions. "
+     "It is an independent project."),
+    ("No guarantees",
+     "The advice comes from a language model, and it can make mistakes. CVmax does not guarantee interviews "
+     "or job offers. The service is provided \"as is\" and may be unavailable, change or shut down at any time."),
+    ("Your responsibility",
+     "You decide which edits to accept. Check each one and put only the truth in your CV. "
+     "If an edit contains a fact that isn't true for you, remove it. Replace placeholders like [X] with "
+     "real numbers or remove them."),
+    ("Acceptable use",
+     "Don't upload someone else's CV without their consent, files with malicious content, or data unrelated "
+     "to a CV. Don't try to bypass the limits, access other people's data, overload the service or get the "
+     "model to do anything other than help with CVs. We may block access if you do."),
+    ("Account and limits",
+     ("Sign-in is through Google. " if auth_configured() else "No sign-up needed. ")
+     + "To keep the service free, the number of actions per day is limited: "
+     f"{limits['analysis'][0]} CV reviews, {limits['career'][0]} career searches, "
+     f"{limits['grill'][0]} Q&A sessions, {limits['builder'][0]} builder interviews, "
+     f"{limits['build'][0]} CV builds and {limits['export'][0]} PDF exports. "
+     "There is also an overall daily limit for the whole site. Limits reset every day."),
+    ("Your content",
+     "Your CV and answers remain yours. You allow us to process them only to show you results, and to store "
+     "the text of edits to improve our advice. You can use your final CV however you like."),
+    ("Data",
+     "How we handle your data is described on the Privacy page."
+     + (" You can delete your data in My account." if auth_configured() else "")),
+    ("Changes",
+     "We may update these terms. The current version is always on this page."),
 ]
 for title, text in sections:
     st.subheader(title)
     st.write(text)
 contact = secret("CVMAX_CONTACT")
 if contact:
-    st.subheader("Контакти")
+    st.subheader("Contact")
     st.write(contact)

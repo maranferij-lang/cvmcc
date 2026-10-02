@@ -97,13 +97,13 @@ def apply_edits(cv_text: str, edits: list[Edit]) -> ApplyReport:
 
 
 def changes_markdown(edits: list[Edit]) -> str:
-    lines = ["# CVmax: прийняті правки", ""]
+    lines = ["# CVmax: accepted edits", ""]
     for i, e in enumerate(edits, 1):
         lines.append(f"## {i}. {e.section}")
         if e.before.strip():
-            lines.append(f"**Було:** {e.before.strip()}")
-        lines.append(f"**Стало:** {e.after.strip() or '(прибрати)'}")
-        lines.append(f"_Чому:_ {e.reason.strip()}")
+            lines.append(f"**Before:** {e.before.strip()}")
+        lines.append(f"**After:** {e.after.strip() or '(remove)'}")
+        lines.append(f"_Why:_ {e.reason.strip()}")
         lines.append("")
     return "\n".join(lines)
 

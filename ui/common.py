@@ -40,17 +40,17 @@ def is_demo() -> bool:
 
 
 def provider_name() -> str:
-    return "демо" if is_demo() else get_llm().provider
+    return "demo mode" if is_demo() else get_llm().provider
 
 
 def demo_banner() -> None:
     if is_demo():
-        st.info("Демо-режим: ключ моделі не налаштовано, тому відповіді заготовлені. Так можна подивитись інтерфейс.")
+        st.info("Demo mode: no model key is set, so the answers are pre-written. Use it to look around the interface.")
 
 
 PRIVACY_NOTE = {
-    "Google Gemini API": " На безплатному тарифі Google може переглядати надіслані дані і використовувати їх "
-    "для покращення своїх продуктів, тому краще прибери з CV телефон і адресу.",
+    "Google Gemini API": " On the free tier Google may review submitted data and use it to improve its products, "
+    "so remove your phone number and address from the CV first.",
 }
 
 
@@ -61,16 +61,16 @@ def consent(page: str) -> bool:
     box = st.container() if already else card(f"consent-{page}")
     with box:
         if not already:
-            st.markdown("**Перед початком**")
-            st.caption("CV містить персональні дані, тому нам потрібна твоя згода. Це один раз за сесію.")
+            st.markdown("**Before you start**")
+            st.caption("Your CV contains personal data, so we need your consent. Once per session.")
         given = st.checkbox(
-            f"Я погоджуюсь, що моє CV і відповіді надсилаються в {provider} лише для аналізу. "
-            "CVmax не зберігає файл CV, він зникає після закриття вкладки."
+            f"I agree that my CV and answers are sent to {provider} for analysis only. "
+            "CVmax does not store your CV file; it disappears when you close the tab."
             + PRIVACY_NOTE.get(provider, ""),
             value=already,
             key=f"consent_{page}",
         )
-        st.page_link("views/privacy.py", label="Як ми обробляємо дані", icon=":material/shield:")
+        st.page_link("views/privacy.py", label="How we handle your data", icon=":material/shield:")
     st.session_state["consented"] = given
     return given
 
@@ -81,21 +81,21 @@ def cv_picker(page: str) -> CVFile | None:
     if current is not None:
         c1, c2 = st.columns([3, 1])
         c1.success(f"CV: {current.filename}")
-        if c2.button("Інше CV", key=f"replace_cv_{page}"):
+        if c2.button("Another CV", key=f"replace_cv_{page}"):
             del st.session_state["cv_file"]
             st.rerun()
         return current
 
-    uploaded = st.file_uploader("PDF або DOCX, англійською", type=["pdf", "docx"], key=f"upload_{page}")
+    uploaded = st.file_uploader("PDF or DOCX, in English", type=["pdf", "docx"], key=f"upload_{page}")
     if uploaded is None:
         if is_demo():
-            st.caption("У демо-режимі можна не завантажувати CV: буде використано приклад.")
+            st.caption("In demo mode you can skip the upload: a sample CV is used.")
             return CVFile(filename="demo_cv.txt", text=DEMO_CV_TEXT)
         return None
     try:
         data = uploaded.getvalue()
         if len(data) > config.MAX_FILE_MB * 1024 * 1024:
-            raise CVReadError(f"Файл більший за {config.MAX_FILE_MB} МБ.")
+            raise CVReadError(f"The file is larger than {config.MAX_FILE_MB} MB.")
         cv = load_cv(uploaded.name, data)
     except CVReadError as e:
         st.error(str(e))

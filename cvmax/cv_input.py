@@ -65,16 +65,16 @@ def _parse(kind: str, data: bytes) -> dict:
             )
         result = json.loads(proc.stdout or b"{}")
     except (subprocess.TimeoutExpired, ValueError) as e:
-        raise CVReadError(f"Не вдалося прочитати {label}: файл завеликий або пошкоджений.") from e
+        raise CVReadError(f"Could not read {label}: the file is too large or damaged.") from e
     error = result.get("error")
     if error == "pages":
-        raise CVReadError(f"У файлі {result.get('pages')} сторінок. CV має бути на 1-2 сторінки, максимум {MAX_PAGES}.")
+        raise CVReadError(f"The file has {result.get('pages')} pages. A CV should be 1-2 pages, {MAX_PAGES} at most.")
     if error == "too_big":
-        raise CVReadError(f"Не вдалося прочитати {label}: файл завеликий або пошкоджений.")
+        raise CVReadError(f"Could not read {label}: the file is too large or damaged.")
     if "text" not in result:  # битий файл або процес упав через ліміт пам'яті чи CPU
-        raise CVReadError(f"Не вдалося прочитати {label}. Можливо, файл пошкоджений.")
+        raise CVReadError(f"Could not read {label}. The file may be damaged.")
     if len(result["text"]) > MAX_TEXT_CHARS:
-        raise CVReadError("У файлі забагато тексту для CV. Залиш тільки саме CV, без додатків.")
+        raise CVReadError("Too much text for a CV. Keep only the CV itself, without attachments.")
     return result
 
 
@@ -96,8 +96,8 @@ def load_cv(filename: str, data: bytes) -> CVFile:
     if name.endswith(".docx"):
         text = _docx_text(data)
         if not text:
-            raise CVReadError("У файлі DOCX немає тексту.")
+            raise CVReadError("The DOCX file has no text.")
         return CVFile(filename=filename, text=text)
     if name.endswith(".doc"):
-        raise CVReadError("Старий формат .doc не підтримується. Збережи файл як .docx або .pdf.")
-    raise CVReadError("Підтримуються тільки PDF і DOCX.")
+        raise CVReadError("The old .doc format is not supported. Save the file as .docx or .pdf.")
+    raise CVReadError("Only PDF and DOCX are supported.")

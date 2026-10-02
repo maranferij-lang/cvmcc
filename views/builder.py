@@ -12,12 +12,12 @@ from cvmax.safe_text import md_escape
 from ui.account import current_email, limit_caption, profile_value, require_login, save_result, take_limit
 from ui.common import BOT_AVATAR, card, consent, demo_banner, get_llm
 
-require_login("Конструктор CV")
+require_login("CV builder")
 s = st.session_state
-st.title("Конструктор CV")
+st.title("CV builder")
 st.caption(
-    "Немає CV? Заповни основне, розкажи про себе своїми словами, дай відповідь на кілька питань, "
-    "і CVmax збере CV англійською в правильній структурі."
+    "No CV yet? Fill in the basics, tell us about yourself in your own words, answer a few questions, "
+    "and CVmax builds an English CV with the right structure."
 )
 demo_banner()
 if not consent("builder"):
@@ -25,41 +25,41 @@ if not consent("builder"):
 
 # ---------- 1. Основне ----------
 with card("basics"):
-    st.header("1. Основне")
+    st.header("1. The basics")
     c1, c2 = st.columns(2)
-    full_name = c1.text_input("Ім'я та прізвище латиницею", max_chars=80, placeholder="Olena Petrenko")
-    email = c2.text_input("Email", max_chars=120, value=current_email() or "", placeholder="olena@example.com")
+    full_name = c1.text_input("Full name", max_chars=80, placeholder="Alex Morgan")
+    email = c2.text_input("Email", max_chars=120, value=current_email() or "", placeholder="alex@example.com")
     c1, c2 = st.columns(2)
-    phone = c1.text_input("Телефон (необов'язково)", max_chars=40)
-    city = c2.text_input("Місто", max_chars=80, value="Kyiv, Ukraine")
-    links = st.text_input("LinkedIn, GitHub чи портфоліо (необов'язково)", max_chars=300, placeholder="linkedin.com/in/olena")
+    phone = c1.text_input("Phone (optional)", max_chars=40)
+    city = c2.text_input("City", max_chars=80, placeholder="Berlin, Germany")
+    links = st.text_input("LinkedIn, GitHub or portfolio (optional)", max_chars=300, placeholder="linkedin.com/in/alexmorgan")
 
     programs = list(PROGRAMS)
     default_program = profile_value("program")
     c1, c2, c3 = st.columns([2, 1, 1])
-    program = c1.selectbox("Програма в КШЕ", programs, format_func=PROGRAMS.get,
+    program = c1.selectbox("Field of study", programs, format_func=PROGRAMS.get,
                            index=programs.index(default_program) if default_program in programs else 0)
     default_status = profile_value("status")
-    status = c2.selectbox("Статус", STATUSES, index=STATUSES.index(default_status) if default_status in STATUSES else 0)
-    grad_year = c3.text_input("Рік випуску", max_chars=10, placeholder="2027")
+    status = c2.selectbox("Status", STATUSES, index=STATUSES.index(default_status) if default_status in STATUSES else 0)
+    grad_year = c3.text_input("Graduation year", max_chars=10, placeholder="2027")
     c1, c2 = st.columns(2)
-    gpa = c1.text_input("Середній бал (необов'язково)", max_chars=40, placeholder="3.7/4.0 або 92/100")
-    target_role = c2.text_input("Роль, на яку цілишся (необов'язково)", max_chars=120, value=profile_value("goal", ""))
+    gpa = c1.text_input("GPA (optional)", max_chars=40, placeholder="3.7/4.0 or 92/100")
+    target_role = c2.text_input("Target role (optional)", max_chars=120, value=profile_value("goal", ""))
 
 # ---------- 2. Про себе ----------
 with card("story"):
-    st.header("2. Розкажи про себе")
+    st.header("2. Tell us about yourself")
     notes = st.text_area(
-        "Своїми словами, можна українською",
+        "In your own words, any language is fine",
         max_chars=4000,
         value=profile_value("background", ""),
         placeholder=(
-            "Де працював(-ла) чи стажувався(-лась), що там робив(-ла) і чого досяг(-ла). Навчальні й особисті проєкти. "
-            "Студрада, волонтерство, кейс-чемпіонати, олімпіади. Навички й програми. Мови і рівень."
+            "Where you've worked or interned, what you did there and what you achieved. Class and personal projects. "
+            "Student clubs, volunteering, case competitions, olympiads. Skills and tools. Languages and level."
         ),
         height=200,
     )
-    lang = st.radio("Мова підказок", list(FEEDBACK_LANGUAGES), horizontal=True, key="builder_lang")
+    lang = st.radio("Tips language", list(FEEDBACK_LANGUAGES), horizontal=True, key="builder_lang")
 
 draft = BuilderDraft(
     full_name=full_name, email=email, phone=phone, city=city, links=links, program=program, status=status,
@@ -68,19 +68,19 @@ draft = BuilderDraft(
 )
 ready = bool(full_name.strip() and email.strip() and len(notes.strip()) >= 30)
 if not ready:
-    st.caption("Щоб продовжити, вкажи ім'я, email і розкажи про себе хоча б кілька речень.")
+    st.caption("To continue, enter your name and email and write at least a few sentences about yourself.")
 
 # ---------- 3. Інтерв'ю ----------
-st.header("3. Кілька питань")
+st.header("3. A few questions")
 g: GrillSession | None = s.get("builder_grill")
 if g is None:
     limit_caption("builder")
-    if st.button("Почати", type="primary", disabled=not ready):
+    if st.button("Start", type="primary", disabled=not ready):
         if take_limit("builder"):
             s["builder_grill"] = GrillSession()
             s["builder_draft"] = draft
             try:
-                with st.spinner("Читаю твою розповідь..."):
+                with st.spinner("Reading your story..."):
                     next_builder_question(get_llm(), draft, s["builder_grill"])
             except LLMError as e:
                 st.error(str(e))
@@ -98,23 +98,23 @@ for i, t in enumerate(g.turns, 1):
             st.markdown(md_escape(t.answer))
 if g.pending is not None:
     with st.form("builder_answer", clear_on_submit=True):
-        reply = st.text_area("Твоя відповідь", max_chars=1500)
+        reply = st.text_area("Your answer", max_chars=1500)
         c1, c2 = st.columns(2)
-        send = c1.form_submit_button("Відповісти", type="primary")
-        skip = c2.form_submit_button("Пропустити")
+        send = c1.form_submit_button("Answer", type="primary")
+        skip = c2.form_submit_button("Skip")
     if send or skip:
         answer(g, "" if skip else reply)
         try:
-            with st.spinner("Наступне питання..."):
+            with st.spinner("Next question..."):
                 next_builder_question(get_llm(), draft, g)
         except LLMError as e:
             st.error(str(e))
         st.rerun()
-    st.caption(f"Питання {len(g.turns)} з {config.GRILL_MAX_QUESTIONS}. Можна зібрати CV будь-коли.")
+    st.caption(f"Question {len(g.turns)} of {config.GRILL_MAX_QUESTIONS}. You can build your CV at any time.")
 
-if st.button("Зібрати CV", type="primary" if g.pending is None else "secondary") and take_limit("build"):
+if st.button("Build my CV", type="primary" if g.pending is None else "secondary") and take_limit("build"):
     try:
-        with st.spinner("Збираю CV, це займає до хвилини..."):
+        with st.spinner("Building your CV, this takes up to a minute..."):
             s["builder_cv"] = build_cv(get_llm(), draft, g)
         save_result("builder", draft.target_role or draft.full_name, {"cv": s["builder_cv"].model_dump()})
     except LLMError as e:
@@ -124,10 +124,10 @@ if st.button("Зібрати CV", type="primary" if g.pending is None else "seco
 cv = s.get("builder_cv")
 if cv is None:
     st.stop()
-st.header("4. Твоє CV")
+st.header("4. Your CV")
 if cv.notes_for_user:
     with card("todo"):
-        st.markdown("**Що доробити**")
+        st.markdown("**Still to do**")
         for n in cv.notes_for_user:
             st.markdown(f"- {md_escape(n)}")
 pdf = render_pdf(cv)
@@ -136,13 +136,13 @@ with card("preview"):
         st.image(page, width="stretch")
 name = cv.full_name.replace(" ", "_") or "cv"
 c1, c2, c3 = st.columns(3)
-c1.download_button("Завантажити PDF", pdf, f"{name}_CV.pdf", mime="application/pdf", type="primary")
-c2.download_button("Завантажити DOCX", render_docx(cv), f"{name}_CV.docx")
-if c3.button("Почати заново"):
+c1.download_button("Download PDF", pdf, f"{name}_CV.pdf", mime="application/pdf", type="primary")
+c2.download_button("Download DOCX", render_docx(cv), f"{name}_CV.docx")
+if c3.button("Start over"):
     for k in ("builder_grill", "builder_draft", "builder_cv"):
         s.pop(k, None)
     st.rerun()
 st.caption(
-    "Якщо в CV є [дужки], завантаж DOCX, заміни їх у Word або Google Docs і збережи як PDF. "
-    "Потім перевір результат на сторінці «Аналіз CV» під конкретну вакансію."
+    "If your CV has [brackets], download the DOCX, replace them in Word or Google Docs and save as PDF. "
+    "Then check the result against a specific job on the CV review page."
 )

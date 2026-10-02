@@ -33,7 +33,7 @@ class BuilderDraft:
             "<candidate>\n"
             f"Full name: {self.full_name}\nEmail: {self.email}\nPhone: {self.phone or '(none)'}\n"
             f"City: {self.city or '(none)'}\nLinks: {self.links or '(none)'}\n"
-            f"University: Kyiv School of Economics, program: {PROGRAMS.get(self.program, self.program)}\n"
+            f"Field of study: {PROGRAMS.get(self.program, self.program)}\n"
             f"Study status: {self.status}; expected graduation: {self.grad_year or '(unknown)'}; "
             f"GPA: {self.gpa or '(not given)'}\n"
             f"Target role: {self.target_role or '(not decided)'}\n"

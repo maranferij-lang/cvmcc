@@ -1,4 +1,4 @@
-"""Головна: що таке CVmax і з чого почати."""
+"""Home: what CVmax is and where to start."""
 
 import base64
 
@@ -9,62 +9,61 @@ from cvmax.cv_render import pdf_preview, render_pdf
 from cvmax.demo import demo_built_cv
 from ui.account import auth_configured
 
-st.html('<div class="cvx-wide"></div>')  # ширша сторінка, див. assets/style.css
-ACCOUNTS = auth_configured()  # без входу результати живуть лише у вкладці
+st.html('<div class="cvx-wide"></div>')  # wider page, see assets/style.css
+ACCOUNTS = auth_configured()  # without login, results live only in the tab
 
 
 @st.cache_data
 def cv_thumbnail() -> str:
-    """Перша сторінка демо-CV з нашого шаблону, щоб показати, який PDF отримає юзер."""
+    """First page of the demo CV in our template, to show the PDF the user gets."""
     png = pdf_preview(render_pdf(demo_built_cv()), scale=1.2)[0]
     return base64.b64encode(png).decode()
 
 
-# ---------- Герой ----------
+# ---------- Hero ----------
 left, right = st.columns([1.05, 1], gap="large", vertical_alignment="center")
 with left:
     st.markdown(
         """
 <div class="cvx-hero">
-  <span class="cvx-eyebrow"><i></i>Безплатний пілот для студентів КШЕ</span>
-  <h1>CV, з яким <em class="hl">кличуть</em> на співбесіду</h1>
-  <p class="lead">Завантаж CV і вкажи вакансію. CVmax покаже, що рекрутер пропустить, а що зачепить,
-  перепише слабкі пункти і розпитає про досвід, який ти недооцінюєш. Нічого не вигадуючи.</p>
+  <span class="cvx-eyebrow"><i></i>Free AI CV coach</span>
+  <h1>Get your CV <em class="hl">noticed</em></h1>
+  <p class="lead">Upload your CV and a job posting. CVmax shows what a recruiter will skip and what will land,
+  rewrites weak lines and asks about experience you undersell. Never makes things up.</p>
 </div>
 """,
         unsafe_allow_html=True,
     )
     c1, c2 = st.columns(2)
-    if c1.button("Проаналізувати CV", type="primary", icon=":material/arrow_forward:", width="stretch"):
+    if c1.button("Review my CV", type="primary", icon=":material/arrow_forward:", width="stretch"):
         st.switch_page("views/analyze.py")
-    if c2.button("Немає CV? Зібрати", width="stretch"):
+    if c2.button("No CV? Build one", width="stretch"):
         st.switch_page("views/builder.py")
-    st.caption(("Вхід через Google" if ACCOUNTS else "Без реєстрації") + " · PDF або DOCX англійською · файл CV не зберігається")
-    st.caption("Free AI CV checker for students: tailor your English CV to a real vacancy, without invented facts.")
+    st.caption(("Sign in with Google" if ACCOUNTS else "No sign-up") + " · PDF or DOCX in English · your file is never stored")
 
 with right:
     st.markdown(
         """
 <div class="cvx-device">
-  <span class="cvx-float">+26 балів після правок</span>
+  <span class="cvx-float">+26 points after edits</span>
   <div class="cvx-row">
     <div>
-      <div class="cvx-muted">АНАЛІЗ ПІД РОЛЬ</div>
-      <div class="cvx-title">Business Analyst · фінтех</div>
+      <div class="cvx-muted">REVIEW FOR ROLE</div>
+      <div class="cvx-title">Business Analyst · fintech</div>
     </div>
     <div class="cvx-score" style="--p:84"><b>84</b></div>
   </div>
   <div class="cvx-diff">
-    <div class="was"><span class="tag">Було</span>Responsible for making reports in Excel</div>
-    <div class="now"><span class="tag">Стало</span>Built <span class="cvx-ph">[N]</span> weekly Excel sales reports
+    <div class="was"><span class="tag">Before</span>Responsible for making reports in Excel</div>
+    <div class="now"><span class="tag">After</span>Built <span class="cvx-ph">[N]</span> weekly Excel sales reports
     for the regional team, cutting preparation time by <span class="cvx-ph">[X]%</span></div>
   </div>
   <div class="cvx-bubbles">
-    <div class="cvx-bubble">Скільки людей приходило на події, які ти організовував(-ла)?</div>
-    <div class="cvx-bubble me">Зазвичай 250–300, а на фінал кейс-чемпіонату 400</div>
+    <div class="cvx-bubble">How many people came to the events you organized?</div>
+    <div class="cvx-bubble me">Usually 250 to 300, and 400 at the case competition final</div>
   </div>
   <div class="cvx-chips">
-    <span class="cvx-chip">BA у фінтеху<em>82%</em></span>
+    <span class="cvx-chip">BA in fintech<em>82%</em></span>
     <span class="cvx-chip">Product Analyst<em>74%</em></span>
     <span class="cvx-chip">Consulting Intern<em>61%</em></span>
   </div>
@@ -73,143 +72,140 @@ with right:
         unsafe_allow_html=True,
     )
 
-# ---------- Можливості ----------
+# ---------- Features ----------
 st.markdown(
     f"""
 <div class="cvx-section">
-  <div class="kicker">Що всередині</div>
-  <h2>Не загальні поради, а правки під твою ціль</h2>
-  <p>Той самий пункт сильний для консалтингу і зайвий для розробки. CVmax оцінює кожен рядок CV саме під роль,
-  яку ти вказав(-ла), і пояснює чому.</p>
+  <div class="kicker">What you get</div>
+  <h2>Not generic tips. Edits for your goal.</h2>
+  <p>The same line can be strong for consulting and useless for software. CVmax judges every line of your CV
+  against the role you chose and tells you why.</p>
 </div>
 <div class="cvx-bento">
   <div class="cvx-tile w4">
-    <h4>Перевірка кожного рядка</h4>
-    <p>Лишити, скоротити, переписати чи прибрати. Пункти без дії й результату, дублі та «вихваляння»,
-    яке не працює на ціль, CVmax позначає окремо. Якщо CV не влазить на сторінку, підкаже, що різати першим.</p>
+    <h4>Every line checked</h4>
+    <p>Keep, shorten, rewrite or cut. CVmax flags bullets with no action or result, duplicates and bragging
+    that doesn't serve your goal. If your CV runs past one page, it tells you what to cut first.</p>
     <div class="cvx-diff">
-      <div class="was"><span class="tag">Прибрати</span>Interests: travelling, music, gym</div>
-      <div class="now"><span class="tag">Лишити</span>Chess: 2nd place, Kyiv U-18 championship</div>
+      <div class="was"><span class="tag">Cut</span>Interests: travelling, music, gym</div>
+      <div class="now"><span class="tag">Keep</span>Chess: 2nd place, national U-18 championship</div>
     </div>
   </div>
   <div class="cvx-tile">
     <div class="num">{config.GRILL_MAX_QUESTIONS}</div>
-    <h4>питань в опитуванні</h4>
-    <p>Розпитує про числа, масштаб і досвід, якого немає в CV. З відповідей виходять нові пункти.</p>
+    <h4>questions in the Q&amp;A</h4>
+    <p>Asks about numbers, scale and experience missing from your CV. Your answers become new bullets.</p>
     <div class="cvx-bubbles">
-      <div class="cvx-bubble">Ти робив(-ла) щось з AI для себе?</div>
-      <div class="cvx-bubble me">Скрипт, що щодня збирає ціни конкурентів у таблицю</div>
+      <div class="cvx-bubble">Have you built anything with AI for yourself?</div>
+      <div class="cvx-bubble me">A script that pulls competitor prices into a sheet every day</div>
     </div>
   </div>
   <div class="cvx-tile">
-    <h4>Куди податись</h4>
-    <p>Напрями, де з твоїм CV найбільше шансів, і що шукати на LinkedIn чи Djinni.</p>
+    <h4>Where to apply</h4>
+    <p>Roles where your CV has the best odds, and what to search for on LinkedIn and job boards.</p>
     <div class="cvx-fit">
       <div><div class="cvx-row"><span>Data Analyst</span><span>78%</span></div><div class="cvx-bar"><i style="width:78%"></i></div></div>
-      <div><div class="cvx-row"><span>BA, консалтинг</span><span>64%</span></div><div class="cvx-bar"><i style="width:64%"></i></div></div>
+      <div><div class="cvx-row"><span>BA, consulting</span><span>64%</span></div><div class="cvx-bar"><i style="width:64%"></i></div></div>
     </div>
   </div>
   <div class="cvx-tile">
-    <h4>Що вивчити</h4>
-    <p>Прогалини, які найсильніше піднімуть шанси, з оцінкою часу.</p>
+    <h4>Skills to build</h4>
+    <p>The gaps that will raise your odds the most, with time estimates.</p>
     <ul class="cvx-list">
-      <li>SQL: joins, window functions <span>3–4 тижні</span></li>
-      <li>IELTS Academic 7.0+ <span>1–2 місяці</span></li>
+      <li>SQL: joins, window functions <span>3–4 weeks</span></li>
+      <li>IELTS Academic 7.0+ <span>1–2 months</span></li>
     </ul>
   </div>
   <div class="cvx-tile">
-    <h4>Готове CV у PDF</h4>
-    <p>Прийняті правки одразу в чистому шаблоні, який читають і рекрутери, і ATS. Або DOCX, щоб доредагувати.</p>
-    <div class="cvx-paper"><img alt="Приклад CV у шаблоні CVmax" src="data:image/png;base64,{cv_thumbnail()}"></div>
+    <h4>Final CV as a PDF</h4>
+    <p>Your accepted edits go straight into a clean template that recruiters and ATS can both read. Or get a DOCX to keep editing.</p>
+    <div class="cvx-paper"><img alt="Sample CV in the CVmax template" src="data:image/png;base64,{cv_thumbnail()}"></div>
   </div>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
-# ---------- Як це працює ----------
+# ---------- How it works ----------
 st.markdown(
     """
 <div class="cvx-section">
-  <div class="kicker">Як це працює</div>
-  <h2>Три кроки, близько десяти хвилин</h2>
+  <div class="kicker">How it works</div>
+  <h2>Three steps, about ten minutes</h2>
 </div>
 <div class="cvx-steps">
-  <div class="cvx-step"><b class="n">1</b><div><div class="t">Розкажи про ціль</div>
-    <div class="d">Роль, тип компанії і, найкраще, повний текст вакансії. Консалтинг і фінтех чекають різного.</div></div></div>
-  <div class="cvx-step"><b class="n">2</b><div><div class="t">Завантаж CV</div>
-    <div class="d">PDF або DOCX англійською. Файл живе тільки у вкладці браузера і не зберігається.</div></div></div>
-  <div class="cvx-step"><b class="n">3</b><div><div class="t">Прийми правки й завантаж PDF</div>
-    <div class="d">Кожну правку приймаєш сам(-а). Опитування додасть те, про що ти забув(-ла) написати.</div></div></div>
+  <div class="cvx-step"><b class="n">1</b><div><div class="t">Tell us your goal</div>
+    <div class="d">The role, the type of company and, ideally, the full job posting. Consulting and fintech look for different things.</div></div></div>
+  <div class="cvx-step"><b class="n">2</b><div><div class="t">Upload your CV</div>
+    <div class="d">PDF or DOCX in English. The file lives only in your browser tab and is never stored.</div></div></div>
+  <div class="cvx-step"><b class="n">3</b><div><div class="t">Accept edits and download your PDF</div>
+    <div class="d">You approve every edit yourself. The Q&amp;A adds what you forgot to mention.</div></div></div>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
-# ---------- Принципи ----------
+# ---------- Principles ----------
 st.markdown(
     f"""
 <div class="cvx-section">
-  <div class="kicker">Принципи</div>
-  <h2>Чесно, під програму, без зайвих даних</h2>
+  <div class="kicker">Principles</div>
+  <h2>Honest, tailored, minimal data</h2>
 </div>
 <div class="cvx-principles">
-  <div><b>Нічого не вигадує</b><span>Де бракує числа, ставить [X] і питає. Факти, яких немає в CV чи твоїх
-  відповідях, підсвічує як підозрілі.</span></div>
-  <div><b>Під твою програму</b><span>Окремі критерії для економістів, інженерів, AI, психологів і юристів,
-  зібрані з 47 джерел про те, як рекрутери читають CV.</span></div>
-  <div><b>Мінімум даних</b><span>Файл CV не зберігається. {"Результати лежать лише у твоєму кабінеті, і їх можна видалити однією кнопкою." if ACCOUNTS else "Реєстрація не потрібна, а результати живуть лише у вкладці браузера."}</span></div>
+  <div><b>Never makes things up</b><span>Where a number is missing, it puts [X] and asks. Facts that aren't in your CV
+  or your answers get flagged as suspicious.</span></div>
+  <div><b>Built for your field</b><span>Criteria for 6 fields: economics &amp; data, business, software, AI, psychology
+  and law, built from 47 sources on how recruiters read CVs.</span></div>
+  <div><b>Minimal data</b><span>Your CV file is never stored. {"Results live only in your account, and you can delete them with one click." if ACCOUNTS else "No sign-up needed, and results live only in your browser tab."}</span></div>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
-# ---------- Питання ----------
-st.markdown('<div class="cvx-section"><div class="kicker">Питання</div><h2>Часті питання</h2></div>',
+# ---------- FAQ ----------
+st.markdown('<div class="cvx-section"><div class="kicker">FAQ</div><h2>Frequently asked questions</h2></div>',
             unsafe_allow_html=True)
 faq = [
-    ("Це безплатно?", "Так. Зараз це пілот для студентів КШЕ, користування безплатне. Щоб так і лишалось, "
-     "є денні ліміти, вони оновлюються щодня."),
-    ("Ви зберігаєте моє CV?", "Файл CV ні: він надсилається моделі тільки для аналізу і зникає, коли закриваєш "
-     "вкладку. "
-     + ("Результати аналізу зберігаються у твоєму кабінеті, щоб ти міг(-ла) до них повернутись, "
-        "і їх можна видалити будь-коли. " if ACCOUNTS else
-        "Реєстрації немає, тож результати теж лишаються тільки у вкладці: завантаж PDF, перш ніж її закрити. ")
-     + "Деталі на сторінці «Конфіденційність»."),
-    ("Чим це краще за ChatGPT?", "CVmax знає критерії під твою програму і ціль, перевіряє кожен рядок CV, питає "
-     "замість того, щоб вигадувати, і дає правки, які можна прийняти по одній. А в кінці збирає готовий PDF."),
-    ("CV має бути англійською?", "Так, CVmax орієнтований на міжнародні компанії. Поради можна отримувати "
-     "українською або англійською."),
-    ("Це гарантує роботу?", "Ні. CVmax допомагає зробити CV сильнішим і обрати реалістичні напрями, "
-     "але рішення ухвалює роботодавець. Модель може помилятись, тож перевіряй кожну правку."),
-    ("Це офіційний сервіс КШЕ?", "Ні. CVmax це незалежний студентський проєкт. Він зроблений для студентів КШЕ, "
-     "але школа його не розробляє і не відповідає за нього."),
+    ("Is it free?", "Yes. CVmax is free to use. To keep it that way, there are daily limits that reset every day."),
+    ("Do you store my CV?", "Not the file. It is sent to the model only for the review and disappears when you close "
+     "the tab. "
+     + ("Your review results are saved in your account so you can come back to them, "
+        "and you can delete them at any time. " if ACCOUNTS else
+        "There is no sign-up, so results also stay only in the tab: download your PDF before you close it. ")
+     + "Details are on the Privacy page."),
+    ("How is this better than ChatGPT?", "CVmax knows the criteria for your field and goal, checks every line of your "
+     "CV, asks instead of making things up, and gives you edits you can accept one by one. At the end it builds "
+     "a ready-to-send PDF."),
+    ("Does my CV have to be in English?", "Yes, CVmax targets international companies. You can get advice "
+     "in English or Ukrainian."),
+    ("Will this get me a job?", "No tool can promise that. CVmax helps you make your CV stronger and pick realistic "
+     "roles, but the employer makes the call. The model can make mistakes, so check every edit."),
 ]
 for q, a in faq:
     with st.expander(q):
         st.write(a)
 
-# ---------- Заклик ----------
+# ---------- Call to action ----------
 with st.container(key="cta", horizontal_alignment="center"):
     st.markdown(
-        '<div class="cvx-cta-text"><h2>Перевір своє CV під вакансію мрії</h2>'
-        "<p>Перший аналіз займає близько хвилини.</p></div>",
+        '<div class="cvx-cta-text"><h2>Check your CV against your dream job</h2>'
+        "<p>Your first review takes about a minute.</p></div>",
         unsafe_allow_html=True,
     )
     with st.container(horizontal=True, horizontal_alignment="center"):
-        if st.button("Почати аналіз", type="primary", icon=":material/arrow_forward:", key="cta_bottom"):
+        if st.button("Start review", type="primary", icon=":material/arrow_forward:", key="cta_bottom"):
             st.switch_page("views/analyze.py")
-        if st.button("Куди мені податись?", key="cta_career"):
+        if st.button("Where should I apply?", key="cta_career"):
             st.switch_page("views/career.py")
 
 st.divider()
 with st.container(horizontal=True, gap="medium"):
-    st.page_link("views/about.py", label="Про нас")
-    st.page_link("views/privacy.py", label="Конфіденційність")
-    st.page_link("views/terms.py", label="Умови")
-    st.page_link("views/feedback.py", label="Відгук")
+    st.page_link("views/about.py", label="About")
+    st.page_link("views/privacy.py", label="Privacy")
+    st.page_link("views/terms.py", label="Terms")
+    st.page_link("views/feedback.py", label="Feedback")
 st.markdown(
-    '<div class="cvx-footer">© 2026 CVmax · незалежний студентський проєкт, не є офіційним сервісом '
-    "Київської школи економіки.</div>",
+    '<div class="cvx-footer">© 2026 CVmax · independent project</div>',
     unsafe_allow_html=True,
 )

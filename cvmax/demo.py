@@ -14,11 +14,11 @@ from .schemas import Analysis, BuiltCV, LineVerdict, CVEducation, CVEntry, CVSki
 
 DEMO_QUESTIONS = [
     ("In your Student Council role, how many events did you organise and how many people came?",
-     "Числа роблять пункт про лідерство переконливим."),
+     "Numbers make a leadership line convincing."),
     ("In the sales dashboard project, what data did you use and what decision did it help make?",
-     "Проєкт зараз без результату, а рекрутер шукає саме результат."),
+     "The project has no result yet, and results are what recruiters look for."),
     ("Have you taken part in any case competitions or hackathons? What place?",
-     "Для аналітичних ролей це сильний сигнал, якого в CV немає."),
+     "For analyst roles this is a strong signal that your CV is missing."),
 ]
 
 
@@ -48,8 +48,8 @@ class _Messages:
                         section="Leadership & Activities",
                         before="Member of Student Council",
                         after="Organised 6 university events for 300+ students as Student Council member, "
-                        "managing a UAH 40k sponsorship budget",
-                        reason="Відповідь у Grill me дала числа, яких не було в CV.",
+                        "managing a $1,000 sponsorship budget",
+                        reason="Your Q&A answer added numbers that were not in the CV.",
                         priority="high",
                     )
                 ],
@@ -72,29 +72,29 @@ class FakeClient:
 def demo_analysis() -> Analysis:
     return Analysis(
         overall_score=58,
-        summary="CV має хорошу базу, але пункти описують обов'язки, а не результати. "
-        "Для ролі аналітика у фінтеху не видно SQL, хоча він є у вимогах.",
+        summary="Solid base, but the bullets describe duties instead of results. "
+        "For a fintech analyst role, SQL is missing even though the posting asks for it.",
         target_assumptions=[
-            "Роль: Junior Data Analyst у фінтех-компанії, стажування.",
-            "Ключові вимоги: SQL, Python або Excel, продуктові метрики, англійська B2+.",
+            "Role: Junior Data Analyst at a fintech company, internship.",
+            "Key requirements: SQL, Python or Excel, product metrics.",
         ],
         scores=[
-            CriterionScore(criterion="Target fit", score=3, comment="Найрелевантніший проєкт внизу сторінки."),
-            CriterionScore(criterion="Impact bullets", score=2, comment="Більшість пунктів починаються з 'Responsible for'."),
-            CriterionScore(criterion="Evidence and numbers", score=2, comment="Жодного числа в досвіді."),
-            CriterionScore(criterion="Structure and scannability", score=4, comment="Чиста структура."),
-            CriterionScore(criterion="Length and density", score=4, comment="Одна сторінка, добре."),
-            CriterionScore(criterion="ATS-friendliness", score=3, comment="Навички в двох колонках, може погано читатись."),
-            CriterionScore(criterion="Language quality", score=4, comment="Кілька змін часу в одному пункті."),
+            CriterionScore(criterion="Target fit", score=3, comment="The most relevant project sits at the bottom of the page."),
+            CriterionScore(criterion="Impact bullets", score=2, comment="Most bullets start with 'Responsible for'."),
+            CriterionScore(criterion="Evidence and numbers", score=2, comment="No numbers in the experience section."),
+            CriterionScore(criterion="Structure and scannability", score=4, comment="Clean structure."),
+            CriterionScore(criterion="Length and density", score=4, comment="One page, good."),
+            CriterionScore(criterion="ATS-friendliness", score=3, comment="Two-column skills block may not parse well."),
+            CriterionScore(criterion="Language quality", score=4, comment="Tense changes within one bullet."),
         ],
-        strengths=["Сильна освіта з релевантними курсами.", "Є проєкт на реальних даних."],
+        strengths=["Strong education with relevant coursework.", "A project on real data."],
         line_review=[
             LineVerdict(line="Responsible for making reports in Excel", verdict="rewrite",
-                        reason="Обов'язок замість результату."),
+                        reason="A duty, not a result."),
             LineVerdict(line="Helped the team with client database", verdict="keep",
-                        reason="Можна лишити, але це слабкий пункт."),
+                        reason="Can stay, but it is a weak bullet."),
             LineVerdict(line="Date of birth: 01.01.2004", verdict="cut",
-                        reason="Міжнародним компаніям дата народження не потрібна."),
+                        reason="International employers do not need your date of birth."),
         ],
         edits=[
             Edit(
@@ -102,49 +102,49 @@ def demo_analysis() -> Analysis:
                 before="Responsible for making reports in Excel",
                 after="Built [N] weekly Excel reports on sales performance for the regional team, "
                 "cutting preparation time by [X]%",
-                reason="Показує результат замість обов'язку. Встав реальні числа замість дужок.",
+                reason="Shows a result instead of a duty. Replace the brackets with real numbers.",
                 priority="high",
             ),
             Edit(
                 section="Skills",
                 before="",
                 after="SQL (joins, GROUP BY, window functions)",
-                reason="SQL є у вимогах вакансії. Додавай, тільки коли реально володієш на базовому рівні.",
+                reason="The posting asks for SQL. Add it only if you really know the basics.",
                 priority="high",
             ),
             Edit(
                 section="Personal",
                 before="Date of birth: 01.01.2004",
                 after="",
-                reason="Для міжнародних компаній дата народження в CV не потрібна.",
+                reason="International employers do not need your date of birth on a CV.",
                 priority="medium",
             ),
         ],
         gaps=[
             Gap(
                 item="SQL: joins, GROUP BY, window functions",
-                why_it_matters="Є в 9 з 10 вакансій аналітика у фінтеху.",
-                how_to_close="Безплатний курс на Mode або SQLBolt, потім один проєкт на публічному датасеті з GitHub.",
-                time_estimate="3-4 тижні по 5 годин",
+                why_it_matters="Listed in 9 of 10 fintech analyst postings.",
+                how_to_close="A free course on Mode or SQLBolt, then one project on a public dataset on GitHub.",
+                time_estimate="3-4 weeks, 5 hours a week",
                 impact="high",
             ),
             Gap(
                 item="IELTS Academic 7.0+",
-                why_it_matters="Підтверджує рівень англійської для міжнародних компаній.",
-                how_to_close="Підготовка за Cambridge IELTS 17-19, потім іспит у British Council.",
-                time_estimate="1-2 місяці",
+                why_it_matters="Proves your English level to international employers.",
+                how_to_close="Prepare with Cambridge IELTS 17-19, then book the exam.",
+                time_estimate="1-2 months",
                 impact="medium",
             ),
         ],
-        missing_info=["Результати проєкту з дашбордом", "Масштаб роботи в студраді"],
+        missing_info=["Results of the dashboard project", "Scale of the student council work"],
     )
 
 
-DEMO_CV_TEXT = """Olena Petrenko
-Kyiv, Ukraine | olena@example.com | linkedin.com/in/olena
+DEMO_CV_TEXT = """Maya Chen
+London, UK | maya@example.com | linkedin.com/in/mayachen
 
 EDUCATION
-Kyiv School of Economics, BA Economics and Big Data, expected 2027
+Northbridge University, BSc Economics and Data Science, expected 2027
 
 EXPERIENCE
 Sales Intern, Company X, Jun 2025 - Aug 2025
@@ -161,58 +161,58 @@ Date of birth: 01.01.2004
 
 def demo_career() -> CareerMatch:
     return CareerMatch(
-        candidate_summary="Студентка економіки з досвідом у продажах і звітності в Excel, "
-        "з першим проєктом на даних і лідерським досвідом у студраді.",
-        strongest_assets=["Стажування в продажах", "Excel-звітність", "Економічна освіта КШЕ"],
+        candidate_summary="Economics student with sales and Excel reporting experience, "
+        "a first data project and student council leadership.",
+        strongest_assets=["Sales internship", "Excel reporting", "Economics degree"],
         directions=[
             Direction(
                 role="Sales Operations Intern",
-                company_type="FMCG / ритейл / індустрія",
+                company_type="FMCG / retail / industry",
                 fit_score=72,
-                why_fits=["Вже є стажування в продажах.", "Робила звіти в Excel для команди."],
-                gaps=["Немає чисел про результати звітів."],
-                first_steps=["Додати в CV результати звітів.", "Податись у 10 компаній FMCG через LinkedIn."],
+                why_fits=["Already has a sales internship.", "Built Excel reports for the team."],
+                gaps=["No numbers on what the reports achieved."],
+                first_steps=["Add report results to the CV.", "Apply to 10 FMCG companies via LinkedIn."],
                 search_keywords=["Sales Operations Intern", "Commercial Analyst Intern", "Sales Support"],
             ),
             Direction(
                 role="Junior Data Analyst",
-                company_type="Фінтех / банк",
+                company_type="Fintech / bank",
                 fit_score=48,
-                why_fits=["Економіка та великі дані дає базу зі статистики."],
-                gaps=["Немає SQL і проєктів на ньому."],
-                first_steps=["Пройти курс SQL.", "Зробити один проєкт на публічному датасеті."],
+                why_fits=["Economics and data science gives a statistics base."],
+                gaps=["No SQL and no projects using it."],
+                first_steps=["Take a SQL course.", "Do one project on a public dataset."],
                 search_keywords=["Junior Data Analyst", "Data Analyst Intern", "BI Analyst Intern"],
             ),
             Direction(
                 role="Business Analyst Intern",
-                company_type="Консалтинг (Big 4, MBB, локальний)",
+                company_type="Consulting (Big 4, MBB, boutique)",
                 fit_score=41,
-                why_fits=["Лідерство в студраді і комунікація з командою."],
-                gaps=["Немає кейс-чемпіонатів."],
-                first_steps=["Взяти участь у кейс-чемпіонаті."],
+                why_fits=["Student council leadership and teamwork."],
+                gaps=["No case competitions yet."],
+                first_steps=["Enter a case competition."],
                 search_keywords=["Business Analyst Intern", "Consulting Intern"],
             ),
         ],
-        general_advice="Найшвидший шлях зараз через продажі й операції, де досвід уже є. "
-        "Паралельно почни SQL, щоб за 2-3 місяці відкрити напрям аналітики.",
+        general_advice="The fastest path right now is sales and operations, where you already have experience. "
+        "Start SQL in parallel to open up analyst roles in 2-3 months.",
     )
 
 
 def demo_built_cv() -> BuiltCV:
     return BuiltCV(
-        full_name="Olena Petrenko",
-        contact_line=["Kyiv, Ukraine", "olena@example.com", "linkedin.com/in/olena"],
-        summary="Economics and Big Data student with sales internship experience, seeking a data analyst internship.",
-        education=[CVEducation(institution="Kyiv School of Economics", degree="BA in Economics and Big Data",
-                               location="Kyiv, Ukraine", dates="Sep 2023 - Jun 2027 (expected)",
+        full_name="Maya Chen",
+        contact_line=["London, UK", "maya@example.com", "linkedin.com/in/mayachen"],
+        summary="Economics and Data Science student with sales internship experience, seeking a data analyst internship.",
+        education=[CVEducation(institution="Northbridge University", degree="BSc in Economics and Data Science",
+                               location="London, UK", dates="Sep 2023 - Jun 2027 (expected)",
                                details=["Relevant coursework: Econometrics, Statistics, Databases"])],
-        experience=[CVEntry(title="Sales Intern", organization="Company X", location="Kyiv", dates="Jun 2025 - Aug 2025",
+        experience=[CVEntry(title="Sales Intern", organization="Company X", location="London", dates="Jun 2025 - Aug 2025",
                             bullets=["Built [N] weekly Excel sales reports for a regional team of [X] people"])],
         projects=[],
-        activities=[CVEntry(title="Member", organization="KSE Student Council", location="", dates="2024 - Present",
+        activities=[CVEntry(title="Member", organization="Student Council", location="", dates="2024 - Present",
                             bullets=["Organised 3 events for 150+ students, including a case championship"])],
         skills=[CVSkillGroup(category="Tools", items=["Excel", "Python"])],
-        languages=["Ukrainian: Native", "English: B2"],
+        languages=["English: Native", "Spanish: B2"],
         awards=[],
-        notes_for_user=["Заміни [N] і [X] на реальні числа.", "Додай один проєкт на даних: це найбільше підсилить CV."],
+        notes_for_user=["Replace [N] and [X] with real numbers.", "Add one data project: it will strengthen the CV the most."],
     )

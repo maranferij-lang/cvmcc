@@ -1,4 +1,4 @@
-# Program rubric: Artificial Intelligence (KSE)
+# Program rubric: Artificial Intelligence
 
 Typical targets: ML engineer intern, data scientist, AI/LLM engineer, research intern, data analyst.
 

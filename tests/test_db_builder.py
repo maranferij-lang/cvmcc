@@ -53,7 +53,7 @@ def test_memory_db_limits_per_user_and_global():
 
 
 def draft():
-    return BuilderDraft(full_name="Olena Petrenko", email="o@e.com", phone="", city="Kyiv", links="",
+    return BuilderDraft(full_name="Maya Chen", email="o@e.com", phone="", city="Kyiv", links="",
                         program="economics_big_data", status="2 курс", grad_year="2027", gpa="",
                         target_role="Data Analyst", notes="стажування в продажах, звіти в Excel",
                         feedback_language="Ukrainian")
@@ -65,7 +65,7 @@ def test_builder_flow_with_demo_client():
     assert q is not None
     answer(g, "6 івентів на 300 студентів")
     cv = build_cv(client, draft(), g)
-    assert cv.full_name == "Olena Petrenko" and g.finished
+    assert cv.full_name == "Maya Chen" and g.finished
     sent = client.calls[-1]["messages"][0]["content"][0]["text"]
     assert "6 івентів" in sent and "стажування в продажах" in sent
     assert "Never invent" in builder_build_system(draft())
@@ -75,7 +75,7 @@ def test_render_docx_and_markdown():
     cv = demo_built_cv()
     doc = Document(io.BytesIO(render_docx(cv)))
     text = "\n".join(p.text for p in doc.paragraphs)
-    assert "Olena Petrenko" in text and "EDUCATION" in text and "EXPERIENCE" in text
+    assert "Maya Chen" in text and "EDUCATION" in text and "EXPERIENCE" in text
     assert "PROJECTS" not in text  # порожні розділи не друкуються
     md = render_markdown(cv)
     assert "#### EXPERIENCE" in md and "Sales Intern" in md
