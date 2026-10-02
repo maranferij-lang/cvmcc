@@ -55,10 +55,11 @@ steps = [
      "Ми бачимо, які правки студенти приймають, а які відхиляють, і змінюємо критерії. Кожну знайдену "
      "помилку додаємо в набір тестів, щоб вона не повторилась."),
 ]
-for i, (title, text) in enumerate(steps):
-    with card(f"how-{i}"):
-        st.markdown(f"**{title}**")
-        st.write(text)
+for row in range(0, len(steps), 2):
+    for col, (i, (title, text)) in zip(st.columns(2), enumerate(steps[row:row + 2], start=row)):
+        with col, card(f"how-{i}"):
+            st.markdown(f"**{title}**")
+            st.write(text)
 
 st.header("Що всередині")
 st.markdown(

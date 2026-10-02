@@ -89,6 +89,7 @@ if not s.get("analyze_defaults_set"):
 if "prefill_role" in st.session_state:
     st.session_state["target_role"] = st.session_state.pop("prefill_role")
     st.session_state["company_type"] = st.session_state.pop("prefill_company")
+    s["open_form"] = True  # нова ціль: показати форму, навіть якщо є старий результат
 
 st.title("Аналіз CV")
 st.caption("Правки під конкретну роль, план навчання і Grill me.")
@@ -97,82 +98,95 @@ if not consent("analyze"):
     st.stop()
 
 # ---------- Онбординг ----------
-with card("goal"):
-    st.header("1. Про тебе і твою ціль")
-    col1, col2 = st.columns(2)
-    program = col1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="analyze_program")
-    status = col2.selectbox("Статус", STATUSES, key="analyze_status")
-    background = st.text_area(
-        "Де ти зараз вчишся, працюєш або працював(-ла)?",
-        max_chars=1500,
-        key="analyze_background",
-        placeholder="Напр.: 3 курс, літнє стажування в продажах, волонтер у студраді",
-        height=80,
-    )
-
-    st.subheader("Куди хочеш потрапити")
-    target_role = st.text_input("Роль", key="target_role", max_chars=120, placeholder="Напр.: Business Analyst, Junior Data Analyst, UX Researcher")
-    col1, col2 = st.columns(2)
-    company_type = col1.selectbox("Тип компанії", COMPANY_TYPES, key="company_type")
-    level = col2.selectbox("Рівень", LEVELS)
-    company_details = st.text_input(
-        "Конкретна компанія або індустрія (необов'язково)", placeholder="Напр.: Monobank, McKinsey, EdTech-стартап",
-        max_chars=200,
-    )
-    region = st.selectbox("Ринок", REGIONS)
-    vacancy_text = st.text_area(
-        "Текст вакансії (дуже бажано)",
-        max_chars=8000,
-        placeholder="Встав сюди повний опис вакансії: обов'язки і вимоги. Це найбільше покращує поради.",
-        height=160,
-    )
-    feedback_lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True)
-
-profile = Profile(
-    program=program,
-    status=status,
-    background=background,
-    target_role=target_role,
-    company_type=company_type,
-    company_details=company_details,
-    level=level,
-    region=region,
-    vacancy_text=vacancy_text,
-    feedback_language=FEEDBACK_LANGUAGES[feedback_lang],
+# Після аналізу форма згортається, щоб результат був одразу під заголовком.
+form_box = (
+    st.expander("Ціль і CV: змінити й проаналізувати знову", icon=":material/tune:", expanded=s.get("open_form", False))
+    if s.analysis is not None else st.container()
 )
-clarity, hint = profile.target_clarity()
-{"висока": st.success, "середня": st.warning, "низька": st.error}[clarity](f"Чіткість цілі: {clarity}. {hint}")
+with form_box:
+    with card("goal"):
+        st.header("1. Про тебе і твою ціль")
+        col1, col2 = st.columns(2)
+        program = col1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="analyze_program")
+        status = col2.selectbox("Статус", STATUSES, key="analyze_status")
+        background = st.text_area(
+            "Де ти зараз вчишся, працюєш або працював(-ла)?",
+            max_chars=1500,
+            key="analyze_background",
+            placeholder="Напр.: 3 курс, літнє стажування в продажах, волонтер у студраді",
+            height=80,
+        )
 
-with card("cv"):
-    st.header("2. Твоє CV")
-    cv = cv_picker("analyze")
+        st.subheader("Куди хочеш потрапити")
+        target_role = st.text_input("Роль", key="target_role", max_chars=120, placeholder="Напр.: Business Analyst, Junior Data Analyst, UX Researcher")
+        col1, col2 = st.columns(2)
+        company_type = col1.selectbox("Тип компанії", COMPANY_TYPES, key="company_type")
+        level = col2.selectbox("Рівень", LEVELS, key="analyze_level")
+        company_details = st.text_input(
+            "Конкретна компанія або індустрія (необов'язково)", placeholder="Напр.: Monobank, McKinsey, EdTech-стартап",
+            max_chars=200, key="analyze_company_details",
+        )
+        region = st.selectbox("Ринок", REGIONS, key="analyze_region")
+        vacancy_text = st.text_area(
+            "Текст вакансії (дуже бажано)",
+            max_chars=8000,
+            placeholder="Встав сюди повний опис вакансії: обов'язки і вимоги. Це найбільше покращує поради.",
+            height=160, key="analyze_vacancy",
+        )
+        feedback_lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True, key="analyze_lang")
 
-can_run = bool(target_role.strip()) and cv is not None
-limit_caption("analysis")
-if st.button("Проаналізувати CV", type="primary", disabled=not can_run) and take_limit("analysis"):
-    try:
-        with st.spinner("Аналізую CV, це займає до хвилини..."):
-            s.analysis = analyze_cv(get_client(), profile, cv)
-        s.cv, s.profile = cv, profile
-        s.analysis_id = uuid.uuid4().hex
-        s.pop("feedback_sent", None)
-        s.pop("formatted_cv", None)
-        save_result("analysis", f"{target_role} · {s.analysis.overall_score}/100",
-                    {"role": target_role, "company_type": company_type, "analysis": s.analysis.model_dump()})
-        s.grill, s.grill_result = None, None
-        for k in [k for k in st.session_state if str(k).startswith("accept_")]:
-            del st.session_state[k]
-    except LLMError as e:
-        st.error(str(e))
-if not target_role.strip():
-    st.caption("Щоб почати, вкажи роль.")
+    profile = Profile(
+        program=program,
+        status=status,
+        background=background,
+        target_role=target_role,
+        company_type=company_type,
+        company_details=company_details,
+        level=level,
+        region=region,
+        vacancy_text=vacancy_text,
+        feedback_language=FEEDBACK_LANGUAGES[feedback_lang],
+    )
+    clarity, hint = profile.target_clarity()
+    if target_role.strip() and clarity == "висока":
+        st.success(f"Ціль зрозуміла. {hint}", icon=":material/target:")
+    elif target_role.strip():
+        st.info(f"Порада: {hint}", icon=":material/lightbulb:")
+
+    with card("cv"):
+        st.header("2. Твоє CV")
+        cv = cv_picker("analyze")
+
+    can_run = bool(target_role.strip()) and cv is not None
+    limit_caption("analysis")
+    if st.button("Проаналізувати CV", type="primary", disabled=not can_run) and take_limit("analysis"):
+        try:
+            with st.spinner("Аналізую CV, це займає до хвилини..."):
+                s.analysis = analyze_cv(get_client(), profile, cv)
+            s.cv, s.profile = cv, profile
+            s.analysis_id = uuid.uuid4().hex
+            s.pop("feedback_sent", None)
+            s.pop("formatted_cv", None)
+            s.pop("open_form", None)
+            save_result("analysis", f"{target_role} · {s.analysis.overall_score}/100",
+                        {"role": target_role, "company_type": company_type, "analysis": s.analysis.model_dump()})
+            s.grill, s.grill_result = None, None
+            for k in [k for k in st.session_state if str(k).startswith("accept_")]:
+                del st.session_state[k]
+            st.rerun()  # згорнути форму і показати результат зверху
+        except LLMError as e:
+            st.error(str(e))
+    if not target_role.strip():
+        st.caption("Щоб почати, вкажи роль.")
 
 if s.analysis is None:
     st.stop()
 
 # ---------- Результати ----------
 a = s.analysis
-st.header("3. Результат")
+st.header("Результат")
+company = "" if s.profile.company_type == "Не знаю / будь-яка" else s.profile.company_type
+st.caption(" · ".join(md_escape(x) for x in (s.profile.target_role, company, s.cv.filename) if x))
 tab_overview, tab_edits, tab_gaps, tab_grill, tab_export = st.tabs(
     ["Огляд", "Правки", "Що вивчити", "Grill me", "Готове CV"]
 )

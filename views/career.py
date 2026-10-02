@@ -31,53 +31,60 @@ demo_banner()
 if not consent("career"):
     st.stop()
 
-with card("about-you"):
-    st.header("1. Трохи про тебе")
-    c1, c2 = st.columns(2)
-    program = c1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="career_program")
-    status = c2.selectbox("Статус", STATUSES, key="career_status")
-    interests = st.text_area(
-        "Що тобі цікаво? (необов'язково)",
-        max_chars=600,
-        key="career_interests",
-        placeholder="Напр.: люблю працювати з даними, цікавлять фінанси і стартапи",
-        height=70,
-    )
-    avoid = st.text_input("Чого точно не хочеш? (необов'язково)", max_chars=300, placeholder="Напр.: холодні дзвінки, чистий код")
-    c1, c2 = st.columns(2)
-    level = c1.selectbox("Рівень", LEVELS, key="career_level")
-    region = c2.selectbox("Ринок", REGIONS, key="career_region")
-    lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True, key="career_lang")
-
-with card("career-cv"):
-    st.header("2. Твоє CV")
-    cv = cv_picker("career")
-
-prefs = CareerPrefs(
-    program=program,
-    status=status,
-    interests=interests,
-    avoid=avoid,
-    level=level,
-    region=region,
-    feedback_language=FEEDBACK_LANGUAGES[lang],
+# Після результату форма згортається, щоб напрями були одразу під заголовком.
+form_box = (
+    st.expander("Про тебе і CV: змінити й шукати знову", icon=":material/tune:")
+    if st.session_state.get("career_result") is not None else st.container()
 )
-limit_caption("career")
-if st.button("Знайти напрями", type="primary", disabled=cv is None) and take_limit("career"):
-    try:
-        with st.spinner("Дивлюсь, де твій досвід цінують найбільше..."):
-            st.session_state["career_result"] = match_careers(get_llm(), prefs, cv)
-        top = st.session_state["career_result"].directions
-        save_result("career", ", ".join(d.role for d in top[:2]) or "Напрями",
-                    {"career": st.session_state["career_result"].model_dump()})
-    except LLMError as e:
-        st.error(str(e))
+with form_box:
+    with card("about-you"):
+        st.header("1. Трохи про тебе")
+        c1, c2 = st.columns(2)
+        program = c1.selectbox("Програма в КШЕ", list(PROGRAMS), format_func=PROGRAMS.get, key="career_program")
+        status = c2.selectbox("Статус", STATUSES, key="career_status")
+        interests = st.text_area(
+            "Що тобі цікаво? (необов'язково)",
+            max_chars=600,
+            key="career_interests",
+            placeholder="Напр.: люблю працювати з даними, цікавлять фінанси і стартапи",
+            height=70,
+        )
+        avoid = st.text_input("Чого точно не хочеш? (необов'язково)", max_chars=300, placeholder="Напр.: холодні дзвінки, чистий код", key="career_avoid")
+        c1, c2 = st.columns(2)
+        level = c1.selectbox("Рівень", LEVELS, key="career_level")
+        region = c2.selectbox("Ринок", REGIONS, key="career_region")
+        lang = st.radio("Мова порад", list(FEEDBACK_LANGUAGES), horizontal=True, key="career_lang")
+
+    with card("career-cv"):
+        st.header("2. Твоє CV")
+        cv = cv_picker("career")
+
+    prefs = CareerPrefs(
+        program=program,
+        status=status,
+        interests=interests,
+        avoid=avoid,
+        level=level,
+        region=region,
+        feedback_language=FEEDBACK_LANGUAGES[lang],
+    )
+    limit_caption("career")
+    if st.button("Знайти напрями", type="primary", disabled=cv is None) and take_limit("career"):
+        try:
+            with st.spinner("Дивлюсь, де твій досвід цінують найбільше..."):
+                st.session_state["career_result"] = match_careers(get_llm(), prefs, cv)
+            top = st.session_state["career_result"].directions
+            save_result("career", ", ".join(d.role for d in top[:2]) or "Напрями",
+                        {"career": st.session_state["career_result"].model_dump()})
+            st.rerun()  # згорнути форму і показати напрями зверху
+        except LLMError as e:
+            st.error(str(e))
 
 result = st.session_state.get("career_result")
 if result is None:
     st.stop()
 
-st.header("3. Твої напрями")
+st.header("Твої напрями")
 st.markdown(md_escape(result.candidate_summary))
 if result.strongest_assets:
     st.markdown("**Твої найсильніші сторони:** " + "; ".join(md_escape(x) for x in result.strongest_assets))

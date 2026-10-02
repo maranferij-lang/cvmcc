@@ -65,7 +65,7 @@ def consent(page: str) -> bool:
             st.caption("CV містить персональні дані, тому нам потрібна твоя згода. Це один раз за сесію.")
         given = st.checkbox(
             f"Я погоджуюсь, що моє CV і відповіді надсилаються в {provider} лише для аналізу. "
-            "Файл CV CVmax не зберігає, він зникає після закриття вкладки."
+            "CVmax не зберігає файл CV, він зникає після закриття вкладки."
             + PRIVACY_NOTE.get(provider, ""),
             value=already,
             key=f"consent_{page}",
