@@ -225,7 +225,7 @@ with tab_overview:
     if s.grill is None:
         st.info(
             f"**Next: Q&A.** Up to {config.GRILL_MAX_QUESTIONS} short questions about your experience. "
-            "CVmax uses your answers to find numbers and facts missing from your CV and turns them into stronger edits.",
+            "GetCVmax uses your answers to find numbers and facts missing from your CV and turns them into stronger edits.",
             icon=":material/forum:",
         )
     with card("rate-analysis"):
@@ -249,7 +249,7 @@ with tab_edits:
     if not all_edits(s) and s.grill_result is None:
         st.info(
             "No edits yet: your CV already reads well for this goal. To get edits, do the **Q&A** "
-            "(previous tab): CVmax will turn your answers into numbers and facts for your CV.",
+            "(previous tab): GetCVmax will turn your answers into numbers and facts for your CV.",
             icon=":material/forum:",
         )
     elif s.grill_result is None:
@@ -302,7 +302,7 @@ with tab_gaps:
 with tab_grill:
     st.caption(
         f"Up to {config.GRILL_MAX_QUESTIONS} questions about your experience: numbers, scale and what's missing from your CV. "
-        "Your answers become stronger edits. Nothing is made up, CVmax only uses what you say. "
+        "Your answers become stronger edits. Nothing is made up, GetCVmax only uses what you say. "
         "You can skip questions and finish at any time."
     )
     if s.get("grill_error"):  # помилка з попереднього проходу, до st.rerun()
@@ -320,7 +320,7 @@ with tab_grill:
     else:
         g = s.grill
         if g.finished and not g.turns:
-            st.info("CVmax found nothing to ask about: your CV already has numbers and details. "
+            st.info("GetCVmax found nothing to ask about: your CV already has numbers and details. "
                     "Go to the Edits tab.")
         for i, t in enumerate(g.turns, 1):
             if g.finished and not t.answer:

@@ -17,7 +17,7 @@ s = st.session_state
 st.title("CV builder")
 st.caption(
     "No CV yet? Fill in the basics, tell us about yourself in your own words, answer a few questions, "
-    "and CVmax builds an English CV with the right structure."
+    "and GetCVmax builds an English CV with the right structure."
 )
 demo_banner()
 if not consent("builder"):

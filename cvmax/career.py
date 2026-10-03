@@ -40,7 +40,7 @@ class CareerPrefs:
 
 def career_system(prefs: CareerPrefs) -> str:
     company_types = "\n".join(f"- {c}" for c in COMPANY_TYPES)
-    return f"""You are CVmax, a career coach for university students and early-career people.
+    return f"""You are GetCVmax, a career coach for university students and early-career people.
 Today is {today()}.
 You know entry-level job markets well: the US, Canada, the UK, the EU, Ukraine and Eastern Europe, and remote roles.
 

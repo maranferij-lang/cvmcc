@@ -9,18 +9,18 @@ from ui.common import secret
 st.title("Terms")
 st.caption("Last updated: October 2, 2026")
 st.markdown(
-    '<p class="cvx-page-lead">In short: CVmax is free and gives advice, but you decide what goes in your CV. '
+    '<p class="cvx-page-lead">In short: GetCVmax is free and gives advice, but you decide what goes in your CV. '
     "Only write the truth.</p>",
     unsafe_allow_html=True,
 )
 
 limits = config.LIMITS
 sections = [
-    ("What CVmax is",
-     "CVmax is a free experimental tool that uses AI to give advice on CVs and career directions. "
+    ("What GetCVmax is",
+     "GetCVmax is a free experimental tool that uses AI to give advice on CVs and career directions. "
      "It is an independent project."),
     ("No guarantees",
-     "The advice comes from a language model, and it can make mistakes. CVmax does not guarantee interviews "
+     "The advice comes from a language model, and it can make mistakes. GetCVmax does not guarantee interviews "
      "or job offers. The service is provided \"as is\" and may be unavailable, change or shut down at any time."),
     ("Your responsibility",
      "You decide which edits to accept. Check each one and put only the truth in your CV. "

@@ -202,6 +202,7 @@ begin
   -- Сьогоднішні лічильники лишаються: інакше «видалити дані» обнуляло б денні ліміти.
   delete from public.cvmax_usage where user_key = lower(p_email) and created_at < cvmax_private.day_start();
   delete from public.cvmax_edit_feedback where user_key = lower(p_email);
+  delete from public.cvmax_waitlist where email = lower(p_email);
   delete from public.cvmax_users where email = lower(p_email);
 end $$;
 
@@ -254,3 +255,40 @@ end $$;
 revoke all on function public.cvmax_save_feedback(text, text, int, text) from public, authenticated;
 grant execute on function public.cvmax_save_feedback(text, text, int, text) to anon;
 
+
+-- Launch list from the landing page (getcvmax.com). Written by a Cloudflare Pages Function that holds the app token.
+create table if not exists public.cvmax_waitlist (
+  id bigint generated always as identity primary key,
+  email text not null unique check (char_length(email) <= 254),
+  plan text not null default 'full' check (plan in ('scan', 'full', 'hunt')),
+  source text check (char_length(source) <= 60),
+  country text check (char_length(country) <= 2),
+  created_at timestamptz not null default now()
+);
+alter table public.cvmax_waitlist enable row level security;
+revoke all on public.cvmax_waitlist from anon, authenticated;
+
+create or replace function public.cvmax_join_waitlist(
+  p_token text, p_email text, p_plan text, p_source text, p_country text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare v_email text := lower(trim(p_email));
+begin
+  perform cvmax_private.check_token(p_token);
+  if v_email is null or char_length(v_email) > 254 or v_email !~ '^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]{2,}$' then
+    raise exception 'bad email' using errcode = '22023';
+  end if;
+  insert into public.cvmax_waitlist (email, plan, source, country)
+  values (v_email,
+          case when p_plan in ('scan', 'full', 'hunt') then p_plan else 'full' end,
+          nullif(left(coalesce(p_source, ''), 60), ''),
+          nullif(left(upper(coalesce(p_country, '')), 2), ''))
+  on conflict (email) do update set plan = excluded.plan;
+  return jsonb_build_object('ok', true);
+end $$;
+revoke all on function public.cvmax_join_waitlist(text, text, text, text, text) from public, authenticated;
+grant execute on function public.cvmax_join_waitlist(text, text, text, text, text) to anon;
+
+-- Launch list by day and source (read in the SQL editor).
+create or replace view cvmax_private.waitlist_by_source as
+  select date_trunc('day', created_at)::date as day, coalesce(source, '(direct)') as source, plan, count(*) as signups
+    from public.cvmax_waitlist group by 1, 2, 3 order by 1 desc, 4 desc;

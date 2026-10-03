@@ -113,7 +113,7 @@ def require_login(page_title: str) -> None:
         st.subheader("Sign in to continue")
         st.write(
             "Signing in with Google takes a few seconds. We will save your results "
-            "so you can come back to them later. CVmax is free."
+            "so you can come back to them later. GetCVmax is free."
         )
         st.button("Sign in with Google", type="primary", icon=":material/login:", on_click=st.login, args=("google",))
     st.stop()
@@ -143,7 +143,7 @@ def take_limit(kind: str) -> bool:
         st.warning(f"You have used all {result.get('limit')} {what} for today. Come back tomorrow.")
     else:
         st.warning(
-            "CVmax is free, and today's site-wide limit has been reached. Come back tomorrow; limits reset daily."
+            "GetCVmax is free, and today's site-wide limit has been reached. Come back tomorrow; limits reset daily."
         )
     return False
 

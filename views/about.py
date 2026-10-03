@@ -5,9 +5,9 @@ import streamlit as st
 from cvmax import config
 from ui.common import card, secret
 
-st.title("About CVmax")
+st.title("About GetCVmax")
 st.markdown(
-    '<p class="cvx-page-lead">CVmax is a free AI CV coach for students and early-career people applying to '
+    '<p class="cvx-page-lead">GetCVmax is a free AI CV coach for students and early-career people applying to '
     "international companies. It helps you build an English CV that reads in six seconds and tells a recruiter "
     "why you are worth a call. No generic tips, no invented experience.</p>",
     unsafe_allow_html=True,
@@ -31,12 +31,12 @@ st.write(
     "a recruiter won't believe, because there are no facts behind them."
 )
 st.write(
-    "CVmax was built by a student who went through rewriting their own CV many times: hunting for examples, "
+    "GetCVmax was built by a student who went through rewriting their own CV many times: hunting for examples, "
     "editing line by line, and only then learning that what matters isn't the wording. It's what to keep, "
     "what to cut and how to show results."
 )
 
-st.header("How CVmax thinks")
+st.header("How GetCVmax thinks")
 steps = [
     ("Goal first, then the CV",
      "The same line can be strong for consulting and useless for software. So every review starts with the "
@@ -45,7 +45,7 @@ steps = [
      "The model gives each line a verdict: keep, shorten, rewrite, move or cut. A bullet that names a topic "
      "with no action or result doesn't stay. Neither do duplicates or bragging that doesn't serve your goal."),
     ("One page",
-     "We count words and pages. If your CV runs long, CVmax tells you what to cut first, based on your goal."),
+     "We count words and pages. If your CV runs long, GetCVmax tells you what to cut first, based on your goal."),
     ("Never makes things up",
      "Where a number is missing, you get [X], not an invented figure. A separate checker flags skills, numbers "
      "and links in the edits that appear neither in your CV nor in your answers."),
@@ -72,8 +72,8 @@ st.markdown(
 
 st.header("Status and feedback")
 st.write(
-    "CVmax is free. Daily limits keep it free for everyone. The most useful thing you can send us: cases where "
-    "CVmax got it wrong. Tell us what happened and we'll add it to our tests."
+    "GetCVmax is free. Daily limits keep it free for everyone. The most useful thing you can send us: cases where "
+    "GetCVmax got it wrong. Tell us what happened and we'll add it to our tests."
 )
 st.page_link("views/feedback.py", label="Leave feedback", icon=":material/chat:")
 contact = secret("CVMAX_CONTACT")

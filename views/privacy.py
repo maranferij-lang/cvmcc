@@ -33,7 +33,7 @@ with card("privacy-short"):
 
 st.header("Who processes your data")
 st.write(
-    "CVmax is an independent project. The author is responsible for processing your data."
+    "GetCVmax is an independent project. The author is responsible for processing your data."
     + (f" Contact: {contact}." if contact else " You can reach us through the Feedback page.")
 )
 
@@ -73,7 +73,7 @@ st.markdown(
 )
 if provider == "Google Gemini API":
     st.warning(
-        "CVmax currently uses the free tier of Gemini. On this tier, Google may review the data you send "
+        "GetCVmax currently uses the free tier of Gemini. On this tier, Google may review the data you send "
         "and use it to improve its products. So before uploading, remove your phone number, address and "
         "any other details the review doesn't need."
     )

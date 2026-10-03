@@ -24,7 +24,7 @@ if not st.session_state.get("career_defaults_set"):
 
 st.title("Where to apply")
 st.caption(
-    "Have a CV but not sure where to take it? CVmax looks at your experience and suggests directions "
+    "Have a CV but not sure where to take it? GetCVmax looks at your experience and suggests directions "
     "where you have the best shot at an offer right now."
 )
 demo_banner()

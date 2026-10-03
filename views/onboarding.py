@@ -15,7 +15,7 @@ st.markdown(
     f"""
 <div class="cvx-hero">
   <span class="cvx-eyebrow"><i></i>One minute</span>
-  <h1>Welcome to CVmax{', ' + first_name if first_name else ''}!</h1>
+  <h1>Welcome to GetCVmax{', ' + first_name if first_name else ''}!</h1>
   <p class="lead">Tell us a bit about yourself. It takes a minute, and we'll use it across all the tools
   to make the advice more accurate.</p>
 </div>

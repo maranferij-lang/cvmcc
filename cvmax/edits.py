@@ -97,7 +97,7 @@ def apply_edits(cv_text: str, edits: list[Edit]) -> ApplyReport:
 
 
 def changes_markdown(edits: list[Edit]) -> str:
-    lines = ["# CVmax: accepted edits", ""]
+    lines = ["# GetCVmax: accepted edits", ""]
     for i, e in enumerate(edits, 1):
         lines.append(f"## {i}. {e.section}")
         if e.before.strip():

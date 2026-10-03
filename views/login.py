@@ -4,7 +4,7 @@ import streamlit as st
 
 from ui.common import card
 
-st.title("Sign in to CVmax")
+st.title("Sign in to GetCVmax")
 with card("login"):
     st.write(
         "Sign in with Google to use the tools. We'll save your profile and results "

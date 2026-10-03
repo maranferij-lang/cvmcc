@@ -1,11 +1,11 @@
-"""CVmax: вебзастосунок. Запуск: streamlit run app.py"""
+"""GetCVmax: вебзастосунок. Запуск: streamlit run app.py"""
 
 import streamlit as st
 
 from ui.account import auth_configured, is_logged_in, needs_onboarding
 from ui.common import inject_css
 
-st.set_page_config(page_title="CVmax: AI CV coach", page_icon="assets/icon.png", layout="wide")
+st.set_page_config(page_title="GetCVmax: AI CV coach", page_icon="assets/icon.png", layout="wide")
 st.logo("assets/logo.svg", size="large")
 inject_css()
 
@@ -28,7 +28,7 @@ else:
     pages = {
         "": main,
         "About": [
-            st.Page("views/about.py", title="About CVmax", icon=":material/info:"),
+            st.Page("views/about.py", title="About GetCVmax", icon=":material/info:"),
             st.Page("views/privacy.py", title="Privacy", icon=":material/shield:"),
             st.Page("views/terms.py", title="Terms", icon=":material/gavel:"),
             st.Page("views/feedback.py", title="Feedback", icon=":material/chat:"),
@@ -37,5 +37,5 @@ else:
 
 page = st.navigation(pages, position="top")
 # Назва вкладки браузера: що за сторінка і чий сайт.
-st.set_page_config(page_title="CVmax: free AI CV coach that tailors your CV to the job" if page.title == "Home" else f"{page.title} · CVmax")
+st.set_page_config(page_title="GetCVmax: free AI CV coach that tailors your CV to the job" if page.title == "Home" else f"{page.title} · GetCVmax")
 page.run()

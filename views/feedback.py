@@ -8,7 +8,7 @@ from ui.common import card
 st.title("Feedback")
 st.markdown(
     '<p class="cvx-page-lead">Your feedback decides what we fix first. '
-    "Most useful of all: where CVmax got it wrong, gave bad advice or made something up.</p>",
+    "Most useful of all: where GetCVmax got it wrong, gave bad advice or made something up.</p>",
     unsafe_allow_html=True,
 )
 with card("feedback-form"):

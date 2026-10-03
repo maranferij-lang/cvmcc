@@ -1,4 +1,4 @@
-"""Home: what CVmax is and where to start."""
+"""Home: what GetCVmax is and where to start."""
 
 import base64
 
@@ -34,7 +34,7 @@ with left:
 <div class="cvx-hero">
   <span class="cvx-eyebrow">Free AI CV coach</span>
   <h1>Get your CV <em class="hl">noticed</em></h1>
-  <p class="lead">Upload your CV and a job posting. CVmax shows what a recruiter will skip and what will land,
+  <p class="lead">Upload your CV and a job posting. GetCVmax shows what a recruiter will skip and what will land,
   rewrites weak lines and asks about experience you undersell. Never makes things up.</p>
 </div>
 """,
@@ -68,14 +68,14 @@ st.markdown(
 <div class="cvx-section">
   <div class="kicker">What you get</div>
   <h2>Not generic tips. Edits for your goal.</h2>
-  <p>The same line can be strong for consulting and useless for software. CVmax judges every line of your CV
+  <p>The same line can be strong for consulting and useless for software. GetCVmax judges every line of your CV
   against the role you chose and tells you why.</p>
 </div>
 <div class="cvx-bento">
   <div class="cvx-tile w4">
     <img class="cvx-ico" alt="" src="data:image/webp;base64,{asset('ico_check.webp')}">
     <h4>Every line checked</h4>
-    <p>Keep, shorten, rewrite or cut. CVmax flags bullets with no action or result, duplicates and bragging
+    <p>Keep, shorten, rewrite or cut. GetCVmax flags bullets with no action or result, duplicates and bragging
     that doesn't serve your goal. If your CV runs past one page, it tells you what to cut first.</p>
     <div class="cvx-diff">
       <div class="was"><span class="tag">Cut</span>Interests: travelling, music, gym</div>
@@ -111,7 +111,7 @@ st.markdown(
   <div class="cvx-tile">
     <h4>Final CV as a PDF</h4>
     <p>Your accepted edits go straight into a clean template that recruiters and ATS can both read. Or get a DOCX to keep editing.</p>
-    <div class="cvx-paper"><img alt="Sample CV in the CVmax template" src="data:image/png;base64,{cv_thumbnail()}"></div>
+    <div class="cvx-paper"><img alt="Sample CV in the GetCVmax template" src="data:image/png;base64,{cv_thumbnail()}"></div>
   </div>
 </div>
 """,
@@ -159,19 +159,19 @@ st.markdown(
 st.markdown('<div class="cvx-section"><div class="kicker">FAQ</div><h2>Frequently asked questions</h2></div>',
             unsafe_allow_html=True)
 faq = [
-    ("Is it free?", "Yes. CVmax is free to use. To keep it that way, there are daily limits that reset every day."),
+    ("Is it free?", "Yes. GetCVmax is free to use. To keep it that way, there are daily limits that reset every day."),
     ("Do you store my CV?", "Not the file. It is sent to the model only for the review and disappears when you close "
      "the tab. "
      + ("Your review results are saved in your account so you can come back to them, "
         "and you can delete them at any time. " if ACCOUNTS else
         "There is no sign-up, so results also stay only in the tab: download your PDF before you close it. ")
      + "Details are on the Privacy page."),
-    ("How is this better than ChatGPT?", "CVmax knows the criteria for your field and goal, checks every line of your "
+    ("How is this better than ChatGPT?", "GetCVmax knows the criteria for your field and goal, checks every line of your "
      "CV, asks instead of making things up, and gives you edits you can accept one by one. At the end it builds "
      "a ready-to-send PDF."),
-    ("Does my CV have to be in English?", "Yes, CVmax targets international companies. You can get advice "
+    ("Does my CV have to be in English?", "Yes, GetCVmax targets international companies. You can get advice "
      "in English or Ukrainian."),
-    ("Will this get me a job?", "No tool can promise that. CVmax helps you make your CV stronger and pick realistic "
+    ("Will this get me a job?", "No tool can promise that. GetCVmax helps you make your CV stronger and pick realistic "
      "roles, but the employer makes the call. The model can make mistakes, so check every edit."),
 ]
 for q, a in faq:
@@ -198,6 +198,6 @@ with st.container(horizontal=True, gap="medium"):
     st.page_link("views/terms.py", label="Terms")
     st.page_link("views/feedback.py", label="Feedback")
 st.markdown(
-    '<div class="cvx-footer">© 2026 CVmax · independent project</div>',
+    '<div class="cvx-footer">© 2026 GetCVmax · independent project</div>',
     unsafe_allow_html=True,
 )
