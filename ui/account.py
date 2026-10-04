@@ -183,6 +183,19 @@ def send_feedback(page: str, rating: int | None, message: str) -> bool:
     return True
 
 
+def join_waitlist(email: str, plan: str, source: str | None = None) -> bool:
+    """Записує email у список запуску. Повертає True, якщо вдалося."""
+    if not take_limit("feedback"):
+        return False
+    try:
+        get_db().join_waitlist(email.strip().lower()[:254], plan, source)
+    except DBError as e:
+        log.warning("join_waitlist failed: %s", e)
+        st.error("Couldn't save your email. Try again in a minute.")
+        return False
+    return True
+
+
 def limit_caption(kind: str) -> None:
     """Показує денний ліміт заздалегідь, щоб він не був сюрпризом посеред роботи."""
     user_limit, _ = config.LIMITS[kind]

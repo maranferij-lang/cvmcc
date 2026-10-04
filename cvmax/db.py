@@ -79,6 +79,10 @@ class SupabaseDB:
         """Анонімний відгук: без email, тільки сторінка, оцінка і текст."""
         self._rpc("cvmax_save_feedback", p_page=page, p_rating=rating, p_message=message)
 
+    def join_waitlist(self, email: str, plan: str, source: str | None) -> None:
+        """Список запуску: email, обраний тариф і звідки прийшов."""
+        self._rpc("cvmax_join_waitlist", p_email=email, p_plan=plan, p_source=source, p_country=None)
+
     def log_edit_feedback(self, user_key: str, analysis_id: str, target_role: str, program: str,
                           items: list[dict]) -> int:
         """Які правки юзер прийняв, а які ні. items: source, section, priority, before, after, accepted."""
@@ -96,6 +100,7 @@ class MemoryDB:
         self._usage: dict[tuple[str, str, str], int] = defaultdict(int)
         self._users: dict[str, dict] = {}
         self.feedback: list[dict] = []
+        self.waitlist: dict[str, dict] = {}
 
     def touch_user(self, email: str, name: str | None) -> dict:
         return self._users.setdefault(email.lower(), {"email": email.lower(), "name": name, "onboarded_at": None})
@@ -134,4 +139,7 @@ class MemoryDB:
 
     def save_feedback(self, page: str, rating: int | None, message: str) -> None:
         self.feedback.append({"page": page, "rating": rating, "message": message})
+
+    def join_waitlist(self, email: str, plan: str, source: str | None) -> None:
+        self.waitlist[email.lower()] = {"plan": plan, "source": source}
 

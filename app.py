@@ -6,7 +6,7 @@ from ui.account import auth_configured, is_logged_in, needs_onboarding
 from ui.common import inject_css
 
 st.set_page_config(page_title="GetCVmax: AI CV coach", page_icon="assets/icon.png", layout="wide")
-st.logo("assets/logo.svg", size="large")
+st.logo("assets/logo.png", size="large")
 inject_css()
 
 home = st.Page("views/home.py", title="Home", icon=":material/home:", default=True)

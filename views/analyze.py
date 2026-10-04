@@ -23,7 +23,7 @@ def plural(n: int, word: str) -> str:
     return f"{n} {word}" if n == 1 else f"{n} {word}s"
 
 
-PRIORITY_LABEL = {"high": ":red-badge[High]", "medium": ":orange-badge[Medium]", "low": ":gray-badge[Low]"}
+PRIORITY_LABEL = {"high": ":red-badge[High]", "medium": ":gray-badge[Medium]", "low": ":gray-badge[Low]"}
 
 
 def get_client():
@@ -214,8 +214,8 @@ with tab_overview:
             + (f"{len(flagged)} {'has' if len(flagged) == 1 else 'have'} issues, see the Edits tab." if flagged
                else "No line-level issues.")
         )
-        verdict_label = {"cut": ":red-badge[Cut]", "shorten": ":orange-badge[Shorten]",
-                         "rewrite": ":blue-badge[Rewrite]", "move": ":violet-badge[Move]"}
+        verdict_label = {"cut": ":red-badge[Cut]", "shorten": ":red-badge[Shorten]",
+                         "rewrite": ":red-badge[Rewrite]", "move": ":red-badge[Move]"}
         for v in flagged:
             st.markdown(f"- {verdict_label.get(v.verdict, v.verdict)} {md_escape(v.line)}  \n  {md_escape(v.reason)}")
     if a.strengths:

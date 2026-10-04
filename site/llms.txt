@@ -1,0 +1,14 @@
+# GetCVmax
+
+> GetCVmax reviews English CVs for internships and first jobs the way a recruiter in the target field would: a score out of 100 on 7 criteria, a verdict on every line (keep, cut, rewrite, move), rewrites tailored to a pasted job ad, up to 8 questions that find missing results, and a one-page PDF or DOCX. It never invents numbers: missing figures are left as [N] and the user is asked for them.
+
+- Fields: business and economics, data, software engineering, AI, psychology, law, general.
+- Pricing (one-time, no subscription): Scan $5, Full fix $15, Job hunt (5 CVs) $29. Launch prices for the first 100 buyers.
+- Refund: 14 days.
+- Made by Marian, a student in Ukraine.
+
+## Pages
+- [Home](https://getcvmax.com/)
+- [Terms](https://getcvmax.com/terms)
+- [Privacy](https://getcvmax.com/privacy)
+- [Refund policy](https://getcvmax.com/refund)

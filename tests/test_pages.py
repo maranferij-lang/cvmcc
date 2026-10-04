@@ -97,3 +97,15 @@ def test_rating_a_review_sends_feedback():
     at.run()
     assert not at.exception
     assert any("Thanks" in t.proto.body or "Thank" in t.proto.body for t in at.toast)
+
+
+def test_home_waitlist_form():
+    at = AppTest.from_file(APP, default_timeout=60)
+    at.run()
+    at.text_input(key="waitlist_email").input("not-an-email")
+    next(b for b in at.button if b.label == "Get the launch price").click().run()
+    assert any("incomplete" in e.value for e in at.error)
+    at.text_input(key="waitlist_email").input("student@uni.edu")
+    next(b for b in at.button if b.label == "Get the launch price").click().run()
+    assert any("on the list" in s.value for s in at.success)
+    assert not at.exception
