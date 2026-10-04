@@ -10,18 +10,28 @@ toolbarMode = "minimal"
 showErrorDetails = "none"
 
 [theme]
-base = "light"
+# Без base: апка бере світлу чи темну тему з системи користувача.
+font = "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
+headingFont = "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
+baseRadius = "6px"
+buttonRadius = "6px"
+showWidgetBorder = true
+
+[theme.light]
 primaryColor = "#E0261B"
 backgroundColor = "#FFFFFF"
 secondaryBackgroundColor = "#F6F6F5"
 textColor = "#15171C"
 linkColor = "#15171C"
-font = "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-headingFont = "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-baseRadius = "6px"
-buttonRadius = "6px"
 borderColor = "#D9DADC"
-showWidgetBorder = true
+
+[theme.dark]
+primaryColor = "#FF4B3E"
+backgroundColor = "#121418"
+secondaryBackgroundColor = "#1B1E23"
+textColor = "#F3F2EE"
+linkColor = "#F3F2EE"
+borderColor = "#34373D"
 
 [[theme.fontFaces]]
 family = "Schibsted Grotesk"

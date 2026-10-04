@@ -11,6 +11,7 @@
 @font-face { font-family: "Tinos"; font-style: normal; font-weight: 700; font-display: swap; src: url("/app/static/fonts/Tinos-700-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
 :root {
+  /* Світла тема; нижче ті самі токени через light-dark(), щоб збігалися з темою Streamlit. */
   --paper: #ffffff;
   --ink: #15171c;
   --red: #e0261b;
@@ -19,15 +20,44 @@
   --line: rgba(21, 23, 28, .12);
   --wash: rgba(21, 23, 28, .035);
   --red-wash: rgba(224, 38, 27, .07);
+  --field: rgba(21, 23, 28, .3);
+  --ring: rgba(21, 23, 28, .45);
+  --header-bg: rgba(255, 255, 255, .94);
+  --btn-edge: #9d1a12;
+  --sh-1: rgba(21, 23, 28, .06);
+  --sh-2: rgba(21, 23, 28, .28);
   --f-display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
   --f-doc: "Tinos", "Times New Roman", Times, serif;
   --f-pen: "Kalam", "Comic Sans MS", cursive;
-  --shadow-sheet: 0 1px 0 rgba(21, 23, 28, .06), 0 18px 40px -18px rgba(21, 23, 28, .28);
+  --shadow-sheet: 0 1px 0 var(--sh-1), 0 18px 40px -18px var(--sh-2);
+}
+@supports (color: light-dark(#000, #fff)) {
+  /* Streamlit ставить color-scheme на корінь апки, тож light-dark() іде за обраною темою, а не лише за системною. */
+  :root {
+    --paper: light-dark(#ffffff, #121418);
+    --ink: light-dark(#15171c, #f3f2ee);
+    --red: light-dark(#e0261b, #ff4b3e);
+    --ink-2: light-dark(rgba(21, 23, 28, .68), rgba(243, 242, 238, .72));
+    --ink-3: light-dark(rgba(21, 23, 28, .48), rgba(243, 242, 238, .52));
+    --line: light-dark(rgba(21, 23, 28, .12), rgba(243, 242, 238, .14));
+    --wash: light-dark(rgba(21, 23, 28, .035), rgba(243, 242, 238, .05));
+    --red-wash: light-dark(rgba(224, 38, 27, .07), rgba(255, 75, 62, .13));
+    --field: light-dark(rgba(21, 23, 28, .3), rgba(243, 242, 238, .3));
+    --ring: light-dark(rgba(21, 23, 28, .45), rgba(243, 242, 238, .5));
+    --header-bg: light-dark(rgba(255, 255, 255, .94), rgba(18, 20, 24, .94));
+    --btn-edge: light-dark(#9d1a12, #8a140c);
+    --sh-1: light-dark(rgba(21, 23, 28, .06), rgba(255, 255, 255, .06));
+    --sh-2: light-dark(rgba(21, 23, 28, .28), rgba(0, 0, 0, .7));
+  }
+}
+/* Логотип чорним текстом: у темній темі світла версія. */
+@media (prefers-color-scheme: dark) {
+  [data-testid="stLogo"], [data-testid="stSidebarLogo"], [data-testid="stHeaderLogo"] { content: url("/app/static/logo-dark.png"); }
 }
 
 /* ---------- Каркас ---------- */
 .stApp { background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
-header[data-testid="stHeader"] { background: rgba(255, 255, 255, .94); border-bottom: 1px solid var(--line); }
+header[data-testid="stHeader"] { background: var(--header-bg); border-bottom: 1px solid var(--line); }
 [data-testid="stMainBlockContainer"] { max-width: 780px; padding-top: 5.2rem; padding-bottom: 4rem; }
 [data-testid="stMainBlockContainer"]:has(.cvx-wide) { max-width: 1120px; }
 [data-testid="stTopNavLink"] { border-radius: 6px; padding: .3rem .7rem; }
@@ -73,7 +103,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 [data-testid="stDownloadButton"] button[kind="primary"] {
   background: var(--red) !important; border: none !important; color: #fff !important;
   font-family: var(--f-display); font-weight: 800; border-radius: 6px !important;
-  box-shadow: 0 2px 0 #9d1a12; transition: transform .12s ease, box-shadow .12s ease;
+  box-shadow: 0 2px 0 var(--btn-edge); transition: transform .12s ease, box-shadow .12s ease;
 }
 [data-testid="stBaseButton-primary"]:hover, [data-testid="stBaseButton-primaryFormSubmit"]:hover { transform: translateY(-1px); }
 [data-testid="stBaseButton-primary"]:active { transform: translateY(1px); box-shadow: none; }
@@ -87,7 +117,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 
 /* ---------- Поля вводу ---------- */
 [data-baseweb="input"], [data-baseweb="textarea"], [data-baseweb="select"] > div {
-  background: var(--paper) !important; border: 1.5px solid rgba(21, 23, 28, .3) !important; border-radius: 6px !important;
+  background: var(--paper) !important; border: 1.5px solid var(--field) !important; border-radius: 6px !important;
 }
 [data-baseweb="input"]:focus-within, [data-baseweb="textarea"]:focus-within, [data-baseweb="select"] > div:focus-within {
   border-color: var(--ink) !important; box-shadow: 0 0 0 3px var(--red-wash);
@@ -152,7 +182,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 /* ---------- Головна ---------- */
 .cvx-next { font-size: .92rem; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: .3rem; }
 .cvx-next b { color: var(--ink); }
-.cvx-sheet { background: #fff; color: #15171c; font-family: var(--f-doc); box-shadow: var(--shadow-sheet); border: 1px solid var(--line); border-radius: 2px; padding: 28px 28px 24px; position: relative; transform: rotate(.5deg); }
+.cvx-sheet { background: #fff; color: #15171c; color-scheme: light; font-family: var(--f-doc); box-shadow: var(--shadow-sheet); border: 1px solid var(--line); border-radius: 2px; padding: 28px 28px 24px; position: relative; transform: rotate(.5deg); }
 .cvx-sheet .name { font-weight: 700; font-size: 1.4rem; text-align: center; letter-spacing: .02em; }
 .cvx-sheet .contact { text-align: center; font-size: .82rem; color: rgba(21, 23, 28, .6); margin-bottom: 12px; }
 .cvx-sheet h5 { font-family: var(--f-doc) !important; font-size: .8rem; font-weight: 700 !important; letter-spacing: .14em; text-transform: uppercase; border-bottom: 1px solid #15171c; margin: 14px 0 6px; padding: 0 0 2px; }
@@ -236,7 +266,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 
 /* ---------- Перемикачі: видимі й у вимкненому стані ---------- */
 [data-testid="stCheckbox"] label:not([data-selected="true"]) > span + div,
-[data-testid="stRadioOption"]:not([data-selected="true"]) > div > div:first-child { box-shadow: inset 0 0 0 1.5px rgba(21, 23, 28, .45); }
+[data-testid="stRadioOption"]:not([data-selected="true"]) > div > div:first-child { box-shadow: inset 0 0 0 1.5px var(--ring); }
 
 [data-testid="stHeaderActionElements"] { display: none !important; }
 
