@@ -1,0 +1,7 @@
+[
+ {"id": "a1", "text": "Junior Python Developer", "categories": {"commitment": "Full-time", "department": "Engineering", "location": "Remote", "team": "Platform"}, "createdAt": 1788199939703, "descriptionPlain": "Write Python code & tests.", "hostedUrl": "https://jobs.lever.co/tidepool/a1", "workplaceType": "remote", "salaryRange": {"currency": "USD", "interval": "per-year-salary", "min": 60000, "max": 80000}},
+ {"id": "a2", "text": "Python Data Intern", "categories": {"location": "London", "team": "Data"}, "createdAt": 1788100000000, "descriptionPlain": "Python notebooks.", "hostedUrl": "https://jobs.lever.co/tidepool/a2"},
+ {"id": "a3", "text": "Python Support", "categories": {}, "hostedUrl": "https://jobs.lever.co/tidepool/a3"},
+ {"id": "a4", "text": "Accountant", "categories": {"location": "London"}, "descriptionPlain": "Books", "hostedUrl": "https://jobs.lever.co/tidepool/a4"},
+ {"id": "a5", "text": "Python Foreign", "categories": {}, "descriptionPlain": "python", "hostedUrl": "https://evil.example/a5"}
+]

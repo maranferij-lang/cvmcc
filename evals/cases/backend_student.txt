@@ -1,0 +1,17 @@
+Taras Bondarenko
+Lviv, Ukraine | taras@example.com | github.com/taras-example
+Date of birth: 14 March 2005
+
+EDUCATION
+Example Technical University, BSc in Software Engineering, expected June 2027, GPA 4.6/5
+- Coursework: Algorithms, Databases, Operating Systems, Computer Networks, Linear Algebra
+
+PROJECTS
+Campus Booking API, personal project, Jan 2026 - Apr 2026
+- Built a REST API for campus event booking in Python and FastAPI that handled 1,200 bookings in the first semester, cutting manual sign-ups by 70%
+Library App, team project, Sep 2025 - Dec 2025
+- Responsible for developing the backend of a student library app
+
+SKILLS
+Python, SQL, PostgreSQL, FastAPI, Git, Docker
+Languages: Ukrainian (Native), English (B2)

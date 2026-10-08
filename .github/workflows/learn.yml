@@ -1,0 +1,98 @@
+name: Weekly lessons
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      bootstrap_baseline:
+        description: "Record evals/baseline.json (first run) and open a PR instead of learning"
+        type: boolean
+        default: false
+
+# Мінімальні права за замовчуванням; запис дозволено лише в job «pr»
+permissions:
+  contents: read
+
+jobs:
+  learn:
+    # Лише читання: тут виконується код репозиторію, скрипти й evals
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Record evals baseline
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.bootstrap_baseline }}
+        run: python evals/run_evals.py --runs 2 --update-baseline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Reflect on student feedback
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.bootstrap_baseline) }}
+        run: python scripts/learn.py --days 30
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          CVMAX_DB_TOKEN: ${{ secrets.CVMAX_LEARN_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Evals gate
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.bootstrap_baseline) }}
+        run: python evals/run_evals.py --runs 2 --json evals/last_run.json --baseline evals/baseline.json
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Evals gate (prompt variants)
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.bootstrap_baseline) }}
+        run: python evals/run_evals.py --runs 2 --variants --prune-failing --baseline evals/baseline.json
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Tests
+        run: pytest -q
+      - name: Upload changed paths
+        uses: actions/upload-artifact@v4
+        with:
+          name: learn-changes
+          path: |
+            cvmax/rubrics/learned
+            cvmax/variants
+            docs/learning
+            evals/baseline.json
+          if-no-files-found: error
+
+  pr:
+    # Лише запис: код репозиторію тут не виконується, лише розпаковуємо артефакт і відкриваємо PR
+    needs: learn
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: learn-changes
+          path: .
+      - name: Open pull request
+        id: pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          # PAT потрібен, щоб PR запускав tests.yml (GITHUB_TOKEN цього не робить)
+          token: ${{ secrets.LEARN_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: "learn/${{ github.run_id }}"
+          commit-message: "Weekly lessons from student feedback"
+          title: "Weekly lessons from student feedback"
+          body: "See docs/learning/ report in this PR."
+          add-paths: |
+            cvmax/rubrics/learned
+            cvmax/variants
+            docs/learning
+            evals/baseline.json
+      - name: Enable auto-merge
+        if: ${{ vars.LEARN_AUTOMERGE == '1' && steps.pr.outputs.pull-request-number != '' }}
+        run: gh pr merge --auto --squash "${{ steps.pr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ secrets.LEARN_PR_TOKEN || secrets.GITHUB_TOKEN }}

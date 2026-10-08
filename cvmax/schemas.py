@@ -114,3 +114,15 @@ class BuiltCV(BaseModel):
     languages: List[str]
     awards: List[str]
     notes_for_user: List[str]
+
+
+class JobFit(BaseModel):
+    id: str
+    fit: int  # 0..100, обмежується у rank_jobs
+    why: str
+    missing: List[str]
+    apply_now: bool
+
+
+class RankedJobs(BaseModel):
+    items: List[JobFit]

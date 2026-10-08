@@ -1,0 +1,109 @@
+name: Job market
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+    - cron: "30 4 * * 0"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "What to run"
+        type: choice
+        options: [snapshot, skills]
+        default: snapshot
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    # Щоденний знімок; у неділю о 04:30 працює лише блок skills
+    if: ${{ github.event_name == 'schedule' && github.event.schedule == '0 3 * * *' || github.event_name == 'workflow_dispatch' && inputs.mode == 'snapshot' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Snapshot job postings
+        run: python scripts/snapshot_jobs.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          CVMAX_DB_TOKEN: ${{ secrets.CVMAX_LEARN_TOKEN }}
+          JOOBLE_API_KEY: ${{ secrets.JOOBLE_API_KEY }}
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+
+  skills:
+    if: ${{ github.event_name == 'schedule' && github.event.schedule == '30 4 * * 0' || github.event_name == 'workflow_dispatch' && inputs.mode == 'skills' }}
+    # Лише читання: тут виконується код репозиторію, скрипти й evals
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Extract skill demand
+        run: python scripts/learn_market.py --days 30
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          CVMAX_DB_TOKEN: ${{ secrets.CVMAX_LEARN_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Evals gate
+        run: python evals/run_evals.py --runs 2 --json evals/last_run.json --baseline evals/baseline.json
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Evals gate (prompt variants)
+        run: python evals/run_evals.py --runs 2 --variants --prune-failing --baseline evals/baseline.json
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Tests
+        run: pytest -q
+      - name: Upload changed paths
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-changes
+          path: cvmax/rubrics/market
+          if-no-files-found: error
+          include-hidden-files: true
+
+  skills-pr:
+    # Успадковує умову розкладу через needs (якщо skills пропущено, цей job теж пропущено)
+    needs: skills
+    if: ${{ needs.skills.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: market-changes
+          path: cvmax/rubrics/market
+      - name: Open pull request
+        id: pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.LEARN_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          branch: "market/${{ github.run_id }}"
+          commit-message: "Weekly job-market skills"
+          title: "Weekly job-market skills"
+          body: "Skills that postings ask for, from the last 30 days of snapshots."
+          add-paths: |
+            cvmax/rubrics/market
+      - name: Enable auto-merge
+        if: ${{ vars.LEARN_AUTOMERGE == '1' && steps.pr.outputs.pull-request-number != '' }}
+        run: gh pr merge --auto --squash "${{ steps.pr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ secrets.LEARN_PR_TOKEN || secrets.GITHUB_TOKEN }}

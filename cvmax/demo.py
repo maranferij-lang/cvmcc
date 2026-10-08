@@ -10,7 +10,7 @@ import re
 from types import SimpleNamespace
 from typing import Any
 
-from .schemas import Analysis, BuiltCV, LineVerdict, CVEducation, CVEntry, CVSkillGroup, CareerMatch, CriterionScore, Direction, Edit, Gap, GrillResult, GrillTurn
+from .schemas import Analysis, JobFit, RankedJobs, BuiltCV, LineVerdict, CVEducation, CVEntry, CVSkillGroup, CareerMatch, CriterionScore, Direction, Edit, Gap, GrillResult, GrillTurn
 
 DEMO_QUESTIONS = [
     ("In your Student Council role, how many events did you organise and how many people came?",
@@ -58,9 +58,29 @@ class _Messages:
             out = demo_career()
         elif fmt is BuiltCV:
             out = demo_built_cv()
+        elif fmt is RankedJobs:
+            out = demo_ranked_jobs(re.findall(r"id=([0-9a-f]{12})", str(kwargs.get("messages", ""))))
         else:
             raise ValueError(f"Unknown output format: {fmt}")
         return SimpleNamespace(stop_reason="end_turn", parsed_output=out)
+
+
+def demo_ranked_jobs(ids: list[str]) -> RankedJobs:
+    """Демо-оцінки вакансій: 85, 72, 64, 51, 40, далі мінус 11, але не менше 20."""
+    start = [85, 72, 64, 51, 40]
+    whys = [
+        "Demo: matches your Excel reporting experience.",
+        "Demo: close to your sales internship and coursework.",
+        "Demo: entry-level role that fits your degree.",
+        "Demo: partly relevant, the tools differ from your CV.",
+    ]
+    items = []
+    for i, job_id in enumerate(dict.fromkeys(ids)):
+        fit = start[i] if i < len(start) else max(20, start[-1] - 11 * (i - len(start) + 1))
+        items.append(JobFit(
+            id=job_id, fit=fit, why=whys[i] if i < len(whys) else "Demo: a weaker match for your current CV.",
+            missing=["SQL"] if i == 1 else [], apply_now=fit >= 60))
+    return RankedJobs(items=items)
 
 
 class FakeClient:

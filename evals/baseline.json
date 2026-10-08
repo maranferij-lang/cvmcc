@@ -1,0 +1,7 @@
+{
+  "pass_rate": 0.0,
+  "passed": 0,
+  "total": 0,
+  "updated": null,
+  "note": "Run python evals/run_evals.py --runs 2 --update-baseline once with a real model key to set the gate."
+}

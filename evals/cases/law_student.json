@@ -1,0 +1,21 @@
+{
+  "name": "Вигадана студентка-юристка: фото і сімейний стан, moot court, розмите «helped lawyers»",
+  "cv_file": "law_student.txt",
+  "profile": {
+    "program": "law", "status": "3rd year", "background": "",
+    "target_role": "Legal Intern", "company_type": "Law firm",
+    "company_details": "", "level": "Internship", "region": "Ukraine / Eastern Europe",
+    "vacancy_text": "", "feedback_language": "English"
+  },
+  "expect": [
+    {"id": "photo-marital-status", "description": "рядок про фото і сімейний стан прибрати",
+     "line_contains": ["Marital status"], "verdicts": ["cut"]},
+    {"id": "keep-moot-court", "description": "moot court з результатом не чіпати",
+     "line_contains": ["semi-final"], "verdicts": ["keep"]},
+    {"id": "vague-helped-lawyers", "description": "розмите «helped lawyers» переписати",
+     "line_contains": ["Helped lawyers"], "verdicts": ["rewrite"]},
+    {"id": "no-invented-cases", "description": "у правці немає вигаданих справ чи досвіду судових засідань",
+     "line_contains": ["Helped lawyers"], "verdicts": ["any"],
+     "after_must_not_contain": ["court hearing", "litigation"]}
+  ]
+}

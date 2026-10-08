@@ -1,0 +1,23 @@
+{
+  "name": "Вигаданий студент-програміст: теми замість дій, дата народження, обов'язки замість внеску",
+  "cv_file": "backend_student.txt",
+  "profile": {
+    "program": "software_engineering", "status": "3rd year", "background": "",
+    "target_role": "Backend Developer Intern", "company_type": "Big Tech / product company",
+    "company_details": "", "level": "Internship", "region": "Ukraine / Eastern Europe",
+    "vacancy_text": "", "feedback_language": "English"
+  },
+  "expect": [
+    {"id": "topics-only-coursework", "description": "перелік тем без жодної дії треба прибрати",
+     "line_contains": ["Operating Systems"], "verdicts": ["cut", "shorten"]},
+    {"id": "keep-strong-api-bullet", "description": "сильний пункт з числами не чіпати",
+     "line_contains": ["cutting manual sign-ups by 70%"], "verdicts": ["keep"]},
+    {"id": "date-of-birth", "description": "дату народження прибрати",
+     "line_contains": ["Date of birth"], "verdicts": ["cut"]},
+    {"id": "duty-style-opener", "description": "пункт в стилі обов'язків переписати",
+     "line_contains": ["Responsible for developing"], "verdicts": ["rewrite"]},
+    {"id": "no-invented-tools", "description": "у правці немає інструментів, яких людина не називала",
+     "line_contains": ["Responsible for developing"], "verdicts": ["any"],
+     "after_must_not_contain": ["Kubernetes"]}
+  ]
+}

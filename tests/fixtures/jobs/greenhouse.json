@@ -1,0 +1,7 @@
+{"jobs": [
+ {"id": 1, "title": "Junior Python Engineer", "company_name": "Larkspur", "updated_at": "2026-09-29T20:00:54-04:00", "first_published": "2026-09-09T04:35:19-04:00", "absolute_url": "https://boards.greenhouse.io/larkspur/jobs/1", "location": {"name": "Remote - Europe"}, "metadata": [{"name": "Workplace Type", "value": "Remote"}], "content": "&lt;p&gt;Build &lt;strong&gt;Python&lt;/strong&gt; services &amp;amp; tools.&lt;/p&gt;", "departments": [{"id": 1, "name": "Engineering"}]},
+ {"id": 2, "title": "Software Engineer Intern", "updated_at": "2026-09-01T10:00:00-04:00", "absolute_url": "https://job-boards.greenhouse.io/larkspur/jobs/2", "location": {"name": "Berlin"}, "content": "Python and Go.", "departments": []},
+ {"id": 3, "title": "Python Analyst", "absolute_url": "https://boards.greenhouse.io/larkspur/jobs/3", "location": {"name": "Paris"}},
+ {"id": 4, "title": "Office Manager", "absolute_url": "https://boards.greenhouse.io/larkspur/jobs/4", "location": {"name": "Paris"}, "content": "Keep the office tidy."},
+ {"id": 5, "title": "Python Custom Domain", "absolute_url": "https://careers.larkspur.example/jobs/5", "location": {"name": "Paris"}, "content": "python"}
+], "meta": {"total": 5}}

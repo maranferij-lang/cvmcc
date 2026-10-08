@@ -1,5 +1,7 @@
 """Мій кабінет: профіль, збережені результати, видалення даних, вихід."""
 
+from datetime import datetime, timezone
+
 import streamlit as st
 
 from cvmax.cv_render import render_docx, render_markdown, render_pdf
@@ -7,12 +9,39 @@ from cvmax.db import DBError
 from cvmax.profile import PROGRAMS, STATUSES
 from cvmax.safe_text import md_escape
 from cvmax.schemas import Analysis, BuiltCV, CareerMatch
-from ui.account import current_email, get_db, save_profile, user_row
+from ui.account import current_email, get_db, log_event, save_profile, user_row
 
 row = user_row() or {}
 email = current_email()
 st.title("My account")
 st.caption(f"Signed in as {email}")
+
+OUTCOMES = {"Yes": "yes", "No": "no", "Not yet": "not_yet"}
+
+
+def older_than_week(created_at: str) -> bool:
+    try:
+        dt = datetime.fromisoformat(str(created_at).replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return (datetime.now(timezone.utc) - dt).days >= 7
+
+
+def result_analysis_id(item: dict) -> str:
+    """analysis_id збереженого результату (потрібен для нагороди варіанта); порожній для старих результатів."""
+    if "analysis_id" in item:  # list_results уже віддає його, додаткових запитів не треба
+        return str(item["analysis_id"] or "")
+    key = f"analysis_id_{item['id']}"
+    if key not in st.session_state:
+        try:
+            full = get_db().get_result(email, item["id"]) or {}
+            st.session_state[key] = str((full.get("payload") or {}).get("analysis_id") or "")
+        except DBError:
+            st.session_state[key] = ""  # кешуємо й збій, щоб не повторювати запит на кожен rerun
+    return st.session_state[key]
+
 
 KIND_LABEL = {"analysis": "CV review", "career": "Where to apply", "builder": "CV builder"}
 
@@ -32,6 +61,15 @@ with tab_history:
         for item in items:
             label = f"{KIND_LABEL.get(item['kind'], item['kind'])} · {md_escape(item['title'])} · {item['created_at'][:10]}"
             with st.expander(label):
+                aid = result_analysis_id(item) if item["kind"] == "analysis" and older_than_week(item["created_at"]) else ""
+                if aid:
+                    value = st.segmented_control("Did this CV get you an interview?", list(OUTCOMES),
+                                                 key=f"outcome_{item['id']}")
+                    if value and st.session_state.get(f"outcome_sent_{item['id']}") != value:
+                        log_event("outcome", result_id=item["id"], analysis_id=aid, answer=OUTCOMES[value])
+                        st.session_state[f"outcome_sent_{item['id']}"] = value
+                    if value:
+                        st.caption("Thanks, this helps GetCVmax learn.")
                 if not st.toggle("Show", key=f"show_{item['id']}"):
                     continue
                 try:

@@ -1,0 +1,7 @@
+{"data": [
+ {"slug": "py-1", "company_name": "Rheinwerk GmbH", "title": "Junior Python Entwickler (m/w/d)", "description": "<p>Wir suchen <strong>Python</strong> Talente &amp; Teamplayer.</p>", "remote": false, "url": "https://www.arbeitnow.com/jobs/companies/rheinwerk/py-1", "tags": ["Python", "IT"], "job_types": ["Entry"], "location": "Köln, Nordrhein-Westfalen", "created_at": 1791491475},
+ {"slug": "py-2", "company_name": "Nordlicht AG", "title": "Data Engineer", "description": "Python pipelines, remote friendly.", "remote": true, "url": "https://www.arbeitnow.com/jobs/companies/nordlicht/py-2", "tags": [], "job_types": [], "location": "Hamburg", "created_at": 1791400000},
+ {"slug": "py-3", "company_name": "Elbtal UG", "title": "Backend Developer", "description": "Mostly python services", "remote": false, "url": "https://www.arbeitnow.com/jobs/companies/elbtal/py-3", "created_at": "bad"},
+ {"slug": "x-1", "company_name": "Sudkurier", "title": "Trainee Media Sales", "description": "Sales only", "remote": false, "url": "https://www.arbeitnow.com/jobs/companies/sudkurier/x-1", "tags": [], "created_at": 1791491475},
+ {"slug": "evil", "company_name": "Evil", "title": "Python Wizard", "description": "python", "remote": false, "url": "https://arbeitnow.com.evil.example/jobs/evil", "tags": ["Python"], "created_at": 1791491475}
+], "links": {}, "meta": {}}

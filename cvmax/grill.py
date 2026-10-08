@@ -18,6 +18,7 @@ class QA:
     question: str
     why_asking: str
     answer: str = ""
+    kind: str = ""  # discover / deepen, для журналу подій
 
 
 @dataclass
@@ -71,7 +72,7 @@ def next_question(client: Any, profile: Profile, cv: CVFile, session: GrillSessi
     if turn.done or not turn.question.strip():
         session.finished = True
         return None
-    qa = QA(question=turn.question.strip(), why_asking=turn.why_asking.strip())
+    qa = QA(question=turn.question.strip(), why_asking=turn.why_asking.strip(), kind=turn.kind)
     session.turns.append(qa)
     return qa
 

@@ -1,0 +1,7 @@
+{"count": 4, "mean": 40000, "results": [
+ {"id": "1", "title": "Graduate Data Analyst", "company": {"display_name": "Harbor &amp; Pine"}, "location": {"display_name": "Leeds, West Yorkshire", "area": ["UK", "Leeds"]}, "description": "Analyse <b>data</b> with SQL &amp; Python&hellip;", "created": "2026-10-01T08:00:00Z", "redirect_url": "https://www.adzuna.co.uk/jobs/land/ad/111?se=abc", "salary_min": 28000, "salary_max": 32000, "salary_is_predicted": "0", "contract_time": "full_time"},
+ {"id": "2", "title": "Junior Developer", "company": {"display_name": "Copperfield"}, "location": {"display_name": "Bristol"}, "description": "Predicted pay.", "created": "2026-09-30T12:00:00Z", "redirect_url": "https://www.adzuna.com/details/222", "salary_min": 30000, "salary_max": 30000, "salary_is_predicted": "1"},
+ {"id": "3", "title": "Analyst", "redirect_url": "https://www.adzuna.com.au/jobs/ad/333"},
+ {"id": "4", "title": "Lookalike", "company": {"display_name": "Evil"}, "redirect_url": "https://adzuna.evil.example/jobs/4"},
+ {"id": "5", "title": "Lookalike two", "redirect_url": "https://notadzuna.com/jobs/5"}
+]}

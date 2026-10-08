@@ -1,0 +1,6 @@
+{"apiVersion": "2", "jobCount": 4, "success": true, "jobs": [
+ {"id": 1, "url": "https://jobicy.com/jobs/1-junior-support", "jobTitle": "Junior Support Engineer", "companyName": "Silverfern", "jobIndustry": ["Support"], "jobType": ["Full-Time"], "jobGeo": "Europe", "jobLevel": "Junior", "jobExcerpt": "Help users &#8211; fast &amp; kindly&hellip;", "jobDescription": "<p>Long</p>", "pubDate": "2026-10-08T10:45:12+00:00", "salaryMin": 30000, "salaryMax": 40000, "salaryCurrency": "EUR", "salaryPeriod": "yearly"},
+ {"id": 2, "url": "https://jobicy.com/jobs/2-marketing", "jobTitle": "Marketing Intern", "companyName": "Moonpier", "jobIndustry": "Marketing", "jobType": ["Internship"], "jobGeo": "Anywhere", "jobDescription": "<p>Social <b>media</b> tasks.</p>", "pubDate": "2026-10-07T08:00:00+00:00"},
+ {"id": 3, "url": "https://jobicy.com/jobs/3-minimal", "jobTitle": "Minimal Job"},
+ {"id": 4, "url": "https://evil.example/jobs/4", "jobTitle": "Foreign", "companyName": "Evil"}
+]}

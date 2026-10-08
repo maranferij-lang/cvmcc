@@ -1,0 +1,8 @@
+{"totalCount": 4, "jobs": [
+ {"title": "Junior <b>Python</b> Developer", "location": "Kyiv", "snippet": "Work with &nbsp;Django &amp; <i>REST</i> APIs...", "salary": "$1000", "source": "example.org", "type": "Full-time", "link": "https://ua.jooble.org/desc/111", "company": "Orchard Labs", "updated": "2026-10-07T00:00:00", "id": 1},
+ {"title": "Remote QA Analyst", "location": "Remote, Germany", "snippet": "Testing", "salary": "", "source": "example.net", "type": "", "link": "https://careers.partner-example.com/jobs/222", "company": "Tidemark", "updated": "2026-10-05T10:00:00.1234567", "id": 2},
+ {"title": "Support Specialist", "location": "Lviv", "link": "https://jooble.org/desc/333"},
+ {"title": "Bad Scheme", "location": "X", "link": "javascript:alert(1)", "company": "Evil"},
+ {"title": "Null Link", "location": "X", "link": null, "company": "Nobody"},
+ {"title": "Userinfo", "location": "X", "link": "https://jooble.org@evil.example/x", "company": "Evil"}
+]}

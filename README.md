@@ -12,6 +12,9 @@ AI-помічник, який покращує англомовне CV студ�
   опитування до 8 питань про досвід і готовий текст CV у DOCX.
 - **Куди податись.** 4-5 напрямів, де з цим CV найбільше шансів, з поясненням, чого бракує,
   першими кроками і назвами вакансій для пошуку. Кнопка відкриває аналіз уже під обраний напрям.
+- **Живі вакансії.** Під напрямами в «Куди податись» і в розборі CV: вакансії з прямими посиланнями
+  з DOU, Djinni, Jooble та інших джерел, з оцінкою, чого бракує. LinkedIn, Indeed, Glassdoor, Work.ua
+  і Robota.ua дають лише посилання на пошук. Деталі в розділі «Навчання і посилання на вакансії».
 - **Конструктор CV.** Перше CV з нуля: форма, вільна розповідь, до 8 питань, CV англійською в DOCX.
 - **Мій кабінет.** Профіль, збережені результати, видалення всіх своїх даних, вихід.
 - **Денні ліміти.** На юзера і на весь сайт, щоб не вичерпати безплатний ліміт моделі.
@@ -100,6 +103,10 @@ streamlit run app.py
 | `CVMAX_FALLBACKS` | `1` | Claude: повтор на запасній моделі, якщо основна відмовить |
 | `CVMAX_DEMO` | вимк. | `1` вмикає демо-режим навіть із ключем |
 | `CVMAX_CONTACT` | немає | Email чи Telegram для зв'язку на сторінках «Про нас», «Конфіденційність», «Умови» |
+| `JOOBLE_API_KEY` | немає | Безплатний ключ Jooble. Без нього джерело Jooble пропускається |
+| `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | немає | Безплатні ключі Adzuna, потрібні разом. Без них Adzuna пропускається |
+| `LEARN_AUTOMERGE` | немає | Змінна репозиторію GitHub (не secret). `1` вмикає автозлиття PR з уроками й ринком. Рекомендовано вимкнено, див. docs/learning/README.md |
+| `LEARN_PR_TOKEN` | немає | Secret GitHub Actions: fine-grained PAT (contents і pull-requests write) для PR, що запускають `tests.yml` |
 
 ## Як це влаштовано
 
@@ -148,6 +155,69 @@ McKinsey, BCG, Bain, Google та юридичних шкіл. Список дж�
 
 **Покращувати якість найпростіше через рубрики.** Це звичайні текстові файли в `cvmax/rubrics/`.
 Додай туди, що реально шукають рекрутери у твоїй сфері, і поради стануть точнішими без жодного коду.
+
+## Навчання і посилання на вакансії
+
+Модель не тренується, але сайт учиться на відгуках студентів чотирма петлями, кожна зі своїм горизонтом:
+
+- **A. Бандит над варіантами промпту** (хвилини). Thompson sampling обирає стиль розбору, нагорода
+  це лайк або прийняті правки. Слабкий варіант вимикається сам.
+- **B. Тижнева рефлексія** (тижні). Скрипт читає прийняті й відхилені правки і пише уроки для рубрик.
+- **C. Ринок** (дні). Знімок вакансій перетворюється на навички, які зараз просять у кожному напрямі.
+- **D. Результат** (місяці). Відповідь «чи було інтерв'ю» (подія `outcome`) рахується в успіхах варіанта.
+
+Знання лежать у даних, а не в коді:
+
+- `cvmax/variants/analysis.json`: варіанти промпту;
+- `cvmax/rubrics/learned/<сфера>.md`: уроки з відгуків;
+- `cvmax/rubrics/market/<сфера>.md`: навички з вакансій.
+
+Події в Supabase (`cvmax_events`) містять лише ідентифікатори, оцінки й рішення, без тексту CV.
+
+**Автоматика (GitHub Actions):**
+
+- `learn.yml`, «Weekly lessons»: щопонеділка о 06:00 UTC запускає `scripts/learn.py`, потім evals.
+  Якщо evals впали, PR не створюється. Інакше відкривається PR з уроками й варіантами.
+- `market.yml`, «Job market»: щодня о 03:00 UTC знімає вакансії (`snapshot_jobs.py`), щонеділі о 04:30
+  витягує навички (`learn_market.py`) і відкриває PR.
+- Перед першим запуском запиши базову лінію evals: `python evals/run_evals.py --runs 2 --update-baseline` (потрібен реальний ключ моделі),
+  закоміть `evals/baseline.json`. Поки `total` = 0, обидва workflow завершуються кодом 3 і PR не відкривають.
+- Змінна репозиторію `LEARN_AUTOMERGE=1` вмикає автозлиття цих PR. Без неї merge робиш сам.
+  Потрібні налаштування репозиторію: Settings → Actions → General → «Allow GitHub Actions to create and approve
+  pull requests» і Settings → General → «Allow auto-merge». PR від `GITHUB_TOKEN` не запускає `tests.yml`,
+  тому `pytest -q` виконується в самому workflow перед створенням PR. Щоб PR запускали `tests.yml`, додай secret
+  `LEARN_PR_TOKEN` (fine-grained PAT на цей репозиторій з правами Contents і Pull requests: write); без нього
+  використовується `GITHUB_TOKEN`.
+- Кожен workflow має два job: перший з правом лише читання виконує скрипти, evals і тести та вантажить зміни
+  як артефакт, другий (з правом запису) лише відкриває PR. Автозлиття для уроків ризиковане: докладніше в
+  [docs/learning/README.md](docs/learning/README.md). Рекомендація: тримай `LEARN_AUTOMERGE` вимкненим до paywall.
+- Секрети для Actions: `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_LEARN_TOKEN` (окремий токен області `learning`, див. supabase/README.md; не `CVMAX_DB_TOKEN`), `GEMINI_API_KEY`, а для знімку
+  вакансій ще `JOOBLE_API_KEY`, `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`.
+
+**Джерела вакансій** (`cvmax/jobs/providers/`):
+
+- Без ключів: DOU і Djinni (RSS, Україна і remote), Arbeitnow (ЄС і remote), Remotive і Jobicy (remote),
+  Greenhouse і Lever (за назвою компанії).
+- З ключем: Jooble (`JOOBLE_API_KEY`, усі регіони) і Adzuna (`ADZUNA_APP_ID` і `ADZUNA_APP_KEY`,
+  Великобританія, США, ЄС; України немає).
+- Лише посилання на пошук: LinkedIn, Indeed, Glassdoor (UK, US, ЄС, remote), а також Work.ua і Robota.ua.
+  Сайт не завантажує їхні сторінки.
+
+Кожна адреса вакансії проходить allowlist доменів свого джерела, і лише перевірені посилання стають клікабельними.
+
+**Нові скрипти.** Запускаються з кореня репозиторію. З `--dry-run` скрипт лише показує результат:
+
+```bash
+python scripts/learn.py --days 30 --dry-run               # уроки з відгуків, звіт
+python scripts/learn_market.py --days 30 --dry-run        # навички з вакансій
+python scripts/snapshot_jobs.py --dry-run --programs law  # знімок вакансій, лише порахувати
+```
+
+`learn.py` і `learn_market.py` потребують `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_DB_TOKEN` і
+`GEMINI_API_KEY`. `snapshot_jobs.py` потребує перших трьох, а ключі джерел необов'язкові.
+Знімок у `--dry-run` не пише в базу, але робить живі запити до джерел.
+
+Докладніше: [docs/learning/README.md](docs/learning/README.md) (петля B) і [docs/plan-learning-jobs.md](docs/plan-learning-jobs.md).
 
 ## Приватність
 

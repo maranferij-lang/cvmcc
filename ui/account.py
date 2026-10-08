@@ -12,6 +12,7 @@ import uuid
 import streamlit as st
 
 from cvmax import config
+from cvmax.learning.events import make_payload
 from cvmax.db import DBError, MemoryDB, SupabaseDB
 from ui.common import card, secret
 
@@ -25,6 +26,7 @@ LIMIT_NAMES = {
     "build": "CV builds",
     "export": "PDF exports",
     "feedback": "feedback messages",
+    "jobs": "job searches",
 }
 
 
@@ -201,3 +203,32 @@ def limit_caption(kind: str) -> None:
     user_limit, _ = config.LIMITS[kind]
     st.caption(f"Free: up to {user_limit} {LIMIT_NAMES.get(kind, 'requests')} a day. Limits reset daily.")
 
+
+
+def log_event(kind: str, /, **fields) -> None:
+    """Пише подію для самонавчання. Ніколи не кидає виняток і нічого не показує юзеру."""
+    try:
+        payload = make_payload(kind, **fields)
+        get_db().log_event(_user_key(), kind, payload)
+    except Exception as e:  # навчання не повинно ламати сторінку
+        log.warning("log_event %s failed: %s", kind, e)
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def variant_stats_cached(task: str) -> list[dict]:
+    """Статистика варіантів промпту, кеш на 10 хвилин."""
+    try:
+        return get_db().variant_stats(task)
+    except DBError as e:
+        log.warning("variant_stats failed: %s", e)
+        return []
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def skill_demand_cached(program: str, region: str) -> list[dict]:
+    """Навички, яких просять у вакансіях, кеш на 10 хвилин."""
+    try:
+        return get_db().skill_demand(program, region)
+    except DBError as e:
+        log.warning("skill_demand failed: %s", e)
+        return []

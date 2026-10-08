@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 
 import streamlit as st
@@ -9,14 +10,20 @@ import streamlit as st
 from cvmax import config
 from cvmax.analyze import analyze_cv
 from cvmax.cv_render import has_placeholders, pdf_preview, render_docx, render_pdf
+from cvmax.learning.bandit import choose_variant, variant_text
+from cvmax.learning.version import knowledge_version, lessons_version
 from cvmax.edits import apply_edits, changed_action, changes_markdown, lost_facts, unverified_terms
 from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
 from cvmax.profile import ANY_COMPANY, COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
 from cvmax.safe_text import md_escape
 from cvmax.structure import changed_bullets, structure_cv
-from ui.account import limit_caption, log_edit_feedback, profile_value, require_login, save_result, send_feedback, take_limit
+from ui.account import (
+    limit_caption, log_edit_feedback, log_event, profile_value, require_login, save_result, send_feedback,
+    skill_demand_cached, take_limit, variant_stats_cached,
+)
 from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
+from ui.jobs import render_jobs
 
 def plural(n: int, word: str) -> str:
     """Число з англійським словом: 1 line, 5 lines."""
@@ -77,6 +84,30 @@ def log_accepted_edits(s) -> None:
         return
     s["feedback_sent"] = signature
     log_edit_feedback(s.analysis_id, s.profile.target_role, s.profile.program, items)
+    log_event("edits_decided", analysis_id=s.analysis_id, accepted=sum(x["accepted"] for x in items), total=len(items))
+
+
+def log_export(s, fmt: str) -> None:
+    """Вибір правок і подія експорту одним викликом для on_click."""
+    log_accepted_edits(s)
+    log_event("export", analysis_id=s.analysis_id, format=fmt)
+
+
+def log_analysis(s, *, program: str, region: str, level: str, clarity: str, variant: str) -> None:
+    """Події після успішного розбору: результат, а за повторного розбору тієї ж цілі ще й динаміка."""
+    a, role = s.analysis, s.profile.target_role
+    previous = s.get("last_analysis")
+    same = bool(previous) and previous["role"] == role
+    log_event("analysis_done", analysis_id=s.analysis_id, task="analysis", variant=variant, program=program,
+              region=region, level=level, score=a.overall_score, knowledge_version=knowledge_version(),
+              lessons_version=lessons_version(),
+              previous_score=previous["score"] if same else None, n_edits=len(a.edits), n_gaps=len(a.gaps),
+              clarity=clarity)
+    if same:
+        log_event("rescan", analysis_id=s.analysis_id, previous_analysis_id=previous["analysis_id"],
+                  previous_score=previous["score"], score=a.overall_score,
+                  delta=a.overall_score - previous["score"])
+    s["last_analysis"] = {"analysis_id": s.analysis_id, "role": role, "score": a.overall_score}
 
 
 # ---------- Шапка ----------
@@ -167,14 +198,17 @@ with form_box:
     if st.button("Review my CV", type="primary", disabled=not can_run) and take_limit("analysis"):
         try:
             with st.spinner("Reviewing your CV. Usually under a minute; at peak times the free model can take 2–3 minutes..."):
-                s.analysis = analyze_cv(get_client(), profile, cv)
+                variant = choose_variant("analysis", program, variant_stats_cached("analysis"))
+                s.analysis = analyze_cv(get_client(), profile, cv, addendum=variant_text("analysis", variant))
+                s["variant"] = variant
             s.cv, s.profile = cv, profile
             s.analysis_id = uuid.uuid4().hex
             s.pop("feedback_sent", None)
+            log_analysis(s, program=program, region=region, level=level, clarity=clarity, variant=variant)
             s.pop("formatted_cv", None)
             s.pop("open_form", None)
             save_result("analysis", f"{target_role} · {s.analysis.overall_score}/100",
-                        {"role": target_role, "company_type": company_type, "analysis": s.analysis.model_dump()})
+                        {"analysis_id": s.analysis_id, "role": target_role, "company_type": company_type, "analysis": s.analysis.model_dump()})
             s.grill, s.grill_result = None, None
             for k in [k for k in st.session_state if str(k).startswith("accept_")]:
                 del st.session_state[k]
@@ -192,8 +226,8 @@ a = s.analysis
 st.header("Results")
 company = "" if s.profile.company_type == ANY_COMPANY else s.profile.company_type
 st.caption(" · ".join(md_escape(x) for x in (s.profile.target_role, company, s.cv.filename) if x))
-tab_overview, tab_grill, tab_edits, tab_gaps, tab_export = st.tabs(
-    ["Overview", "Q&A", "Edits", "Skills to build", "Final CV"]
+tab_overview, tab_grill, tab_edits, tab_gaps, tab_jobs, tab_export = st.tabs(
+    ["Overview", "Q&A", "Edits", "Skills to build", "Jobs", "Final CV"]
 )
 
 with tab_overview:
@@ -231,10 +265,13 @@ with tab_overview:
     with card("rate-analysis"):
         st.markdown("**Was this review useful?**")
         rated = st.feedback("thumbs", key=f"rate_{s.analysis_id}")
-        if rated is not None and s.get("rated_analysis") != s.analysis_id:
-            s["rated_analysis"] = s.analysis_id
-            if send_feedback("analysis", rated, f"{s.profile.program} · {s.profile.target_role}"[:200]):
-                st.toast("Thanks for the rating!")
+        if rated is not None and s.get("rated_value") != (s.analysis_id, rated):
+            s["rated_value"] = (s.analysis_id, rated)
+            log_event("analysis_rated", analysis_id=s.analysis_id, rating=rated)
+            if s.get("rated_analysis") != s.analysis_id:
+                s["rated_analysis"] = s.analysis_id
+                send_feedback("analysis", rated, f"{s.profile.program} · {s.profile.target_role}"[:200])
+            st.toast("Thanks for the rating!")
         st.page_link("views/feedback.py", label="Tell us more", icon=":material/chat:")
 
 def known_facts(s) -> str:
@@ -292,12 +329,32 @@ with tab_edits:
             st.checkbox("Accept", key=f"accept_{i}")
 
 with tab_gaps:
+    demand = skill_demand_cached(s.profile.program, s.profile.region)
+    if demand and demand[0].get("total_postings"):
+        total = demand[0]["total_postings"]
+        top = ", ".join(f"{md_escape(str(d['skill']))} {round(100 * d['postings'] / total)}%" for d in demand[:8])
+        st.caption(f"In the last {demand[0].get('window_days')} days, of {total} postings for your field in "
+                   f"{md_escape(s.profile.region)}: {top}")
     st.caption("What to do beyond your CV to boost your chances, most important first.")
     for j, g in enumerate(a.gaps):
         with card(f"gap-{j}"):
             st.markdown(f"**{md_escape(g.item)}** · {PRIORITY_LABEL[g.impact]} · {md_escape(g.time_estimate)}")
             st.markdown(md_escape(g.why_it_matters))
             st.markdown(f"**How:** {md_escape(g.how_to_close)}")
+
+with tab_jobs:
+    st.caption("Live postings for this goal, ranked by fit to your CV.")
+    # Дошка компанії лише за явним slug; вільний текст company_details сторонім API не передаємо
+    board = st.text_input("Company careers board (optional)", placeholder="E.g.: stripe",
+                          max_chars=40, key="analyze_board_slug").strip().lower()
+    if board and not re.fullmatch(r"[a-z0-9-]{2,40}", board):
+        st.caption("Use only letters, digits and hyphens, as in the board URL.")
+        board = ""
+    render_jobs(
+        key="analyze", role=s.profile.target_role, keywords=[s.profile.target_role], region=s.profile.region,
+        level=s.profile.level, company=board, cv_text=s.cv.text,
+        gaps=[g.item for g in a.gaps], feedback_language=s.profile.feedback_language,
+    )
 
 with tab_grill:
     st.caption(
@@ -338,6 +395,9 @@ with tab_grill:
                 send = c1.form_submit_button("Answer", type="primary")
                 skip = c2.form_submit_button("Skip")
             if send or skip:
+                # Вид питання беремо до того, як просимо наступне.
+                asked_kind = g.turns[-1].kind
+                log_event("grill_turn", analysis_id=s.analysis_id, kind=asked_kind, answered=not skip)
                 answer(g, "" if skip else reply)
                 try:
                     with st.spinner("Next question..."):
@@ -415,9 +475,9 @@ with tab_export:
             name = built.full_name.replace(" ", "_") or "cv"
             c1, c2 = st.columns(2)
             c1.download_button("Download PDF", pdf, f"{name}_CV.pdf", mime="application/pdf",
-                               type="primary", on_click=log_accepted_edits, args=(s,))
+                               type="primary", on_click=log_export, args=(s, "pdf"))
             c2.download_button("Download DOCX", render_docx(built), f"{name}_CV.docx",
-                               on_click=log_accepted_edits, args=(s,))
+                               on_click=log_export, args=(s, "docx"))
             st.caption("Open the DOCX in Word or Google Docs if you want to change anything by hand.")
 
         st.divider()

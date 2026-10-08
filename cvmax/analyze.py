@@ -90,7 +90,7 @@ def length_note(cv: CVFile) -> str:
     )
 
 
-def analyze_cv(client: Any, profile: Profile, cv: CVFile) -> Analysis:
+def analyze_cv(client: Any, profile: Profile, cv: CVFile, addendum: str = "") -> Analysis:
     note = length_note(cv)
     content = cv.as_content_blocks() + [
         {"type": "text", "text": profile.to_prompt() + (f"\n{note}" if note else "")
@@ -98,7 +98,7 @@ def analyze_cv(client: Any, profile: Profile, cv: CVFile) -> Analysis:
     ]
     result = ask_structured(
         client,
-        system=analysis_system(profile),
+        system=analysis_system(profile, addendum),
         content=content,
         output_model=Analysis,
         effort=config.EFFORT_ANALYSIS,

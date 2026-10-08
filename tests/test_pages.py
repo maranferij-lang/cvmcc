@@ -42,6 +42,18 @@ def test_analyze_flow_exports_pdf():
     assert "Download PDF" in labels and "Download DOCX" in labels
 
 
+def test_analyze_jobs_tab_renders_in_demo():
+    at = AppTest.from_file(APP, default_timeout=60)
+    at.run()
+    at.switch_page("views/analyze.py").run()
+    at.checkbox(key="consent_analyze").check().run()
+    at.text_input(key="target_role").input("Business Analyst").run()
+    next(b for b in at.button if b.label == "Review my CV").click().run()
+    next(b for b in at.button if b.label == "Show live vacancies").click().run()
+    assert not at.exception
+    assert any(str(k).startswith("jobs_analyze") for k in list(at.session_state))
+
+
 def test_feedback_page_sends_anonymous_feedback():
     from ui.account import get_db
 
@@ -109,3 +121,50 @@ def test_home_waitlist_form():
     next(b for b in at.button if b.label == "Get the launch price").click().run()
     assert any("on the list" in s.value for s in at.success)
     assert not at.exception
+
+
+def test_career_shows_live_vacancies_in_demo():
+    from ui.account import get_db
+
+    at = AppTest.from_file(APP, default_timeout=60)
+    at.run()
+    at.switch_page("views/career.py").run()
+    at.checkbox(key="consent_career").check().run()
+    next(b for b in at.button if b.label == "Find directions").click().run()
+    next(b for b in at.button if b.label == "Show live vacancies").click().run()
+    assert not at.exception
+    from cvmax.jobs.providers import ALL
+    from cvmax.jobs.providers.base import allowed_url
+
+    domains = tuple(d for p in ALL for d in p.domains)
+    state = next(at.session_state[k] for k in at.session_state.keys() if str(k).startswith("jobs_career-0"))
+    ranked = state[1]  # (result, ranked, note)
+    assert len(ranked) >= 6
+    urls = [el.proto.url for el in at.get("link_button")]
+    assert all(allowed_url(u, domains) for u in urls)  # кожне пряме посилання з дозволеного домену
+    shown = {v.url for v, _ in ranked}
+    assert len(shown & set(urls)) >= 6  # самі вакансії, а не лише посилання пошуку
+    assert any(e["kind"] == "jobs_shown" for e in get_db().events)
+
+
+def test_analyze_logs_events():
+    from ui.account import get_db
+
+    at = AppTest.from_file(APP, default_timeout=60)
+    at.run()
+    at.switch_page("views/analyze.py").run()
+    at.checkbox(key="consent_analyze").check().run()
+    at.text_input(key="target_role").input("Business Analyst").run()
+    next(b for b in at.button if b.label == "Review my CV").click().run()
+    for box in at.checkbox:
+        if str(box.key).startswith("accept_"):
+            box.check()
+    at.run()
+    next(b for b in at.button if b.label.startswith("Format my CV")).click().run()
+    assert not at.exception
+    aid = at.session_state["analysis_id"]
+    mine = [e for e in get_db().events if e["payload"].get("analysis_id") == aid]
+    kinds = {e["kind"] for e in mine}
+    assert {"analysis_done", "edits_decided"} <= kinds
+    for e in mine:
+        assert all(len(v) <= 200 for v in e["payload"].values() if isinstance(v, str))

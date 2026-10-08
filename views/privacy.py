@@ -46,6 +46,9 @@ st.markdown(
     "Results may include quotes from your CV.\n"
     "- **Which edits you accepted:** the before/after text, the section, the target role and whether it was "
     "accepted. We record this when you download your CV.\n"
+    "- **Learning events:** analysis ids, scores, ratings, which edits you accepted, Q&A questions you "
+    "answered or skipped, job searches shown, \"Applied\" ticks and, if you tell us, whether you got an "
+    "interview. No CV text. They are kept until you delete your data.\n"
     "- **Daily usage counters**, so the limits work.\n"
     "- **Feedback:** the rating and text you choose to send. Stored anonymously, without your email."
 )
@@ -56,7 +59,14 @@ st.markdown(
     "- To review your CV and show you the results.\n"
     + ("- To save your results so you can come back to them.\n" if ACCOUNTS else "")
     + "- To enforce daily limits so the service stays free.\n"
-    "- To see which advice is useful and improve it. For this we only need the text of edits, not CV files."
+    "- To see which advice is useful and improve it. For this we only need the text of edits, not CV files.\n"
+    "- To show job postings that fit your goal."
+)
+st.write(
+    "Once a week an automated learning job takes the accepted and rejected edit texts, removes emails, links "
+    "and phone numbers from them, and sends them to the AI provider to improve the coach for everyone. "
+    + ("If you don't want your edits used this way, delete your data in your account."
+       if ACCOUNTS else "If you don't want your edits used this way, don't download your CV.")
 )
 st.write(
     "Legal basis: your consent, which you give before uploading your CV. "
@@ -68,7 +78,11 @@ st.header("Who we share data with")
 st.markdown(
     f"- **{provider}:** your CV and answers are sent to the model for review.\n"
     "- **Streamlit Community Cloud (Snowflake, USA):** hosts the site. All requests go through it.\n"
-    "- **Supabase (EU servers, Frankfurt):** a database with usage counters, accepted edits and feedback"
+    "- **Job sites' public feeds:** when you press \"Show live vacancies\", the keywords you chose and your "
+    "region are sent to them. Never your CV. LinkedIn, Indeed and Glassdoor are plain links that you open "
+    "yourself.\n"
+    "- **Supabase (EU servers, Frankfurt):** a database with usage counters, accepted edits, learning events "
+    "and feedback"
     + (", plus your profile and results.\n- **Google:** sign-in." if ACCOUNTS else ".")
 )
 if provider == "Google Gemini API":
@@ -82,10 +96,10 @@ st.header("How long we keep it")
 st.markdown(
     "- **CV file:** until you close the browser tab.\n"
     + (
-        "- **Profile, results, accepted edits, counters:** until you delete them.\n"
+        "- **Profile, results, accepted edits, learning events, counters:** until you delete them.\n"
         if ACCOUNTS
         else "- **Results:** also until you close the tab.\n"
-        "- **Accepted edits and counters:** kept, but not linked to you (see Your rights).\n"
+        "- **Accepted edits, learning events and counters:** kept, but not linked to you (see Your rights).\n"
     )
     + "- **At the model and hosting providers:** under their own rules. On the free Gemini tier, Google may "
     "keep requests longer than we do."
@@ -108,7 +122,7 @@ st.header("Your rights")
 if ACCOUNTS:
     rights = (
         "- **Delete everything:** My account → Data and sign out. This deletes your profile, results, accepted "
-        "edits and counters.\n"
+        "edits, learning events and counters.\n"
         "- **Change your profile:** My account → Profile.\n"
         "- **See what we store about you:** all your results are visible in your account"
         + (f", and for anything else write to {contact}.\n" if contact else ".\n")

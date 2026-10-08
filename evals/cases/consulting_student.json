@@ -1,0 +1,21 @@
+{
+  "name": "Вигадана студентка-економістка: дубль, Objective, не приписувати аналіз події",
+  "cv_file": "consulting_student.txt",
+  "profile": {
+    "program": "business_economics", "status": "3rd year", "background": "",
+    "target_role": "Consulting Intern", "company_type": "Consulting (Big 4, MBB, boutique)",
+    "company_details": "Big 4", "level": "Internship", "region": "Ukraine / Eastern Europe",
+    "vacancy_text": "", "feedback_language": "English"
+  },
+  "expect": [
+    {"id": "objective-paragraph", "description": "абзац Objective прибрати",
+     "line_contains": ["hard-working and motivated"], "verdicts": ["cut", "shorten"]},
+    {"id": "redundant-line", "description": "рядок, що повторює сусідній, прибрати",
+     "line_contains": ["Good analytical and communication"], "verdicts": ["cut"]},
+    {"id": "keep-case-competition", "description": "місце на кейс-чемпіонаті не чіпати",
+     "line_contains": ["2nd place"], "verdicts": ["keep"]},
+    {"id": "no-invented-analysis", "description": "організацію події не перетворювати на аналіз індустрій",
+     "line_contains": ["career day"], "verdicts": ["any"],
+     "after_must_not_contain": ["analys"]}
+  ]
+}

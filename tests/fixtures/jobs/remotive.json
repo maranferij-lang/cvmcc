@@ -1,0 +1,6 @@
+{"0-legal-notice": "Remotive", "job-count": 4, "jobs": [
+ {"id": 1, "url": "https://remotive.com/remote-jobs/software-dev/junior-python-1", "title": "Junior Python Developer", "company_name": "Pebblebrook", "category": "Software Development", "job_type": "full_time", "publication_date": "2026-10-06T10:23:26", "candidate_required_location": "Worldwide", "salary": "$40,000 - $50,000", "description": "<h3>About</h3><p>Join us &amp; build.</p>"},
+ {"id": 2, "url": "https://remotive.com/remote-jobs/qa/qa-2", "title": "QA Tester", "company_name": "Quillon", "category": "QA", "job_type": "contract", "publication_date": "2026-10-05T09:00:00", "candidate_required_location": "Europe", "salary": "", "description": "Test things."},
+ {"id": 3, "url": "https://remotive.com/remote-jobs/data/analyst-3", "title": "Analyst", "company_name": "Ravenmoor", "publication_date": "garbage"},
+ {"id": 4, "url": "https://example.org/remote-jobs/evil-4", "title": "Foreign", "company_name": "Evil"}
+]}

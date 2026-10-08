@@ -32,3 +32,12 @@ CVMAX_PROVIDER=claude ANTHROPIC_API_KEY=... python evals/run_evals.py --runs 3
   `any` означає, що вердикт неважливий, а перевіряються лише заборонені слова нижче.
 - `after_must_not_contain`: слова, яких не має бути в правці цього рядка. Так ловимо випадки,
   коли модель приписує людині діяльність, якої не було (напр. «analysed industries» замість «запрошував спікерів»).
+
+## Ворота для автонавчання
+
+Скрипт навчання (`scripts/learn.py`) зливає нові уроки лише якщо evals не стали гіршими.
+- `--json PATH` пише результат прогону: `{"model", "runs", "passed", "total", "pass_rate", "cases": {"<кейс>/<перевірка>": {"passed", "runs"}}}`.
+- `--baseline PATH` порівнює `pass_rate` з базовою лінією (`evals/baseline.json`). Код виходу 0, якщо
+  `pass_rate >= baseline - 0.05` (допуск на шум моделі), і 3, якщо гірше. Порожня базова лінія (`total` = 0) не блокує.
+- `--update-baseline` записує `evals/baseline.json` за цим прогоном (шлях можна задати через `--baseline`).
+Один раз задай базову лінію з реальним ключем: `python evals/run_evals.py --runs 2 --update-baseline`.

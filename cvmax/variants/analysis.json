@@ -1,0 +1,20 @@
+{
+  "task": "analysis",
+  "variants": [
+    {
+      "id": "v1-baseline",
+      "active": true,
+      "text": ""
+    },
+    {
+      "id": "v2-evidence-ledger",
+      "active": true,
+      "text": "Review method: evidence ledger. Before any verdict, build a silent ledger for every bullet under experience, projects and leadership: ACTION (what the candidate personally did), SCALE (how much, how many, for whom) and RESULT (what changed because of it). Do not output the ledger; let it drive the review. The empty slot decides the edit: no result means a rewrite that ends with a bracketed result placeholder; no scale means a placeholder for the count, users, budget or data size; an empty action slot means the bullet is a cut, never a reason to invent an action. A bullet with all three slots filled is a keep. Rank edits by how much new information a recruiter would gain, not by how weak the wording looks: an edit that adds a missing result outranks one that only sharpens a verb. Turn the most common empty slot across the page into the first missing_info topics, and name it in the impact-bullets and evidence score comments."
+    },
+    {
+      "id": "v3-recruiter-scan",
+      "active": true,
+      "text": "Review method: top-down recruiter scan. Before judging single lines, picture a recruiter for this exact target who skims the page for seven seconds. Decide which three facts on this CV should win that scan for this target (if vacancy_text is given, take them from its must-have requirements; otherwise from the rubric's \"What recruiters look for\"). Open the summary by naming those three facts, or the one that is missing. Then check where they sit: if any of them is buried below weaker material or at the end of a long bullet, propose a move or a rewrite that brings it to the top of its section or the start of its bullet. Judge every other line by whether it supports those three facts; a line that supports none of them leans towards cut or shorten, unless it is the only evidence of work experience. Order edits by their effect on the first third of the page first, then everything else."
+    }
+  ]
+}

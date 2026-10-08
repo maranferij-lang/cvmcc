@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import date
 from pathlib import Path
 
@@ -10,11 +11,39 @@ from .profile import Profile
 RUBRICS_DIR = Path(__file__).parent / "rubrics"
 
 
+LEARNED_CAP = 3000  # скільки символів уроків з відгуків додаємо до рубрики
+MARKET_CAP = 1500  # скільки символів ринкових даних додаємо до рубрики
+
+
+def _optional_section(subdir: str, program: str, heading: str, cap: int) -> str:
+    """Додаткова секція з файлу rubrics/<subdir>/<program>.md; порожній рядок, якщо файлу немає."""
+    path = RUBRICS_DIR / subdir / f"{program}.md"
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    # HTML-коментарі (службові шапки, позначки revert) не потрапляють у промпт
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.S).strip()
+    if not text:
+        return ""
+    text = text[:cap].rstrip()
+    # файл уже має власний заголовок "## ...": не дублюємо його
+    return text if text.startswith("## ") else f"## {heading}\n{text}"
+
+
 def load_rubric(program: str) -> str:
     general = (RUBRICS_DIR / "general.md").read_text(encoding="utf-8")
     path = RUBRICS_DIR / f"{program}.md"
     specific = path.read_text(encoding="utf-8") if path.exists() else ""
-    return general + ("\n\n" + specific if specific else "")
+    parts = [general + ("\n\n" + specific if specific else "")]
+    for subdir, heading, cap in (
+        ("learned", "Learned from student feedback", LEARNED_CAP),
+        ("market", "What postings ask for right now", MARKET_CAP),
+    ):
+        section = _optional_section(subdir, program, heading, cap)
+        if section:
+            parts.append(section)
+    return "\n\n".join(parts)
 
 
 def today() -> str:
@@ -57,7 +86,7 @@ Use this rubric:
 {load_rubric(profile.program)}"""
 
 
-def analysis_system(profile: Profile) -> str:
+def analysis_system(profile: Profile, addendum: str = "") -> str:
     return _base(profile) + """
 
 Produce a full review:
@@ -108,7 +137,8 @@ Produce a full review:
   data projects): then add it as an edit with a bracketed question like "[SQL?]" in the skills line, and if
   you also list it as a gap, start how_to_close with "If you already use it, just add it to your CV (see
   Edits)." Do not lecture the candidate to learn something they probably know.
-- missing_info: facts you would need to write stronger bullets, as short topics."""
+- missing_info: facts you would need to write stronger bullets, as short topics.""" + (
+        "\n\n" + addendum.strip() if addendum.strip() else "")
 
 
 def grill_system(profile: Profile, max_questions: int) -> str:
