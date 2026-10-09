@@ -90,7 +90,7 @@ def test_latest_rating_wins():
 def test_unrated_uses_acceptance_rule_and_ignores_weak_signals():
     db = MemoryDB()
     done(db, "ok", "v1")
-    db.log_event("u", "edits_decided", {"analysis_id": "ok", "accepted": 1, "total": 2})  # рівно 50%
+    db.log_event("u", "edits_decided", {"analysis_id": "ok", "accepted": 1, "total": 2})  # exactly 50%
     done(db, "bad", "v1")
     db.log_event("u", "edits_decided", {"analysis_id": "bad", "accepted": 0, "total": 3})
     done(db, "tiny", "v1")
@@ -125,7 +125,7 @@ def test_grouping_by_variant_program_and_task():
 def test_learning_export_has_no_user_key():
     db = MemoryDB()
     db.log_event("secret_user", "analysis_done", {"analysis_id": "a1", "variant": "v1"})
-    db.log_event("secret_user", "page_view", {"x": 1})  # не в списку видів
+    db.log_event("secret_user", "page_view", {"x": 1})  # not in the list of kinds
     db.save_feedback("career", 1, "nice")
     out = db.learning_export()
     text = json.dumps(out)
@@ -165,7 +165,7 @@ def test_skill_demand_replaces_per_program_region():
     assert [r["skill"] for r in db.skill_demand("econ", "ua")] == ["excel", "sql"]
     db.save_skill_demand([item("econ", "ua", "tableau", 7)])
     assert [r["skill"] for r in db.skill_demand("econ", "ua")] == ["tableau"]
-    assert [r["skill"] for r in db.skill_demand("cs", "ua")] == ["python"]  # інша пара не чіпається
+    assert [r["skill"] for r in db.skill_demand("cs", "ua")] == ["python"]  # another pair is not touched
 
 
 def test_rating_counts_only_real_int_0_or_1():
@@ -173,7 +173,7 @@ def test_rating_counts_only_real_int_0_or_1():
     for i, bad in enumerate([True, False, 1.0, 0.0, "1", None, 2, -1]):
         done(db, f"a{i}", "v1")
         db.log_event("u", "analysis_rated", {"analysis_id": f"a{i}", "rating": bad})
-    assert stats(db) == {}  # жодна оцінка не зарахована, правок немає
+    assert stats(db) == {}  # no rating counted, no edits
     done(db, "ok1", "v1")
     db.log_event("u", "analysis_rated", {"analysis_id": "ok1", "rating": 1})
     done(db, "ok0", "v1")
@@ -204,7 +204,7 @@ def test_same_url_in_two_regions_keeps_two_rows():
     assert db.upsert_vacancies([{**base, "region": "ua"}, {**base, "region": "pl"}, {**base, "region": "ua"}]) == 3
     assert len(db.vacancies) == 2
     assert len(db.recent_vacancies("data", "ua")) == 1 and len(db.recent_vacancies("data", "pl")) == 1
-    assert len(db.recent_vacancies("data", None)) == 1  # один пост, не два
+    assert len(db.recent_vacancies("data", None)) == 1  # one post, not two
 
 
 def test_schema_pins_vacancy_uniqueness_contract():

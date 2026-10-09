@@ -11,7 +11,7 @@ create table if not exists cvmax_private.app_config (
   id int primary key default 1,
   token_hash text not null
 );
--- Області токенів: 'app' (застосунок, повний доступ) і 'learning' (CI: лише функції навчання і вакансій).
+-- Token scopes: 'app' (the application, full access) and 'learning' (CI: only the learning and job functions).
 alter table cvmax_private.app_config add column if not exists scope text not null default 'app';
 alter table cvmax_private.app_config drop constraint if exists app_config_id_check;
 create unique index if not exists app_config_scope_uniq on cvmax_private.app_config (scope);
@@ -59,8 +59,8 @@ begin
   perform cvmax_private.check_token(p_token, 'app');
 end $$;
 
--- Токен області 'learning' проходить лише там, де викликано check_token(p_token, 'learning');
--- токен 'app' проходить усюди.
+-- A 'learning' scope token passes only where check_token(p_token, 'learning') is called;
+-- an 'app' token passes everywhere.
 create or replace function cvmax_private.check_token(p_token text, p_scope text) returns void
 language plpgsql security definer set search_path = '' as $$
 begin
@@ -213,7 +213,7 @@ create or replace function public.cvmax_delete_my_data(p_token text, p_email tex
 returns void language plpgsql security definer set search_path = '' as $$
 begin
   perform cvmax_private.check_token(p_token);
-  -- Сьогоднішні лічильники лишаються: інакше «видалити дані» обнуляло б денні ліміти.
+  -- Today's counters stay: otherwise "delete data" would reset the daily limits.
   delete from public.cvmax_usage where user_key = lower(p_email) and created_at < cvmax_private.day_start();
   delete from public.cvmax_edit_feedback where user_key = lower(p_email);
   delete from public.cvmax_events where user_key = lower(p_email);
@@ -343,7 +343,7 @@ create table if not exists public.cvmax_vacancies (
   query text,
   first_seen_at timestamptz default now(),
   last_seen_at timestamptz default now(),
-  -- Одна вакансія може бути в кількох ролях і регіонах: кожна пара рахується окремо.
+  -- One posting can belong to several roles and regions: each pair is counted separately.
   unique (url_hash, role_family, region)
 );
 create index if not exists cvmax_vacancies_family_region_seen
@@ -456,7 +456,7 @@ begin
   ), '[]'::jsonb);
 end $$;
 
--- Прибирає email, URL і телефони та обрізає текст до 300 символів ще в базі, до експорту.
+-- Removes emails, URLs and phone numbers and truncates the text to 300 characters in the database, before export.
 create or replace function cvmax_private.redact_text(p_text text)
 returns text language sql immutable set search_path = '' as $$
   select left(
@@ -469,7 +469,7 @@ returns text language sql immutable set search_path = '' as $$
 $$;
 revoke all on function cvmax_private.redact_text(text) from public, anon, authenticated;
 
--- Вільний текст розділу -> слово зі словника (інакше 'other'): у експорт не йде довільний текст.
+-- Free section text -> a word from the vocabulary (otherwise 'other'): no arbitrary text goes into the export.
 create or replace function cvmax_private.canonical_section(p text)
 returns text language plpgsql immutable set search_path = '' as $$
 declare
@@ -505,7 +505,7 @@ begin
         from (select * from public.cvmax_edit_feedback where created_at >= v_since
                order by created_at desc limit 2000) t
     ), '[]'::jsonb),
-    -- Лише лічильники: скільки різних користувачів і аналізів стоїть за сигналами сфери (без ключів).
+    -- Counters only: how many different users and analyses stand behind a field's signals (without keys).
     'breadth', coalesce((
       select jsonb_object_agg(coalesce(program, 'other'),
                jsonb_build_object('users', users, 'analyses', analyses))

@@ -1,8 +1,8 @@
-"""Щоденний знімок вакансій: запити початкового рівня за напрямами й регіонами -> cvmax_vacancies у Supabase.
+"""Daily job snapshot: entry-level queries by direction and region -> cvmax_vacancies in Supabase.
 
-Запуск:  python scripts/snapshot_jobs.py
-         python scripts/snapshot_jobs.py --dry-run --programs law other
-Потрібні змінні: SUPABASE_URL, SUPABASE_KEY, CVMAX_DB_TOKEN (необов'язково JOOBLE_API_KEY, ADZUNA_*).
+Run:  python scripts/snapshot_jobs.py
+      python scripts/snapshot_jobs.py --dry-run --programs law other
+Required variables: SUPABASE_URL, SUPABASE_KEY, CVMAX_DB_TOKEN (optionally JOOBLE_API_KEY, ADZUNA_*).
 """
 from __future__ import annotations
 
@@ -21,8 +21,8 @@ from cvmax.jobs.models import JobQuery  # noqa: E402
 from cvmax.learning.market import REGIONS_TO_SNAPSHOT, ROLE_QUERIES  # noqa: E402
 
 CHUNK = 100
-# Ці джерела мають жорсткі ліміти (Remotive ~4 запити на добу, Jobicy раз на годину):
-# щоденний знімок їх не чіпає, вони обслуговують лише живу вкладку Jobs.
+# These sources have strict limits (Remotive ~4 requests per day, Jobicy once an hour):
+# the daily snapshot does not touch them, they serve only the live Jobs tab.
 RATE_LIMITED = frozenset({"remotive", "jobicy"})
 
 
@@ -50,7 +50,7 @@ def upsert_chunks(db: Any, rows: list[dict]) -> int:
 
 def run_snapshot(db: Any, search: Callable[[JobQuery], Any], programs: list[str], regions: list[str],
                  sleep: float = 0.5, dry_run: bool = False) -> list[dict]:
-    """Проходить усі пари напрям x запит x регіон. Повертає рядки підсумку по (напрям, регіон)."""
+    """Goes through all pairs direction x query x region. Returns summary rows per (direction, region)."""
     summary: dict[tuple[str, str], dict] = {}
     first = True
     for program in programs:
@@ -69,15 +69,15 @@ def run_snapshot(db: Any, search: Callable[[JobQuery], Any], programs: list[str]
                     row["fetched"] += len(rows)
                     if rows and not dry_run:
                         row["upserted"] += upsert_chunks(db, rows)
-                except Exception as e:  # один збій не зупиняє знімок
+                except Exception as e:  # one failure does not stop the snapshot
                     row["failed"] += 1
                     print(f"search failed: {type(e).__name__}", file=sys.stderr)
     return list(summary.values())
 
 
 def snapshot_providers(q: JobQuery, env: Any) -> list:
-    """Джерела для знімка: усі доступні, крім тих, що мають жорсткі ліміти."""
-    from cvmax.jobs.providers import fetchers  # лінивий імпорт
+    """Sources for the snapshot: all available, except those with strict limits."""
+    from cvmax.jobs.providers import fetchers  # lazy import
 
     return [p for p in fetchers(q, env) if str(getattr(p, "name", "")).casefold() not in RATE_LIMITED]
 
@@ -102,7 +102,7 @@ def main(argv: list[str] | None = None) -> int:
             print("Set SUPABASE_URL, SUPABASE_KEY and CVMAX_DB_TOKEN.", file=sys.stderr)
             return 1
         db = SupabaseDB(url, key, token)
-    from cvmax.jobs.search import search_jobs  # noqa: E402 (лінивий імпорт)
+    from cvmax.jobs.search import search_jobs  # noqa: E402 (lazy import)
 
     summary = run_snapshot(db, lambda q: search_jobs(q, env=os.environ, providers=snapshot_providers(q, os.environ)), programs, REGIONS_TO_SNAPSHOT,
                            dry_run=args.dry_run)

@@ -1,4 +1,4 @@
-"""Сторінка «Куди податись»: напрями, де з цим CV найбільше шансів."""
+"""The "Where to apply" page: directions where this CV has the best chances."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ demo_banner()
 if not consent("career"):
     st.stop()
 
-# Після результату форма згортається, щоб напрями були одразу під заголовком.
+# After the result the form collapses, so the directions are right under the heading.
 form_box = (
     st.expander("About you and your CV: edit and search again", icon=":material/tune:")
     if st.session_state.get("career_result") is not None else st.container()
@@ -77,7 +77,7 @@ with form_box:
             top = st.session_state["career_result"].directions
             save_result("career", ", ".join(d.role for d in top[:2]) or "Directions",
                         {"career": st.session_state["career_result"].model_dump()})
-            st.rerun()  # згорнути форму і показати напрями зверху
+            st.rerun()  # collapse the form and show the directions on top
         except LLMError as e:
             st.error(str(e))
 

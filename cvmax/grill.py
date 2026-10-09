@@ -1,4 +1,4 @@
-"""Режим Grill me: модель ставить питання по одному, потім перетворює відповіді на правки."""
+"""Grill me mode: the model asks questions one at a time, then turns the answers into edits."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ class QA:
     question: str
     why_asking: str
     answer: str = ""
-    kind: str = ""  # discover / deepen, для журналу подій
+    kind: str = ""  # discover / deepen, for the event log
 
 
 @dataclass
@@ -43,7 +43,7 @@ class GrillSession:
 
 
 def _content(profile: Profile, cv: CVFile, session: GrillSession, instruction: str) -> list[dict]:
-    # Кожен запит самодостатній: CV + профіль + вся розмова. Так простіше й надійніше за багатоходовий чат.
+    # Each request is self-contained: CV + profile + the whole conversation. This is simpler and more reliable than a multi-turn chat.
     return cv.as_content_blocks() + [
         {
             "type": "text",
@@ -56,7 +56,7 @@ def _content(profile: Profile, cv: CVFile, session: GrillSession, instruction: s
 
 
 def next_question(client: Any, profile: Profile, cv: CVFile, session: GrillSession) -> QA | None:
-    """Питає наступне питання або закінчує сесію. Повертає нове питання чи None."""
+    """Asks the next question or ends the session. Returns the new question or None."""
     if session.finished or session.pending:
         return session.pending
     if len(session.turns) >= session.max_questions:
@@ -78,10 +78,10 @@ def next_question(client: Any, profile: Profile, cv: CVFile, session: GrillSessi
 
 
 def next_question_instruction(session: GrillSession) -> str:
-    """Інструкція на кожен хід. Список уже обговорених пунктів тут, а не лише в системному промпті:
-    менші моделі так краще не повертаються до тієї самої теми."""
+    """Instruction for every turn. The list of already discussed points is here, not only in the system prompt:
+    smaller models are better at not returning to the same topic this way."""
     lines = [f"Questions asked so far: {len(session.turns)} of {session.max_questions}."]
-    # Питання чергуються: знайти нове (парні ходи) і уточнити наявне (непарні).
+    # Questions alternate: find something new (even turns) and clarify something existing (odd turns).
     if len(session.turns) % 2 == 0:
         lines.append("This turn: ask a DISCOVER question about something the CV does not mention yet.")
     else:

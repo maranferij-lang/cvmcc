@@ -1,4 +1,4 @@
-"""Версія знань: хеш рубрик, уроків, ринку й варіантів промпту."""
+"""Knowledge version: a hash of rubrics, lessons, market data and prompt variants."""
 from __future__ import annotations
 
 import hashlib
@@ -18,13 +18,13 @@ _LESSON_PATTERNS = ("rubrics/learned/*.md",)
 
 @lru_cache(maxsize=8)
 def knowledge_version(root: Path | None = None) -> str:
-    """12 hex-символів sha256 над відсортованими (шлях, байти) файлів знань."""
+    """12 hex characters of sha256 over the sorted (path, bytes) of the knowledge files."""
     return _hash_files(root, _PATTERNS)
 
 
 @lru_cache(maxsize=8)
 def lessons_version(root: Path | None = None) -> str:
-    """Те саме, але лише над rubrics/learned/*.md: для оцінки впливу самих уроків."""
+    """The same, but only over rubrics/learned/*.md: to assess the effect of the lessons alone."""
     return _hash_files(root, _LESSON_PATTERNS)
 
 

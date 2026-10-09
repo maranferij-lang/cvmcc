@@ -1,4 +1,4 @@
-# Нижні межі без відомих вразливостей (pip-audit, жовтень 2026).
+# Lower bounds without known vulnerabilities (pip-audit, October 2026).
 anthropic>=1.9,<2
 google-genai>=2.25,<3
 streamlit>=1.54,<2

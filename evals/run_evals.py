@@ -1,19 +1,19 @@
-"""Перевірка якості аналізу на наборі CV з відомими проблемами.
+"""Quality check of the analysis on a set of CVs with known problems.
 
-Кожен кейс: CV, ціль і список того, що аналіз МУСИТЬ помітити (або НЕ чіпати).
-Коли юзер знаходить пропуск, додай його сюди як новий кейс, змінюй промпт чи рубрику
-і проганяй усі кейси, доки вони не проходять. Так зміни не ламають те, що вже працювало.
+Each case: a CV, a goal and a list of what the analysis MUST notice (or NOT touch).
+When a user finds a miss, add it here as a new case, change the prompt or rubric
+and run all cases until they pass. This way changes do not break what already worked.
 
-Запуск:  python evals/run_evals.py                 # evals/cases + evals/private
-         python evals/run_evals.py шлях/до/кейсів   # інша папка
-         python evals/run_evals.py --runs 3         # кожен кейс 3 рази, щоб бачити розкид
-         CVMAX_PROVIDER=claude python evals/run_evals.py   # те саме на Claude (потрібен ANTHROPIC_API_KEY)
-         python evals/run_evals.py --json out.json         # зберегти результат
-         python evals/run_evals.py --baseline evals/baseline.json   # ворота: код 3, якщо гірше за базову лінію
-         python evals/run_evals.py --update-baseline       # записати нову базову лінію
-         python evals/run_evals.py --variants --baseline evals/baseline.json   # кожен активний варіант промпту окремо
+Run:  python evals/run_evals.py                 # evals/cases + evals/private
+      python evals/run_evals.py path/to/cases   # another folder
+      python evals/run_evals.py --runs 3         # each case 3 times, to see the spread
+      CVMAX_PROVIDER=claude python evals/run_evals.py   # the same on Claude (ANTHROPIC_API_KEY is needed)
+      python evals/run_evals.py --json out.json         # save the result
+      python evals/run_evals.py --baseline evals/baseline.json   # gate: code 3 if worse than the baseline
+      python evals/run_evals.py --update-baseline       # record a new baseline
+      python evals/run_evals.py --variants --baseline evals/baseline.json   # each active prompt variant separately
 
-Справжні CV клади тільки в evals/private/ (ця папка не потрапляє в git).
+Put real CVs only in evals/private/ (this folder does not go into git).
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BASELINE = ROOT / "evals" / "baseline.json"
 DEFAULT_VARIANTS_FILE = ROOT / "cvmax" / "variants" / "analysis.json"
-TOLERANCE = 0.05  # допуск на шум моделі
+TOLERANCE = 0.05  # tolerance for model noise
 sys.path.insert(0, str(ROOT))
 
 from cvmax.analyze import analyze_cv  # noqa: E402
@@ -58,7 +58,7 @@ def check(expect: dict, analysis) -> tuple[bool, str]:
     bad = [e.after for e in edited if any(w in e.after.lower() for w in forbidden)]
     if bad:
         return False, f"заборонене формулювання в правці: {bad[0][:80]}"
-    if wanted == {"any"}:  # кейс перевіряє лише заборонені формулювання
+    if wanted == {"any"}:  # the case checks only forbidden wordings
         return True, "ok"
     if "keep" in wanted:
         touched = [v.verdict for v in reviewed if v.verdict != "keep"] + ["edit"] * len(edited)
@@ -70,11 +70,11 @@ def check(expect: dict, analysis) -> tuple[bool, str]:
 
 
 def compare_to_baseline(result: dict, baseline: dict, tolerance: float = TOLERANCE) -> tuple[bool, str]:
-    """Порівнює pass_rate прогону з базовою лінією. Повертає (чи пройшли ворота, рядок-вердикт).
+    """Compares the run's pass_rate with the baseline. Returns (whether the gate passed, a verdict string).
 
-    Допуск росте при малій вибірці: ворота падають, лише якщо
+    The tolerance grows on a small sample: the gate fails only if
     pass_rate < base_rate - max(tolerance, 2 * sqrt(base_rate * (1 - base_rate) / n)),
-    де n = result["total"] (кількість перевірок у прогоні).
+    where n = result["total"] (the number of checks in the run).
     """
     rate = float(result.get("pass_rate", 0.0))
     if not baseline.get("total"):
@@ -83,7 +83,7 @@ def compare_to_baseline(result: dict, baseline: dict, tolerance: float = TOLERAN
     if n == 0:
         return False, "Нічого не оцінено (total 0), ворота закриті."
     base = float(baseline.get("pass_rate", 0.0))
-    # без total у результаті (старий формат) масштабування неможливе: лишається плоский допуск
+    # without total in the result (old format) scaling is impossible: a flat tolerance stays
     margin = tolerance if n is None else max(tolerance, 2 * math.sqrt(max(base * (1 - base), 0.0) / n))
     ok = rate >= base - margin
     word = "ПРОЙДЕНО" if ok else "ГІРШЕ ЗА БАЗОВУ ЛІНІЮ"
@@ -104,8 +104,8 @@ def build_result(model: str, runs: int, results: dict[tuple[str, str], list[bool
 
 
 def run_cases(llm, cases: list[Path], runs: int, addendum: str = ""):
-    """Проганяє кейси; повертає (результати, описи перевірок)."""
-    # (кейс, перевірка) -> скільки прогонів пройшло
+    """Runs the cases; returns (results, check descriptions)."""
+    # (case, check) -> how many runs passed
     results: dict[tuple[str, str], list[bool]] = defaultdict(list)
     descriptions: dict[tuple[str, str], str] = {}
     for run in range(1, runs + 1):
@@ -139,7 +139,7 @@ def load_baseline(path: Path) -> dict:
 
 
 def run_variants(llm, cases: list[Path], args) -> int:
-    """Ворота для активних варіантів (текст не порожній) і запропонованих auto-* проти базової лінії."""
+    """Gate for active variants (non-empty text) and proposed auto-* ones against the baseline."""
     if not args.baseline:
         print("--variants потребує --baseline.")
         return 1
@@ -170,7 +170,7 @@ def run_variants(llm, cases: list[Path], args) -> int:
 
 
 def _prune_variants(path: Path, ids: list[str]) -> None:
-    """Видаляє варіанти з JSON-файлу (ключ "variants")."""
+    """Removes variants from a JSON file (key "variants")."""
     data = json.loads(path.read_text(encoding="utf-8"))
     drop = set(ids)
     data["variants"] = [v for v in data["variants"] if v.get("id") not in drop]
@@ -216,7 +216,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.json_path:
         args.json_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     if args.update_baseline:
-        if not total:  # нічого не оцінено: базову лінію не чіпаємо
+        if not total:  # nothing was evaluated: we do not touch the baseline
             print("Нічого не оцінено, базову лінію не змінено.")
             return 3
         target = args.baseline or DEFAULT_BASELINE
@@ -232,7 +232,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.baseline and not args.update_baseline:
         gate_ok, verdict = compare_to_baseline(result, load_baseline(args.baseline))
         print(verdict)
-        return 0 if gate_ok else 3  # з базовою лінією рішає ворота, а не passed == total
+        return 0 if gate_ok else 3  # the baseline decides the gate, not passed == total
     return 0 if passed == total else 2
 
 

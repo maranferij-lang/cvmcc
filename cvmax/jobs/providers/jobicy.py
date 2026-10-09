@@ -1,5 +1,5 @@
-"""Jobicy API v2 (GET JSON без ключа). Умови: вказувати Jobicy, лишати їхнє посилання,
-опитувати не частіше ніж раз на годину (кеш 30 хв)."""
+"""Jobicy API v2 (GET JSON without a key). Terms: credit Jobicy, keep their link,
+poll no more than once an hour (cache 30 min)."""
 from __future__ import annotations
 
 from collections.abc import Mapping

@@ -1,4 +1,4 @@
-"""Work.ua: лише посилання на пошук (публічного фіда чи API немає, скрейпінг не робимо)."""
+"""Work.ua: search link only (there is no public feed or API, we do not scrape)."""
 from __future__ import annotations
 
 from cvmax.jobs.models import JobQuery

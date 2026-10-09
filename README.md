@@ -1,27 +1,27 @@
 # GetCVmax
 
-AI-помічник, який покращує англомовне CV студентів і молодих фахівців під конкретну роль. Безплатно, інтерфейс англійською.
+An AI assistant that improves the English-language CVs of students and young professionals for a specific role. Free, with an English interface.
 
-## Що вміє
+## What it does
 
-Сайт має головну сторінку з описом продукту, інструменти у верхньому меню, вхід через Google
-з коротким онбордингом, особистий кабінет і сторінки «Про нас», «Конфіденційність», «Умови».
+The site has a home page that describes the product, tools in the top menu, Google sign-in
+with a short onboarding, a personal account page, and the pages "About", "Privacy" and "Terms".
 
-- **Аналіз CV.** PDF або DOCX під конкретну роль, тип компанії і вакансію: оцінка 0-100, оцінки за
-  7 критеріями, правки «було / стало» з попередженням про вигадані факти, план «що вивчити»,
-  опитування до 8 питань про досвід і готовий текст CV у DOCX.
-- **Куди податись.** 4-5 напрямів, де з цим CV найбільше шансів, з поясненням, чого бракує,
-  першими кроками і назвами вакансій для пошуку. Кнопка відкриває аналіз уже під обраний напрям.
-- **Живі вакансії.** Під напрямами в «Куди податись» і в розборі CV: вакансії з прямими посиланнями
-  з DOU, Djinni, Jooble та інших джерел, з оцінкою, чого бракує. LinkedIn, Indeed, Glassdoor, Work.ua
-  і Robota.ua дають лише посилання на пошук. Деталі в розділі «Навчання і посилання на вакансії».
-- **Конструктор CV.** Перше CV з нуля: форма, вільна розповідь, до 8 питань, CV англійською в DOCX.
-- **Мій кабінет.** Профіль, збережені результати, видалення всіх своїх даних, вихід.
-- **Денні ліміти.** На юзера і на весь сайт, щоб не вичерпати безплатний ліміт моделі.
+- **CV review.** A PDF or DOCX is analyzed for a specific role, company type and job posting: a score from 0 to 100, scores on
+  7 criteria, "before / after" edits with a warning about invented facts, a "what to learn" plan,
+  a questionnaire of up to 8 questions about experience, and a ready CV text in DOCX.
+- **Where to apply.** 4-5 directions where this CV has the best chances, with an explanation of what is missing,
+  first steps and job titles to search for. A button opens the review already set for the chosen direction.
+- **Live jobs.** Under the directions in "Where to apply" and in the CV review: jobs with direct links
+  from DOU, Djinni, Jooble and other sources, with a note on what is missing. LinkedIn, Indeed, Glassdoor, Work.ua
+  and Robota.ua give search links only. Details are in the section "Learning and job links".
+- **CV builder.** A first CV from scratch: a form, a free-form story, up to 8 questions, and an English CV in DOCX.
+- **My account.** Profile, saved results, deletion of all your data, sign out.
+- **Daily limits.** Per user and for the whole site, so the free model quota is not used up.
 
-## Як запустити локально
+## How to run locally
 
-Потрібен Python 3.10+.
+Python 3.10+ is required.
 
 ```bash
 cd cvmax
@@ -29,210 +29,210 @@ python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .streamlit/secrets.toml.example .streamlit/secrets.toml
-# встав свій ключ у .streamlit/secrets.toml
+# put your key into .streamlit/secrets.toml
 streamlit run app.py
 ```
 
-Без ключа застосунок відкривається в демо-режимі із заготовленими відповідями.
-Так можна подивитись інтерфейс, не витрачаючи кредити.
+Without a key the app opens in demo mode with prepared answers.
+This lets you look at the interface without spending credits.
 
-## Яка модель і які ліміти
+## Which model and which limits
 
-Прототип працює на **Gemini** з безплатним ключем з [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
-Перевірено на реальному ключі 30 вересня 2026:
+The prototype runs on **Gemini** with a free key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
+Checked with a real key on 30 September 2026:
 
-| Що | Значення |
+| What | Value |
 |---|---|
-| Ліміт повних Flash-моделей | 20 запитів на день на кожну модель, на проєкт Google |
-| Lite-моделі | помітно більший денний ліміт |
-| Скидання | щодня опівночі за тихоокеанським часом (10:00 за Києвом) |
-| Pro-моделі | недоступні на безплатному тарифі |
+| Limit of full Flash models | 20 requests per day per model, per Google project |
+| Lite models | a noticeably higher daily limit |
+| Reset | daily at midnight Pacific time (10:00 in Kyiv) |
+| Pro models | not available on the free tier |
 
-Тому GetCVmax пробує моделі по черзі, і їхні ліміти додаються. Важкі задачі (аналіз, «Куди податись»,
-збирання CV) спершу йдуть на повні Flash-моделі, легкі (питання Grill me) на Lite-моделі. Вичерпану на
-сьогодні модель сайт пропускає до скидання. Порядок моделей задається в `cvmax/config.py`.
+So GetCVmax tries the models one by one, and their limits add up. Heavy tasks (review, "Where to apply",
+CV building) go to the full Flash models first, light ones (Grill me questions) to the Lite models. The site skips a model
+that is used up for today until the reset. The model order is set in `cvmax/config.py`.
 
-Денні ліміти сайту там само, у `LIMITS`:
+The daily site limits are in the same place, in `LIMITS`:
 
-| Дія | На юзера | На весь сайт |
+| Action | Per user | For the whole site |
 |---|---|---|
-| Аналіз CV | 5 | 60 |
-| Куди податись | 3 | 40 |
-| Опитування | 3 | 30 |
-| Збирання CV | 2 | 20 |
+| CV review | 5 | 60 |
+| Where to apply | 3 | 40 |
+| Questionnaire | 3 | 30 |
+| CV building | 2 | 20 |
 
-Щоб прибрати ці обмеження, достатньо увімкнути оплату в Google Cloud для проєкту ключа: платні ліміти
-набагато більші, а один аналіз коштує частки цента.
+To remove these limits, it is enough to enable billing in Google Cloud for the key's project: paid limits
+are much higher, and one review costs a fraction of a cent.
 
-На безплатному тарифі Google може використовувати надіслані дані для покращення своїх продуктів.
-Про це сказано в тексті згоди і на сторінці «Конфіденційність».
+On the free tier, Google may use the submitted data to improve its products.
+This is stated in the consent text and on the "Privacy" page.
 
-**Перейти на Claude** можна без змін у коді: додай `ANTHROPIC_API_KEY` і постав `CVMAX_PROVIDER = "claude"`.
+**Switching to Claude** needs no code changes: add `ANTHROPIC_API_KEY` and set `CVMAX_PROVIDER = "claude"`.
 
-## База даних і вхід
+## Database and sign-in
 
-- **Supabase** зберігає юзерів, профілі, результати й лічильники лімітів. Схема в `supabase/schema.sql`.
-  Сайт не має прямого доступу до таблиць: тільки до кількох функцій, які перевіряють секретний токен.
-  Без налаштованої бази сайт теж працює, але ліміти рахуються в пам'яті, а результати не зберігаються.
-- **Вхід через Google** вмикається розділом `[auth]` у Secrets (див. `.streamlit/secrets.toml.example`).
-  Без нього сайт працює без входу.
+- **Supabase** stores users, profiles, results and limit counters. The schema is in `supabase/schema.sql`.
+  The site has no direct access to the tables: only to a few functions that check a secret token.
+  Without a configured database the site also works, but limits are counted in memory and results are not saved.
+- **Google sign-in** is enabled by the `[auth]` section in Secrets (see `.streamlit/secrets.toml.example`).
+  Without it the site works without sign-in.
 
-## Як викласти для студентів
+## How to deploy for students
 
-Найпростіше через [Streamlit Community Cloud](https://streamlit.io/cloud), це безплатно.
+The simplest way is [Streamlit Community Cloud](https://streamlit.io/cloud), which is free.
 
-1. Репозиторій на GitHub, де лежить `app.py`.
-2. На streamlit.io: New app, обрати репозиторій і файл `app.py`.
-3. В Advanced settings, Secrets, вставити налаштування з `.streamlit/secrets.toml.example`.
-4. Отримати посилання і кинути студентам.
+1. A GitHub repository that contains `app.py`.
+2. On streamlit.io: New app, choose the repository and the file `app.py`.
+3. In Advanced settings, Secrets, paste the settings from `.streamlit/secrets.toml.example`.
+4. Get the link and send it to students.
 
-На безплатному тарифі Gemini гроші не списуються, але є ліміт запитів на хвилину і на день.
-Для Claude постав місячний ліміт витрат на platform.claude.com.
+On the free Gemini tier no money is charged, but there is a limit of requests per minute and per day.
+For Claude, set a monthly spending limit on platform.claude.com.
 
-## Налаштування
+## Configuration
 
-Усе через змінні середовища або Streamlit secrets.
+Everything is set through environment variables or Streamlit secrets.
 
-| Змінна | За замовчуванням | Що робить |
+| Variable | Default | What it does |
 |---|---|---|
-| `CVMAX_PROVIDER` | `auto` | `gemini`, `claude` або `auto`: Gemini, якщо є його ключ |
-| `CVMAX_GEMINI_MODELS` | див. вище | Моделі Gemini через кому, в порядку спроб |
-| `CVMAX_MODEL` | `claude-opus-5-5` | Модель Claude. `claude-sonnet-5-5` удвічі дешевша |
-| `CVMAX_EFFORT_ANALYSIS` | `high` | Глибина аналізу: low, medium, high |
-| `CVMAX_EFFORT_GRILL` | `low` | Глибина для питань Grill me |
-| `CVMAX_FALLBACKS` | `1` | Claude: повтор на запасній моделі, якщо основна відмовить |
-| `CVMAX_DEMO` | вимк. | `1` вмикає демо-режим навіть із ключем |
-| `CVMAX_CONTACT` | немає | Email чи Telegram для зв'язку на сторінках «Про нас», «Конфіденційність», «Умови» |
-| `JOOBLE_API_KEY` | немає | Безплатний ключ Jooble. Без нього джерело Jooble пропускається |
-| `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | немає | Безплатні ключі Adzuna, потрібні разом. Без них Adzuna пропускається |
-| `LEARN_AUTOMERGE` | немає | Змінна репозиторію GitHub (не secret). `1` вмикає автозлиття PR з уроками й ринком. Рекомендовано вимкнено, див. docs/learning/README.md |
-| `LEARN_PR_TOKEN` | немає | Secret GitHub Actions: fine-grained PAT (contents і pull-requests write) для PR, що запускають `tests.yml` |
+| `CVMAX_PROVIDER` | `auto` | `gemini`, `claude` or `auto`: Gemini if its key is present |
+| `CVMAX_GEMINI_MODELS` | see above | Gemini models, comma-separated, in the order to try |
+| `CVMAX_MODEL` | `claude-opus-5-5` | Claude model. `claude-sonnet-5-5` is twice as cheap |
+| `CVMAX_EFFORT_ANALYSIS` | `high` | Review depth: low, medium, high |
+| `CVMAX_EFFORT_GRILL` | `low` | Depth for the Grill me questions |
+| `CVMAX_FALLBACKS` | `1` | Claude: retry on a fallback model if the main one fails |
+| `CVMAX_DEMO` | off | `1` turns on demo mode even with a key |
+| `CVMAX_CONTACT` | none | Email or Telegram for contact on the "About", "Privacy" and "Terms" pages |
+| `JOOBLE_API_KEY` | none | Free Jooble key. Without it the Jooble source is skipped |
+| `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | none | Free Adzuna keys, both are needed. Without them Adzuna is skipped |
+| `LEARN_AUTOMERGE` | none | GitHub repository variable (not a secret). `1` turns on auto-merge of PRs with lessons and market data. Recommended off, see docs/learning/README.md |
+| `LEARN_PR_TOKEN` | none | GitHub Actions secret: a fine-grained PAT (contents and pull-requests write) for PRs that trigger `tests.yml` |
 
-## Як це влаштовано
+## How it is built
 
-Модель не тренується. Уся якість іде з контексту, який вона отримує в кожному запиті:
-CV, профіль юзера, ціль, текст вакансії і рубрика.
+The model is not trained. All quality comes from the context it gets in every request:
+the CV, the user profile, the goal, the job posting text and the rubric.
 
 ```
-app.py                 навігація між сторінками, онбординг після першого входу
-views/home.py          головна: опис продукту
-views/analyze.py       аналіз CV, правки, Grill me, готове CV
-views/career.py        куди податись
-views/builder.py       конструктор CV
-views/onboarding.py    знайомство і профіль після першого входу
-views/account.py       мій кабінет
-views/login.py         вхід через Google
-views/about.py, privacy.py, terms.py   про нас, конфіденційність, умови
-ui/common.py           спільне: модель, згода, завантаження CV, стилі
-ui/account.py          вхід, профіль, ліміти, збереження результатів
-cvmax/builder.py       логіка конструктора
-cvmax/cv_render.py     оформлення CV у DOCX
-cvmax/db.py            база даних (Supabase або в пам'яті)
-supabase/              схема бази
-docs/sources.md        джерела, на яких побудовані рубрики
-cvmax/career.py        логіка «Куди податись»
-cvmax/profile.py       дані онбордингу, чіткість цілі
-cvmax/cv_input.py      читання PDF і DOCX
-cvmax/prompts.py       системні промпти
-cvmax/rubrics/*.md     критерії: загальні + окремо для кожного напряму навчання
-cvmax/analyze.py       повний аналіз
-cvmax/grill.py         режим Grill me
-cvmax/edits.py         застосування правок і експорт
-cvmax/schemas.py       формат відповідей моделі
-cvmax/llm.py           виклик моделі: Gemini або Claude
-cvmax/demo.py          фейковий клієнт для демо і тестів
+app.py                 navigation between pages, onboarding after the first sign-in
+views/home.py          home: product description
+views/analyze.py       CV review, edits, Grill me, ready CV
+views/career.py        where to apply
+views/builder.py       CV builder
+views/onboarding.py    introduction and profile after the first sign-in
+views/account.py       my account
+views/login.py         Google sign-in
+views/about.py, privacy.py, terms.py   about, privacy, terms
+ui/common.py           shared: model, consent, CV upload, styles
+ui/account.py          sign-in, profile, limits, saving results
+cvmax/builder.py       builder logic
+cvmax/cv_render.py     CV layout in DOCX
+cvmax/db.py            database (Supabase or in memory)
+supabase/              database schema
+docs/sources.md        sources the rubrics are built on
+cvmax/career.py        "Where to apply" logic
+cvmax/profile.py       onboarding data, goal clarity
+cvmax/cv_input.py      reading PDF and DOCX
+cvmax/prompts.py       system prompts
+cvmax/rubrics/*.md     criteria: general + one per field of study
+cvmax/analyze.py       full review
+cvmax/grill.py         Grill me mode
+cvmax/edits.py         applying edits and export
+cvmax/schemas.py       format of model responses
+cvmax/llm.py           model call: Gemini or Claude
+cvmax/demo.py          fake client for demo and tests
 ```
 
-Відповіді моделі приходять як структурований JSON за схемою з `schemas.py`, тому інтерфейс не ламається
-від несподіваного формату. PDF надсилається моделі як документ, щоб вона бачила ще й верстку.
+Model responses arrive as structured JSON following the schema in `schemas.py`, so the interface does not break
+on an unexpected format. The PDF is sent to the model as a document, so it can also see the layout.
 
-**Захист від вигадок.** Модель має правило не додавати фактів, яких юзер не називав. Gemini інколи
-все одно дописує інструменти чи посилання. Тому кожна правка ще перевіряється автоматично: назви
-інструментів, числа й посилання, яких немає ні в CV, ні у відповідях юзера, підсвічуються попередженням.
+**Protection against invention.** The model has a rule not to add facts the user did not state. Gemini still
+sometimes adds tools or links. So every edit is also checked automatically: tool names,
+numbers and links that appear neither in the CV nor in the user's answers are highlighted with a warning.
 
-**Рубрики** побудовані на порадах кар'єрних центрів Harvard, MIT, Columbia, Oxford, LSE, рекрутерів
-McKinsey, BCG, Bain, Google та юридичних шкіл. Список джерел у `docs/sources.md`.
+**Rubrics** are built on advice from the career centers of Harvard, MIT, Columbia, Oxford and LSE, recruiters at
+McKinsey, BCG, Bain and Google, and law schools. The list of sources is in `docs/sources.md`.
 
-**Покращувати якість найпростіше через рубрики.** Це звичайні текстові файли в `cvmax/rubrics/`.
-Додай туди, що реально шукають рекрутери у твоїй сфері, і поради стануть точнішими без жодного коду.
+**The easiest way to improve quality is through the rubrics.** They are plain text files in `cvmax/rubrics/`.
+Add what recruiters in your field really look for, and the advice becomes more precise without any code.
 
-## Навчання і посилання на вакансії
+## Learning and job links
 
-Модель не тренується, але сайт учиться на відгуках студентів чотирма петлями, кожна зі своїм горизонтом:
+The model is not trained, but the site learns from student feedback through four loops, each with its own horizon:
 
-- **A. Бандит над варіантами промпту** (хвилини). Thompson sampling обирає стиль розбору, нагорода
-  це лайк або прийняті правки. Слабкий варіант вимикається сам.
-- **B. Тижнева рефлексія** (тижні). Скрипт читає прийняті й відхилені правки і пише уроки для рубрик.
-- **C. Ринок** (дні). Знімок вакансій перетворюється на навички, які зараз просять у кожному напрямі.
-- **D. Результат** (місяці). Відповідь «чи було інтерв'ю» (подія `outcome`) рахується в успіхах варіанта.
+- **A. Bandit over prompt variants** (minutes). Thompson sampling chooses the review style, the reward
+  is a like or accepted edits. A weak variant switches itself off.
+- **B. Weekly reflection** (weeks). A script reads accepted and rejected edits and writes lessons for the rubrics.
+- **C. Market** (days). A snapshot of job postings becomes the skills currently requested in each direction.
+- **D. Outcome** (months). The answer to "did you get an interview" (the `outcome` event) is counted in the variant's successes.
 
-Знання лежать у даних, а не в коді:
+Knowledge lives in data, not in code:
 
-- `cvmax/variants/analysis.json`: варіанти промпту;
-- `cvmax/rubrics/learned/<сфера>.md`: уроки з відгуків;
-- `cvmax/rubrics/market/<сфера>.md`: навички з вакансій.
+- `cvmax/variants/analysis.json`: prompt variants;
+- `cvmax/rubrics/learned/<field>.md`: lessons from feedback;
+- `cvmax/rubrics/market/<field>.md`: skills from job postings.
 
-Події в Supabase (`cvmax_events`) містять лише ідентифікатори, оцінки й рішення, без тексту CV.
+Events in Supabase (`cvmax_events`) contain only identifiers, scores and decisions, without CV text.
 
-**Автоматика (GitHub Actions):**
+**Automation (GitHub Actions):**
 
-- `learn.yml`, «Weekly lessons»: щопонеділка о 06:00 UTC запускає `scripts/learn.py`, потім evals.
-  Якщо evals впали, PR не створюється. Інакше відкривається PR з уроками й варіантами.
-- `market.yml`, «Job market»: щодня о 03:00 UTC знімає вакансії (`snapshot_jobs.py`), щонеділі о 04:30
-  витягує навички (`learn_market.py`) і відкриває PR.
-- Перед першим запуском запиши базову лінію evals: `python evals/run_evals.py --runs 2 --update-baseline` (потрібен реальний ключ моделі),
-  закоміть `evals/baseline.json`. Поки `total` = 0, обидва workflow завершуються кодом 3 і PR не відкривають.
-- Змінна репозиторію `LEARN_AUTOMERGE=1` вмикає автозлиття цих PR. Без неї merge робиш сам.
-  Потрібні налаштування репозиторію: Settings → Actions → General → «Allow GitHub Actions to create and approve
-  pull requests» і Settings → General → «Allow auto-merge». PR від `GITHUB_TOKEN` не запускає `tests.yml`,
-  тому `pytest -q` виконується в самому workflow перед створенням PR. Щоб PR запускали `tests.yml`, додай secret
-  `LEARN_PR_TOKEN` (fine-grained PAT на цей репозиторій з правами Contents і Pull requests: write); без нього
-  використовується `GITHUB_TOKEN`.
-- Кожен workflow має два job: перший з правом лише читання виконує скрипти, evals і тести та вантажить зміни
-  як артефакт, другий (з правом запису) лише відкриває PR. Автозлиття для уроків ризиковане: докладніше в
-  [docs/learning/README.md](docs/learning/README.md). Рекомендація: тримай `LEARN_AUTOMERGE` вимкненим до paywall.
-- Секрети для Actions: `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_LEARN_TOKEN` (окремий токен області `learning`, див. supabase/README.md; не `CVMAX_DB_TOKEN`), `GEMINI_API_KEY`, а для знімку
-  вакансій ще `JOOBLE_API_KEY`, `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`.
+- `learn.yml`, "Weekly lessons": every Monday at 06:00 UTC runs `scripts/learn.py`, then evals.
+  If evals fail, no PR is created. Otherwise a PR with lessons and variants is opened.
+- `market.yml`, "Job market": every day at 03:00 UTC takes the job snapshot (`snapshot_jobs.py`), every Sunday at 04:30
+  extracts skills (`learn_market.py`) and opens a PR.
+- Before the first run, record the evals baseline: `python evals/run_evals.py --runs 2 --update-baseline` (a real model key is needed),
+  and commit `evals/baseline.json`. While `total` = 0, both workflows exit with code 3 and do not open PRs.
+- The repository variable `LEARN_AUTOMERGE=1` turns on auto-merge of these PRs. Without it you merge yourself.
+  Required repository settings: Settings → Actions → General → "Allow GitHub Actions to create and approve
+  pull requests" and Settings → General → "Allow auto-merge". A PR from `GITHUB_TOKEN` does not trigger `tests.yml`,
+  so `pytest -q` runs inside the workflow itself before the PR is created. To make PRs trigger `tests.yml`, add the secret
+  `LEARN_PR_TOKEN` (a fine-grained PAT for this repository with Contents and Pull requests: write); without it
+  `GITHUB_TOKEN` is used.
+- Each workflow has two jobs: the first, with read-only permission, runs the scripts, evals and tests and uploads the changes
+  as an artifact, and the second (with write permission) only opens the PR. Auto-merge is risky for lessons: more detail in
+  [docs/learning/README.md](docs/learning/README.md). Recommendation: keep `LEARN_AUTOMERGE` off until the paywall.
+- Secrets for Actions: `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_LEARN_TOKEN` (a separate token with the `learning` scope, see supabase/README.md; not `CVMAX_DB_TOKEN`), `GEMINI_API_KEY`, and for the job
+  snapshot also `JOOBLE_API_KEY`, `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`.
 
-**Джерела вакансій** (`cvmax/jobs/providers/`):
+**Job sources** (`cvmax/jobs/providers/`):
 
-- Без ключів: DOU і Djinni (RSS, Україна і remote), Arbeitnow (ЄС і remote), Remotive і Jobicy (remote),
-  Greenhouse і Lever (за назвою компанії).
-- З ключем: Jooble (`JOOBLE_API_KEY`, усі регіони) і Adzuna (`ADZUNA_APP_ID` і `ADZUNA_APP_KEY`,
-  Великобританія, США, ЄС; України немає).
-- Лише посилання на пошук: LinkedIn, Indeed, Glassdoor (UK, US, ЄС, remote), а також Work.ua і Robota.ua.
-  Сайт не завантажує їхні сторінки.
+- Without keys: DOU and Djinni (RSS, Ukraine and remote), Arbeitnow (EU and remote), Remotive and Jobicy (remote),
+  Greenhouse and Lever (by company name).
+- With a key: Jooble (`JOOBLE_API_KEY`, all regions) and Adzuna (`ADZUNA_APP_ID` and `ADZUNA_APP_KEY`,
+  United Kingdom, US, EU; no Ukraine).
+- Search links only: LinkedIn, Indeed, Glassdoor (UK, US, EU, remote), and also Work.ua and Robota.ua.
+  The site does not load their pages.
 
-Кожна адреса вакансії проходить allowlist доменів свого джерела, і лише перевірені посилання стають клікабельними.
+Every job address passes the domain allowlist of its source, and only verified links become clickable.
 
-**Нові скрипти.** Запускаються з кореня репозиторію. З `--dry-run` скрипт лише показує результат:
+**New scripts.** Run them from the repository root. With `--dry-run` the script only shows the result:
 
 ```bash
-python scripts/learn.py --days 30 --dry-run               # уроки з відгуків, звіт
-python scripts/learn_market.py --days 30 --dry-run        # навички з вакансій
-python scripts/snapshot_jobs.py --dry-run --programs law  # знімок вакансій, лише порахувати
+python scripts/learn.py --days 30 --dry-run               # lessons from feedback, report
+python scripts/learn_market.py --days 30 --dry-run        # skills from job postings
+python scripts/snapshot_jobs.py --dry-run --programs law  # job snapshot, count only
 ```
 
-`learn.py` і `learn_market.py` потребують `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_DB_TOKEN` і
-`GEMINI_API_KEY`. `snapshot_jobs.py` потребує перших трьох, а ключі джерел необов'язкові.
-Знімок у `--dry-run` не пише в базу, але робить живі запити до джерел.
+`learn.py` and `learn_market.py` need `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_DB_TOKEN` and
+`GEMINI_API_KEY`. `snapshot_jobs.py` needs the first three, and the source keys are optional.
+In `--dry-run` the snapshot does not write to the database, but it makes live requests to the sources.
 
-Докладніше: [docs/learning/README.md](docs/learning/README.md) (петля B) і [docs/plan-learning-jobs.md](docs/plan-learning-jobs.md).
+More details: [docs/learning/README.md](docs/learning/README.md) (loop B) and [docs/plan-learning-jobs.md](docs/plan-learning-jobs.md).
 
-## Приватність
+## Privacy
 
-CV надсилається в API моделі тільки для аналізу. GetCVmax нічого не зберігає: дані живуть у сесії браузера
-і зникають, коли вкладку закрито. Перед завантаженням юзер дає згоду на обробку.
+The CV is sent to the model API only for analysis. GetCVmax stores nothing: data lives in the browser session
+and disappears when the tab is closed. Before uploading, the user gives consent to processing.
 
-## Тести
+## Tests
 
 ```bash
 pip install -r requirements-dev.txt
 pytest
 ```
 
-## Що далі
+## What next
 
-- Перевірити поради на реальних CV студентів і підкрутити рубрики.
-- Увімкнути оплату Gemini, коли юзерів стане більше, ніж витримують безплатні ліміти.
-- Гарний PDF-експорт і кілька шаблонів оформлення.
+- Check the advice on real student CVs and tune the rubrics.
+- Turn on Gemini billing when there are more users than the free limits can handle.
+- A good PDF export and several layout templates.

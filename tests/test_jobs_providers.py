@@ -1,4 +1,4 @@
-"""Тести провайдерів вакансій: парсери на фікстурах, allowlist, HTTP-шар, моделі."""
+"""Tests of the job providers: parsers on fixtures, allowlist, HTTP layer, models."""
 from __future__ import annotations
 
 import re
@@ -31,7 +31,7 @@ def load(name: str) -> bytes:
     return (FIX / name).read_bytes()
 
 
-# ---------- парсери ----------
+# ---------- parsers ----------
 
 def test_dou_parse():
     out = prov("DOU").parse(load("dou.xml"), "", q(UA))
@@ -74,7 +74,7 @@ def test_adzuna_parse():
     a, b, c = out
     assert a.company == "Harbor & Pine" and a.salary == "£28,000–32,000"
     assert a.posted_at == "2026-10-01" and a.snippet.startswith("Analyse data")
-    assert b.salary is None  # прогнозована зарплата не показується
+    assert b.salary is None  # the predicted salary is not shown
     assert c.url.endswith("/333")
     assert not any("evil" in v.url or "notadzuna" in v.url for v in out)
 
@@ -117,7 +117,7 @@ def test_greenhouse_parse():
         "Junior Python Engineer", "Software Engineer Intern", "Python Analyst"]
     a = out[0]
     assert a.company == "Larkspur" and a.remote is True and a.posted_at == "2026-09-09"
-    assert a.snippet == "Build Python services & tools."  # двічі екранований HTML
+    assert a.snippet == "Build Python services & tools."  # doubly escaped HTML
     assert all("greenhouse.io" in v.url for v in out)
 
 
@@ -156,7 +156,7 @@ def test_parsed_vacancies_are_safe(name):
         assert len(v.id) == 12
 
 
-# ---------- build_urls, ключі, search_url ----------
+# ---------- build_urls, keys, search_url ----------
 
 def test_build_urls_encode_keywords():
     query = q(UA, keywords=("data analyst", "c++ & sql"))
@@ -273,7 +273,7 @@ def test_deep_links_order_and_fetchers():
     assert {p.name for p in P.for_region(UA)} >= {"DOU", "Work.ua", "LinkedIn"}
 
 
-# ---------- allowlist та хелпери ----------
+# ---------- allowlist and helpers ----------
 
 @pytest.mark.parametrize("url", [
     "javascript:alert(1)", "data:text/html,hi", "ftp://jobs.dou.ua/x",
@@ -322,7 +322,7 @@ def test_make_vacancy_allowlist():
     assert base.make_vacancy(url="https://jobs.dou.ua/a", title="  ", source="x", domains=("dou.ua",)) is None
 
 
-# ---------- HTTP-шар ----------
+# ---------- HTTP layer ----------
 
 class FakeResp:
     def __init__(self, status=200, chunks=(b"ok",)):
@@ -426,7 +426,7 @@ def test_cache_and_fetch_many(monkeypatch):
     http.clear_cache()
     assert http.cached_fetch("https://x.example/1")
     assert http.cached_fetch("https://x.example/bad") is None
-    assert http.cached_fetch("https://x.example/bad") is None  # невдачі не кешуються
+    assert http.cached_fetch("https://x.example/bad") is None  # failures are not cached
     res = http.fetch_many(["https://x.example/a", "https://x.example/bad", "https://x.example/a"])
     assert res == {"https://x.example/a": b"https://x.example/a", "https://x.example/bad": None}
     boom = http.fetch_many(["https://x.example/a"], fetch=lambda u: 1 / 0)
@@ -441,7 +441,7 @@ def test_cache_eviction(monkeypatch):
     assert "https://x.example/0" not in http._cache
 
 
-# ---------- моделі ----------
+# ---------- models ----------
 
 def test_vacancy_id_key_row():
     v = Vacancy(url="https://a.example/1", title="Junior  Python-Dev!", company="Acme, Inc.",

@@ -1,4 +1,4 @@
-"""Формат відповідей моделі. API гарантує, що відповідь відповідає цим схемам."""
+"""Format of model responses. The API guarantees that the response matches these schemas."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ Priority = Literal["high", "medium", "low"]
 
 class Edit(BaseModel):
     section: str
-    before: str  # Точна цитата з CV. Порожньо, якщо це новий пункт.
-    after: str  # Новий текст англійською. Порожньо, якщо пункт треба прибрати.
+    before: str  # An exact quote from the CV. Empty if this is a new item.
+    after: str  # New text in English. Empty if the item should be removed.
     reason: str
     priority: Priority
 
@@ -24,7 +24,7 @@ class CriterionScore(BaseModel):
 
 
 class Gap(BaseModel):
-    item: str  # напр. "SQL (joins, window functions)" або "IELTS 7.0+"
+    item: str  # e.g. "SQL (joins, window functions)" or "IELTS 7.0+"
     why_it_matters: str
     how_to_close: str
     time_estimate: str
@@ -35,7 +35,7 @@ Verdict = Literal["keep", "cut", "shorten", "rewrite", "move"]
 
 
 class LineVerdict(BaseModel):
-    line: str  # рядок або пункт CV, скорочено до перших слів
+    line: str  # a CV line or item, shortened to the first words
     verdict: Verdict
     reason: str
 
@@ -46,7 +46,7 @@ class Analysis(BaseModel):
     target_assumptions: List[str]
     scores: List[CriterionScore]
     strengths: List[str]
-    line_review: List[LineVerdict]  # вердикт кожному рядку CV, до правок
+    line_review: List[LineVerdict]  # a verdict for each CV line, before the edits
     edits: List[Edit]
     gaps: List[Gap]
     missing_info: List[str]
@@ -65,10 +65,10 @@ class GrillResult(BaseModel):
 
 
 class Direction(BaseModel):
-    role: str  # назва ролі англійською, як у вакансіях
-    company_type: str  # одне значення зі списку profile.COMPANY_TYPES
-    fit_score: int  # 0..100: реалістичний шанс отримати офер найближчим часом
-    why_fits: List[str]  # докази з CV
+    role: str  # role title in English, as in job postings
+    company_type: str  # one value from the list profile.COMPANY_TYPES
+    fit_score: int  # 0..100: a realistic chance of getting an offer in the near future
+    why_fits: List[str]  # evidence from the CV
     gaps: List[str]
     first_steps: List[str]
     search_keywords: List[str]
@@ -118,7 +118,7 @@ class BuiltCV(BaseModel):
 
 class JobFit(BaseModel):
     id: str
-    fit: int  # 0..100, обмежується у rank_jobs
+    fit: int  # 0..100, clipped in rank_jobs
     why: str
     missing: List[str]
     apply_now: bool

@@ -1,4 +1,4 @@
-"""Системні промпти. Рубрики лежать окремо в cvmax/rubrics/."""
+"""System prompts. The rubrics are stored separately in cvmax/rubrics/."""
 
 from __future__ import annotations
 
@@ -11,23 +11,23 @@ from .profile import Profile
 RUBRICS_DIR = Path(__file__).parent / "rubrics"
 
 
-LEARNED_CAP = 3000  # скільки символів уроків з відгуків додаємо до рубрики
-MARKET_CAP = 1500  # скільки символів ринкових даних додаємо до рубрики
+LEARNED_CAP = 3000  # how many characters of lessons from feedback we add to the rubric
+MARKET_CAP = 1500  # how many characters of market data we add to the rubric
 
 
 def _optional_section(subdir: str, program: str, heading: str, cap: int) -> str:
-    """Додаткова секція з файлу rubrics/<subdir>/<program>.md; порожній рядок, якщо файлу немає."""
+    """An extra section from the file rubrics/<subdir>/<program>.md; an empty string if there is no file."""
     path = RUBRICS_DIR / subdir / f"{program}.md"
     try:
         text = path.read_text(encoding="utf-8")
     except OSError:
         return ""
-    # HTML-коментарі (службові шапки, позначки revert) не потрапляють у промпт
+    # HTML comments (service headers, revert marks) do not go into the prompt
     text = re.sub(r"<!--.*?-->", "", text, flags=re.S).strip()
     if not text:
         return ""
     text = text[:cap].rstrip()
-    # файл уже має власний заголовок "## ...": не дублюємо його
+    # the file already has its own "## ..." heading: we do not duplicate it
     return text if text.startswith("## ") else f"## {heading}\n{text}"
 
 
@@ -47,7 +47,7 @@ def load_rubric(program: str) -> str:
 
 
 def today() -> str:
-    """Сьогоднішня дата для моделі: без неї вона вважає дати після свого навчання помилкою."""
+    """Today's date for the model: without it the model treats dates after its training as a mistake."""
     return date.today().strftime("%B %d, %Y")
 
 

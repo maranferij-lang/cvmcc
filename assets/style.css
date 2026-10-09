@@ -1,4 +1,4 @@
-/* GetCVmax: «червона ручка рекрутера». Папір, чорнило, один червоний. Ті самі токени, що на getcvmax.com (site/style.css). */
+/* GetCVmax: "the recruiter's red pen". Paper, ink, one red. The same tokens as on getcvmax.com (site/style.css). */
 @font-face { font-family: "Kalam"; font-style: normal; font-weight: 400; font-display: swap; src: url("/app/static/fonts/Kalam-400-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: "Kalam"; font-style: normal; font-weight: 400; font-display: swap; src: url("/app/static/fonts/Kalam-400-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "Kalam"; font-style: normal; font-weight: 700; font-display: swap; src: url("/app/static/fonts/Kalam-700-latin-ext.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
@@ -11,7 +11,7 @@
 @font-face { font-family: "Tinos"; font-style: normal; font-weight: 700; font-display: swap; src: url("/app/static/fonts/Tinos-700-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
 :root {
-  /* Світла тема; нижче ті самі токени через light-dark(), щоб збігалися з темою Streamlit. */
+  /* Light theme; below, the same tokens via light-dark(), to match the Streamlit theme. */
   --paper: #ffffff;
   --ink: #15171c;
   --red: #e0261b;
@@ -32,7 +32,7 @@
   --shadow-sheet: 0 1px 0 var(--sh-1), 0 18px 40px -18px var(--sh-2);
 }
 @supports (color: light-dark(#000, #fff)) {
-  /* Streamlit ставить color-scheme на корінь апки, тож light-dark() іде за обраною темою, а не лише за системною. */
+  /* Streamlit sets color-scheme on the app root, so light-dark() follows the chosen theme, not only the system one. */
   :root {
     --paper: light-dark(#ffffff, #121418);
     --ink: light-dark(#15171c, #f3f2ee);
@@ -50,12 +50,12 @@
     --sh-2: light-dark(rgba(21, 23, 28, .28), rgba(0, 0, 0, .7));
   }
 }
-/* Логотип чорним текстом: у темній темі світла версія. */
+/* Logo in black text: in the dark theme, the light version. */
 @media (prefers-color-scheme: dark) {
   [data-testid="stLogo"], [data-testid="stSidebarLogo"], [data-testid="stHeaderLogo"] { content: url("/app/static/logo-dark.png"); }
 }
 
-/* ---------- Каркас ---------- */
+/* ---------- Frame ---------- */
 .stApp { background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
 header[data-testid="stHeader"] { background: var(--header-bg); border-bottom: 1px solid var(--line); }
 [data-testid="stMainBlockContainer"] { max-width: 780px; padding-top: 5.2rem; padding-bottom: 4rem; }
@@ -66,7 +66,7 @@ header[data-testid="stHeader"] { background: var(--header-bg); border-bottom: 1p
   box-shadow: inset 0 -2px 0 var(--red); border-radius: 0;
 }
 
-/* ---------- Типографіка ---------- */
+/* ---------- Typography ---------- */
 h1, h2, h3, h4 { font-family: var(--f-display) !important; color: var(--ink); text-wrap: balance; }
 h1 { font-weight: 900 !important; letter-spacing: -.035em; line-height: 1.0 !important; }
 h2 { font-weight: 900 !important; letter-spacing: -.03em; }
@@ -78,7 +78,7 @@ h3, h4 { font-weight: 800 !important; letter-spacing: -.02em; }
 hr { border-color: var(--line) !important; margin: 2.2rem 0 !important; }
 a { color: var(--ink); text-decoration-color: var(--red); }
 
-/* ---------- Картки: лист паперу з тонкою рамкою ---------- */
+/* ---------- Cards: a sheet of paper with a thin border ---------- */
 [class*="st-key-card"] {
   background: var(--paper);
   border: 1.5px solid var(--line);
@@ -86,7 +86,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
   padding: 1.1rem 1.25rem 1.2rem;
 }
 
-/* «До» і «Після» у правках: закреслено червоним → нова версія з червоною лінією зліва */
+/* "Before" and "After" in edits: struck through in red -> the new version with a red line on the left */
 [class*="st-key-before"], [class*="st-key-after"] { border-radius: 4px; padding: .6rem .8rem .7rem; }
 [class*="st-key-before"] { background: var(--wash); }
 [class*="st-key-before"] p:not([data-testid="stCaptionContainer"] p) {
@@ -97,7 +97,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 [class*="st-key-before"] [data-testid="stCaptionContainer"] p,
 [class*="st-key-after"] [data-testid="stCaptionContainer"] p { font-family: var(--f-display); text-decoration: none; font-size: .72rem; letter-spacing: .1em; }
 
-/* ---------- Кнопки ---------- */
+/* ---------- Buttons ---------- */
 [data-testid="stBaseButton-primary"],
 [data-testid="stBaseButton-primaryFormSubmit"],
 [data-testid="stDownloadButton"] button[kind="primary"] {
@@ -115,7 +115,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 }
 [data-testid="stBaseButton-secondary"]:hover { border-color: var(--red) !important; color: var(--red) !important; }
 
-/* ---------- Поля вводу ---------- */
+/* ---------- Input fields ---------- */
 [data-baseweb="input"], [data-baseweb="textarea"], [data-baseweb="select"] > div {
   background: var(--paper) !important; border: 1.5px solid var(--field) !important; border-radius: 6px !important;
 }
@@ -125,7 +125,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 [data-baseweb="input"] input, [data-baseweb="textarea"] textarea { background: transparent !important; }
 [data-testid="stFileUploaderDropzone"] { background: var(--wash) !important; border: 1.5px dashed var(--ink) !important; border-radius: 8px !important; }
 
-/* ---------- Вкладки: підкреслення червоним ---------- */
+/* ---------- Tabs: red underline ---------- */
 [data-testid="stTabs"] [role="tablist"] { gap: 4px; border-bottom: 1px solid var(--line) !important; overflow-x: auto; margin-bottom: .8rem; }
 [data-testid="stTab"] { background: transparent; border-radius: 0 !important; padding: .45rem .8rem !important; white-space: nowrap; }
 [data-testid="stTab"] p { font-family: var(--f-display); font-weight: 700; font-size: .95rem; color: var(--ink-2) !important; }
@@ -133,7 +133,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 [data-testid="stTab"][aria-selected="true"] p { color: var(--ink) !important; }
 [data-testid="stTabs"] .react-aria-SelectionIndicator { display: none !important; }
 
-/* ---------- Розгортні блоки, сповіщення ---------- */
+/* ---------- Expanders, alerts ---------- */
 [data-testid="stExpander"] details { background: var(--paper); border: 0 !important; border-bottom: 1px solid var(--line) !important; border-radius: 0 !important; }
 [data-testid="stExpander"] summary { font-family: var(--f-display); font-weight: 800; }
 [data-testid="stExpander"] summary:hover { color: var(--red); }
@@ -143,7 +143,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 [data-testid="stAlertContainer"]:has([data-testid="stAlertContentError"]) { background: var(--red-wash) !important; border-left-color: var(--red); }
 [data-testid="stAlertContainer"] svg { color: var(--red) !important; fill: var(--red) !important; }
 
-/* ---------- Оцінка: червоне коло, як від руки ---------- */
+/* ---------- Score: a red circle, as if drawn by hand ---------- */
 [data-testid="stMetric"] { display: inline-flex; flex-direction: column; align-items: flex-start; gap: .2rem; }
 [data-testid="stMetricValue"] > div {
   font-family: var(--f-pen); color: var(--red); font-weight: 700; font-size: 2.4rem; line-height: 1;
@@ -163,7 +163,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) p { color: var(--paper); }
 [data-testid="stChatMessageAvatarUser"] { display: none; }
 
-/* ---------- Спільні класи сторінок ---------- */
+/* ---------- Shared page classes ---------- */
 .cvx-hero { padding: 1rem 0 .4rem; }
 .cvx-hero h1 { font-size: clamp(2.4rem, 5.6vw, 4.2rem); margin: .6rem 0 1rem; padding: 0; line-height: .98 !important; }
 .cvx-hero p.lead { font-size: 1.18rem; line-height: 1.55; color: var(--ink-2); max-width: 34rem; margin: 0 0 .4rem; }
@@ -179,7 +179,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 .cvx-ph { font-family: var(--f-display); font-size: .78em; font-weight: 800; color: var(--red); border: 1.5px solid var(--red); border-radius: 3px; padding: 0 3px; }
 .cvx-footer { color: var(--ink-3); font-size: .85rem; line-height: 1.6; padding-top: .4rem; }
 
-/* ---------- Головна ---------- */
+/* ---------- Home ---------- */
 .cvx-next { font-size: .92rem; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: .3rem; }
 .cvx-next b { color: var(--ink); }
 .cvx-sheet { background: #fff; color: #15171c; color-scheme: light; font-family: var(--f-doc); box-shadow: var(--shadow-sheet); border: 1px solid var(--line); border-radius: 2px; padding: 28px 28px 24px; position: relative; transform: rotate(.5deg); }
@@ -258,19 +258,19 @@ a { color: var(--ink); text-decoration-color: var(--red); }
   .cvx-stamp b { font-size: 1.4rem; }
 }
 
-/* ---------- Завантаження файлу ---------- */
+/* ---------- File upload ---------- */
 [data-testid="stFileUploaderDropzone"] button [data-testid="stMarkdownContainer"] p { font-size: 0 !important; }
 [data-testid="stFileUploaderDropzone"] button [data-testid="stMarkdownContainer"] p::after { content: "Choose file"; font-size: .9rem; }
 [data-testid="stFileUploaderDropzoneInstructions"] span { font-size: 0 !important; }
 [data-testid="stFileUploaderDropzoneInstructions"] span::after { content: "or drop it here · up to 10 MB"; font-size: .85rem; color: var(--ink-3); }
 
-/* ---------- Перемикачі: видимі й у вимкненому стані ---------- */
+/* ---------- Toggles: visible in the off state too ---------- */
 [data-testid="stCheckbox"] label:not([data-selected="true"]) > span + div,
 [data-testid="stRadioOption"]:not([data-selected="true"]) > div > div:first-child { box-shadow: inset 0 0 0 1.5px var(--ring); }
 
 [data-testid="stHeaderActionElements"] { display: none !important; }
 
-/* Про нас: картки в рядку однакової висоти. */
+/* About: cards in a row of equal height. */
 [data-testid="stHorizontalBlock"]:has([class*="st-key-card-how"]) { align-items: stretch; }
 [data-testid="stColumn"]:has([class*="st-key-card-how"]) > [data-testid="stVerticalBlock"] { height: 100%; }
 [class*="st-key-card-how"] { height: 100%; }

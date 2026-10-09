@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   snapshot:
-    # Щоденний знімок; у неділю о 04:30 працює лише блок skills
+    # Daily snapshot; on Sunday at 04:30 only the skills block runs
     if: ${{ github.event_name == 'schedule' && github.event.schedule == '0 3 * * *' || github.event_name == 'workflow_dispatch' && inputs.mode == 'snapshot' }}
     runs-on: ubuntu-latest
     permissions:
@@ -41,7 +41,7 @@ jobs:
 
   skills:
     if: ${{ github.event_name == 'schedule' && github.event.schedule == '30 4 * * 0' || github.event_name == 'workflow_dispatch' && inputs.mode == 'skills' }}
-    # Лише читання: тут виконується код репозиторію, скрипти й evals
+    # Read-only: the repository code, scripts and evals run here
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -78,7 +78,7 @@ jobs:
           include-hidden-files: true
 
   skills-pr:
-    # Успадковує умову розкладу через needs (якщо skills пропущено, цей job теж пропущено)
+    # Inherits the schedule condition via needs (if skills is skipped, this job is skipped too)
     needs: skills
     if: ${{ needs.skills.result == 'success' }}
     runs-on: ubuntu-latest

@@ -1,4 +1,4 @@
-"""Захисти з аудиту безпеки: екранування тексту моделі, ліміт запиту, загальні помилки бази."""
+"""Protections from the security audit: escaping of model text, request limit, generic database errors."""
 
 import pytest
 
@@ -15,7 +15,7 @@ def test_md_escape_neutralises_links_images_and_html():
     evil = "See ![x](https://evil.example/p?d=a@b.c) and [verify](https://evil.example) <img src=x>"
     out = md_escape(evil)
     assert "](" not in out and "![" not in out and "\\<img" in out
-    assert "`https://evil.example/p?d=a@b.c)`" in out  # адреса видна, але як код, не посилання
+    assert "`https://evil.example/p?d=a@b.c)`" in out  # the address is visible, but as code, not a link
     assert md_escape("Grew sales 20% - see www.site.com") == "Grew sales 20% \\- see `www.site.com`"
 
 
@@ -46,7 +46,7 @@ def test_lost_facts_flags_numbers_dropped_by_a_rewrite():
     before = "- Ran a loyalty campaign for 3 cafes that grew repeat customers from 18% to 26% in two months"
     assert lost_facts(before, "- Managed social media for [N] locations, growing engagement by [X]%") == ["3", "18%", "26%"]
     assert lost_facts(before, "- Grew repeat customers at 3 cafes from 18% to 26% in two months with a loyalty campaign") == []
-    assert lost_facts(before, "") == []  # видалення перевіряється окремо, вердиктом cut
+    assert lost_facts(before, "") == []  # deletion is checked separately, with the verdict cut
 
 
 def test_fact_checker_accepts_ukrainian_names():

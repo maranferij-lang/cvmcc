@@ -10,7 +10,7 @@ toolbarMode = "minimal"
 showErrorDetails = "none"
 
 [theme]
-# Без base: апка бере світлу чи темну тему з системи користувача.
+# Without base: the app takes the light or dark theme from the user's system.
 font = "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
 headingFont = "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
 baseRadius = "6px"

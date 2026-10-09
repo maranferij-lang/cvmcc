@@ -1,4 +1,4 @@
-"""Вхід через Google."""
+"""Sign-in with Google."""
 
 import streamlit as st
 

@@ -1,8 +1,8 @@
-"""Ринок навичок: знімок вакансій -> cvmax_skill_demand і cvmax/rubrics/market/<напрям>.md.
+"""Skills market: job snapshot -> cvmax_skill_demand and cvmax/rubrics/market/<direction>.md.
 
-Запуск:  python scripts/learn_market.py --days 30
-         python scripts/learn_market.py --dry-run
-Потрібні змінні: SUPABASE_URL, SUPABASE_KEY, CVMAX_DB_TOKEN і ключ моделі (GEMINI_API_KEY тощо).
+Run:  python scripts/learn_market.py --days 30
+      python scripts/learn_market.py --dry-run
+Required variables: SUPABASE_URL, SUPABASE_KEY, CVMAX_DB_TOKEN and a model key (GEMINI_API_KEY etc.).
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from cvmax.llm import LLMError, make_llm  # noqa: E402
 
 MAX_POSTINGS = 300
 MIN_POSTINGS = 20
-MIN_COVERAGE = 0.8  # частка вакансій, що пройшли витяг навичок; нижче — регіон пропускаємо
+MIN_COVERAGE = 0.8  # the share of postings that passed skill extraction; below it we skip the region
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -38,7 +38,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def collect_postings(db: Any, program: str, region: str, days: int) -> list[dict]:
-    """Вакансії за всіма запитами напряму, без дублів за посиланням, не більше MAX_POSTINGS."""
+    """Postings across all queries of a direction, without duplicates by link, no more than MAX_POSTINGS."""
     seen: set[str] = set()
     out: list[dict] = []
     for query in ROLE_QUERIES.get(program, []):
@@ -47,13 +47,13 @@ def collect_postings(db: Any, program: str, region: str, days: int) -> list[dict
             if not key or key in seen:
                 continue
             seen.add(key)
-            out.append({**r, "id": str(len(out) + 1)})  # власні id: у MemoryDB вони позиційні й збігаються
+            out.append({**r, "id": str(len(out) + 1)})  # our own ids: in MemoryDB they are positional and match
     return out[:MAX_POSTINGS]
 
 
 def run_market(db: Any, llm: Any, programs: list[str], regions: list[str], days: int, today: str,
                market_dir: Path, dry_run: bool = False) -> dict:
-    """Повертає {'by_program': {program: {region: (total, rows)}}, 'written': [Path]}."""
+    """Returns {'by_program': {program: {region: (total, rows)}}, 'written': [Path]}."""
     by_program: dict[str, dict] = {}
     written: list[Path] = []
     for program in programs:
@@ -75,7 +75,7 @@ def run_market(db: Any, llm: Any, programs: list[str], regions: list[str], days:
                                        "postings": r["postings"], "total_postings": r["total_postings"],
                                        "window_days": days} for r in rows])
         by_program[program] = by_region
-        # Пропущені регіони (низьке покриття) лишаються в рубриці з попередніми даними з БД
+        # Skipped regions (low coverage) stay in the rubric with the previous data from the DB
         merged = dict(by_region)
         if not dry_run:
             for region in regions:

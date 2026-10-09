@@ -1,4 +1,4 @@
-"""GetCVmax: вебзастосунок. Запуск: streamlit run app.py"""
+"""GetCVmax: web app. Run: streamlit run app.py"""
 
 import streamlit as st
 
@@ -12,7 +12,7 @@ inject_css()
 home = st.Page("views/home.py", title="Home", icon=":material/home:", default=True)
 
 if is_logged_in() and needs_onboarding():
-    # Після першого входу: спершу коротке знайомство і профіль.
+    # After the first sign-in: a short introduction and the profile first.
     pages = {"": [st.Page("views/onboarding.py", title="Welcome", icon=":material/waving_hand:", default=True)]}
 else:
     main = [
@@ -36,6 +36,6 @@ else:
     }
 
 page = st.navigation(pages, position="top")
-# Назва вкладки браузера: що за сторінка і чий сайт.
+# Browser tab title: which page it is and whose site.
 st.set_page_config(page_title="GetCVmax: free AI CV coach that tailors your CV to the job" if page.title == "Home" else f"{page.title} · GetCVmax")
 page.run()

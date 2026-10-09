@@ -25,7 +25,7 @@ def test_aggregate_shares_and_top():
     by_id = {str(i): {"sql", "excel"} if i < 5 else {"python"} for i in range(10)}
     by_id["x"] = {"rare"}
     rows = aggregate(by_id, 100, min_share=0.03)
-    assert [r["skill"] for r in rows] == ["excel", "python", "sql"]  # рівні 5: за алфавітом; rare = 1% < 3%
+    assert [r["skill"] for r in rows] == ["excel", "python", "sql"]  # 5 levels: alphabetical; rare = 1% < 3%
     assert rows[0] == {"skill": "excel", "postings": 5, "total_postings": 100, "share": 0.05}
     many = {str(i): {f"s{j}" for j in range(30)} for i in range(10)}
     assert len(aggregate(many, 10, top=20)) == 20
@@ -48,7 +48,7 @@ def test_extract_skills_batches_and_survives_error():
     llm = FakeLLM(fail_call=2)
     out, covered = extract_skills(llm, postings, batch=25)
     assert len(llm.calls) == 3
-    assert len(out) == 35  # 25 + 10, середня партія пропущена
+    assert len(out) == 35  # 25 + 10, the middle batch skipped
     assert out["0"] == {"excel", "sql"}
     assert covered == {str(i) for i in range(60)} - {str(i) for i in range(25, 50)}
 
@@ -92,7 +92,7 @@ def test_run_snapshot_writes_rows_and_dry_run():
     assert len(calls) == len(market.ROLE_QUERIES["law"])
     assert calls[0].level == "Internship" and calls[0].region == "UK"
     assert summary == [{"program": "law", "region": "UK", "fetched": 12, "upserted": 12, "failed": 4}]
-    row = db.vacancies[("https://example.com/0", market.ROLE_QUERIES["law"][-1], "UK")]  # ключ MemoryDB: (url, role_family, region)
+    row = db.vacancies[("https://example.com/0", market.ROLE_QUERIES["law"][-1], "UK")]  # MemoryDB key: (url, role_family, region)
     assert row["region"] == "UK" and row["role_family"] == market.ROLE_QUERIES["law"][-1]
 
     db2 = MemoryDB()
@@ -121,7 +121,7 @@ def test_run_market_writes_file_only_with_enough_postings(tmp_path):
     assert "excel 100%" in (tmp_path / "law.md").read_text()
     saved = db.skill_demand("law", "UK")
     assert {r["skill"] for r in saved} == {"excel", "sql"} and saved[0]["total_postings"] == 25
-    assert db.skill_demand("other", "UK")  # дані зберігаються й для малих напрямів
+    assert db.skill_demand("other", "UK")  # data is stored for small directions too
 
     db2 = MemoryDB()
     db2.upsert_vacancies(rows)
@@ -138,13 +138,13 @@ def _law_db(n):
 
 
 def test_run_market_half_batches_failed_skips_region(tmp_path, capsys):
-    db = _law_db(100)  # 4 партії по 25
+    db = _law_db(100)  # 4 batches of 25
     llm = FakeLLM(fail_calls={2, 4})
     res = run_market(db, llm, ["law"], ["UK"], 30, "2026-01-02", tmp_path)
     assert len(llm.calls) == 4
     assert db.skill_demand("law", "UK") == [] and res["written"] == [] and not (tmp_path / "law.md").exists()
     assert "coverage 50%" in capsys.readouterr().out
-    # частка рахується від покритих вакансій
+    # the share is counted from the covered postings
     skills, covered = extract_skills(FakeLLM(fail_calls={2, 4}), [{"id": str(i), "title": "x"} for i in range(100)])
     assert len(covered) == 50 and aggregate(skills, len(covered))[0]["share"] == 1.0
 
@@ -161,7 +161,7 @@ def test_run_market_all_batches_failed_keeps_existing_file(tmp_path):
 
 
 def test_run_market_one_of_ten_batches_failed_keeps_region(tmp_path):
-    db = _law_db(250)  # 10 партій по 25
+    db = _law_db(250)  # 10 batches of 25
     res = run_market(db, FakeLLM(fail_calls={3}), ["law"], ["UK"], 30, "2026-01-02", tmp_path)
     saved = db.skill_demand("law", "UK")
     assert saved and all(r["total_postings"] == 225 and r["postings"] == 225 for r in saved)

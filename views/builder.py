@@ -1,4 +1,4 @@
-"""Конструктор CV: перше CV з нуля."""
+"""CV builder: a first CV from scratch."""
 
 import streamlit as st
 
@@ -23,7 +23,7 @@ demo_banner()
 if not consent("builder"):
     st.stop()
 
-# ---------- 1. Основне ----------
+# ---------- 1. Basics ----------
 with card("basics"):
     st.header("1. The basics")
     c1, c2 = st.columns(2)
@@ -46,7 +46,7 @@ with card("basics"):
     gpa = c1.text_input("GPA (optional)", max_chars=40, placeholder="3.7/4.0 or 92/100")
     target_role = c2.text_input("Target role (optional)", max_chars=120, value=profile_value("goal", ""))
 
-# ---------- 2. Про себе ----------
+# ---------- 2. About you ----------
 with card("story"):
     st.header("2. Tell us about yourself")
     notes = st.text_area(
@@ -70,7 +70,7 @@ ready = bool(full_name.strip() and email.strip() and len(notes.strip()) >= 30)
 if not ready:
     st.caption("To continue, enter your name and email and write at least a few sentences about yourself.")
 
-# ---------- 3. Інтерв'ю ----------
+# ---------- 3. Interview ----------
 st.header("3. A few questions")
 g: GrillSession | None = s.get("builder_grill")
 if g is None:
@@ -120,7 +120,7 @@ if st.button("Build my CV", type="primary" if g.pending is None else "secondary"
     except LLMError as e:
         st.error(str(e))
 
-# ---------- 4. Результат ----------
+# ---------- 4. Result ----------
 cv = s.get("builder_cv")
 if cv is None:
     st.stop()

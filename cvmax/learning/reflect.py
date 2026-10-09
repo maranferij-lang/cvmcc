@@ -1,4 +1,4 @@
-"""Тижнева рефлексія: з відгуків студентів у короткі уроки для рубрики. Чисті функції, без мережі."""
+"""Weekly reflection: from student feedback into short lessons for the rubric. Pure functions, no network."""
 from __future__ import annotations
 
 import json
@@ -12,22 +12,22 @@ from .. import config
 from ..llm import ask_structured
 
 REMOVED = "[removed]"
-MAX_EXAMPLES = 8  # залишено для сумісності; приклади у файли уроків більше не пишемо
+MAX_EXAMPLES = 8  # kept for compatibility; we no longer write examples into lesson files
 MAX_PATTERNS = 8
-MAX_TEXT = 300  # довжина одного фрагмента before/after у запиті й у файлі уроків
+MAX_TEXT = 300  # length of one before/after fragment in the request and in the lesson file
 LEARNED_MAX_CHARS = 2500
 MIN_RATINGS_REVERT = 30
 REVERT_DROP = 0.10
-VARIANT_MIN, VARIANT_MAX = 300, 1500  # трохи ширше за прохання до моделі (500-1200)
+VARIANT_MIN, VARIANT_MAX = 300, 1500  # slightly wider than the request to the model (500-1200)
 
 
-# Закритий словник секцій: вільний текст із CV не потрапляє в ключі статистики й у публічний звіт.
+# A closed vocabulary of sections: free text from a CV does not end up in the statistics keys or in the public report.
 SECTION_VOCAB = ("summary", "experience", "education", "projects", "skills", "leadership", "activities",
                  "volunteering", "awards", "languages", "certifications", "interests", "personal", "other")
 
 
 def canonical_section(text: str | None) -> str:
-    """Перше слово словника, що зустрілось у тексті (без урахування регістру), інакше "other"."""
+    """The first word of the vocabulary found in the text (case-insensitive), otherwise "other"."""
     for word in re.findall(r"[a-z]+", (text or "").lower()):
         if word in SECTION_VOCAB:
             return word
@@ -48,7 +48,7 @@ class LessonsReport(BaseModel):
     proposed_variant: str | None = None
 
 
-# ---------- очищення тексту ----------
+# ---------- text cleaning ----------
 
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 _URL = re.compile(
@@ -64,7 +64,7 @@ def _phone_sub(m: re.Match) -> str:
 
 
 def scrub(text: str) -> str:
-    """Прибирає email, посилання й телефони."""
+    """Removes emails, links and phone numbers."""
     text = _EMAIL.sub(REMOVED, text or "")
     text = _URL.sub(REMOVED, text)
     return _PHONE.sub(_phone_sub, text)
@@ -74,7 +74,7 @@ def _has_contact(text: str) -> bool:
     return bool(_EMAIL.search(text) or _URL.search(text))
 
 
-# ---------- статистика ----------
+# ---------- statistics ----------
 
 def _rate(hit: int, total: int) -> float:
     return round(hit / total, 3) if total else 0.0
@@ -111,7 +111,7 @@ def _finish_rates(table: dict, depth: int, hit: str = "accepted") -> None:
 
 
 def _latest_by_analysis(events: list[dict], kind: str) -> dict[str, dict]:
-    """Остання подія виду kind для кожного analysis_id (події йдуть від нових до старих)."""
+    """The latest event of the given kind for each analysis_id (events go from newest to oldest)."""
     out: dict[str, dict] = {}
     for e in events:
         if e.get("kind") != kind:
@@ -124,7 +124,7 @@ def _latest_by_analysis(events: list[dict], kind: str) -> dict[str, dict]:
 
 
 def _version_order(done_events: list[dict], field: str = "knowledge_version") -> list[str]:
-    """Версії знань від старої до нової за часом першої появи (без часу: за позицією у списку)."""
+    """Knowledge versions from old to new by time of first appearance (without time: by position in the list)."""
     first: OrderedDict[str, tuple] = OrderedDict()
     n = len(done_events)
     for i, e in enumerate(done_events):
@@ -138,7 +138,7 @@ def _version_order(done_events: list[dict], field: str = "knowledge_version") ->
 
 
 def summarise(export: dict) -> dict:
-    """Зводить learning_export у таблиці для звіту й для рефлексії."""
+    """Turns learning_export into tables for the report and for reflection."""
     edits = export.get("edit_feedback") or []
     events = export.get("events") or []
     by_section: dict = {}
@@ -167,7 +167,7 @@ def summarise(export: dict) -> dict:
         signals[program] = signals.get(program, 0) + 1
         _counter(by_variant, d.get("variant") or "?", hit=up)
         _counter(by_version, d.get("knowledge_version") or "?", hit=up)
-        if d.get("lessons_version"):  # старі події без поля не порівнюємо
+        if d.get("lessons_version"):  # old events without the field are not compared
             _counter(by_lessons, d["lessons_version"], hit=up)
     for table in (by_variant, by_version, by_lessons):
         _finish_rates(table, 1)
@@ -194,8 +194,8 @@ def summarise(export: dict) -> dict:
         if e.get("kind") == "grill_turn":
             grill["answered" if _truthy(p.get("answered")) else "skipped"] += 1
         elif e.get("kind") == "outcome" and not p.get("analysis_id") and p.get("answer") in outcomes:
-            outcomes[p["answer"]] += 1  # події без analysis_id не можна звести до однієї відповіді
-    for p in _latest_by_analysis(events, "outcome").values():  # лише остання відповідь на аналіз
+            outcomes[p["answer"]] += 1  # events without analysis_id cannot be reduced to one answer
+    for p in _latest_by_analysis(events, "outcome").values():  # only the latest answer per analysis
         if p.get("answer") in outcomes:
             outcomes[p["answer"]] += 1
 
@@ -218,7 +218,7 @@ def summarise(export: dict) -> dict:
 
 
 def program_stats(stats: dict, program: str) -> dict:
-    """Частина статистики, що стосується однієї сфери (для запиту до моделі)."""
+    """The part of the statistics that concerns one field (for the request to the model)."""
     return {
         "accept_by_section": stats.get("accept_by_section", {}).get(program, {}),
         "accept_by_priority": stats.get("accept_by_priority", {}).get(program, {}),
@@ -229,12 +229,12 @@ def program_stats(stats: dict, program: str) -> dict:
 
 
 def sample_edits(export: dict, program: str, n: int = 40, per_analysis: int = 3) -> tuple[list[dict], list[dict]]:
-    """Прийняті й відхилені правки сфери, найновіші спочатку, без порожніх і з плейсхолдерами."""
+    """Accepted and rejected edits of a field, newest first, without empty ones and with placeholders."""
     rows = [r for r in (export.get("edit_feedback") or []) if (r.get("program") or "other") == program]
     rows.sort(key=lambda r: str(r.get("created_at") or ""), reverse=True)
     accepted: list[dict] = []
     rejected: list[dict] = []
-    seen: dict[str, int] = {}  # не більше per_analysis правок з одного аналізу: один CV не домінує
+    seen: dict[str, int] = {}  # no more than per_analysis edits from one analysis: one CV does not dominate
     for r in rows:
         aid = str(r.get("analysis_id") or "")
         if aid and seen.get(aid, 0) >= per_analysis:
@@ -253,7 +253,7 @@ def sample_edits(export: dict, program: str, n: int = 40, per_analysis: int = 3)
     return accepted, rejected
 
 
-# ---------- запит до моделі ----------
+# ---------- request to the model ----------
 
 def reflect_system(program: str, stats_for_program: dict) -> str:
     data = json.dumps(stats_for_program, ensure_ascii=False, indent=1)
@@ -289,11 +289,11 @@ def _block(title: str, items: list[dict]) -> str:
     return "\n".join(lines)
 
 
-NGRAM = 6  # спільна послідовність із такої кількості слів з правок = цитата з CV
+NGRAM = 6  # a shared sequence of this many words from the edits = a quote from the CV
 _WORD = re.compile(r"[\w'’-]+", re.U)
 _CAP = re.compile(r"^[A-ZА-ЯІЇЄҐ]")
 _SENTENCE = re.compile(r"(?<=[.!?])\s+")
-# Відомі назви інструментів і термінів: їх можна писати з великої літери.
+# Known names of tools and terms: they may be capitalized.
 PROPER_ALLOW = frozenset({
     "excel", "sql", "python", "java", "javascript", "typescript", "linkedin", "github", "git", "word",
     "powerpoint", "figma", "jira", "react", "docker", "linux", "cv", "ai", "gpa", "ats", "stem", "it",
@@ -310,7 +310,7 @@ def _ngrams(words: list[str], n: int = NGRAM) -> set[tuple[str, ...]]:
 
 
 def source_ngrams(source_texts: list[str]) -> set[tuple[str, ...]]:
-    """6-грами усіх before/after вибірки (без урахування регістру)."""
+    """6-grams of all before/after of the sample (case-insensitive)."""
     grams: set[tuple[str, ...]] = set()
     for t in source_texts:
         grams |= _ngrams(_words(t))
@@ -318,7 +318,7 @@ def source_ngrams(source_texts: list[str]) -> set[tuple[str, ...]]:
 
 
 def _has_proper_noun(sentence: str) -> bool:
-    """Два слова з великої літери поспіль (або через дефіс) не з allowlist, крім першого слова речення."""
+    """Two capitalized words in a row (or joined by a hyphen) not in the allowlist, except the first word of a sentence."""
     tokens = _WORD.findall(sentence)
     prev_cap = False
     for i, tok in enumerate(tokens):
@@ -338,13 +338,13 @@ def _leaks(sentence: str, grams: set[tuple[str, ...]]) -> bool:
 
 
 MAX_SENTENCE = 300
-# Фрази, яких не місце в уроках: назви сертифікатів/курсів і спроби змінити правила коуча.
+# Phrases that do not belong in lessons: names of certificates/courses and attempts to change the coach's rules.
 _FORBIDDEN = ("certificate", "certification", "course", "always", "never approve", "must not",
               "ignore", "instruction", "system prompt", "rule:")
 
 
 def _strict_bad(sentence: str) -> bool:
-    """Суворий фільтр проти ін'єкцій: довге речення, заборонені фрази або власна назва не з allowlist."""
+    """A strict anti-injection filter: a long sentence, forbidden phrases or a proper name not in the allowlist."""
     low = sentence.lower()
     if len(sentence) > MAX_SENTENCE or any(f in low for f in _FORBIDDEN):
         return True
@@ -353,14 +353,14 @@ def _strict_bad(sentence: str) -> bool:
 
 
 def _safe_text(text: str, grams: set[tuple[str, ...]]) -> str:
-    """Лишає лише ті речення, що не цитують CV, не містять власних назв і проходять суворий фільтр."""
+    """Keeps only the sentences that do not quote the CV, contain no proper names and pass the strict filter."""
     parts = [x for x in _SENTENCE.split(text.strip()) if x]
     return " ".join(x for x in parts if not _leaks(x, grams) and not _strict_bad(x)).strip()
 
 
 def _clean_report(report: LessonsReport, source_texts: list[str] | None = None) -> LessonsReport:
-    # Реальні рядки CV не повинні потрапляти у git і в промпт інших користувачів: приклади відкидаємо,
-    # а підсумок і патерни перевіряємо на збіги з текстом правок та на власні назви.
+    # Real CV lines must not end up in git or in other users' prompts: we drop the examples,
+    # and check the summary and patterns for matches with the edit text and for proper names.
     grams = source_ngrams(source_texts or [])
     examples: list[Example] = []
     variant = report.proposed_variant
@@ -377,7 +377,7 @@ def _clean_report(report: LessonsReport, source_texts: list[str] | None = None) 
 
 
 def reflect(llm: Any, program: str, stats: dict, accepted: list[dict], rejected: list[dict]) -> LessonsReport:
-    """Питає модель про уроки й чистить відповідь від контактів."""
+    """Asks the model about lessons and cleans the answer of contact details."""
     content = [{"type": "text", "text": _block("ACCEPTED", accepted) + "\n\n" + _block("REJECTED", rejected)}]
     report = ask_structured(llm, system=reflect_system(program, stats), content=content,
                             output_model=LessonsReport, effort=config.EFFORT_ANALYSIS)
@@ -385,10 +385,10 @@ def reflect(llm: Any, program: str, stats: dict, accepted: list[dict], rejected:
     return _clean_report(report, texts)
 
 
-# ---------- вивід ----------
+# ---------- output ----------
 
 def render_learned(program: str, report: LessonsReport, n_signals: int, date_str: str) -> str:
-    """Markdown для rubrics/learned/<program>.md, не довше LEARNED_MAX_CHARS."""
+    """Markdown for rubrics/learned/<program>.md, no longer than LEARNED_MAX_CHARS."""
     header = (f"<!-- generated by scripts/learn.py on {date_str} from {n_signals} signals; "
               "edit by hand only if you also update the date -->")
 
@@ -406,10 +406,10 @@ def render_learned(program: str, report: LessonsReport, n_signals: int, date_str
 
 
 def revert_if_worse(stats: dict, current_lessons: str | None = None) -> tuple[bool, str]:
-    """Чи впала частка лайків після зміни самих уроків (хеш learned/*.md), а не ринку чи варіантів.
+    """Whether the share of likes dropped after a change of the lessons themselves (hash of learned/*.md), not of the market or variants.
 
-    current_lessons: хеш уроків у поточному checkout; якщо він не збігається з найновішою
-    версією у даних, пара застаріла (уроки вже відкотили чи змінили) і відкату не буде.
+    current_lessons: the lessons hash in the current checkout; if it does not match the latest
+    version in the data, the pair is stale (the lessons were already rolled back or changed) and there will be no rollback.
     """
     thumbs = stats.get("thumbs_by_lessons", {})
     order = [v for v in stats.get("lessons_order", []) if v in thumbs]

@@ -1,4 +1,4 @@
-"""Словник подій навчання. Payload не може містити текст CV."""
+"""Dictionary of learning events. A payload must not contain CV text."""
 from __future__ import annotations
 
 import json
@@ -38,7 +38,7 @@ MAX_STR_CHARS = 200
 
 
 def _clean(value):
-    """Повертає очищене значення або _DROP, якщо тип не дозволений."""
+    """Returns the cleaned value, or _DROP if the type is not allowed."""
     if value is None or isinstance(value, (bool, int, float)):
         return value
     if isinstance(value, str):
@@ -52,7 +52,7 @@ _DROP = object()
 
 
 def make_payload(kind: str, /, **fields) -> dict:
-    """Будує безпечний payload: лише дозволені поля й прості типи."""
+    """Builds a safe payload: only allowed fields and simple types."""
     if kind not in KINDS:
         raise ValueError(f"unknown event kind: {kind!r}")
     allowed = ALLOWED_FIELDS[kind]

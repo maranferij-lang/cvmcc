@@ -1,7 +1,7 @@
-"""Перетворення готового тексту CV на структуру для оформлення (PDF, DOCX).
+"""Turning a finished CV text into a structure for layout (PDF, DOCX).
 
-Модель тут нічого не переписує: вона лише розкладає текст по розділах. Після цього код перевіряє,
-що кожен пункт є в початковому тексті майже дослівно, і повертає список тих, яких немає.
+The model rewrites nothing here: it only arranges the text into sections. After that the code checks
+that every item is in the original text almost verbatim, and returns a list of those that are not.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def _norm(text: str) -> str:
 
 
 def changed_bullets(cv_text: str, cv: BuiltCV, threshold: float = 0.92) -> list[str]:
-    """Пункти, яких немає в початковому тексті майже дослівно. Порожній список = нічого не змінено."""
+    """Items that are not in the original text almost verbatim. An empty list = nothing was changed."""
     source = _norm(cv_text)
     bullets = [d for e in cv.education for d in e.details]
     for group in (cv.experience, cv.projects, cv.activities):
@@ -58,7 +58,7 @@ def changed_bullets(cv_text: str, cv: BuiltCV, threshold: float = 0.92) -> list[
         b = _norm(bullet)
         if not b or b in source:
             continue
-        # Шукаємо найсхожіший шматок такої ж довжини.
+        # We look for the most similar piece of the same length.
         n = len(b)
         best = max(
             (difflib.SequenceMatcher(None, b, source[i : i + n]).ratio() for i in range(0, max(1, len(source) - n + 1), 20)),

@@ -1,4 +1,4 @@
-"""Thompson sampling над варіантами промпту з автовідключенням невдах. Чисті функції."""
+"""Thompson sampling over prompt variants with automatic shutdown of losers. Pure functions."""
 from __future__ import annotations
 
 import json
@@ -22,11 +22,11 @@ class Variant:
     id: str
     active: bool
     text: str
-    programs: tuple[str, ...] = ()  # порожньо = для всіх сфер
+    programs: tuple[str, ...] = ()  # empty = for all fields
 
 
 def load_variants(task: str, directory: Path | None = None) -> list[Variant]:
-    """Читає <directory>/<task>.json; при помилці повертає []."""
+    """Reads <directory>/<task>.json; on error returns []."""
     path = Path(directory or VARIANTS_DIR) / f"{task}.json"
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -50,7 +50,7 @@ def variant_text(task: str, variant_id: str, directory: Path | None = None) -> s
 
 
 def summarise(stats: list[dict], program: str) -> dict[str, tuple[int, int]]:
-    """Для кожного варіанта: рядок програми, якщо випробувань досить, інакше сума по всіх."""
+    """For each variant: the program's row if there are enough trials, otherwise the sum over all."""
     totals: dict[str, list[int]] = {}
     own: dict[str, tuple[int, int]] = {}
     for row in stats:
@@ -70,7 +70,7 @@ def summarise(stats: list[dict], program: str) -> dict[str, tuple[int, int]]:
 
 
 def disabled_variants(summary: dict) -> set[str]:
-    """Варіанти, що помітно гірші за найкращий; останній варіант не вимикається."""
+    """Variants that are clearly worse than the best one; the last variant is never switched off."""
     means = {
         vid: s / (s + f)
         for vid, (s, f) in summary.items()
@@ -88,8 +88,8 @@ def choose_variant(task: str, program: str, stats: list[dict],
     rng = rng or random.Random()
     variants = load_variants(task, directory)
     summary = summarise(stats, program)
-    # Спершу кандидати (активні й доступні для програми), лише потім правило вимкнення:
-    # варіанти, що не можуть обслуговувати цю програму, не впливають на «найкращого».
+    # First the candidates (active and available for the program), only then the shutdown rule:
+    # variants that cannot serve this program do not affect the "best" one.
     cands = [v.id for v in variants if v.active and (not v.programs or program in v.programs)]
     off = disabled_variants({k: summary[k] for k in cands if k in summary})
     eligible = [v for v in cands if v not in off]

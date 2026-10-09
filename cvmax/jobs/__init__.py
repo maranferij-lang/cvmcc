@@ -1,4 +1,4 @@
-"""Пошук вакансій: моделі, HTTP-шар, провайдери, маршрутизація та LLM-ранжування."""
+"""Job search: models, HTTP layer, providers, routing and LLM ranking."""
 from __future__ import annotations
 
 from cvmax.jobs.demo import demo_search_result

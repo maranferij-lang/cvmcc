@@ -1,4 +1,4 @@
-"""Повний аналіз CV під ціль."""
+"""Full CV review for a goal."""
 
 from __future__ import annotations
 
@@ -13,9 +13,9 @@ from .prompts import analysis_system
 from .schemas import Analysis
 
 
-ONE_PAGE_WORDS = 650  # приблизно стільки влазить на сторінку A4 щільного студентського CV
+ONE_PAGE_WORDS = 650  # roughly this much fits on an A4 page of a dense student CV
 
-# Поради поза CV, які модель іноді дає попри заборону: вони корисні всім і нічого не кажуть про це CV.
+# Advice outside the CV that the model sometimes gives despite a ban: it is useful to everyone and says nothing about this CV.
 _OFF_TOPIC_GAP = re.compile(
     r"network|coffee|informational interview|referral|mentor|linkedin (activity|posts|connections)|"
     r"apply to more|soft skill|нетворк|кава",
@@ -26,7 +26,7 @@ _MONTHS = {m[:3]: m for m in ("january", "february", "march", "april", "may", "j
 
 
 def _skeleton(text: str) -> str:
-    """Текст без форматування: лише слова й числа, місяці в повній формі."""
+    """Text without formatting: only words and numbers, months in full form."""
     words = re.findall(r"[a-zа-яіїєґ]+|\d+", text.lower())
     return " ".join(_MONTHS.get(w[:3], w) if w[:3] in _MONTHS and len(w) <= 9 else w for w in words)
 
@@ -35,14 +35,14 @@ _DATE_WORDS = re.compile(r"\b(\d{4}|\d{1,2}|(%s)[a-z]*|expected|present|current|
 
 
 def _no_dates(text: str) -> str:
-    text = re.sub(r"\[[^\]]*\?\]", " ", text)  # «[Sep 2024?]» і подібні питання моделі
+    text = re.sub(r"\[[^\]]*\?\]", " ", text)  # "[Sep 2024?]" and similar questions from the model
     return " ".join(_DATE_WORDS.sub(" ", _skeleton(text)).split())
 
 
 def is_cosmetic(before: str, after: str) -> bool:
-    """Правка змінює лише формат або дати (тире, регістр, пробіли, роки), а не зміст.
+    """The edit changes only format or dates (dashes, case, spaces, years), not meaning.
 
-    Дати модель «виправляє» найчастіше, бо не знає сьогоднішнього дня. Їх юзер знає краще.
+    The model "fixes" dates most often because it does not know today's date. The user knows them better.
     """
     if not (before.strip() and after.strip()):
         return False
@@ -56,14 +56,14 @@ _ALREADY = {
 
 
 def drop_noise(result: Analysis, language: str = "English") -> Analysis:
-    """Прибирає косметичні правки й поради, які не стосуються CV."""
+    """Removes cosmetic edits and advice that does not concern the CV."""
     cosmetic = [e for e in result.edits if is_cosmetic(e.before, e.after)]
     result.edits = [e for e in result.edits if e not in cosmetic]
     gone = {e.before.strip() for e in cosmetic}
     result.line_review = [v for v in result.line_review
                           if not (v.verdict == "rewrite" and any(v.line.strip()[:40] in b for b in gone))]
     result.gaps = [g for g in result.gaps if not _OFF_TOPIC_GAP.search(f"{g.item} {g.how_to_close}")]
-    # Навичка, про яку правка вже питає «[SQL?]», можливо, просто не вписана: не кажемо «вивчи».
+    # A skill that the edit already asks about as "[SQL?]" may simply be not written down: we do not say "learn it".
     asked = " ".join(re.findall(r"\[([^\]]*\?)\]", " ".join(e.after for e in result.edits))).lower()
     prefix = _ALREADY.get(language, _ALREADY["English"])
     for g in result.gaps:
@@ -74,7 +74,7 @@ def drop_noise(result: Analysis, language: str = "English") -> Analysis:
 
 
 def length_note(cv: CVFile) -> str:
-    """Підказка моделі про довжину: скільки треба скоротити, щоб влізти на одну сторінку."""
+    """A hint to the model about length: how much to shorten to fit on one page."""
     words = cv.word_count
     if words == 0:
         return ""
@@ -103,7 +103,7 @@ def analyze_cv(client: Any, profile: Profile, cv: CVFile, addendum: str = "") ->
         output_model=Analysis,
         effort=config.EFFORT_ANALYSIS,
     )
-    # Схема не обмежує діапазони чисел, тому підрізаємо тут.
+    # The schema does not limit number ranges, so we clip them here.
     result.overall_score = max(0, min(100, result.overall_score))
     for s in result.scores:
         s.score = max(1, min(5, s.score))

@@ -1,4 +1,4 @@
-"""LinkedIn: лише посилання на пошук. Автоматичний доступ заборонено Угодою користувача."""
+"""LinkedIn: search link only. Automated access is forbidden by the User Agreement."""
 from __future__ import annotations
 
 from urllib.parse import quote_plus, urlencode

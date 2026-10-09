@@ -1,10 +1,10 @@
-"""Дані з онбордингу: хто юзер і куди він хоче."""
+"""Onboarding data: who the user is and where they want to go."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-# Напрями навчання, під які є окремі рубрики. Ключ = ім'я файлу в cvmax/rubrics/.
+# Fields of study that have their own rubrics. Key = file name in cvmax/rubrics/.
 PROGRAMS: dict[str, str] = {
     "economics_big_data": "Economics & data science",
     "business_economics": "Business & economics",
@@ -48,19 +48,19 @@ FEEDBACK_LANGUAGES = {"English": "English", "Українська": "Ukrainian"}
 
 @dataclass
 class Profile:
-    program: str  # ключ із PROGRAMS
+    program: str  # a key from PROGRAMS
     status: str
-    background: str  # де вчиться / працює / працювала, вільним текстом
+    background: str  # where they study / work / worked, free text
     target_role: str
     company_type: str
-    company_details: str  # конкретна компанія, індустрія, продукт
+    company_details: str  # a specific company, industry, product
     level: str
     region: str
     vacancy_text: str
-    feedback_language: str  # "English" або "Ukrainian"
+    feedback_language: str  # "English" or "Ukrainian"
 
     def target_clarity(self) -> tuple[str, str]:
-        """Наскільки чітко описана ціль. Від цього прямо залежить якість порад."""
+        """How clearly the goal is described. The quality of the advice depends on this directly."""
         if len(self.vacancy_text.strip()) >= 300:
             return "high", "You added a job posting, so the advice will match its requirements."
         specific_company = self.company_type not in (ANY_COMPANY, "Other") or self.company_details.strip()

@@ -1,4 +1,4 @@
-"""Оформлення зібраного CV: DOCX для завантаження і Markdown для перегляду."""
+"""Layout of the assembled CV: DOCX for download and Markdown for preview."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def _bottom_border(paragraph) -> None:
     for key, value in {"w:val": "single", "w:sz": "6", "w:space": "1", "w:color": "444444"}.items():
         bottom.set(qn(key), value)
     borders.append(bottom)
-    # Word вимагає строгого порядку елементів у w:pPr: межі йдуть перед shd, tabs, spacing, ind, jc тощо.
+    # Word requires a strict order of elements in w:pPr: borders go before shd, tabs, spacing, ind, jc and so on.
     p_pr.insert_element_before(
         borders, "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct",
         "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid",
@@ -43,7 +43,7 @@ def _spacing(paragraph, before: float = 0, after: float = 0) -> None:
 
 
 def split_gpa(details: list[str]) -> tuple[str, list[str]]:
-    """Короткий рядок з GPA виносимо праворуч у рядок ступеня, як у класичних CV."""
+    """A short GPA line is moved to the right of the degree line, as in classic CVs."""
     for i, d in enumerate(details):
         if d.strip().upper().startswith("GPA") and len(d) <= 30:
             return d.strip(), details[:i] + details[i + 1 :]
@@ -51,7 +51,7 @@ def split_gpa(details: list[str]) -> tuple[str, list[str]]:
 
 
 def has_placeholders(cv: BuiltCV) -> list[str]:
-    """Заповнювачі на кшталт [X] чи github.com/..., які юзер ще не замінив."""
+    """Placeholders like [X] or github.com/... that the user has not replaced yet."""
     texts = cv.contact_line + [cv.summary]
     for group in (cv.experience, cv.projects, cv.activities):
         texts += [b for e in group for b in e.bullets]
@@ -158,7 +158,7 @@ def render_docx(cv: BuiltCV) -> bytes:
 
 
 def render_markdown(cv: BuiltCV) -> str:
-    """CV як Markdown для показу на сайті. Усі поля екрановані: це текст від моделі."""
+    """The CV as Markdown for display on the site. All fields are escaped: this is text from the model."""
     m = md_escape
     out = [f"## {m(cv.full_name)}", " \\| ".join(m(c) for c in cv.contact_line), ""]
     if cv.summary.strip():
@@ -199,7 +199,7 @@ def render_markdown(cv: BuiltCV) -> str:
 
 
 def render_pdf(cv: BuiltCV) -> bytes:
-    """Оформлене CV у PDF: A4, один стовпчик, без таблиць і картинок, текст виділяється (ATS)."""
+    """The laid-out CV as PDF: A4, one column, no tables or images, selectable text (ATS)."""
     from fpdf import FPDF
 
     pdf = FPDF(format="A4", unit="mm")
@@ -296,7 +296,7 @@ def render_pdf(cv: BuiltCV) -> bytes:
 
 
 def pdf_preview(pdf: bytes, scale: float = 1.6) -> list[bytes]:
-    """Сторінки PDF як PNG, щоб показати CV на сайті таким, яким його завантажать."""
+    """PDF pages as PNG, to show the CV on the site as it will be downloaded."""
     import pypdfium2 as pdfium
 
     doc = pdfium.PdfDocument(pdf)

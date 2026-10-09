@@ -1,8 +1,8 @@
-"""Тижнева рефлексія: відгуки студентів -> rubrics/learned/<сфера>.md, звіт і нові варіанти промпту.
+"""Weekly reflection: student feedback -> rubrics/learned/<field>.md, a report and new prompt variants.
 
-Запуск:  python scripts/learn.py --days 30
-         python scripts/learn.py --dry-run          # лише показати, нічого не писати
-Потрібні змінні: SUPABASE_URL, SUPABASE_KEY, CVMAX_DB_TOKEN і ключ моделі (GEMINI_API_KEY тощо).
+Run:  python scripts/learn.py --days 30
+      python scripts/learn.py --dry-run          # only show, write nothing
+Required variables: SUPABASE_URL, SUPABASE_KEY, CVMAX_DB_TOKEN and a model key (GEMINI_API_KEY etc.).
 """
 from __future__ import annotations
 
@@ -26,10 +26,10 @@ from cvmax.learning.version import lessons_version  # noqa: E402
 from cvmax.llm import LLMError, make_llm  # noqa: E402
 from cvmax.profile import PROGRAMS  # noqa: E402
 
-MAX_VARIANTS = 5    # рахуємо всі активні та всі auto-* (в очікуванні людини) варіанти
+MAX_VARIANTS = 5    # we count all active and all auto-* (awaiting a human) variants
 log = logging.getLogger(__name__)
-MIN_USERS = 10      # скільки різних користувачів потрібно сфері, щоб писати уроки для всіх
-MIN_ANALYSES = 20   # і скільки різних аналізів
+MIN_USERS = 10      # how many different users a field needs for us to write lessons for everyone
+MIN_ANALYSES = 20   # and how many different analyses
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -48,12 +48,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def append_variant(variants_path: Path, program: str, text: str, date_str: str,
                    off: frozenset[str] | set[str] = frozenset(), notes: list[str] | None = None) -> str | None:
-    """Додає варіант у JSON (неактивний: вмикає лише людина). Повертає id або None.
+    """Adds a variant to the JSON (inactive: only a human turns it on). Returns the id or None.
 
-    Ліміт MAX_VARIANTS рахує усі активні варіанти й усі auto-*. Якщо для цієї сфери вже є
-    неактивний auto-* варіант, його текст і id замінюються (нова дата), а не додається ще один.
-    Коли ліміт досягнуто і такого варіанта немає, нічого не додаємо й пишемо примітку в notes.
-    Параметр off лишено для сумісності: рішення бандита ліміт не змінюють.
+    The MAX_VARIANTS limit counts all active variants and all auto-* ones. If this field already has an
+    inactive auto-* variant, its text and id are replaced (new date) instead of adding another one.
+    When the limit is reached and there is no such variant, we add nothing and write a note in notes.
+    The off parameter is kept for compatibility: the bandit's decisions do not change the limit.
     """
     data = json.loads(variants_path.read_text(encoding="utf-8"))
     items = data.get("variants", [])
@@ -77,7 +77,7 @@ def append_variant(variants_path: Path, program: str, text: str, date_str: str,
 
 
 def variant_totals(stats: list[dict]) -> dict[str, tuple[int, int]]:
-    """Справжні суми успіхів/невдач по варіанту за всіма рядками (без підміни рядком програми)."""
+    """Real sums of successes/failures per variant over all rows (without substituting the program's row)."""
     totals: dict[str, list[int]] = {}
     for row in stats:
         t = totals.setdefault(str(row["variant"]), [0, 0])
@@ -87,7 +87,7 @@ def variant_totals(stats: list[dict]) -> dict[str, tuple[int, int]]:
 
 
 def disabled_active(stats: list[dict], variants_dir: Path) -> set[str]:
-    """Варіанти, які бандит зараз відключив; порівнюємо лише активні, останній активний лишається."""
+    """Variants that the bandit has switched off right now; we compare only active ones, the last active one stays."""
     active = {v.id for v in bandit.load_variants("analysis", variants_dir) if v.active}
     totals = variant_totals(stats)
     off = bandit.disabled_variants({k: v for k, v in totals.items() if k in active})
@@ -95,8 +95,8 @@ def disabled_active(stats: list[dict], variants_dir: Path) -> set[str]:
 
 
 def has_breadth(export: dict, program: str, args: argparse.Namespace) -> bool:
-    """Уроки йдуть усім студентам сфери, тож їх мають давати багато різних людей і аналізів."""
-    breadth = export.get("breadth")  # експорту без ключа breadth не довіряємо: порожньо
+    """Lessons go to all students of the field, so many different people and analyses must provide them."""
+    breadth = export.get("breadth")  # we do not trust an export without the breadth key: empty
     b = (breadth.get(program) if isinstance(breadth, dict) else None) or {}
     if not isinstance(b, dict):
         b = {}
@@ -110,7 +110,7 @@ def _table(headers: list[str], rows: list[list]) -> list[str]:
     if not rows:
         return ["_no data_", ""]
 
-    def esc(cell) -> str:  # "|" розбиває рядок markdown-таблиці
+    def esc(cell) -> str:  # "|" breaks a row of a markdown table
         return str(cell).replace("|", "\\|")
 
     out = ["| " + " | ".join(esc(h) for h in headers) + " |", "|" + "---|" * len(headers)]
@@ -119,7 +119,7 @@ def _table(headers: list[str], rows: list[list]) -> list[str]:
 
 
 def render_report(stats: dict, notes: dict[str, str], reverted: str, date_str: str, days: int) -> str:
-    """Markdown-звіт тижня: таблиці статистики й підсумки по сферах."""
+    """The week's Markdown report: statistics tables and summaries per field."""
     lines = [f"# Weekly lessons {date_str}", "", f"Window: last {days} days.", ""]
     if reverted:
         lines += [f"**Reverted:** {reverted}", ""]
@@ -146,7 +146,7 @@ def render_report(stats: dict, notes: dict[str, str], reverted: str, date_str: s
 
 
 def run(db, llm, args: argparse.Namespace, date_str: str) -> dict:
-    """Один прохід. Повертає {'stats','written','reverted','report'}; у dry-run нічого не пише."""
+    """One pass. Returns {'stats','written','reverted','report'}; in dry-run writes nothing."""
     export = db.learning_export(args.days)
     stats = summarise(export)
     written: list[Path] = []
@@ -156,7 +156,7 @@ def run(db, llm, args: argparse.Namespace, date_str: str) -> dict:
     if not args.dry_run:
         try:
             off = disabled_active(db.variant_stats("analysis"), args.variants.parent)
-        except Exception:  # noqa: BLE001 - статистика варіантів не критична для тижневого прогону
+        except Exception:  # noqa: BLE001 - variant statistics are not critical for the weekly run
             off = set()
 
     def write(path: Path, text: str) -> None:
@@ -170,7 +170,7 @@ def run(db, llm, args: argparse.Namespace, date_str: str) -> dict:
         reverted = reason
         for f in sorted(args.learned_dir.glob("*.md")):
             write(f, f"<!-- reverted on {date_str}: {reason} -->\n")
-    else:  # після відкату нові уроки не пишемо: спершу треба нові дані
+    else:  # after a rollback we do not write new lessons: new data is needed first
         for program in PROGRAMS:
             n = stats["signals"].get(program, 0)
             if n < args.min_signals or not has_breadth(export, program, args):

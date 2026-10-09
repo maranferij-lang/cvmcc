@@ -1,4 +1,4 @@
-"""Jooble API (POST JSON, потрібен безплатний ключ JOOBLE_API_KEY)."""
+"""Jooble API (POST JSON, a free key JOOBLE_API_KEY is needed)."""
 from __future__ import annotations
 
 import re
@@ -45,7 +45,7 @@ class Jooble(BaseProvider):
         out: list[Vacancy] = []
         for j in dict_items(parse_json(body), "jobs"):
             location = as_str(j.get("location"))
-            # Лише власні сторінки Jooble (jooble.org/desc, /away) по https: решта хостів поза allowlist.
+            # Only Jooble's own pages (jooble.org/desc, /away) over https: other hosts are outside the allowlist.
             v = make_vacancy(
                 url=j.get("link"), title=j.get("title"), company=j.get("company"),
                 location=location, source=self.name, posted_at=parse_date(j.get("updated")),

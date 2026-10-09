@@ -1,4 +1,4 @@
-"""Тести бандита, подій і версії знань."""
+"""Tests of the bandit, events and the knowledge version."""
 from __future__ import annotations
 
 import json
@@ -86,7 +86,7 @@ def test_knowledge_version(tmp_path):
 
 
 def test_inactive_variant_does_not_disable_active(tmp_path):
-    """Неактивний варіант з високим середнім не вимикає всіх активних."""
+    """An inactive variant with a high mean does not switch off all the active ones."""
     data = {"task": "analysis", "variants": [
         {"id": "v1-baseline", "active": True, "text": ""},
         {"id": "v2", "active": True, "text": "v2"},

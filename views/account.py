@@ -1,4 +1,4 @@
-"""Мій кабінет: профіль, збережені результати, видалення даних, вихід."""
+"""My account: profile, saved results, data deletion, sign out."""
 
 from datetime import datetime, timezone
 
@@ -30,8 +30,8 @@ def older_than_week(created_at: str) -> bool:
 
 
 def result_analysis_id(item: dict) -> str:
-    """analysis_id збереженого результату (потрібен для нагороди варіанта); порожній для старих результатів."""
-    if "analysis_id" in item:  # list_results уже віддає його, додаткових запитів не треба
+    """analysis_id of the saved result (needed for the variant reward); empty for old results."""
+    if "analysis_id" in item:  # list_results already returns it, no extra requests are needed
         return str(item["analysis_id"] or "")
     key = f"analysis_id_{item['id']}"
     if key not in st.session_state:
@@ -39,7 +39,7 @@ def result_analysis_id(item: dict) -> str:
             full = get_db().get_result(email, item["id"]) or {}
             st.session_state[key] = str((full.get("payload") or {}).get("analysis_id") or "")
         except DBError:
-            st.session_state[key] = ""  # кешуємо й збій, щоб не повторювати запит на кожен rerun
+            st.session_state[key] = ""  # we cache a failure too, so the request is not repeated on every rerun
     return st.session_state[key]
 
 
@@ -79,7 +79,7 @@ with tab_history:
                     continue
                 payload = full.get("payload") or {}
                 if item["kind"] == "analysis" and "analysis" in payload:
-                    payload["analysis"].setdefault("line_review", [])  # старі результати без перевірки рядків
+                    payload["analysis"].setdefault("line_review", [])  # old results without row validation
                     a = Analysis.model_validate(payload["analysis"])
                     st.metric("CV fit", f"{a.overall_score}/100")
                     st.markdown(md_escape(a.summary))

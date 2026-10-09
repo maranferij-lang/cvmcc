@@ -1,4 +1,4 @@
-"""Greenhouse Job Board API (GET JSON без ключа) для однієї компанії (q.company)."""
+"""Greenhouse Job Board API (GET JSON without a key) for one company (q.company)."""
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -20,8 +20,8 @@ class Greenhouse(BaseProvider):
 
     def build_urls(self, q: JobQuery, env: Mapping[str, str]) -> list[str]:
         slug = company_slug(q)
-        # Без content=true: повний HTML усіх вакансій перевищує ліміт відповіді (2 МБ);
-        # збіг шукаємо за назвою, відділами та локацією.
+        # Without content=true: the full HTML of all postings exceeds the response limit (2 MB);
+        # we look for a match by title, departments and location.
         return [f"{API}{slug}/jobs"] if slug else []
 
     def parse(self, body: bytes, url: str, q: JobQuery) -> list[Vacancy]:

@@ -1,4 +1,4 @@
-"""Тести evals: check() на синтетичних Analysis і compare_to_baseline."""
+"""Evals tests: check() on synthetic Analysis objects and compare_to_baseline."""
 
 from __future__ import annotations
 

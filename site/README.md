@@ -1,19 +1,19 @@
 # getcvmax.com
 
-Статичний лендінг, юридичні сторінки і форма списку очікування. Хоститься на Cloudflare Pages, збірки немає.
+A static landing page, legal pages and a waitlist form. Hosted on Cloudflare Pages, no build step.
 
-## Деплой
-1. Cloudflare → Workers & Pages → Create → Pages → Connect to Git → репозиторій `cvmcc`, гілка `main`.
-2. Build command: порожньо. Build output directory: `site`. Root directory: порожньо.
-3. Settings → Variables and Secrets (тип Secret): `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_DB_TOKEN` (ті самі, що в апці).
-4. Custom domains → `getcvmax.com` і `www.getcvmax.com`.
-5. Metrics → Web Analytics → Enable (рахує перегляди без cookies).
+## Deploy
+1. Cloudflare → Workers & Pages → Create → Pages → Connect to Git → repository `cvmcc`, branch `main`.
+2. Build command: empty. Build output directory: `site`. Root directory: empty.
+3. Settings → Variables and Secrets (type Secret): `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_DB_TOKEN` (the same as in the app).
+4. Custom domains → `getcvmax.com` and `www.getcvmax.com`.
+5. Metrics → Web Analytics → Enable (counts views without cookies).
 
-## Перед публікацією
-- Замінити `FOP [Full legal name]` у `terms.html`, `privacy.html`, `refund.html` на ФОП з повним ім'ям.
-- Коли запрацюють оплати: у `site.js` поставити `APP_URL = "https://app.getcvmax.com"`, і всі кнопки цін ведуть в апку.
+## Before publishing
+- Replace `FOP [Full legal name]` in `terms.html`, `privacy.html`, `refund.html` with the sole proprietor (FOP, Ukrainian sole proprietorship) with a full name.
+- When payments go live: in `site.js` set `APP_URL = "https://app.getcvmax.com"`, and all price buttons lead to the app.
 
-## Список очікування
-Форма → `functions/api/waitlist.js` → RPC `cvmax_join_waitlist` (токен лише на сервері).
-Скільки записалось і звідки: SQL Editor → `select * from cvmax_private.waitlist_by_source;`
-Посилання з міткою каналу: `https://getcvmax.com/?ref=youtube`, `?ref=dou`, `?ref=tg-happymonday` тощо.
+## Waitlist
+Form → `functions/api/waitlist.js` → RPC `cvmax_join_waitlist` (the token only on the server).
+How many signed up and from where: SQL Editor → `select * from cvmax_private.waitlist_by_source;`
+A link with a channel tag: `https://getcvmax.com/?ref=youtube`, `?ref=dou`, `?ref=tg-happymonday` and so on.

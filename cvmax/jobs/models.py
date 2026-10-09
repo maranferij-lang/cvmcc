@@ -1,4 +1,4 @@
-"""Моделі вакансії та пошукового запиту."""
+"""Models of a job posting and a search query."""
 from __future__ import annotations
 
 import hashlib
@@ -12,20 +12,20 @@ MAX_KEYWORDS = 5
 MAX_KEYWORD_LEN = 60
 MAX_COMPANY_LEN = 80
 
-# Рівні, для яких шукаємо стажування і перші роботи (беремо з профілю, не дублюємо рядки).
+# Levels for which we look for internships and first jobs (taken from the profile, we do not duplicate the strings).
 ENTRY_LEVELS = (LEVELS[0], LEVELS[1])
 
 _PUNCT = re.compile(r"[^\w\s]", re.UNICODE)
 
 
 def _clean(value: str) -> str:
-    """Прибирає керівні символи (замінює пробілом) і зайві пробіли."""
+    """Removes control characters (replaces them with a space) and extra spaces."""
     text = "".join(" " if unicodedata.category(ch) == "Cc" else ch for ch in value)
     return " ".join(text.split())
 
 
 def _norm(value: str) -> str:
-    """Нормалізація для дедуплікації: нижній регістр, без розділових знаків."""
+    """Normalization for deduplication: lower case, no punctuation."""
     return " ".join(_PUNCT.sub(" ", value.lower()).split())
 
 
@@ -36,9 +36,9 @@ class Vacancy:
     company: str
     location: str
     source: str
-    posted_at: str | None  # ISO-дата YYYY-MM-DD
+    posted_at: str | None  # ISO date YYYY-MM-DD
     salary: str | None
-    snippet: str  # простий текст, до 400 символів
+    snippet: str  # plain text, up to 400 characters
     remote: bool | None
     tags: tuple[str, ...] = ()
 

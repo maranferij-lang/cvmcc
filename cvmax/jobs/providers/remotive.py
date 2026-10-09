@@ -1,5 +1,5 @@
-"""Remotive (GET JSON без ключа). Умови: посилатися на remotive.com і називати джерело;
-не передавати вакансії стороннім агрегаторам; не частіше ~4 запитів на добу (кеш 30 хв)."""
+"""Remotive (GET JSON without a key). Terms: link to remotive.com and name the source;
+do not pass postings to third-party aggregators; no more than ~4 requests per day (cache 30 min)."""
 from __future__ import annotations
 
 from collections.abc import Mapping

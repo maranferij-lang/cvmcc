@@ -1,1 +1,1 @@
-"""GetCVmax: AI-помічник для покращення CV."""
+"""GetCVmax: an AI assistant for improving CVs."""

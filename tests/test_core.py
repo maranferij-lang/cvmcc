@@ -198,7 +198,7 @@ def test_cosmetic_edits_and_off_topic_gaps_are_dropped():
     assert is_cosmetic("Sep 2023 – Jun 2024", "September 2023 - June 2024")
     assert is_cosmetic("Data Analyst, ACME | 2023-2024", "Data Analyst, Acme · 2023 – 2024")
     assert not is_cosmetic("Built 5 reports", "Built 12 weekly reports")
-    assert not is_cosmetic("Date of birth: 01.01.2004", "")  # видалення не косметика
+    assert not is_cosmetic("Date of birth: 01.01.2004", "")  # deletion is not cosmetic
 
     a = demo_analysis()
     a.edits.append(Edit(section="Experience", before="Analyst, Acme, Sep 2023 - Jun 2024",
@@ -208,7 +208,7 @@ def test_cosmetic_edits_and_off_topic_gaps_are_dropped():
     a = drop_noise(a)
     assert all("September 2023" not in e.after for e in a.edits)
     assert all("Networking" != g.item for g in a.gaps)
-    assert any("SQL" in g.item for g in a.gaps)  # корисні поради лишаються
+    assert any("SQL" in g.item for g in a.gaps)  # useful advice stays
 
 
 def test_date_only_edits_are_dropped():
@@ -233,7 +233,7 @@ def test_changed_action_and_already_known_skill():
     assert changed_action("• Introduced automated clip production", "• Automated the clip pipeline") is None
     assert changed_action("Built 5 reports", "Built 12 weekly reports") is None
 
-    a = demo_analysis()  # у правках є «SQL (joins...)», але без знака питання
+    a = demo_analysis()  # the edits have "SQL (joins...)" but without a question mark
     a.edits[1].after = "Python, [SQL?]"
     a.gaps = [Gap(item="SQL (joins)", why_it_matters="x", how_to_close="Take a course.", time_estimate="3 weeks", impact="high")]
     a = drop_noise(a)

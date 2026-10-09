@@ -1,4 +1,4 @@
-"""Кожна сторінка відкривається в демо-режимі без помилок."""
+"""Every page opens in demo mode without errors."""
 
 from pathlib import Path
 
@@ -67,7 +67,7 @@ def test_feedback_page_sends_anonymous_feedback():
 
 
 def test_interview_asks_twice_in_a_row_and_survives_model_errors(monkeypatch):
-    """Опитування в демо стартує щоразу з першого питання, а помилка моделі не лишає порожню вкладку."""
+    """The questionnaire in demo starts from the first question every time, and a model error does not leave an empty tab."""
     import cvmax.grill
     from cvmax.llm import LLMError
 
@@ -78,7 +78,7 @@ def test_interview_asks_twice_in_a_row_and_survives_model_errors(monkeypatch):
         next(b for b in at.button if b.label == "Review my CV").click().run()
         next(b for b in at.button if b.label == "Start Q&A").click().run()
 
-    for _ in range(2):  # другий раз раніше давав порожню вкладку
+    for _ in range(2):  # the second time it used to give an empty tab
         at = AppTest.from_file(APP, default_timeout=60)
         at.run()
         start(at)
@@ -94,11 +94,11 @@ def test_interview_asks_twice_in_a_row_and_survives_model_errors(monkeypatch):
     start(at)
     assert not at.exception
     assert any("overloaded" in e.value for e in at.error)
-    assert any(b.label == "Start Q&A" for b in at.button)  # можна спробувати ще раз
+    assert any(b.label == "Start Q&A" for b in at.button)  # you can try again
 
 
 def test_rating_a_review_sends_feedback():
-    """Великий палець під аналізом раніше падав: локальна функція перекривала send_feedback."""
+    """The thumbs-up under the analysis used to crash: a local function shadowed send_feedback."""
     at = AppTest.from_file(APP, default_timeout=60)
     at.run()
     at.switch_page("views/analyze.py").run()
@@ -141,9 +141,9 @@ def test_career_shows_live_vacancies_in_demo():
     ranked = state[1]  # (result, ranked, note)
     assert len(ranked) >= 6
     urls = [el.proto.url for el in at.get("link_button")]
-    assert all(allowed_url(u, domains) for u in urls)  # кожне пряме посилання з дозволеного домену
+    assert all(allowed_url(u, domains) for u in urls)  # every direct link is from an allowed domain
     shown = {v.url for v, _ in ranked}
-    assert len(shown & set(urls)) >= 6  # самі вакансії, а не лише посилання пошуку
+    assert len(shown & set(urls)) >= 6  # the postings themselves, not only search links
     assert any(e["kind"] == "jobs_shown" for e in get_db().events)
 
 

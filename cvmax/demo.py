@@ -1,6 +1,6 @@
-"""Демо-режим без API: фейковий клієнт із заготовленими відповідями.
+"""Demo mode without an API: a fake client with prepared answers.
 
-Потрібен для тестів і щоб подивитись інтерфейс без ключа (CVMAX_DEMO=1).
+Needed for tests and for looking at the interface without a key (CVMAX_DEMO=1).
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ class _Messages:
         if fmt is Analysis:
             out: Any = demo_analysis()
         elif fmt is GrillTurn:
-            # Номер питання беремо з інструкції цієї сесії, а не з усіх викликів процесу.
+            # We take the question number from this session's instruction, not from all calls of the process.
             found = re.search(r"Questions asked so far: (\d+)", str(kwargs.get("messages", "")))
             asked = int(found.group(1)) if found else 0
             if asked < len(DEMO_QUESTIONS):
@@ -66,7 +66,7 @@ class _Messages:
 
 
 def demo_ranked_jobs(ids: list[str]) -> RankedJobs:
-    """Демо-оцінки вакансій: 85, 72, 64, 51, 40, далі мінус 11, але не менше 20."""
+    """Demo job scores: 85, 72, 64, 51, 40, then minus 11 each, but not below 20."""
     start = [85, 72, 64, 51, 40]
     whys = [
         "Demo: matches your Excel reporting experience.",

@@ -1,8 +1,8 @@
-"""База даних у Supabase: юзери, денні ліміти, збережені результати.
+"""Supabase database: users, daily limits, saved results.
 
-Сайт не має прямого доступу до таблиць. Він викликає кілька функцій у базі (див. supabase/schema.sql),
-і кожна перевіряє секретний токен CVMAX_DB_TOKEN. Якщо база не налаштована, працює MemoryDB:
-ліміти рахуються в пам'яті сервера, а результати не зберігаються.
+The site has no direct access to the tables. It calls a few functions in the database (see supabase/schema.sql),
+and each one checks the secret token CVMAX_DB_TOKEN. If the database is not configured, MemoryDB is used:
+limits are counted in the server memory, and results are not saved.
 """
 
 from __future__ import annotations
@@ -27,13 +27,13 @@ class DBError(RuntimeError):
 
 MAX_KIND_LEN = 40
 MAX_PAYLOAD_LEN = 4000
-# Види подій, які йдуть у вивантаження для рефлексії (так само, як у SQL).
+# Event kinds that go into the export for reflection (the same as in SQL).
 EXPORT_KINDS = ("analysis_done", "analysis_rated", "edits_decided", "grill_turn",
                 "outcome", "rescan", "export", "jobs_shown", "job_applied")
 
 
 def _check_event(kind: str, payload: dict) -> None:
-    """Перевірка до мережі: ті самі межі, що й у cvmax_log_event."""
+    """Check before the network: the same bounds as in cvmax_log_event."""
     if not kind or len(kind) > MAX_KIND_LEN:
         raise ValueError(f"event kind must be 1..{MAX_KIND_LEN} chars")
     if len(json.dumps(payload, ensure_ascii=False, default=str)) > MAX_PAYLOAD_LEN:
@@ -50,7 +50,7 @@ class SupabaseDB:
     def __init__(self, url: str, key: str, token: str, session: Any = None, timeout: float = 10) -> None:
         self.base = url.rstrip("/") + "/rest/v1/rpc/"
         self.headers = {"apikey": key, "Content-Type": "application/json"}
-        if key.count(".") == 2:  # старий JWT anon-ключ іде ще й як Bearer
+        if key.count(".") == 2:  # the old JWT anon key is also sent as a Bearer
             self.headers["Authorization"] = f"Bearer {key}"
         self.token = token
         self.http = session or requests.Session()
@@ -64,7 +64,7 @@ class SupabaseDB:
             log.warning("supabase %s: %s", name, type(e).__name__)
             raise DBError("Cannot reach the database. Try again a bit later.") from e
         if r.status_code >= 400:
-            # Деталі тільки в журнал сервера: юзеру вони не потрібні і можуть розкрити будову бази.
+            # Details go only to the server log: the user does not need them and they could reveal the database structure.
             log.warning("supabase %s -> %s: %s", name, r.status_code, r.text[:200])
             raise DBError("The database is temporarily unavailable. Try again a bit later.")
         return r.json() if r.content else None
@@ -93,32 +93,32 @@ class SupabaseDB:
         self._rpc("cvmax_delete_my_data", p_email=email)
 
     def save_feedback(self, page: str, rating: int | None, message: str) -> None:
-        """Анонімний відгук: без email, тільки сторінка, оцінка і текст."""
+        """Anonymous feedback: no email, only the page, a rating and text."""
         self._rpc("cvmax_save_feedback", p_page=page, p_rating=rating, p_message=message)
 
     def join_waitlist(self, email: str, plan: str, source: str | None) -> None:
-        """Список запуску: email, обраний тариф і звідки прийшов."""
+        """Waitlist: email, the chosen plan and where the person came from."""
         self._rpc("cvmax_join_waitlist", p_email=email, p_plan=plan, p_source=source, p_country=None)
 
     def log_edit_feedback(self, user_key: str, analysis_id: str, target_role: str, program: str,
                           items: list[dict]) -> int:
-        """Які правки юзер прийняв, а які ні. items: source, section, priority, before, after, accepted."""
+        """Which edits the user accepted and which not. items: source, section, priority, before, after, accepted."""
         return self._rpc("cvmax_log_edit_feedback", p_user_key=user_key, p_analysis_id=analysis_id,
                          p_target_role=target_role, p_program=program, p_items=items) or 0
 
     def log_event(self, user_key: str, kind: str, payload: dict) -> None:
-        """Подія навчання: тільки id, оцінки й рішення, без тексту CV."""
+        """Learning event: only ids, scores and decisions, no CV text."""
         _check_event(kind, payload)
         self._rpc("cvmax_log_event", p_user_key=user_key, p_kind=kind, p_payload=payload)
 
     def variant_stats(self, task: str, days: int = 90) -> list[dict]:
-        """[{variant, program, successes, failures}] для бандита."""
+        """[{variant, program, successes, failures}] for the bandit."""
         return self._rpc("cvmax_variant_stats", p_task=task, p_days=days) or []
 
     def learning_export(self, days: int = 30) -> dict:
-        """Анонімні дані для тижневої рефлексії: {edit_feedback, feedback, events, breadth}.
+        """Anonymous data for the weekly reflection: {edit_feedback, feedback, events, breadth}.
 
-        breadth: {програма: {"users": int, "analyses": int}} (у MemoryDB завжди {}).
+        breadth: {program: {"users": int, "analyses": int}} (always {} in MemoryDB).
         """
         return self._rpc("cvmax_learning_export", p_days=days) or {"edit_feedback": [], "feedback": [], "events": []}
 
@@ -138,7 +138,7 @@ class SupabaseDB:
 
 
 class MemoryDB:
-    """Запасний варіант без Supabase: ліміти в пам'яті процесу, нічого не зберігається надовго."""
+    """A fallback without Supabase: limits in process memory, nothing is stored long-term."""
 
     persistent = False
 
@@ -208,27 +208,27 @@ class MemoryDB:
             return [e for e in self.events if e["created_at"] >= since]
 
     def variant_stats(self, task: str, days: int = 90) -> list[dict]:
-        """Та сама логіка нагороди, що й cvmax_variant_stats у SQL."""
+        """The same reward logic as cvmax_variant_stats in SQL."""
         events = self._events_since(days)
         with self._lock:
             all_events = list(self.events)
         done: dict[str, dict] = {}
-        for e in events:  # остання analysis_done на analysis_id
+        for e in events:  # the last analysis_done per analysis_id
             p = e["payload"]
             aid, variant = p.get("analysis_id"), p.get("variant")
             if e["kind"] == "analysis_done" and aid and variant and (p.get("task") or "analysis") == task:
                 done[str(aid)] = {"variant": str(variant), "program": str(p.get("program") or "")}
         rated: dict[str, int | None] = {}
         edits: dict[str, tuple[int | None, int | None]] = {}
-        outcome: dict[str, object] = {}  # остання відповідь на analysis_id
-        for e in all_events:  # події йдуть у порядку додавання, тож останнє значення перемагає
+        outcome: dict[str, object] = {}  # the last rating per analysis_id
+        for e in all_events:  # events come in insertion order, so the last value wins
             p = e["payload"]
             aid = p.get("analysis_id")
             if not aid:
                 continue
             aid = str(aid)
             if e["kind"] == "analysis_rated":
-                r = p.get("rating")  # лише справжній int 0/1: bool і float не рахуються (як текстове порівняння в SQL)
+                r = p.get("rating")  # only a real int 0/1: bool and float do not count (like the text comparison in SQL)
                 rated[aid] = r if type(r) is int and r in (0, 1) else None
             elif e["kind"] == "edits_decided":
                 edits[aid] = (_as_count(p.get("accepted")), _as_count(p.get("total")))
@@ -271,11 +271,11 @@ class MemoryDB:
             row = {**it, "url": url, "title": title}
             if row.get("snippet"):
                 row["snippet"] = row["snippet"][:600]
-            # Ключ як unique (url_hash, role_family, region) у SQL; null -> ''.
+            # The key is unique (url_hash, role_family, region) in SQL; null -> ''.
             key = (url, row.get("role_family") or "", row.get("region") or "")
             row["role_family"], row["region"] = key[1], key[2]
             old = self.vacancies.get(key)
-            if old:  # як ON CONFLICT: оновлюємо, не затираючи наявне порожнім
+            if old:  # like ON CONFLICT: update without overwriting existing values with empty ones
                 row = {**old, **{k: v for k, v in row.items() if v is not None}}
             self.vacancies[key] = {**row, "last_seen_at": datetime.now(timezone.utc)}
             count += 1
@@ -288,7 +288,7 @@ class MemoryDB:
                 and (role_family is None or v.get("role_family") == role_family)
                 and (region is None or v.get("region") == region)]
         rows.sort(key=lambda v: v["last_seen_at"], reverse=True)
-        seen: set[str] = set()  # різні вакансії: той самий url з кількох ролей/регіонів лише раз
+        seen: set[str] = set()  # different postings: the same url from several roles/regions only once
         rows = [v for v in rows if not (v["url"] in seen or seen.add(v["url"]))]
         keys = ("url", "source", "title", "company", "location", "posted_at", "salary", "snippet", "remote")
         return [{"id": i + 1, **{k: v.get(k) for k in keys}} for i, v in enumerate(rows[:max(min(limit, 1000), 1)])]
@@ -311,7 +311,7 @@ class MemoryDB:
 
 
 def _as_count(value: Any) -> int | None:
-    """Ціле 0..999999 з payload або None (як ^[0-9]{1,6}$ у SQL). Ніколи не кидає виняток."""
+    """An integer 0..999999 from the payload or None (like ^[0-9]{1,6}$ in SQL). Never raises an exception."""
     if type(value) is int:
         return value if 0 <= value <= 999999 else None
     if isinstance(value, str) and re.fullmatch(r"[0-9]{1,6}", value):

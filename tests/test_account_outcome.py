@@ -1,4 +1,4 @@
-"""Відповідь про співбесіду з кабінету доходить до бандита (петля D)."""
+"""The answer about an interview from the account page reaches the bandit (loop D)."""
 
 from pathlib import Path
 

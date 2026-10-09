@@ -1,4 +1,4 @@
-"""Indeed: лише посилання на пошук. В Україні немає окремого сайту, тому регіон UA не покрито."""
+"""Indeed: search link only. Ukraine has no separate site, so the UA region is not covered."""
 from __future__ import annotations
 
 from urllib.parse import quote_plus, urlencode

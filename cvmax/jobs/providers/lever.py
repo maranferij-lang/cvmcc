@@ -1,4 +1,4 @@
-"""Lever Postings API (GET JSON без ключа) для однієї компанії (q.company)."""
+"""Lever Postings API (GET JSON without a key) for one company (q.company)."""
 from __future__ import annotations
 
 from collections.abc import Mapping

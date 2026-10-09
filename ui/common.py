@@ -1,4 +1,4 @@
-"""Спільне для всіх сторінок: модель, згода на обробку, завантаження CV, стилі."""
+"""Shared by all pages: the model, consent to processing, CV upload, styles."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from cvmax.llm import LLMError, make_llm
 def secret(name: str) -> str | None:
     try:
         value = st.secrets.get(name)
-    except Exception:  # немає secrets.toml
+    except Exception:  # no secrets.toml
         value = None
     return value or os.environ.get(name)
 
@@ -55,7 +55,7 @@ PRIVACY_NOTE = {
 
 
 def consent(page: str) -> bool:
-    """Згода на обробку. Дається один раз і діє на всіх сторінках до закриття вкладки."""
+    """Consent to processing. Given once and valid on all pages until the tab is closed."""
     provider = provider_name()
     already = st.session_state.get("consented", False)
     box = st.container() if already else card(f"consent-{page}")
@@ -76,7 +76,7 @@ def consent(page: str) -> bool:
 
 
 def cv_picker(page: str) -> CVFile | None:
-    """Завантаження CV. Раз завантажене CV доступне на всіх сторінках."""
+    """CV upload. Once uploaded, the CV is available on all pages."""
     current: CVFile | None = st.session_state.get("cv_file")
     if current is not None:
         c1, c2 = st.columns([3, 1])
@@ -113,10 +113,10 @@ def _css() -> str:
 
 
 def inject_css() -> None:
-    """Стилі сайту. Викликається один раз на кожен показ сторінки (в app.py)."""
+    """Site styles. Called once on every page render (in app.py)."""
     st.html(f"<style>{_css()}</style>")
 
 
 def card(key: str, **kwargs):
-    """Скляна картка. Ключ потрібен, щоб CSS її знайшов (клас st-key-card-...)."""
+    """A glass card. The key is needed so the CSS can find it (class st-key-card-...)."""
     return st.container(key=f"card-{key}", **kwargs)

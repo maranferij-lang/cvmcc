@@ -5,5 +5,5 @@ __pycache__/
 .streamlit/secrets.toml
 .pytest_cache/
 
-# Справжні CV для перевірки якості
+# Real CVs for quality checks
 evals/private/
