@@ -129,10 +129,10 @@ class RankedJobs(BaseModel):
 
 
 class EditVerdict(BaseModel):
-    index: int  # номер правки зі списку в запиті
-    ok: bool  # false, якщо after додає факти, яких немає в CV, або описує іншу діяльність
-    problem: str  # коротко, що не так (мовою відповіді); порожньо, якщо ok
-    fixed_after: str  # after без вигаданої частини або з нею в [дужках]; порожньо, якщо виправити не можна
+    index: int  # number of the edit from the list in the request
+    ok: bool  # false if after adds facts that are not in the CV or describes a different activity
+    problem: str  # briefly what is wrong (in the response language); empty if ok
+    fixed_after: str  # after without the invented part, or with it in [brackets]; empty if it cannot be fixed
 
 
 class EditVerdicts(BaseModel):

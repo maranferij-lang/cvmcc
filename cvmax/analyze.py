@@ -97,42 +97,42 @@ def length_note(cv: CVFile) -> str:
     )
 
 
-# Теги-розділювачі, якими ми самі збираємо запит. Хто б не вписав їх у CV чи вакансію, це текст кандидата:
-# без заміни він міг би закрити свій блок або підробити <checks>, якому модель довіряє.
+# Delimiter tags we use to build the request. Wherever they appear in the CV or vacancy, they are the candidate's text:
+# unescaped, it could close its own block or forge <checks>, which the model trusts.
 _REQUEST_TAGS = re.compile(r"<(\s*/?\s*(?:checks|cv|length|candidate_profile|target|vacancy_text)\b)", re.I)
-# Вільні поля профілю, які юзер заповнює сам і які йдуть у запит до блоку <checks>.
+# Free-text profile fields that the user fills in and that go into the request ahead of the <checks> block.
 _PROFILE_FREE_TEXT = ("background", "target_role", "company_details", "vacancy_text")
 
 
 def _defang(text: str) -> str:
-    """Тег-розділювач у тексті кандидата стає «‹tag»: зміст лишається, але це вже не тег."""
+    """A delimiter tag in the candidate's text becomes "‹tag": the content stays, but it is no longer a tag."""
     return _REQUEST_TAGS.sub("\u2039\\1", text)
 
 
 def _request_copies(profile: Profile, cv: CVFile) -> tuple[Profile, CVFile]:
-    """Копії профілю й CV для тексту запиту. Перевірки, верифікатор і бал далі працюють з оригіналами."""
+    """Copies of the profile and CV for the request text. Checks, verifier and score keep working on the originals."""
     safe_profile = replace(profile, **{f: _defang(getattr(profile, f)) for f in _PROFILE_FREE_TEXT})
     return safe_profile, replace(cv, filename=_defang(cv.filename), text=_defang(cv.text))
 
 
 @dataclass
 class AnalysisRun:
-    """Результат одного розбору: відповідь моделі та все, що ми порахували навколо неї."""
+    """Result of one review: the model's answer and everything we computed around it."""
 
-    analysis: Analysis  # overall_score уже підсумковий (дорівнює score.score)
-    checks: CheckReport | None  # None, якщо перевірки вимкнені або зламалися
+    analysis: Analysis  # overall_score is already final (equals score.score)
+    checks: CheckReport | None  # None if checks are disabled or failed
     score: ScoreDetail
-    verification: Verification | None  # None, якщо верифікатор вимкнений або зламався
+    verification: Verification | None  # None if the verifier is disabled or failed
 
 
 def _skipped(what: str, exc: Exception) -> None:
-    """Збій допоміжного кроку не ламає розбір. У журнал іде лише тип помилки: у повідомленні може бути текст CV."""
+    """A failure of a helper step does not break the review. Only the error type is logged: the message may contain CV text."""
     log.warning("%s failed (%s); continuing without it", what, type(exc).__name__)
     log.debug("%s failure details", what, exc_info=True)
 
 
 def _run_checks(cv: CVFile, profile: Profile) -> tuple[CheckReport | None, str]:
-    """Детерміновані перевірки й блок <checks> для запиту. Без них повертає (None, "")."""
+    """Deterministic checks and the <checks> block for the request. Without them returns (None, "")."""
     if not config.CHECKS_ENABLED:
         return None, ""
     try:
@@ -144,7 +144,7 @@ def _run_checks(cv: CVFile, profile: Profile) -> tuple[CheckReport | None, str]:
 
 
 def _verify(client: Any, profile: Profile, cv: CVFile, result: Analysis, facts: str) -> Verification | None:
-    """Прибирає або урізає правки з вигаданими фактами. Збій верифікатора лишає правки як є."""
+    """Removes or trims edits with invented facts. A verifier failure leaves the edits as they are."""
     if not config.VERIFY_ENABLED:
         return None
     known = "\n".join(part for part in (profile.background.strip(), facts.strip()) if part)
@@ -153,7 +153,7 @@ def _verify(client: Any, profile: Profile, cv: CVFile, result: Analysis, facts: 
             client, cv_text=cv.text, facts=known, edits=result.edits,
             feedback_language=profile.feedback_language,
         )
-    except Exception as exc:  # LLMError верифікатора теж: розбір уже готовий і без нього
+    except Exception as exc:  # including the verifier's LLMError: the review is ready without it
         _skipped("Edit verification", exc)
         return None
     result.edits = edits
@@ -161,7 +161,7 @@ def _verify(client: Any, profile: Profile, cv: CVFile, result: Analysis, facts: 
 
 
 def _final_score(result: Analysis, report: CheckReport | None, program: str) -> ScoreDetail:
-    """Підсумковий бал. Якщо підрахунок зламався, лишається бал моделі без штрафу."""
+    """Final score. If the computation broke, the model's score stays, without a penalty."""
     try:
         return compute_score(result, report, program)
     except Exception as exc:
@@ -172,14 +172,14 @@ def _final_score(result: Analysis, report: CheckReport | None, program: str) -> 
 
 
 def analyze_full(client: Any, profile: Profile, cv: CVFile, addendum: str = "", *, facts: str = "") -> AnalysisRun:
-    """Розбір CV: перевірки -> модель -> верифікатор правок -> бал.
+    """Review a CV: checks -> model -> edit verifier -> score.
 
-    `facts`: додаткові відомі факти про кандидата (наприклад, відповіді Q&A), на додачу до profile.background.
-    Помилка самого розбору (LLMError) іде нагору; помилки перевірок, верифікатора й балу лише логуються.
+    `facts`: additional known facts about the candidate (for example, Q&A answers), on top of profile.background.
+    An error in the review itself (LLMError) propagates up; errors in checks, verifier and score are only logged.
     """
     report, checks_block = _run_checks(cv, profile)
     note = length_note(cv)
-    # Єдиний справжній <checks> іде останнім, після <candidate_profile>: його будуємо ми, решта тегів це текст юзера.
+    # The only real <checks> goes last, after <candidate_profile>: we build it ourselves, the rest of the tags are user text.
     request_profile, request_cv = _request_copies(profile, cv)
     content = request_cv.as_content_blocks() + [
         {"type": "text", "text": request_profile.to_prompt() + (f"\n{note}" if note else "")
@@ -199,10 +199,10 @@ def analyze_full(client: Any, profile: Profile, cv: CVFile, addendum: str = "", 
     result = drop_noise(result, profile.feedback_language)
     verification = _verify(client, profile, cv, result, facts)
     score = _final_score(result, report, profile.program)
-    result.overall_score = score.score  # далі в застосунку скрізь бал стабільний, а не «відчуття» моделі
+    result.overall_score = score.score  # from here on the score is stable throughout the app, not a model "feeling"
     return AnalysisRun(analysis=result, checks=report, score=score, verification=verification)
 
 
 def analyze_cv(client: Any, profile: Profile, cv: CVFile, addendum: str = "") -> Analysis:
-    """Старий виклик: лише відповідь розбору (див. analyze_full)."""
+    """Legacy call: only the review answer (see analyze_full)."""
     return analyze_full(client, profile, cv, addendum).analysis

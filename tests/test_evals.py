@@ -163,7 +163,7 @@ def test_update_baseline_returns_zero_and_writes(tmp_path, monkeypatch):
     assert code == 0 and json.loads(target.read_text(encoding="utf-8"))["total"] == 10
 
 
-# ---------------- Синтетичні кейси, шлях через analyze_full і прапорець --raw ----------------
+# ---------------- Synthetic cases, the analyze_full path and the --raw flag ----------------
 
 PROFILE = {
     "program": "economics_big_data", "status": "3rd year", "background": "", "target_role": "Data Analyst",
@@ -174,13 +174,13 @@ PROFILE = {
 
 @pytest.fixture
 def flags(monkeypatch):
-    """Перевірки й верифікатор увімкнені незалежно від CVMAX_CHECKS / CVMAX_VERIFY."""
+    """The checks and the verifier are on regardless of CVMAX_CHECKS / CVMAX_VERIFY."""
     monkeypatch.setattr(config, "CHECKS_ENABLED", True)
     monkeypatch.setattr(config, "VERIFY_ENABLED", True)
 
 
 def write_synth_case(folder: Path, stem: str = "demo_case") -> Path:
-    """Кейс нового формату на демо-CV: вади, типи length і mentions. Остання перевірка навмисно падає."""
+    """A new-format case on the demo CV: flaws, the length and mentions types. The last check fails on purpose."""
     (folder / f"{stem}.txt").write_text(DEMO_CV_TEXT, encoding="utf-8")
     case = {
         "name": "Demo", "cv_file": f"{stem}.txt", "synthetic": True, "profile": PROFILE,
@@ -223,7 +223,7 @@ def test_analyze_case_raw_uses_analyze_cv_without_checks_and_verifier(monkeypatc
     monkeypatch.setattr(run_evals, "analyze_full", lambda *a, **k: pytest.fail("analyze_full must not run with --raw"))
     assert run_evals.analyze_case("llm", None, None, "ADD", raw=True) is analysis
     assert seen == [(False, False, "ADD")]
-    assert config.CHECKS_ENABLED is True and config.VERIFY_ENABLED is True  # прапорці повернуто
+    assert config.CHECKS_ENABLED is True and config.VERIFY_ENABLED is True  # the flags are restored
 
 
 def test_raw_mode_restores_flags_after_an_error(flags):
@@ -261,7 +261,7 @@ def test_main_prints_and_saves_by_flaw(tmp_path, monkeypatch, capsys, flags):
     monkeypatch.setattr(run_evals, "make_llm", lambda: FakeClient())
     out = tmp_path / "result.json"
     code = run_evals.main([str(tmp_path), "--json", str(out)])
-    assert code == 2  # missing_contact навмисно падає
+    assert code == 2  # missing_contact fails on purpose
     by_flaw = json.loads(out.read_text(encoding="utf-8"))["by_flaw"]
     assert by_flaw == {
         "hallucination": {"passed": 1, "total": 1},
@@ -282,7 +282,7 @@ def test_old_case_format_runs_unchanged_and_has_no_by_flaw(tmp_path, monkeypatch
     data = json.loads(out.read_text(encoding="utf-8"))
     n_cases = len(list(cases.glob("*.json")))
     n_expect = sum(len(json.loads(p.read_text(encoding="utf-8"))["expect"]) for p in cases.glob("*.json"))
-    assert "by_flaw" not in data and data["total"] == n_expect + n_cases  # по одній автоматичній перевірці на кейс
+    assert "by_flaw" not in data and data["total"] == n_expect + n_cases  # one automatic check per case
     assert "By flaw" not in capsys.readouterr().out
 
 

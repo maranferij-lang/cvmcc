@@ -22,7 +22,7 @@ ALLOWED_FIELDS: dict[str, frozenset[str]] = {
     ANALYSIS_DONE: frozenset({
         "analysis_id", "task", "variant", "program", "region", "level", "score",
         "knowledge_version", "lessons_version", "previous_score", "n_edits", "n_gaps", "clarity",
-        # Складові стабільного балу й підсумок автоматичних перевірок та верифікатора правок.
+        # Components of the stable score and a summary of the automatic checks and the edit verifier.
         "model_score", "criteria_score", "penalty", "n_checks", "verify_dropped", "verify_fixed",
     }),
     ANALYSIS_RATED: frozenset({"analysis_id", "rating"}),

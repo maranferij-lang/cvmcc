@@ -56,7 +56,7 @@ from cvmax.llm import LLMError, make_llm  # noqa: E402
 from cvmax.profile import Profile  # noqa: E402
 from cvmax.verify import find_invented_numbers  # noqa: E402
 
-# Автоматична перевірка, що додається до кожного кейсу.
+# The automatic check added to every case.
 HALLUCINATION_ID = "_no_invented_numbers"
 HALLUCINATION_FLAW = "hallucination"
 HALLUCINATION_DESCRIPTION = "No edit adds a number that is absent from the CV"
@@ -73,14 +73,14 @@ def _words(text: str) -> int:
 
 
 def check_length(expect: dict, analysis) -> tuple[bool, str]:
-    """Правки скоротили CV щонайменше на min_cut_words слів (рахуємо лише правки, де after коротший за before)."""
+    """The edits cut the CV by at least min_cut_words words (only edits where after is shorter than before count)."""
     need = int(expect.get("min_cut_words", 100))
     cut = sum(_words(e.before) - _words(e.after) for e in analysis.edits if _words(e.after) < _words(e.before))
     return cut >= need, f"edits cut {cut} words, need at least {need}"
 
 
 def check_mentions(expect: dict, analysis) -> tuple[bool, str]:
-    """Хоч одне слово з any_of є в edits[].after, edits[].section, missing_info або summary."""
+    """At least one word from any_of appears in edits[].after, edits[].section, missing_info or summary."""
     needles = [w.lower() for w in expect.get("any_of", []) if w]
     if not needles:
         return False, "any_of is empty"
@@ -95,9 +95,9 @@ def check_mentions(expect: dict, analysis) -> tuple[bool, str]:
 
 
 def check_no_invented_numbers(analysis, cv_text: str, background: str = "") -> tuple[bool, str]:
-    """Жодна правка не вводить число, якого немає в CV, у фактах профілю або в її цитаті `before`.
+    """No edit introduces a number that is absent from the CV, the profile facts or its quoted `before` line.
 
-    Числа в квадратних дужках ([N], [X]%) це плейсхолдери і проходять. Те саме правило, що в cvmax.verify.
+    Numbers in square brackets ([N], [X]%) are placeholders and pass. The same rule as in cvmax.verify.
     """
     for e in analysis.edits:
         invented = find_invented_numbers(e.after, f"{cv_text}\n{background}\n{e.before}")
@@ -159,10 +159,10 @@ def compare_to_baseline(result: dict, baseline: dict, tolerance: float = TOLERAN
 
 
 def load_flaw_map(cases: list[Path]) -> dict[tuple[str, str], str]:
-    """(кейс, перевірка) -> код вади, за полями "flaw" в expect.
+    """(case, check) -> flaw code, from the "flaw" fields in expect.
 
-    Порожній, якщо жоден expect не має "flaw" (старі кейси). Інакше до нього додаємо автоматичну перевірку
-    _no_invented_numbers кожного кейсу з вадою "hallucination".
+    Empty if no expect has "flaw" (old cases). Otherwise the automatic _no_invented_numbers check
+    of every case is added to it with the flaw "hallucination".
     """
     flaws: dict[tuple[str, str], str] = {}
     stems: list[str] = []
@@ -185,7 +185,7 @@ def load_flaw_map(cases: list[Path]) -> dict[tuple[str, str], str]:
 
 def summarize_by_flaw(results: dict[tuple[str, str], list[bool]],
                       flaws: dict[tuple[str, str], str]) -> dict[str, dict[str, int]]:
-    """Підсумок за вадами: {код: {"passed": n, "total": m}}. Рахуємо кожен прогін кожної перевірки."""
+    """Summary by flaw: {code: {"passed": n, "total": m}}. Every run of every check is counted."""
     by_flaw: dict[str, dict[str, int]] = {}
     for key, oks in results.items():
         code = flaws.get(key)
@@ -198,7 +198,7 @@ def summarize_by_flaw(results: dict[tuple[str, str], list[bool]],
 
 
 def print_by_flaw(by_flaw: dict[str, dict[str, int]]) -> None:
-    """Таблиця за вадами: найгірші зверху."""
+    """Per-flaw table: the worst on top."""
     print("\nBy flaw (passed/total):")
     ranked = sorted(by_flaw.items(), key=lambda kv: (kv[1]["passed"] / max(kv[1]["total"], 1), kv[0]))
     for code, row in ranked:
@@ -264,7 +264,7 @@ def run_cases(llm, cases: list[Path], runs: int, addendum: str = "", raw: bool =
             label = f"[{path.stem}]" + (f" прогін {run}" if runs > 1 else "")
             print(f"\n{label} {case.get('name', '')} ({time.time() - started:.0f} с, оцінка {analysis.overall_score})")
             checks = [(expect["id"], expect.get("description", ""), check(expect, analysis)) for expect in case["expect"]]
-            # Автоматична перевірка вигаданих чисел: для кожного кейсу, окрім прописаних в expect
+            # Automatic invented-numbers check: for every case, in addition to those listed in expect
             checks.append((HALLUCINATION_ID, HALLUCINATION_DESCRIPTION,
                            check_no_invented_numbers(analysis, cv.text, case["profile"].get("background", ""))))
             for check_id, description, (ok, detail) in checks:
@@ -316,7 +316,7 @@ def run_variants(llm, cases: list[Path], args) -> int:
 
 
 def _raw_opts(args) -> dict:
-    """Аргумент raw передаємо лише коли він потрібен: звичайний виклик run_cases(llm, cases, runs) лишається як був."""
+    """Pass the raw argument only when it is needed: the plain call run_cases(llm, cases, runs) stays as it was."""
     return {"raw": True} if getattr(args, "raw", False) else {}
 
 

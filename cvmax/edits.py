@@ -159,7 +159,7 @@ _NUMBER_WORDS = {
 }
 
 
-# Ukrainian numerals by stem: "п'ять" (five), "пятьма" (by five), "десяти" (of ten)...
+# Ukrainian numerals by stem (the keys are Cyrillic): p'yat' (five), pyat'ma (by five), desyaty (of ten), ...
 _UA_NUMBER_STEMS = {
     "один": "1", "одн": "1", "два": "2", "дві": "2", "двох": "2", "три": "3", "трьох": "3",
     "чотир": "4", "п'ят": "5", "пят": "5", "шіст": "6", "шест": "6", "сім": "7", "сем": "7",
@@ -184,7 +184,8 @@ _ALIASES = {
 
 
 def _known_alias(token: str, known_low: str) -> bool:
-    # A synonym must stand at the start of a word: "ші" in "ШІ-школа" (AI school) counts, but in "інші" (others) it does not.
+    # A synonym must stand at the start of a word: the alias "shi" (AI) in "SHI-shkola" (AI school) counts,
+    # but inside "inshi" (others) it does not.
     return any(re.search(r"(?<![a-zа-яіїєґ])" + re.escape(alias), known_low)
                for alias in _ALIASES.get(token.lower(), ()))
 
@@ -208,7 +209,7 @@ def unverified_terms(after: str, known_text: str) -> list[str]:
             flagged.append(phrase.title())
         visible = re.sub(re.escape(phrase), " ", visible, flags=re.I)
 
-    number_end = 0  # число з пробілом («1 200») розбивається на кілька токенів: решту пропускаємо
+    number_end = 0  # a number with a space ("1 200") is split into several tokens: skip the rest
     for found in _TOKEN.finditer(visible):
         token = found.group(0).strip(".,/-")
         if not token:

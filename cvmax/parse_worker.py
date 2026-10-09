@@ -29,16 +29,16 @@ def limit_resources() -> None:
     resource.setrlimit(resource.RLIMIT_CPU, (MAX_CPU_SECONDS, MAX_CPU_SECONDS))
 
 
-# Підрахунок картинок це лише метрика для перевірок, тому він не має права відібрати час у розбору тексту:
-# якщо від початку розбору PDF уже витрачено стільки секунд CPU, решту сторінок не чіпаємо (ліміт процесу 8 с).
+# Counting images is only a metric for the checks, so it must not take time away from text parsing:
+# if this many CPU seconds have been spent since the PDF parse started, we skip the remaining pages (process limit is 8 s).
 IMAGES_CPU_BUDGET_S = 3.0
-# Форми (Form XObject) обходимо неглибоко й обмежено, щоб вкладені чи циклічні ресурси не з'їли час.
+# Forms (Form XObject) are traversed shallowly and with a bound, so nested or cyclic resources do not eat the time.
 MAX_FORM_DEPTH = 2
 MAX_XOBJECT_NODES = 200
 
 
 def _resolve(obj):
-    """Розкриває непряме посилання pypdf; для звичайних значень повертає їх самих."""
+    """Resolves a pypdf indirect reference; for plain values returns them unchanged."""
     return obj.get_object() if hasattr(obj, "get_object") else obj
 
 
@@ -48,9 +48,9 @@ def _dict_get(obj, key):
 
 
 def _xobject_images(resources, depth: int, nodes: list) -> int:
-    """Рахує записи /Subtype /Image у /Resources /XObject без декодування зображень.
+    """Counts /Subtype /Image entries in /Resources /XObject without decoding the images.
 
-    nodes[0] це спільний лічильник вузлів, що лишилися, на всю сторінку.
+    nodes[0] is a counter of the remaining nodes, shared across the whole page.
     """
     xobjects = _dict_get(resources, "/XObject")
     if not hasattr(xobjects, "values"):
@@ -70,27 +70,27 @@ def _xobject_images(resources, depth: int, nodes: list) -> int:
 
 
 def page_images(page) -> int:
-    """Кількість зображень на сторінці без їх декодування.
+    """Number of images on a page, without decoding them.
 
-    len(page.images) у pypdf повністю розпаковує кожне inline-зображення (BI/ID/EI), і одна сторінка
-    може з'їсти весь ліміт CPU. Тому рахуємо XObject-зображення за словником ресурсів, а inline за
-    оператором INLINE IMAGE у вже розібраному потоці команд (дані зображення не розпаковуються).
-    Inline-зображення всередині форм не рахуємо.
+    len(page.images) in pypdf fully unpacks every inline image (BI/ID/EI), and a single page
+    can eat the whole CPU limit. So we count XObject images from the resources dictionary, and inline ones from
+    the INLINE IMAGE operator in the already parsed command stream (the image data is not unpacked).
+    Inline images inside forms are not counted.
     """
     total = _xobject_images(_dict_get(page, "/Resources"), 0, [MAX_XOBJECT_NODES])
     try:
         contents = page.get_contents()
         if contents is not None:
             total += sum(1 for _, op in contents.operations if op == b"INLINE IMAGE")
-    except Exception:  # зіпсований потік команд: XObject-картинки вже пораховано
+    except Exception:  # corrupt command stream: the XObject images are already counted
         pass
     return total
 
 
 def count_images(reader, pages: int, started: float | None = None) -> int:
-    """Скільки зображень на сторінках PDF. Помилка на сторінці рахується як 0 і не ламає розбір.
+    """How many images are on the PDF pages. An error on a page counts as 0 and does not break parsing.
 
-    started: значення time.process_time() на початку розбору; за замовчуванням момент виклику.
+    started: the time.process_time() value at the start of parsing; defaults to the moment of the call.
     """
     import time
 
@@ -102,7 +102,7 @@ def count_images(reader, pages: int, started: float | None = None) -> int:
             break
         try:
             total += page_images(reader.pages[i])
-        except Exception:  # зіпсований XObject, надто глибока вкладеність тощо
+        except Exception:  # corrupt XObject, nesting too deep, etc.
             continue
     return total
 

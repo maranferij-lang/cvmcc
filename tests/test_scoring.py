@@ -1,4 +1,4 @@
-"""Стабільний бал: зіставлення критеріїв, ваги, формула, штраф, версія знань."""
+"""Stable score: criterion matching, weights, formula, penalty, knowledge version."""
 import json
 import shutil
 import sys
@@ -31,14 +31,14 @@ RUBRICS = Path(cvmax.__file__).parent / "rubrics"
 
 @pytest.fixture(autouse=True)
 def _config_values(monkeypatch):
-    """Значення з плану фіксуємо, щоб тести не залежали від того, чи вже є вони в config."""
+    """Pin the values from the plan so the tests do not depend on whether config already has them."""
     monkeypatch.setattr(config, "SCORE_MODEL_WEIGHT", 0.3, raising=False)
     monkeypatch.setattr(config, "PENALTY_CAP", 15, raising=False)
 
 
 @pytest.fixture
 def stub_checks(monkeypatch):
-    """Підміняє cvmax.checks заглушкою без penalty: підрахунок іде локально."""
+    """Replaces cvmax.checks with a stub without penalty: the calculation runs locally."""
     stub = types.ModuleType("cvmax.checks")
     monkeypatch.setitem(sys.modules, "cvmax.checks", stub)
     monkeypatch.setattr(cvmax, "checks", stub, raising=False)
@@ -50,7 +50,7 @@ def _report(*severities):
 
 
 def _analysis(grades, overall=58):
-    """demo_analysis з іншими оцінками критеріїв: grades = список (назва, бал) або словник."""
+    """demo_analysis with different criterion scores: grades = a list of (name, score) or a dict."""
     pairs = list(grades.items()) if isinstance(grades, dict) else list(grades)
     scores = [CriterionScore(criterion=n, score=s, comment="c") for n, s in pairs]
     return demo_analysis().model_copy(update={"scores": scores, "overall_score": overall})
@@ -60,7 +60,7 @@ def _uniform(grade, overall):
     return _analysis({k: grade for k in DEFAULT_KEYS}, overall)
 
 
-# --- зіставлення назви критерію ---
+# --- matching a criterion name ---
 
 
 @pytest.mark.parametrize("key", DEFAULT_KEYS)
@@ -115,7 +115,7 @@ def test_match_prefers_longest_key():
 
 
 def test_match_key_is_used_once():
-    """Використаний ключ вилучають із weights, тому друге входження вже не зіставляється."""
+    """A used key is removed from weights, so a second occurrence no longer matches."""
     weights = {"Target fit": 25, "Impact bullets": 20}
     assert match_criterion("Target fit", weights) == "Target fit"
     del weights["Target fit"]
@@ -127,7 +127,7 @@ def test_match_bounds_huge_input():
     assert match_criterion("target fit " + "x" * 100_000, weights) == "Target fit"
 
 
-# --- ваги ---
+# --- weights ---
 
 
 def test_weights_file_is_consistent_with_rubric():
@@ -188,7 +188,7 @@ def test_weights_missing_or_corrupt_file_falls_back(tmp_path):
     assert load_weights("law", bad) == builtin
 
 
-# --- формула ---
+# --- formula ---
 
 
 def test_compute_score_on_demo_is_deterministic():
@@ -196,8 +196,8 @@ def test_compute_score_on_demo_is_deterministic():
     first = compute_score(analysis, None, "economics_big_data")
     second = compute_score(analysis, None, "economics_big_data")
     assert first == second
-    assert analysis.overall_score == 58  # аналіз не змінюється
-    # критерії: (25*2 + 20*1 + 15*1 + 10*3 + 10*3 + 10*2 + 10*3) / 4 = 48.75 -> 49; 0.7*49 + 0.3*58 = 51.7 -> 52
+    assert analysis.overall_score == 58  # the analysis is not modified
+    # criteria: (25*2 + 20*1 + 15*1 + 10*3 + 10*3 + 10*2 + 10*3) / 4 = 48.75 -> 49; 0.7*49 + 0.3*58 = 51.7 -> 52
     assert first.criteria_score == 49
     assert first.model_score == 58
     assert first.penalty == 0
@@ -209,7 +209,7 @@ def test_compute_score_on_demo_is_deterministic():
 
 def test_compute_score_uses_program_weights():
     analysis = demo_analysis()
-    # software_engineering: (20*2 + 20*1 + 20*1 + 10*3 + 10*3 + 10*2 + 10*3) / 4 = 47.5 -> 48 (половини вгору)
+    # software_engineering: (20*2 + 20*1 + 20*1 + 10*3 + 10*3 + 10*2 + 10*3) / 4 = 47.5 -> 48 (halves round up)
     detail = compute_score(analysis, None, "software_engineering")
     assert detail.criteria_score == 48
     assert detail.score == 51
@@ -226,7 +226,7 @@ def test_model_score_moves_result_by_at_most_six(program, delta):
     b = compute_score(shifted, None, program)
     assert a.criteria_score == b.criteria_score
     assert abs(a.score - b.score) <= 6
-    assert abs(a.score - b.score) == 6  # без обрізання зсув точний
+    assert abs(a.score - b.score) == 6  # without clamping the shift is exact
 
 
 def test_model_score_shift_with_penalty_stays_within_six(stub_checks):
@@ -242,11 +242,11 @@ def test_model_score_shift_with_penalty_stays_within_six(stub_checks):
 def test_model_weight_comes_from_config(monkeypatch):
     analysis = demo_analysis()
     monkeypatch.setattr(config, "SCORE_MODEL_WEIGHT", 0.0)
-    assert compute_score(analysis, None, "other").score == 49  # лише критерії
+    assert compute_score(analysis, None, "other").score == 49  # criteria only
     monkeypatch.setattr(config, "SCORE_MODEL_WEIGHT", 1.0)
-    assert compute_score(analysis, None, "other").score == 58  # лише модель
+    assert compute_score(analysis, None, "other").score == 58  # model only
     monkeypatch.setattr(config, "SCORE_MODEL_WEIGHT", "junk")
-    assert compute_score(analysis, None, "other").score == 52  # некоректне значення = 0.3
+    assert compute_score(analysis, None, "other").score == 52  # an invalid value means 0.3
 
 
 def test_missing_config_values_use_defaults(monkeypatch):
@@ -256,7 +256,7 @@ def test_missing_config_values_use_defaults(monkeypatch):
     assert compute_score(demo_analysis(), _report(*["high"] * 10), "other").penalty == 15
 
 
-# --- запасний шлях: замало критеріїв ---
+# --- fallback path: too few criteria ---
 
 
 def test_fewer_than_four_matched_falls_back_to_model_score(stub_checks):
@@ -269,7 +269,7 @@ def test_fewer_than_four_matched_falls_back_to_model_score(stub_checks):
     assert detail.penalty == 5
     assert detail.model_score == 70
     assert detail.criteria_score == 70
-    assert detail.score == 65  # 70 - 5, критерії не враховано
+    assert detail.score == 65  # 70 - 5, the criteria are not taken into account
     assert len(detail.items) == 3
 
 
@@ -297,7 +297,7 @@ def test_duplicate_criterion_counts_once():
     assert detail.items[0] == ("Target fit", 25, 5)
 
 
-# --- обрізання ---
+# --- clamping ---
 
 
 def test_clamping_to_0_100():
@@ -305,11 +305,11 @@ def test_clamping_to_0_100():
     assert (top.model_score, top.criteria_score, top.score) == (100, 100, 100)
     bottom = compute_score(_uniform(1, -30), _report(*["high"] * 10), "other")
     assert (bottom.model_score, bottom.criteria_score, bottom.score) == (0, 0, 0)
-    # штраф більший за суму: нижче нуля не йдемо
+    # the penalty exceeds the score: we do not go below zero
     low = compute_score(_uniform(1, 5), _report(*["high"] * 10), "other")
     assert low.penalty == 15
     assert low.score == 0
-    # фолбек теж обрізається
+    # the fallback is clamped too
     assert compute_score(_analysis([], overall=3), _report("high", "high"), "other").score == 0
     assert compute_score(_analysis([], overall=999), None, "other").score == 100
 
@@ -319,11 +319,11 @@ def test_out_of_range_grades_are_clamped():
     detail = compute_score(_analysis(grades, overall=50), None, "other")
     assert all(1 <= s <= 5 for _, _, s in detail.items)
     assert 0 <= detail.criteria_score <= 100
-    # 60 ваги на п'ятірках: 100 * 60 / 100 = 60
+    # 60 of weight on fives: 100 * 60 / 100 = 60
     assert detail.criteria_score == 60
 
 
-# --- штраф ---
+# --- penalty ---
 
 
 def test_penalty_local_without_checks_penalty(stub_checks):
@@ -384,7 +384,7 @@ def test_penalty_matches_real_checks_module():
     assert detail.penalty == checks.penalty(report) == 7
 
 
-# --- серіалізація ---
+# --- serialisation ---
 
 
 def test_score_detail_is_json_serializable():
@@ -402,7 +402,7 @@ def test_scoring_module_exposes_weights_path():
     assert scoring.WEIGHTS_PATH.is_file()
 
 
-# --- версія знань ---
+# --- knowledge version ---
 
 
 def test_knowledge_version_changes_with_weights(tmp_path):

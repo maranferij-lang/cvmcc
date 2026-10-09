@@ -1,25 +1,25 @@
-"""Генерація синтетичних CV із закладеними вадами для evals.
+"""Generation of synthetic CVs with planted flaws for evals.
 
-Важка модель пише вигадане CV, у якому свідомо закладено вади з evals/flaws.json, і вказує, за яким
-фрагментом рядка кожну ваду шукати. Кейс зберігається у тому самому форматі, що й evals/cases
-(JSON + TXT), тому `python evals/run_evals.py evals/synth` працює без змін формату.
-Додатково в JSON: "synthetic": true, а в кожному елементі expect поле "flaw".
+A heavy model writes a fictional CV in which the flaws from evals/flaws.json are deliberately planted, and
+states which line fragment to use to look for each flaw. The case is saved in the same format as evals/cases
+(JSON + TXT), so `python evals/run_evals.py evals/synth` works without format changes.
+Extra in the JSON: "synthetic": true, and a "flaw" field in every expect item.
 
-Запуск:  python evals/generate_synthetic.py --program all --n 2 --seed 7
-         python evals/generate_synthetic.py --program law --n 3 --seed 1 --out evals/synth
-Потрібен GEMINI_API_KEY або ANTHROPIC_API_KEY. Існуючі файли не перезаписуються без --force.
+Run:  python evals/generate_synthetic.py --program all --n 2 --seed 7
+      python evals/generate_synthetic.py --program law --n 3 --seed 1 --out evals/synth
+Needs GEMINI_API_KEY or ANTHROPIC_API_KEY. Existing files are not overwritten without --force.
 
-Після генерації кожен кейс проходить validate_case (її можна викликати без моделі):
-фрагменти рядків зустрічаються в тексті рівно один раз, довжина фрагмента 15-120 символів,
-у тексті 300-1200 слів, жодної реальної компанії зі списку заборонених, слаг LinkedIn закінчується на
--example, а домен пошти містить example. Без over_length CV не довше
-JUNIOR_MAX_WORDS слів (ліміт однієї сторінки в застосунку), а контролі clean_lines не мають знахідок
-weak_opener, first_person, long_bullet, duplicate_line від cvmax.checks і не повторюють цифри дубліката.
-Непридатний кейс перегенеровується до MAX_REGENERATIONS разів, потім пропускається з повідомленням.
+After generation every case goes through validate_case (it can be called without a model):
+line fragments occur in the text exactly once, a fragment is 15-120 characters long,
+the text has 300-1200 words, no real company from the banned list, the LinkedIn slug ends with
+-example, and the email domain contains example. Without over_length the CV is no longer than
+JUNIOR_MAX_WORDS words (the one-page limit in the app), and the clean_lines controls have no findings
+weak_opener, first_person, long_bullet, duplicate_line from cvmax.checks and do not repeat the duplicate's figures.
+An unfit case is regenerated up to MAX_REGENERATIONS times, then skipped with a message.
 """
 
-# Без `from __future__ import annotations`: pydantic-схеми нижче мають працювати, навіть якщо модуль
-# завантажено за шляхом (importlib) без реєстрації в sys.modules, як це робить tests/test_evals.py.
+# No `from __future__ import annotations`: the pydantic schemas below must work even if the module
+# is loaded by path (importlib) without being registered in sys.modules, as tests/test_evals.py does.
 import argparse
 import copy
 import functools
@@ -46,28 +46,28 @@ from cvmax.profile import (  # noqa: E402
 FLAWS_PATH = ROOT / "evals" / "flaws.json"
 DEFAULT_OUT = ROOT / "evals" / "synth"
 
-MIN_WORDS, MAX_WORDS = 300, 1200  # межі слів у CV
-OVER_LENGTH_WORDS = 800  # поріг закладеної вади over_length; без неї ліміт JUNIOR_MAX_WORDS (як у застосунку)
-UNPLANTED_WORDS_HINT = 600  # скільки слів просимо в моделі без over_length: запас до JUNIOR_MAX_WORDS на похибку підрахунку
-PHRASE_MIN, PHRASE_MAX = 15, 120  # довжина line_contains, символів
-MAX_CV_CHARS = 40_000  # як ліміт тексту CV у cv_input: довші тексти до регулярних виразів не доходять
-MIN_FLAWS, MAX_FLAWS = 4, 6  # скільки вад закладаємо в один кейс (без over_length)
-CLEAN_LINES = 2  # скільки сильних пунктів-контролів (strong_keep) у кейсі
-# Знахідки cvmax.checks, на які промпт аналізу велить реагувати вердиктом: контроль strong_keep їх мати не може.
+MIN_WORDS, MAX_WORDS = 300, 1200  # word limits of a CV
+OVER_LENGTH_WORDS = 800  # threshold of the planted over_length flaw; without it the limit is JUNIOR_MAX_WORDS (as in the app)
+UNPLANTED_WORDS_HINT = 600  # how many words we ask the model for without over_length: a margin below JUNIOR_MAX_WORDS for counting error
+PHRASE_MIN, PHRASE_MAX = 15, 120  # length of line_contains, in characters
+MAX_CV_CHARS = 40_000  # same as the CV text limit in cv_input: longer texts never reach the regular expressions
+MIN_FLAWS, MAX_FLAWS = 4, 6  # how many flaws we plant in one case (without over_length)
+CLEAN_LINES = 2  # how many strong control bullets (strong_keep) a case has
+# cvmax.checks findings that the analysis prompt tells the model to answer with a verdict: a strong_keep control cannot have them.
 CLEAN_FORBIDDEN_FINDINGS = frozenset({"weak_opener", "first_person", "long_bullet", "duplicate_line"})
-DUPLICATE_SHARED_NUMBERS = 2  # стільки спільних чисел із рядком дубліката робить контроль його першою появою
-MAX_REGENERATIONS = 2  # скільки разів перегенеровуємо непридатний кейс
-MAX_FEEDBACK_ERRORS = 8  # скільки помилок попередньої спроби показуємо моделі
+DUPLICATE_SHARED_NUMBERS = 2  # this many numbers shared with the duplicate's line make a control the duplicate's first occurrence
+MAX_REGENERATIONS = 2  # how many times we regenerate an unfit case
+MAX_FEEDBACK_ERRORS = 8  # how many errors of the previous attempt we show the model
 
-# Реальні компанії, яких у вигаданих CV не повинно бути.
+# Real companies that must not appear in the fictional CVs.
 BANNED_COMPANIES = (
     "Google", "Amazon", "Microsoft", "Meta", "McKinsey", "BCG", "Bain", "Deloitte", "PwC", "KPMG", "EY",
     "SoftServe", "EPAM", "GlobalLogic", "Grammarly",
 )
-# Короткі назви, що збігаються зі звичайними словами (meta-analysis), шукаємо лише з точним регістром.
+# Short names that coincide with ordinary words (meta-analysis) are matched with exact case only.
 _EXACT_CASE = {"Meta", "EY", "BCG"}
 
-# Вигадані імена кандидатів: щоб кейси не повторювали одне й те саме ім'я.
+# Fictional candidate names: so that cases do not repeat the same name.
 FIRST_NAMES = ("Illia", "Daria", "Taras", "Olena", "Maksym", "Sofiia", "Andrii", "Kateryna", "Oliver", "Emma",
                "Lukas", "Anna", "Nikita", "Marta", "Jonas", "Yaroslava")
 LAST_NAMES = ("Moroz", "Bondar", "Kravets", "Lysenko", "Tkach", "Hrytsenko", "Savchuk", "Melnyk", "Hartley",
@@ -77,7 +77,7 @@ _PROFILE_FIELDS = ("program", "status", "background", "target_role", "company_ty
                    "region", "vacancy_text", "feedback_language")
 
 
-# ---------------- Схема відповіді моделі ----------------
+# ---------------- Schema of the model's reply ----------------
 
 
 class SyntheticProfile(BaseModel):
@@ -94,8 +94,8 @@ class SyntheticProfile(BaseModel):
 
 
 class PlantedFlaw(BaseModel):
-    code: str  # ключ з evals/flaws.json
-    line_contains: str  # фрагмент рядка CV; для вад над усім CV (over_length, missing_contact) порожній
+    code: str  # key from evals/flaws.json
+    line_contains: str  # fragment of a CV line; empty for whole-CV flaws (over_length, missing_contact)
 
 
 class SyntheticCase(BaseModel):
@@ -103,35 +103,35 @@ class SyntheticCase(BaseModel):
     profile: SyntheticProfile
     cv_text: str
     planted: List[PlantedFlaw]
-    clean_lines: List[str]  # фрагменти сильних пунктів, які не можна чіпати
+    clean_lines: List[str]  # fragments of strong bullets that must not be touched
 
 
-# ---------------- Каталог вад ----------------
+# ---------------- Flaw catalogue ----------------
 
 
 @functools.lru_cache(maxsize=1)
 def load_flaws() -> dict[str, dict]:
-    """Каталог вад з evals/flaws.json (не змінювати повернений словник)."""
+    """The flaw catalogue from evals/flaws.json (do not modify the returned dict)."""
     return json.loads(FLAWS_PATH.read_text(encoding="utf-8"))
 
 
 def is_global(flaw: dict) -> bool:
-    """Вада над усім CV (довжина, відсутній email): рядка для неї немає."""
+    """A flaw of the whole CV (length, missing email): it has no line."""
     return flaw.get("expect", {}).get("type") in ("length", "mentions")
 
 
-# ---------------- Плани: які вади й який профіль ----------------
+# ---------------- Plans: which flaws and which profile ----------------
 
 
 def over_length_index(seed: int, program: str, n: int) -> int:
-    """Номер кейсу (від 1), у який для цієї програми додаємо over_length."""
+    """Number of the case (from 1) in which over_length is added for this program."""
     return 1 + random.Random(f"{seed}:{program}:over_length").randrange(max(n, 1))
 
 
 def plan_flaws(seed: int, program: str, index: int, n: int = 1) -> list[str]:
-    """Вади для кейсу `index` (від 1): 4-6 випадкових, а в одному кейсі програми ще й over_length.
+    """Flaws for case `index` (from 1): 4-6 random ones, and one case of the program also gets over_length.
 
-    Детерміновано: той самий seed дає той самий набір. strong_keep сюди не входить, це окремі clean_lines.
+    Deterministic: the same seed gives the same set. strong_keep is not included, those are the separate clean_lines.
     """
     flaws = load_flaws()
     order = list(flaws)
@@ -144,9 +144,9 @@ def plan_flaws(seed: int, program: str, index: int, n: int = 1) -> list[str]:
 
 
 def plan_profile(seed: int, program: str, index: int) -> dict[str, str]:
-    """Значення профілю зі списків cvmax/profile.py. Вільні поля (background, target_role) пише модель."""
+    """Profile values from the lists in cvmax/profile.py. The free fields (background, target_role) are written by the model."""
     rng = random.Random(f"{seed}:{program}:{index}:profile")
-    level = rng.choice(LEVELS[:2])  # для рівня Mid-level це не студентські CV
+    level = rng.choice(LEVELS[:2])  # for the Mid-level these are not student CVs
     statuses = ["1st year", "2nd year", "3rd year", "4th year", "Master's"] if level == "Internship" \
         else ["4th year", "Master's", "Graduate"]
     return {
@@ -164,11 +164,11 @@ def plan_name(seed: int, program: str, index: int) -> str:
     return f"{rng.choice(FIRST_NAMES)} {rng.choice(LAST_NAMES)}"
 
 
-# ---------------- Валідація ----------------
+# ---------------- Validation ----------------
 
 
 def count_occurrences(text: str, phrase: str, limit: int = 2) -> int:
-    """Скільки разів phrase зустрічається в text (з перекриттями), але не більше limit."""
+    """How many times phrase occurs in text (with overlaps), but at most limit."""
     if not phrase:
         return 0
     found = start = 0
@@ -189,7 +189,7 @@ _BANNED_EXACT = re.compile(r"(?<![\w-])(?:%s)(?![\w-])" % "|".join(sorted(_EXACT
 
 
 def find_banned(text: str) -> list[str]:
-    """Реальні компанії зі списку заборонених, згадані в тексті (текст обрізається до MAX_CV_CHARS)."""
+    """Real companies from the banned list that are mentioned in the text (the text is cut to MAX_CV_CHARS)."""
     text = text[:MAX_CV_CHARS]
     found = {m.group(0).lower() for m in _BANNED_ANY_CASE.finditer(text)}
     found |= {m.group(0).lower() for m in _BANNED_EXACT.finditer(text)}
@@ -202,9 +202,9 @@ _ADDRESS_SPLIT = re.compile(r"[\s|,;<>()\[\]]+")
 
 
 def find_bad_contacts(text: str) -> list[str]:
-    """Контакти, які можуть вести на справжню людину: слаг LinkedIn без -example, домен пошти без example.
+    """Contacts that may lead to a real person: a LinkedIn slug without -example, an email domain without example.
 
-    Лише слаги LinkedIn і домени пошти; самі linkedin.com чи github.com не чіпаємо. Текст обрізається до MAX_CV_CHARS.
+    Only LinkedIn slugs and email domains; linkedin.com or github.com themselves are not touched. The text is cut to MAX_CV_CHARS.
     """
     text = text[:MAX_CV_CHARS]
     errors: list[str] = []
@@ -212,7 +212,7 @@ def find_bad_contacts(text: str) -> list[str]:
         message = f"LinkedIn slug {slug[:50]!r} must end with -example"
         if not slug.lower().endswith("-example") and message not in errors:
             errors.append(message)
-    # Пошту шукаємо по словах, а не одним регулярним виразом з «[\w.+-]+@»: той на довгому слові без «@» квадратичний.
+    # Emails are searched word by word, not with a single regular expression with "[\w.+-]+@": on a long word without "@" that one is quadratic.
     for word in _ADDRESS_SPLIT.split(text):
         _, at, rest = word.partition("@")
         match = _EMAIL_DOMAIN.match(rest) if at else None
@@ -224,20 +224,20 @@ def find_bad_contacts(text: str) -> list[str]:
 
 
 def _norm_line(line: str) -> str:
-    """Рядок у нижньому регістрі з одним пробілом між словами: так порівнюємо рядок CV із цитатою checks."""
+    """A line in lower case with a single space between words: this is how we compare a CV line with the quote from checks."""
     return " ".join(line.lower().split())
 
 
 def _number_groups(line: str) -> set[str]:
-    """Числа рядка (12, 2,500, 3.5, 2024) без кінцевої крапки чи коми."""
+    """The numbers of a line (12, 2,500, 3.5, 2024) without a trailing period or comma."""
     return {m.rstrip(",.") for m in re.findall(r"\d[\d,.]*", line)}
 
 
 def flagged_lines(text: str, profile: dict) -> list[tuple[str, str]]:
-    """(код знахідки, початок рядка) для знахідок cvmax.checks з CLEAN_FORBIDDEN_FINDINGS.
+    """(finding code, start of the line) for the cvmax.checks findings in CLEAN_FORBIDDEN_FINDINGS.
 
-    Початок рядка нормалізований через _norm_line: checks цитує до 120 символів рядка.
-    Без придатного профілю checks не запускаємо (помилки профілю вже в списку validate_case).
+    The start of the line is normalised with _norm_line: checks quotes up to 120 characters of a line.
+    Without a usable profile we do not run checks (profile errors are already in the validate_case list).
     """
     if not all(isinstance(profile.get(f), str) for f in _PROFILE_FIELDS):
         return []
@@ -268,10 +268,10 @@ def _validate_profile(profile: Any) -> list[str]:
 
 
 def validate_case(case: dict, required: Sequence[str] | None = None) -> list[str]:
-    """Список помилок кейсу (порожній, якщо кейс придатний). Модель не потрібна.
+    """The list of errors of a case (empty if the case is fit). No model needed.
 
-    `case`: словник у формі SyntheticCase (name, profile, cv_text, planted, clean_lines).
-    `required`: коди вад, які мали бути закладені (перевіряємо, що модель виконала план).
+    `case`: a dict shaped like SyntheticCase (name, profile, cv_text, planted, clean_lines).
+    `required`: codes of the flaws that were supposed to be planted (we check that the model followed the plan).
     """
     if not isinstance(case, dict):
         return ["case is not an object"]
@@ -307,7 +307,7 @@ def validate_case(case: dict, required: Sequence[str] | None = None) -> list[str
     lines = lower.split("\n")
     first_line = next((ln for ln in lines if ln.strip()), "")
     codes: list[str] = []
-    phrases: list[tuple[str, str]] = []  # (чия вада, фрагмент рядка)
+    phrases: list[tuple[str, str]] = []  # (whose flaw, line fragment)
     for item in planted:
         code = str(item.get("code", "")).strip()
         phrase = str(item.get("line_contains", "")).strip()
@@ -337,8 +337,8 @@ def validate_case(case: dict, required: Sequence[str] | None = None) -> list[str
 
     flagged = flagged_lines(text, profile) if clean else []
     used_lines: dict[int, str] = {}
-    clean_found: list[str] = []  # повні рядки контролів
-    duplicate_line = None  # повний рядок дубліката (друга поява)
+    clean_found: list[str] = []  # full lines of the controls
+    duplicate_line = None  # full line of the duplicate (second occurrence)
     for label, phrase in phrases:
         shown = phrase[:50]
         if "\n" in phrase:
@@ -374,7 +374,7 @@ def validate_case(case: dict, required: Sequence[str] | None = None) -> list[str
 
     if "over_length" in codes and words < OVER_LENGTH_WORDS:
         errors.append(f"over_length is planted, but cv_text has only {words} words, expected {OVER_LENGTH_WORDS}+")
-    if "over_length" not in codes and words > JUNIOR_MAX_WORDS:  # застосунок уже від цього порогу пропонує скоротити CV
+    if "over_length" not in codes and words > JUNIOR_MAX_WORDS:  # the app already suggests shortening the CV from this threshold
         errors.append(f"cv_text has {words} words, but over_length is not planted: keep it at or under {JUNIOR_MAX_WORDS}")
     if "missing_contact" in codes and "@" in text:
         errors.append("missing_contact is planted, but the CV contains an email address")
@@ -387,11 +387,11 @@ def validate_case(case: dict, required: Sequence[str] | None = None) -> list[str
     return errors
 
 
-# ---------------- Файли кейсу ----------------
+# ---------------- Case files ----------------
 
 
 def build_expect(case: dict) -> list[dict]:
-    """Елементи expect у форматі evals/cases: кожному planted по одному, потім контролі strong_keep."""
+    """expect items in the evals/cases format: one per planted flaw, then the strong_keep controls."""
     flaws = load_flaws()
     counts: Counter = Counter()
     expect: list[dict] = []
@@ -412,7 +412,7 @@ def build_expect(case: dict) -> list[dict]:
 
 
 def case_to_files(case: dict, stem: str) -> tuple[dict, str]:
-    """(JSON кейсу, текст TXT) для збереження."""
+    """(the case JSON, the TXT text) to be saved."""
     profile = {f: case["profile"][f] for f in _PROFILE_FIELDS}
     data = {
         "name": case["name"].strip(),
@@ -425,7 +425,7 @@ def case_to_files(case: dict, stem: str) -> tuple[dict, str]:
 
 
 def saved_to_case(data: dict, cv_text: str) -> dict:
-    """Зворотне перетворення: збережений JSON + TXT назад у форму SyntheticCase (для validate_case)."""
+    """The reverse conversion: the saved JSON + TXT back into the SyntheticCase shape (for validate_case)."""
     planted, clean = [], []
     for item in data.get("expect", []):
         flaw = item.get("flaw")
@@ -439,7 +439,7 @@ def saved_to_case(data: dict, cv_text: str) -> dict:
 
 
 def write_case(case: dict, stem: str, out_dir: Path, force: bool = False) -> bool:
-    """Записує stem.txt і stem.json. Існуючі файли без force не чіпає (False). JSON пишемо останнім."""
+    """Writes stem.txt and stem.json. Existing files are left alone without force (False). The JSON is written last."""
     txt_path, json_path = out_dir / f"{stem}.txt", out_dir / f"{stem}.json"
     if not force and (txt_path.exists() or json_path.exists()):
         return False
@@ -450,7 +450,7 @@ def write_case(case: dict, stem: str, out_dir: Path, force: bool = False) -> boo
     return True
 
 
-# ---------------- Запит до моделі ----------------
+# ---------------- Request to the model ----------------
 
 SYSTEM = f"""You write fictional student CVs that are used to test a CV-review tool. Every CV is plain text, \
 as if extracted from a PDF: the candidate's name and contact line first, then sections with upper-case \
@@ -482,7 +482,7 @@ such as "Supported", "Helped" or "Worked on", and stay under 40 words. They are 
 
 
 def build_prompt(program: str, profile: dict, codes: list[str], candidate: str, errors: Sequence[str] = ()) -> str:
-    """Запит до моделі: профіль, вади з інструкціями, довжина й (за повторної спроби) помилки минулої спроби."""
+    """The request to the model: the profile, the flaws with instructions, the length and (on a retry) the errors of the last attempt."""
     flaws = load_flaws()
     over = "over_length" in codes
     words = "850-1100" if over else f"400-{UNPLANTED_WORDS_HINT}"
@@ -504,12 +504,12 @@ def build_prompt(program: str, profile: dict, codes: list[str], candidate: str, 
 
 
 def normalise(case: dict, planned: dict[str, str]) -> dict:
-    """Приводить відповідь моделі до придатного вигляду: переноси рядків, обрізані фрагменти, профіль за планом."""
+    """Brings the model reply to a usable form: line breaks, trimmed fragments, the profile as planned."""
     flaws = load_flaws()
     case = copy.deepcopy(case)
     case["cv_text"] = str(case.get("cv_text", "")).replace("\r\n", "\n").replace("\r", "\n").strip()
     profile = dict(case.get("profile") or {})
-    profile.update(planned)  # значення зі списків задає план, а не модель
+    profile.update(planned)  # the values from the lists are set by the plan, not by the model
     case["profile"] = profile
     for item in case.get("planted", []):
         item["code"] = str(item.get("code", "")).strip()
@@ -521,7 +521,7 @@ def normalise(case: dict, planned: dict[str, str]) -> dict:
 
 
 def generate_case(llm: Any, program: str, seed: int, index: int, n: int = 1) -> tuple[dict | None, list[str]]:
-    """Один кейс: запит до моделі, валідація, до MAX_REGENERATIONS повторів. Повертає (кейс, помилки останньої спроби)."""
+    """One case: request to the model, validation, up to MAX_REGENERATIONS retries. Returns (case, errors of the last attempt)."""
     codes = plan_flaws(seed, program, index, n)
     planned = plan_profile(seed, program, index)
     candidate = plan_name(seed, program, index)
@@ -533,7 +533,7 @@ def generate_case(llm: Any, program: str, seed: int, index: int, n: int = 1) -> 
                 llm, system=SYSTEM, content=[{"type": "text", "text": prompt}],
                 output_model=SyntheticCase, effort="high",
             )
-        except LLMError as exc:  # помилку моделі (ліміт, мережа) повторами не лікуємо
+        except LLMError as exc:  # a model error (limit, network) is not cured by retries
             return None, [f"model error: {exc}"]
         case = normalise(result.model_dump(), planned)
         errors = validate_case(case, required=codes)

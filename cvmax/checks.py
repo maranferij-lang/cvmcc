@@ -1,10 +1,10 @@
-"""Детерміновані перевірки CV: факти без LLM, які йдуть у промпт і в бал.
+"""Deterministic CV checks: facts computed without an LLM that go into the prompt and the score.
 
-Модель погано рахує слова, булети й цифри та не бачить, що в CV немає email. Це легко порахувати кодом,
-тому код дає моделі твердий список фактів, а вона вирішує, що з ними робити.
+The model is bad at counting words, bullets and numbers, and does not notice that a CV has no email. Code counts
+these easily, so the code gives the model a firm list of facts and the model decides what to do with them.
 
-Усі регулярні вирази лінійні (без вкладених квантифікаторів), кожен рядок CV обрізається до 400 символів,
-весь текст до 40 000, кількість рядків до 1500. Тому навіть CV з одного гігантського рядка розбирається миттєво.
+All regular expressions are linear (no nested quantifiers), each CV line is cut to 400 characters, the whole text
+to 40,000 and the number of lines to 1500. So even a CV made of one giant line is parsed instantly.
 """
 
 from __future__ import annotations
@@ -17,27 +17,27 @@ from . import config
 from .cv_input import CVFile
 from .profile import Profile
 
-# ---------------- Ліміти ----------------
+# ---------------- Limits ----------------
 
-MAX_CV_CHARS = 40_000  # стільки ж, скільки пропускає cv_input
-MAX_LINE_CHARS = 400  # кожен рядок CV обрізається перед перевіркою
-MAX_LINES = 1500  # непорожніх рядків; CV на 6000 слів стільки не має
-MAX_BULLET_CHARS = 1200  # булет разом із перенесеними на наступні рядки продовженнями
-QUOTE_CHARS = 120  # скільки тексту CV може бути в знахідці
+MAX_CV_CHARS = 40_000  # the same as cv_input lets through
+MAX_LINE_CHARS = 400  # each CV line is cut to this before checking
+MAX_LINES = 1500  # non-empty lines; a 6000-word CV does not have that many
+MAX_BULLET_CHARS = 1200  # a bullet together with its continuations wrapped onto the following lines
+QUOTE_CHARS = 120  # how much CV text a finding may contain
 PROMPT_MAX_CHARS = 1800
 PROMPT_MAX_FINDINGS = 12
-DEFAULT_PENALTY_CAP = 15  # запасне значення, поки config.PENALTY_CAP не заданий
+DEFAULT_PENALTY_CAP = 15  # fallback value while config.PENALTY_CAP is not set
 
-SCANNED_WORDS = 30  # PDF з меншою кількістю слів вважаємо скан
-JUNIOR_MAX_WORDS = 650  # рівні Internship / Junior: одна сторінка
-MID_MAX_WORDS = 1300  # рівень Mid-level: до двох сторінок
+SCANNED_WORDS = 30  # a PDF with fewer words is considered a scan
+JUNIOR_MAX_WORDS = 650  # Internship / Junior levels: one page
+MID_MAX_WORDS = 1300  # Mid-level: up to two pages
 MID_MAX_PAGES = 2
 
-# Значення з cvmax/profile.py (REGIONS, LEVELS); тест стежить, щоб вони не розійшлися зі списками.
+# Values from cvmax/profile.py (REGIONS, LEVELS); a test makes sure they do not drift away from those lists.
 STRICT_REGIONS = frozenset({"us / canada", "uk"})
 MID_LEVEL = "mid-level"
 
-# Скільки знахідок кожного коду лишаємо, щоб один дефект не заглушив решту.
+# How many findings of each code we keep, so that one defect does not drown out the rest.
 CAPS = {"weak_opener": 8, "duplicate_line": 5, "first_person": 5, "long_bullet": 5, "personal_data": 4}
 
 _WEIGHT = {"high": 4, "medium": 2, "low": 1}
@@ -49,30 +49,30 @@ _INTRO = (
 )
 
 
-# ---------------- Типи ----------------
+# ---------------- Types ----------------
 
 @dataclass(frozen=True)
 class Finding:
     code: str
     severity: str  # "high" | "medium" | "low"
-    message: str  # англійською, без тексту CV довшого за 120 символів
-    line: str = ""  # доказ: рядок CV (до 120 символів) або "" для глобальних знахідок
+    message: str  # in English, with no CV text longer than 120 characters
+    line: str = ""  # evidence: the CV line (up to 120 characters) or "" for global findings
 
 
 @dataclass
 class CheckReport:
     findings: list[Finding] = field(default_factory=list)
-    # words, pages, images, bullets, bullets_with_numbers, sections (список), has_email, has_phone, has_linkedin
+    # words, pages, images, bullets, bullets_with_numbers, sections (a list), has_email, has_phone, has_linkedin
     metrics: dict[str, Any] = field(default_factory=dict)
 
 
-# ---------------- Розбір рядків ----------------
+# ---------------- Line parsing ----------------
 
 _BULLET_CHARS = "-•·*–—●▪■◦○➢➤"
 _DECOR = " \t#*_=-–—:|•·~"
 
-# Секція визначається за заголовком із цими словами; українські слова потрібні, щоб CV українською
-# не отримувало хибне «немає Education».
+# A section is detected by a heading with these words; the Ukrainian words are needed so that a CV in Ukrainian
+# does not get a false "no Education".
 _KIND_PATTERNS = [
     ("education", r"education|освіта|academic\s+background|qualifications"),
     ("experience", r"experience|досвід"),
@@ -87,9 +87,9 @@ _KIND_PATTERNS = [
 ]
 _KIND_RES = [(k, re.compile(r"\b(?:%s)\b" % p, re.I)) for k, p in _KIND_PATTERNS]
 
-# Розділи, які перевірки не аналізують, але які мають закривати попередній: інакше «CERTIFICATES» після SKILLS
-# читається як навички, а датований сертифікат після EDUCATION ламає хронологію. Заголовок має складатися
-# лише з цих слів, тому рядок «Google Data Analytics Certificate» заголовком не вважається.
+# Sections the checks do not analyse but which must close the previous one: otherwise "CERTIFICATES" after SKILLS
+# is read as skills, and a dated certificate after EDUCATION breaks the chronology. A heading must consist
+# only of these words, so the line "Google Data Analytics Certificate" is not considered a heading.
 _OTHER_WORDS = frozenset(
     "certification certifications certificate certificates course courses training trainings award awards "
     "honor honors honour honours achievement achievements volunteering publication publications conference "
@@ -102,23 +102,23 @@ _WORD = re.compile(r"[^\W\d_]+|&")
 
 _DIGIT = re.compile(r"\d")
 _RANGE = re.compile(
-    r"\b((?:19|20)\d\d)\b"  # рік початку
+    r"\b((?:19|20)\d\d)\b"  # start year
     r"[^\d\n]{0,14}?(?:[-–—]|\bto\b)\s{0,3}"
     r"(?:\d{1,2}[./]\s{0,2})?(?:[A-Za-z]{3,9}\.?\s{1,3})?"
-    r"((?:19|20)\d\d\b|present\b|current\b|now\b|ongoing\b|today\b)",  # кінець діапазону
+    r"((?:19|20)\d\d\b|present\b|current\b|now\b|ongoing\b|today\b)",  # end of the range
     re.I,
 )
-_OPEN_END = 9999  # «present» тощо: запис ще триває
+_OPEN_END = 9999  # "present" etc.: the entry is still ongoing
 _RANGE_AT_START = re.compile(r"(?:\d{1,2}[./]\s{0,2})?(?:19|20)\d\d\s{0,3}[-–—]")
 
 
 @dataclass
 class _Line:
-    raw: str  # рядок без пробілів по краях, до 400 символів
-    text: str  # для булета: без маркера й з продовженнями; інакше те саме, що raw
+    raw: str  # the line without surrounding whitespace, up to 400 characters
+    text: str  # for a bullet: without the marker and with continuations; otherwise the same as raw
     kind: str  # "bullet" | "heading" | "text"
-    kinds: tuple[str, ...]  # види поточної секції (порожньо до першого заголовка)
-    section: int  # номер секції; 0 = до першого заголовка
+    kinds: tuple[str, ...]  # kinds of the current section (empty before the first heading)
+    section: int  # section number; 0 = before the first heading
 
 
 def _quote(s: str) -> str:
@@ -126,16 +126,16 @@ def _quote(s: str) -> str:
 
 
 def _bullet_text(s: str) -> str | None:
-    """Текст булета без маркера; None, якщо рядок не булет; "" для рядків-розділювачів ("-----")."""
+    """Bullet text without the marker; None if the line is not a bullet; "" for separator lines ("-----")."""
     if not s or s[0] not in _BULLET_CHARS:
         return None
-    if s[0] == "*" and len(s) > 1 and s[-1] == "*":  # **EDUCATION** це виділення, а не булет
+    if s[0] == "*" and len(s) > 1 and s[-1] == "*":  # **EDUCATION** is emphasis, not a bullet
         return None
     return s.lstrip(_BULLET_CHARS + " \t").strip()
 
 
 def _heading_label(label: str) -> str:
-    """Рядок без оздоби, якщо він схожий на заголовок: до 40 символів, без крапки й коми, до 5 слів; інакше ""."""
+    """Line without decoration if it looks like a heading (max 40 chars, no period or comma, max 5 words); else ""."""
     s = label.strip(_DECOR)
     if not s or len(s) > 40 or "." in s or "," in s or len(s.split()) > 5:
         return ""
@@ -143,20 +143,20 @@ def _heading_label(label: str) -> str:
 
 
 def _kinds_of(label: str) -> tuple[str, ...]:
-    """Види секцій, якщо рядок схожий на заголовок."""
+    """Section kinds, if the line looks like a heading."""
     s = _heading_label(label)
     return tuple(k for k, rx in _KIND_RES if rx.search(s)) if s else ()
 
 
 def _is_other_section(label: str) -> bool:
-    """Заголовок розділу без власного виду (Certificates, Awards, Additional...): він лише закриває попередній."""
+    """A heading with no kind of its own (Certificates, Awards, Additional...): it only closes the previous section."""
     s = _heading_label(label)
     words = [w.lower() for w in _WORD.findall(s)]
     return any(w in _OTHER_WORDS for w in words) and all(w in _OTHER_WORDS or w in _OTHER_FILLER for w in words)
 
 
 def _is_continuation(s: str) -> bool:
-    """Перенесений рядок булета: у PDF довгий булет ламається на кілька рядків, і цифра часто на другому."""
+    """Wrapped bullet line: in a PDF a long bullet breaks over several lines, and the number is often on the second."""
     c = s[0]
     if c.islower() or c in ")%,;&+/":
         return True
@@ -167,7 +167,7 @@ def _parse_lines(text: str) -> list[_Line]:
     out: list[_Line] = []
     section = 0
     kinds: tuple[str, ...] = ()
-    open_bullet: _Line | None = None  # останній булет, який ще може мати продовження
+    open_bullet: _Line | None = None  # the last bullet that may still have continuations
     count = 0
     for physical in text.splitlines():
         s = physical.replace(" ", " ").replace("\t", " ").strip()[:MAX_LINE_CHARS].strip()
@@ -190,7 +190,7 @@ def _parse_lines(text: str) -> list[_Line]:
                 open_bullet.text = (open_bullet.text + " " + s)[:MAX_BULLET_CHARS]
             continue
         open_bullet = None
-        # «Skills: Python, SQL»: заголовок і вміст в одному рядку.
+        # "Skills: Python, SQL": heading and content on one line.
         label, sep, rest = s.partition(":")
         rest = rest.strip()
         label_kinds = _kinds_of(label) if sep and rest else ()
@@ -220,7 +220,7 @@ def _found_sections(lines: list[_Line]) -> list[str]:
     return seen
 
 
-# ---------------- Окремі перевірки ----------------
+# ---------------- Individual checks ----------------
 
 _EMAIL = re.compile(r"[\w.+-]{1,64}@[\w-]{1,63}\.\w[\w.-]{0,62}")
 _PHONE_RUN = re.compile(r"[\d\s+()\-–]{9,}")
@@ -229,7 +229,7 @@ _YEAR = re.compile(r"(?:19|20)\d\d")
 
 
 def _has_phone(line: str) -> bool:
-    """≥ 9 цифр поспіль із +, пробілами, дужками й дефісами; ряд лише з років ("2023 - 2024 - 2025") не телефон."""
+    """9+ digits in a row with +, spaces, parentheses, hyphens; years only ("2023 - 2024 - 2025") are not a phone."""
     for m in _PHONE_RUN.finditer(line):
         groups = _DIGITS.findall(m.group())
         if sum(len(g) for g in groups) >= 9 and not all(_YEAR.fullmatch(g) for g in groups):
@@ -241,35 +241,35 @@ def _has_email(lines: list[_Line]) -> bool:
     return any("@" in ln.raw and _EMAIL.search(ln.raw) for ln in lines)
 
 
-# Номер будинку після назви вулиці: не рік («Zara Oxford Street, 2024 – Present») і не початок діапазону дат
-# («Regent Street 06/2022 – 08/2023»), бо це місце роботи, а не адреса.
+# House number after a street name: not a year ("Zara Oxford Street, 2024 – Present") and not the start of a date range
+# ("Regent Street 06/2022 – 08/2023"), because that is a workplace, not an address.
 _HOUSE_NO = r"(?!(?:19|20)\d\d\b)\d{1,5}\b(?!\s*[-–—]|[./](?:19|20)\d\d)"
 
 _PERSONAL = [
-    # дата народження
+    # date of birth
     re.compile(r"\bdate\s+of\s+birth\b|\bd\.?o\.?b\b|\bbirth\s?date\b|\bbirthday\b|\bborn\s+on\b"
                r"|дата\s+народження|день\s+народження", re.I),
-    # вік
+    # age
     re.compile(r"\bage\s*[:\-–]\s*\d{1,2}\b|\bage\s+\d{2}\b|\b\d{2}\s*(?:years?|yrs?)[\s-]*old\b"
                r"|\bвік\s*[:\-–]\s*\d{2}", re.I),
-    # сімейний стан
+    # marital status
     re.compile(r"\bmarital\b|\bmarried\b|\bfamily\s+status\b|сімейний\s+стан", re.I),
-    # національність і стать лише як поля («Gender: …»), щоб не чіпати «Gender Equality Research»
+    # nationality and gender only as fields ("Gender: …"), so as not to hit "Gender Equality Research"
     re.compile(r"\bnationality\s*[:\-–]|\bgender\s*[:\-–]|\bsex\s*[:\-–]|національність\s*[:\-–]"
                r"|\bстать\s*[:\-–]", re.I),
     re.compile(r"\bpassport\b|\bпаспорт", re.I),
-    # повна вулична адреса: вулиця й номер будинку. «3 street food festivals» не збігається.
+    # full street address: street and house number. "3 street food festivals" does not match.
     re.compile(r"\b\d{1,5}[A-Za-z]?\s+(?:[A-Z][\w'’.-]*\s+){1,3}(?:Street|Str\.|str\.)"),
     re.compile(r"\b[Ss]tr\.\s*[\w'’.-]+(?:\s+[\w'’.-]+)?[\s,]{1,3}" + _HOUSE_NO),
     re.compile(r"\b[A-Z][\w'’.-]*\s+(?:Street|STREET)[\s,]{1,3}" + _HOUSE_NO),
     re.compile(r"(?<!\w)(?:вул\.|вулиця|ул\.)\s*[\w'’.-]+(?:\s+[\w'’.-]+)?[\s,]{1,3}(?:буд\.?\s*)?\d{1,5}", re.I),
-    # «Photo attached», «Photo:», «| Photo |»
+    # "Photo attached", "Photo:", "| Photo |"
     re.compile(r"(?:^|[|;,•·]\s*)photo(?:graph)?\s*(?::|\||;|,|$|attached\b|enclosed\b|below\b)"
                r"|\bphoto\s+attached\b", re.I),
 ]
-_PERSONAL_MAX_LINE = 200  # особисті дані стоять у шапці коротким рядком, а не в довгому описі
-# Особистий блок у булетах («- Date of birth: 14.03.2005»). Повний набір шаблонів до булетів не застосовуємо:
-# він зачепив би «- Taught Python to 12 children between 10 and 13 years old» чи «- Analysed passport data».
+_PERSONAL_MAX_LINE = 200  # personal data sits in the header as a short line, not in a long description
+# Personal block in bullets ("- Date of birth: 14.03.2005"). We do not apply the full set of patterns to bullets:
+# it would hit "- Taught Python to 12 children between 10 and 13 years old" or "- Analysed passport data".
 _PERSONAL_FIELD = re.compile(
     r"(?:date\s+of\s+birth|d\.?o\.?b\.?|birth\s?date|birthday|born\s+on|age|marital\s+status|family\s+status"
     r"|nationality|gender|sex|passport|дата\s+народження|день\s+народження|вік|сімейний\s+стан"
@@ -302,7 +302,7 @@ def _check_length(profile: Profile, words: int, pages: int | None, scanned: bool
     size = []
     if pages:
         size.append(f"{pages} page{'s' if pages != 1 else ''}")
-    if not scanned:  # у скана слів немає, тому слова нічого не кажуть
+    if not scanned:  # a scan has no words, so the word count says nothing
         size.append(f"about {words} words")
     if mid:
         over = (pages or 0) > MID_MAX_PAGES or (not scanned and words > MID_MAX_WORDS)
@@ -348,7 +348,7 @@ def _check_few_numbers(bullets: list[_Line]) -> list[Finding]:
 
 
 def _check_duplicates(lines: list[_Line]) -> list[Finding]:
-    # Імпорт тут, а не нагорі: analyze.py сам підключає цей модуль, і верхній імпорт дав би цикл.
+    # Imported here, not at the top: analyze.py itself imports this module, and a top-level import would create a cycle.
     from .analyze import _skeleton
 
     seen: set[str] = set()
@@ -357,7 +357,7 @@ def _check_duplicates(lines: list[_Line]) -> list[Finding]:
         if ln.kind == "heading" or "@" in ln.raw or "linkedin.com/" in ln.raw.lower():
             continue
         sk = _skeleton(ln.raw)
-        # Чисті дати й числа ("2024 2025 2026") не вважаємо повтором.
+        # Pure dates and numbers ("2024 2025 2026") do not count as a repeat.
         if len(sk) < 25 or sum(1 for w in sk.split() if not w.isdigit()) < 4:
             continue
         if sk in seen:
@@ -377,8 +377,8 @@ _CLAUSE_OPENERS = frozenset({"when", "while", "as", "after", "before", "since", 
 
 
 def _has_mid_sentence_i(words: list[str]) -> bool:
-    """Займенник «I» серед слів 2–6. Римська цифра в назві курсу («Calculus I, Physics II», «Phase I trial»)
-    не займенник: перед нею слово з великої літери, а після неї кома, «and» або кінець рядка."""
+    """The pronoun "I" among words 2–6. A Roman numeral in a course name ("Calculus I, Physics II", "Phase I trial")
+    is not a pronoun: it is preceded by a capitalised word and followed by a comma, "and" or the end of the line."""
     for i in range(1, min(len(words), 6)):
         if words[i].strip(_PUNCT) != "I" or i + 1 >= len(words):
             continue
@@ -395,7 +395,7 @@ def _has_mid_sentence_i(words: list[str]) -> bool:
 def _check_first_person(lines: list[_Line]) -> list[Finding]:
     out: list[Finding] = []
     for i, ln in enumerate(lines):
-        if i == 0 or ln.kind == "heading":  # перший рядок це ім'я: "My Linh" не займенник
+        if i == 0 or ln.kind == "heading":  # the first line is the name: "My Linh" is not a pronoun
             continue
         text = ln.text
         if _FIRST_PERSON_START.match(text) or _has_mid_sentence_i(text.split()):
@@ -469,9 +469,9 @@ def _check_chronology(lines: list[_Line]) -> list[Finding]:
         if len(entries) < 2:
             continue
         pairs = list(zip(entries, entries[1:]))
-        # Лише початок угору замало: триваючий запис над коротшим («Tutor 2021 – Present», потім «Intern 2024») чи
-        # семестр обміну в межах диплома впорядковані правильно. Рівний кінець («Nova Retail 2022 – Present» над
-        # ролями «2024 – Present») це компанія над ролями, а не порушення.
+        # A rising start alone is not enough: an ongoing entry above a shorter one ("Tutor 2021 – Present", then
+        # "Intern 2024") or an exchange semester within a degree are in the right order. An equal end
+        # ("Nova Retail 2022 – Present" above roles "2024 – Present") is a company above its roles, not a violation.
         ascending = [a for a, b in pairs if a[0] < b[0] and a[1] < b[1]]
         descending = sum(1 for a, b in pairs if a[0] > b[0])
         if ascending and len(ascending) >= descending:
@@ -483,18 +483,19 @@ def _check_chronology(lines: list[_Line]) -> list[Finding]:
 
 
 _SPLIT_TERMS = re.compile(r"[,;|•·]")
-# «SQL/PostgreSQL» ділимо, якщо хоч з одного боку слово від 3 літер; «CI/CD», «A/B», «UI/UX» лишаються цілими.
+# Split "SQL/PostgreSQL" if at least one side is a word of 3+ letters; "CI/CD", "A/B", "UI/UX" stay whole.
 _SPLIT_SLASH = re.compile(r"(?<=\w\w\w)\s*/\s*|\s*/\s*(?=\w\w\w)")
 _PAREN = re.compile(r"\([^)]*\)")
-# Дужки, у яких рівень мови (C1, native) стоїть сам: «English (C1)», але не «Excel (A1 notation)».
+# Parentheses holding only a language level (C1, native): "English (C1)", but not "Excel (A1 notation)".
 _LANG_LEVEL = re.compile(r"\(\s*(?:[abc][12]|native(?:\s+speaker)?|mother\s+tongue|bilingual)\s*[,)–—-]", re.I)
-# Рівень і вендор не входять у те, що шукаємо в тексті: «MS Excel» і «Advanced Python» підтверджують «Excel» і «Python».
+# Level and vendor are not part of what we search for in the text: "MS Excel" and "Advanced Python"
+# confirm "Excel" and "Python".
 _LEVEL_WORDS = frozenset({"ms", "microsoft", "advanced", "basic", "intermediate", "beginner", "proficient", "expert"})
 MAX_SKILL_TERMS = 60
 
 
 def _drop_parens(s: str) -> str:
-    """Прибирає дужки з уточненнями; «English (C1)» це мова, а не навичка, тому замість дужок лишаємо мітку NUL."""
+    """Strips parenthetical qualifiers; "English (C1)" is a language, not a skill, so it leaves a NUL marker instead."""
     return _PAREN.sub(lambda m: "\x00" if _LANG_LEVEL.match(m.group()) else " ", s)
 
 
@@ -514,7 +515,7 @@ def _skill_terms(skill_lines: list[_Line]) -> list[str]:
         s = ln.text
         label, sep, rest = s.partition(":")
         if sep and rest.strip() and len(label) <= 30 and "," not in label:
-            s = rest  # «Tools: Excel, Tableau»: ярлик не навичка
+            s = rest  # "Tools: Excel, Tableau": the label is not a skill
         for part in _SPLIT_TERMS.split(_drop_parens(s)):
             if "\x00" in part:
                 continue
@@ -552,7 +553,7 @@ def _check_skills_evidence(lines: list[_Line]) -> list[Finding]:
                     f"Skills listed but never mentioned elsewhere in the CV: {', '.join(shown)}{tail}.")]
 
 
-# ---------------- Головна функція ----------------
+# ---------------- Main function ----------------
 
 def run_checks(cv: CVFile, profile: Profile) -> CheckReport:
     text = (cv.text or "")[:MAX_CV_CHARS]
@@ -591,11 +592,11 @@ def run_checks(cv: CVFile, profile: Profile) -> CheckReport:
     if words or pages:
         findings += _check_length(profile, words, pages, scanned)
     if scanned or not words:
-        # Текст порожній: решта перевірок дала б самі хибні «немає email», «немає Education» тощо.
+        # The text is empty: the remaining checks would give only false "no email", "no Education" and the like.
         return CheckReport(findings, metrics)
 
     findings += _check_personal_data(lines, profile)
-    if images and images >= 1:  # images заповнює лише PDF, тому окремо перевіряти формат не треба
+    if images and images >= 1:  # only PDFs fill images, so there is no need to check the format separately
         findings.append(Finding(
             "photo_or_graphics", "medium",
             f"The PDF has {images} embedded image{'s' if images != 1 else ''} (photo, logo or graphics) "
@@ -622,10 +623,10 @@ def run_checks(cv: CVFile, profile: Profile) -> CheckReport:
     return CheckReport(findings, metrics)
 
 
-# ---------------- Бал і промпт ----------------
+# ---------------- Score and prompt ----------------
 
 def penalty(report: CheckReport) -> int:
-    """Штраф до балу: high=4, medium=2, low=1, сума не більша за config.PENALTY_CAP."""
+    """Score penalty: high=4, medium=2, low=1, the sum is capped at config.PENALTY_CAP."""
     total = sum(_WEIGHT.get(f.severity, 0) for f in report.findings)
     cap = getattr(config, "PENALTY_CAP", DEFAULT_PENALTY_CAP)
     return min(total, cap)
@@ -660,8 +661,8 @@ _ROW_MAX_CHARS = 330
 
 
 def _row(f: Finding) -> str:
-    # Текст CV іде в промпт як є (нічого не екранується), але закрити блок <checks> зсередини він не може:
-    # ні рядок CV, ні повідомлення (skills_no_evidence перелічує терміни з CV).
+    # The CV text goes into the prompt as is (nothing is escaped), but it cannot close the <checks> block from inside:
+    # neither a CV line nor a message can (skills_no_evidence lists terms taken from the CV).
     message = _TAG_LIKE.sub(r"< \1checks", " ".join(f.message.split()))
     row = f"- [{f.severity}] {message}"
     if f.line:
@@ -671,11 +672,11 @@ def _row(f: Finding) -> str:
 
 
 def render_for_prompt(report: CheckReport) -> str:
-    """Блок <checks> для запиту до моделі: до 1800 символів і до 12 знахідок, спершу high."""
+    """The <checks> block for the model request: up to 1800 characters and up to 12 findings, high first."""
     ordered = sorted(report.findings, key=lambda f: _RANK.get(f.severity, len(_RANK)))
     tail = _metrics_line(report.metrics) + "\n</checks>"
     head = f"<checks>\n{_INTRO}"
-    # Місце під рядок «+N more», щоб він завжди вліз.
+    # Room for the "+N more" line so that it always fits.
     budget = PROMPT_MAX_CHARS - len(head) - len(tail) - 2 - len("+99999999 more\n")
     rows: list[str] = []
     used = 0

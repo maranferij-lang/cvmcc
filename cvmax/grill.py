@@ -31,7 +31,7 @@ class GrillSession:
     turns: list[QA] = field(default_factory=list)
     finished: bool = False
     max_questions: int = config.GRILL_MAX_QUESTIONS
-    verification: Verification | None = None  # підсумок перевірки правок після finalize; None, якщо її не було
+    verification: Verification | None = None  # summary of the edit check after finalize; None if there was none
 
     @property
     def pending(self) -> QA | None:
@@ -110,9 +110,9 @@ def answer(session: GrillSession, text: str) -> None:
 
 
 def _answer_facts(profile: Profile, session: GrillSession) -> str:
-    """Факти для верифікатора: відповіді кандидата й опис його досвіду з профілю.
+    """Facts for the verifier: the candidate's answers and the description of their experience from the profile.
 
-    Питання моделі сюди не йдуть: у них можуть бути числа, яких кандидат не називав.
+    The model's questions are not included: they may contain numbers the candidate did not mention.
     """
     answers = [t.answer.strip() for t in session.turns if t.answer.strip() and t.answer.strip() != "(skipped)"]
     return "\n".join([profile.background.strip(), *answers]).strip()
@@ -127,7 +127,7 @@ def finalize(client: Any, profile: Profile, cv: CVFile, session: GrillSession, v
         output_model=GrillResult,
         effort=config.EFFORT_ANALYSIS,
     )
-    # Як і в analyze_full: правки, що міняють лише формат чи дати, не показуємо. Це до верифікатора й незалежно від нього.
+    # As in analyze_full: edits that change only format or dates are not shown. This is before the verifier and independent of it.
     result.edits = [e for e in result.edits if not is_cosmetic(e.before, e.after)]
     session.verification = None
     if verify and config.VERIFY_ENABLED:
@@ -137,8 +137,8 @@ def finalize(client: Any, profile: Profile, cv: CVFile, session: GrillSession, v
                 feedback_language=profile.feedback_language,
             )
             result.edits = edits
-        except Exception as exc:  # без верифікатора правки лишаються як є, як і в analyze_full
-            # У журнал іде лише тип помилки: у повідомленні може бути текст CV чи відповідей.
+        except Exception as exc:  # without the verifier the edits stay as they are, as in analyze_full
+            # Only the error type is logged: the message may contain CV or answer text.
             log.warning("Edit verification failed (%s); edits were not verified", type(exc).__name__)
             log.debug("Edit verification failure details", exc_info=True)
             session.verification = None

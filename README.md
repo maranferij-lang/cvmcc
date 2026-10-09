@@ -8,7 +8,7 @@ The site has a home page that describes the product, tools in the top menu, Goog
 with a short onboarding, a personal account page, and the pages "About", "Privacy" and "Terms".
 
 - **CV review.** A PDF or DOCX is analyzed for a specific role, company type and job posting: a score from 0 to 100, scores on
-  7 criteria, "before / after" edits with a warning about invented facts, a "what to learn" plan,
+  7 criteria, "before / after" edits (invented facts are dropped or trimmed), a "what to learn" plan,
   a questionnaire of up to 8 questions about experience, and a ready CV text in DOCX.
 - **Where to apply.** 4-5 directions where this CV has the best chances, with an explanation of what is missing,
   first steps and job titles to search for. A button opens the review already set for the chosen direction.
@@ -101,6 +101,8 @@ Everything is set through environment variables or Streamlit secrets.
 | `CVMAX_EFFORT_ANALYSIS` | `high` | Review depth: low, medium, high |
 | `CVMAX_EFFORT_GRILL` | `low` | Depth for the Grill me questions |
 | `CVMAX_FALLBACKS` | `1` | Claude: retry on a fallback model if the main one fails |
+| `CVMAX_CHECKS` | `1` | `0` turns off the automatic CV checks: no `<checks>` block in the prompt and no penalty in the score |
+| `CVMAX_VERIFY` | `1` | `0` turns off the edit verifier in the review and in Grill me |
 | `CVMAX_DEMO` | off | `1` turns on demo mode even with a key |
 | `CVMAX_CONTACT` | none | Email or Telegram for contact on the "About", "Privacy" and "Terms" pages |
 | `JOOBLE_API_KEY` | none | Free Jooble key. Without it the Jooble source is skipped |
@@ -136,6 +138,9 @@ cvmax/cv_input.py      reading PDF and DOCX
 cvmax/prompts.py       system prompts
 cvmax/rubrics/*.md     criteria: general + one per field of study
 cvmax/analyze.py       full review
+cvmax/checks.py        automatic CV checks without a model
+cvmax/verify.py        edit verifier: quotes, numbers, invented facts
+cvmax/scoring.py       score: weighted criteria, model share, penalty
 cvmax/grill.py         Grill me mode
 cvmax/edits.py         applying edits and export
 cvmax/schemas.py       format of model responses
@@ -147,14 +152,60 @@ Model responses arrive as structured JSON following the schema in `schemas.py`, 
 on an unexpected format. The PDF is sent to the model as a document, so it can also see the layout.
 
 **Protection against invention.** The model has a rule not to add facts the user did not state. Gemini still
-sometimes adds tools or links. So every edit is also checked automatically: tool names,
-numbers and links that appear neither in the CV nor in the user's answers are highlighted with a warning.
+sometimes adds tools or links. So every edit also goes through the verifier (see "CV checks and the verifier"):
+an invented number or tool is removed or put in brackets, and an edit that cannot be saved is dropped.
 
 **Rubrics** are built on advice from the career centers of Harvard, MIT, Columbia, Oxford and LSE, recruiters at
 McKinsey, BCG, Bain and Google, and law schools. The list of sources is in `docs/sources.md`.
 
 **The easiest way to improve quality is through the rubrics.** They are plain text files in `cvmax/rubrics/`.
 Add what recruiters in your field really look for, and the advice becomes more precise without any code.
+
+## How the score is calculated
+
+The 0-100 score is calculated by code, not by the model. The model rates each rubric criterion on a 1-5 scale and gives
+an overall score. Then:
+
+1. **Weighted criteria.** The weights are in `cvmax/rubrics/weights.json`, a separate set for each program.
+   A string instead of a set means "same as that program". The criterion name from the model is matched to a weights
+   key. If fewer than 4 criteria are matched, the weighted part is not calculated, and the score equals the model's score minus the penalty.
+2. **The model's overall score** gives 30% of the total (`SCORE_MODEL_WEIGHT`), the weighted criteria 70%.
+3. **Penalty** for the automatic checks: for each finding high −4, medium −2, low −1, at most 15 in total
+   (`PENALTY_CAP`). `SCORE_MODEL_WEIGHT` and `PENALTY_CAP` are in `cvmax/config.py`.
+
+```
+criteria = round(100 * Σ w_i * (s_i - 1) / 4 / Σ w_i)     # over the matched criteria, s_i from 1 to 5
+score    = clamp(round(0.7 * criteria + 0.3 * model) - penalty, 0, 100)
+```
+
+The weights file is in `cvmax/rubrics/`, so it is part of the knowledge version (`cvmax/learning/version.py`) and of the weekly report.
+
+## CV checks and the verifier
+
+**Automatic checks** (`cvmax/checks.py`) need no model. They count what the model counts badly:
+a scan with no text, length, personal data, bullets without numbers, repeats, the order of entries, a missing email.
+The findings go into the prompt as a `<checks>` block and into the review (the "Automatic checks" expander), and the
+score penalty is built from them. Codes:
+
+- **high:** `scanned_pdf`, `length_over`, `personal_data` (regions US / Canada and UK);
+- **medium:** `photo_or_graphics`, `no_email`, `weak_opener`, `few_numbers`, `duplicate_line`,
+  `not_reverse_chronological`, `missing_education`, `personal_data` (other regions);
+- **low:** `no_phone`, `no_linkedin`, `first_person`, `references_line`, `cv_title`, `objective_section`,
+  `long_bullet`, `skills_no_evidence`.
+
+To turn them off: `CVMAX_CHECKS=0`. Then there is no `<checks>` block and no penalty, and the score stays weighted.
+
+**Edit verifier** (`cvmax/verify.py`) checks every "before / after" edit before it is shown:
+
+1. The `before` quote must be a fragment of the CV. An inexact quote is replaced with the exact text from the CV. If it
+   cannot be found, the edit is dropped.
+2. Numbers in `after` must be in the CV, in the candidate's answers or in square brackets (`[X]%` is a placeholder).
+   An edit with a number that is not in the sources goes to step 3 and, if it is not fixed, is dropped.
+3. One call to a model with low `effort` looks for invented tools, results, employers, courses and links. The model
+   removes the invented part or puts it in brackets. If it cannot, the edit is dropped.
+
+If the verifier model is unavailable, steps 1 and 2 remain, and edits with invented numbers are dropped.
+To turn it off: `CVMAX_VERIFY=0`. Then the verifier works neither in the review nor in Grill me.
 
 ## Learning and job links
 
@@ -180,8 +231,11 @@ Events in Supabase (`cvmax_events`) contain only identifiers, scores and decisio
   If evals fail, no PR is created. Otherwise a PR with lessons and variants is opened.
 - `market.yml`, "Job market": every day at 03:00 UTC takes the job snapshot (`snapshot_jobs.py`), every Sunday at 04:30
   extracts skills (`learn_market.py`) and opens a PR.
-- Before the first run, record the evals baseline: `python evals/run_evals.py --runs 2 --update-baseline` (a real model key is needed),
-  and commit `evals/baseline.json`. While `total` = 0, both workflows exit with code 3 and do not open PRs.
+- Before the first run, record the evals baselines: `python evals/run_evals.py --runs 2 --update-baseline` for `evals/baseline.json`
+  and `python evals/run_evals.py evals/synth --runs 1 --baseline evals/synth_baseline.json --update-baseline` for
+  `evals/synth_baseline.json` (a real model key is needed), or run "Weekly lessons" with `bootstrap_baseline`.
+  Commit both files. While `total` = 0 in `evals/baseline.json`, both workflows exit with code 3 and do not open PRs; an empty `evals/synth_baseline.json` stops only "Weekly lessons".
+  Synthetic evals and `regenerate_synth`: [docs/learning/README.md](docs/learning/README.md).
 - The repository variable `LEARN_AUTOMERGE=1` turns on auto-merge of these PRs. Without it you merge yourself.
   Required repository settings: Settings → Actions → General → "Allow GitHub Actions to create and approve
   pull requests" and Settings → General → "Allow auto-merge". A PR from `GITHUB_TOKEN` does not trigger `tests.yml`,

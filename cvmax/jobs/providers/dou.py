@@ -17,7 +17,8 @@ _REMOTE_WORDS = ("віддалено", "remote")
 
 
 def split_title(title: str) -> tuple[str, str, str, str | None, bool]:
-    """'Role в Company, $sal, City, віддалено' (в = "at", віддалено = "remote") -> (role, company, location, salary, remote)."""
+    """'Role v Company, $sal, City, viddaleno' (Ukrainian "at" and "remote", transliterated)
+    -> (role, company, location, salary, remote)."""
     head, sep, rest = title.rpartition(" в ")
     role = head.strip() if sep else title.strip()
     parts = [p.strip() for p in rest.split(",") if p.strip()] if sep else []

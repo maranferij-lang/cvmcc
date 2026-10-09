@@ -34,7 +34,7 @@ def plural(n: int, word: str) -> str:
 
 PRIORITY_LABEL = {"high": ":red-badge[High]", "medium": ":gray-badge[Medium]", "low": ":gray-badge[Low]"}
 
-# Іконка за важливістю знахідки автоматичних перевірок; найважливіші показуються першими.
+# Icon by severity of an automatic-check finding; the most important are shown first.
 CHECK_ICON = {"high": ":material/error:", "medium": ":material/warning:", "low": ":material/info:"}
 CHECK_ORDER = {"high": 0, "medium": 1, "low": 2}
 
@@ -44,15 +44,15 @@ def get_client():
 
 
 def score_caption(run: AnalysisRun | None, program: str) -> str:
-    """Підпис під балом: з чого він складається. Порожній, якщо результату розбору немає."""
+    """Caption under the score: what it is made of. Empty if there is no review result."""
     if run is None:
         return ""
     score = run.score
     if score.matched >= MIN_MATCHED:
         base = f"Weighted rubric criteria for {md_escape(PROGRAMS.get(program, program))}"
-    else:  # критеріїв замало для зваженої суми: бал це загальна оцінка розбору
+    else:  # too few criteria for a weighted sum: the score is the overall assessment of the review
         base = "Overall assessment of the review"
-    if run.checks is None:  # перевірки вимкнені або зламалися: про штрафи нічого не кажемо
+    if run.checks is None:  # checks are off or failed: say nothing about penalties
         return base
     if score.penalty > 0:
         return f"{base}; {plural(score.penalty, 'point')} off for automatic checks"
@@ -60,7 +60,7 @@ def score_caption(run: AnalysisRun | None, program: str) -> str:
 
 
 def verification_totals(s) -> tuple[int, int]:
-    """Скільки правок верифікатор прибрав і скільки урізав: у розборі й після Q&A разом."""
+    """How many edits the verifier removed and how many it trimmed: in the review and after the Q&A together."""
     run = s.get("analysis_run")
     found = [run.verification if run is not None else None]
     if s.grill is not None and s.grill_result is not None:
@@ -70,7 +70,7 @@ def verification_totals(s) -> tuple[int, int]:
 
 
 def verification_caption(dropped: int, fixed: int) -> str:
-    """Підпис на вкладці Edits про правки, які верифікатор прибрав або урізав. Порожній, якщо їх не було."""
+    """Caption on the Edits tab about edits the verifier removed or trimmed. Empty if there were none."""
     if dropped <= 0 and fixed <= 0:
         return ""
     if dropped > 0 and fixed > 0:
@@ -83,9 +83,9 @@ def verification_caption(dropped: int, fixed: int) -> str:
 
 
 def render_checks(report) -> None:
-    """Знахідки автоматичних перевірок: текст із CV і від перевірок показуємо лише через md_escape."""
+    """Findings of the automatic checks: text from the CV and from the checks is shown only through md_escape."""
     findings = sorted(report.findings, key=lambda f: CHECK_ORDER.get(f.severity, len(CHECK_ORDER)))
-    # Без icon=: expander з іконкою AppTest показує як status, а не як expander.
+    # No icon=: AppTest reports an expander with an icon as a status, not as an expander.
     with st.expander(f"Automatic checks ({len(findings)})"):
         if not findings:
             st.markdown("No problems found by the automatic checks.")
@@ -168,7 +168,7 @@ def log_analysis(s, run: AnalysisRun, *, program: str, region: str, level: str, 
               lessons_version=lessons_version(),
               previous_score=previous["score"] if same else None, n_edits=len(a.edits), n_gaps=len(a.gaps),
               clarity=clarity,
-              # Складові балу, кількість автоматичних знахідок і що зробив верифікатор правок.
+              # Score components, the number of automatic findings and what the edit verifier did.
               model_score=run.score.model_score, criteria_score=run.score.criteria_score,
               penalty=run.score.penalty, n_checks=len(run.checks.findings) if run.checks is not None else 0,
               verify_dropped=verification.dropped if verification is not None else 0,
@@ -278,7 +278,7 @@ with form_box:
             log_analysis(s, run, program=program, region=region, level=level, clarity=clarity, variant=variant)
             s.pop("formatted_cv", None)
             s.pop("open_form", None)
-            # score_detail: складові балу простим словником (кортежі критеріїв стають списками).
+            # score_detail: score components as a plain dict (criteria tuples become lists).
             score_detail = {**asdict(run.score), "items": [list(item) for item in run.score.items]}
             save_result("analysis", f"{target_role} · {s.analysis.overall_score}/100",
                         {"analysis_id": s.analysis_id, "role": target_role, "company_type": company_type,
@@ -304,7 +304,7 @@ tab_overview, tab_grill, tab_edits, tab_gaps, tab_jobs, tab_export = st.tabs(
     ["Overview", "Q&A", "Edits", "Skills to build", "Jobs", "Final CV"]
 )
 
-run = s.get("analysis_run")  # None, якщо результат з'явився не через analyze_full: тоді без нових блоків
+run = s.get("analysis_run")  # None if the result did not come from analyze_full: then no new blocks
 
 with tab_overview:
     st.metric("CV fit for this goal", f"{a.overall_score}/100")

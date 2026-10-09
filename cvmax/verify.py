@@ -1,10 +1,10 @@
-"""Верифікатор правок: жодна правка не повинна додавати факти, яких немає в CV.
+"""Edit verifier: no edit may add facts that are not in the CV.
 
-Три кроки. Перші два детерміновані й не потребують моделі:
-1. якорі: цитата `before` має бути точним фрагментом CV (інакше її виправляємо або правку відкидаємо);
-2. числа: кожне число в `after` має бути в CV, у відомих фактах або в квадратних дужках.
-Третій крок це один виклик легкої моделі, яка шукає вигадані інструменти, результати й іншу діяльність.
-Якщо модель недоступна, лишається результат перших двох кроків.
+Three steps. The first two are deterministic and need no model:
+1. anchors: the `before` quote must be an exact fragment of the CV (otherwise we fix it or drop the edit);
+2. numbers: every number in `after` must be in the CV, in the known facts, or in square brackets.
+The third step is one call to a light model that looks for invented tools, results and other activity.
+If the model is unavailable, the result of the first two steps stays.
 """
 
 from __future__ import annotations
@@ -22,45 +22,47 @@ from .schemas import Edit, EditVerdict, EditVerdicts
 
 log = logging.getLogger(__name__)
 
-# Скільки тексту бачить модель-верифікатор.
+# How much text the verifier model sees.
 CV_PROMPT_CHARS = 6000
 FACTS_PROMPT_CHARS = 2000
-# Скільки правок за один виклик і скільки символів на поле правки в запиті.
+# How many edits per call and how many characters per edit field in the request.
 MAX_LLM_EDITS = 60
 PROMPT_FIELD_CHARS = 600
-# Обмеження входу до будь-якого пошуку за регулярними виразами.
-MAX_CV_CHARS = 40_000  # як ліміт тексту CV у cv_input
+# Input limits before any regex search.
+MAX_CV_CHARS = 40_000  # same as the CV text limit in cv_input
 MAX_FACTS_CHARS = 20_000
 MAX_BEFORE_CHARS = 2000
 MAX_AFTER_CHARS = 4000
-# Нечіткий пошук повільний (SequenceMatcher по вікнах рядків: на CV у 40 000 символів до 1,5 с на правку),
-# тому його кількість і сумарний час на виклик обмежені. Звичайне CV (~60 рядків) цих меж не досягає.
+# Fuzzy search is slow (SequenceMatcher over line windows: up to 1.5 s per edit on a 40,000-character CV),
+# so its count and total time per call are bounded. An ordinary CV (~60 lines) never reaches these limits.
 MAX_FUZZY_SEARCHES = 8
 FUZZY_BUDGET_SECONDS = 4.0
 FUZZY_THRESHOLD = 0.9
-# Виправлений after мусить лишити хоча б стільки слів поза дужками.
+# A fixed after must keep at least this many words outside the brackets.
 MIN_FIXED_WORDS = 2
-# Скільки слів максимум складають один числівник («one hundred and twenty three»): обмежує множення у ворожому тексті.
+# Maximum number of words that make up a single number ("one hundred and twenty three"): bounds multiplication in hostile text.
 MAX_NUMBER_WORDS = 10
 
 
 @dataclass
 class Verification:
-    """Підсумок перевірки. Нотатки короткі, англійською, без тексту CV."""
+    """Summary of the verification. Notes are short, in English, and contain no CV text."""
 
-    checked: int = 0  # скільки правок прийшло на вхід
-    fixed: int = 0  # скільки правок урізано (вигадану частину прибрано або взято в дужки)
-    dropped: int = 0  # скільки правок відкинуто
+    checked: int = 0  # how many edits came in
+    fixed: int = 0  # how many edits were trimmed (the invented part removed or put in brackets)
+    dropped: int = 0  # how many edits were dropped
     notes: list[str] = field(default_factory=list)
 
 
-# ---------------- Числа ----------------
+# ---------------- Numbers ----------------
 
-# Тисячі й мільйони словом: 15 thousand, 2 млн, 15 тис. грн.
+# Thousands and millions as words (English or Ukrainian): 15 thousand, 2 mln (Ukrainian "million"),
+# 15 tys. UAH (Ukrainian "thousand").
 _SCALE_WORD = r"(?i:[  ]?(?:thousands?|millions?|тис\w*\.?|млн\.?|мільйон\w*)(?!\w))"
-# Число з необов'язковою валютою спереду й суфіксом позаду: 30%, $1,000, 300+, 10k, 3к, 3.5, 2025, 15 thousand.
-# Тисячі через пробіл (1 200, 20 000) беруться як одне число. Усередині слова (B2, GA4) число не береться.
-# Роздільник у групі обов'язковий, тому вираз лінійний.
+# A number with an optional leading currency sign and a trailing suffix: 30%, $1,000, 300+, 10k, 3k with the Cyrillic
+# letter k (U+043A), 3.5, 2025, 15 thousand.
+# Thousands separated by a space (1 200, 20 000) are taken as one number. A number inside a word (B2, GA4) is not taken.
+# The separator in a group is mandatory, so the expression is linear.
 _NUMBER = re.compile(
     r"(?<!\w)[$€£₴]?(?P<num>\d{1,3}(?:[   ]\d{3}(?!\d))+(?:[.,]\d+)?|\d+(?:[.,]\d+)*)"
     r"(?P<suf>[%+]|[kKкК](?![^\W\d_])|[mM](?![A-Za-z])|" + _SCALE_WORD + ")?"
@@ -69,21 +71,22 @@ _SEPARATOR = re.compile(r"[   .,]")
 _SPACES = "   "
 _BRACKETS = re.compile(r"\[[^\]]{0,200}\]")
 _WORD = re.compile(r"[^\W_]+")
-# Слово без цифр (з апострофом всередині: «п'ять»); числа словом шукаємо лише серед таких слів.
+# A word without digits (possibly with an inner apostrophe, as in the Ukrainian "p'yat'" (five));
+# number words are searched only among such words.
 _NUM_WORD = re.compile(r"[^\W\d_]+(?:'[^\W\d_]+)*")
 
-# Числа словом. Тип частини: add (додається), hundred (множить попереднє на 100), scale (тисячі, мільйони).
+# Number words. Part type: add (added), hundred (multiplies the previous part by 100), scale (thousands, millions).
 _UNITS = ("one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen "
           "seventeen eighteen nineteen").split()
 _TENS = "twenty thirty forty fifty sixty seventy eighty ninety".split()
 _EN_PARTS: dict[str, tuple[str, int]] = {w: ("add", i) for i, w in enumerate(_UNITS, 1)}
 _EN_PARTS.update({w: ("add", 10 * i) for i, w in enumerate(_TENS, 2)})
 _EN_PARTS.update({"hundred": ("hundred", 100), "thousand": ("scale", 1000), "million": ("scale", 1_000_000)})
-# Слова, які стоять окремо: half, dozen, ordinals. «third» це і 3 (3rd-year), і 33 (a third of).
+# Words that stand alone: half, dozen, ordinals. "third" is both 3 (3rd-year) and 33 (a third of).
 _ORDINALS = "first second third fourth fifth sixth seventh eighth ninth tenth".split()
 _ALONE: dict[str, tuple[str, ...]] = {w: (v,) for w, v in _NUMBER_WORDS.items() if w not in _EN_PARTS}
 _ALONE.update({w: _ALONE.get(w, ()) + (str(i),) for i, w in enumerate(_ORDINALS, 1)})
-# Українські числівники, яких немає в edits._UA_NUMBER_STEMS: сотні, 11-19, десятки. Слово починається з основи.
+# Ukrainian numerals missing from edits._UA_NUMBER_STEMS: hundreds, 11-19, tens. A word starts with the stem.
 _UA_COMPOUND = {
     "двіст": 200, "двохсот": 200, "трист": 300, "трьохсот": 300, "чотирист": 400, "чотирьохсот": 400,
     "п'ятсот": 500, "п'ятисот": 500, "п'ятист": 500, "шістсот": 600, "шестисот": 600, "шестист": 600,
@@ -97,7 +100,7 @@ _UA_COMPOUND = {
 
 @lru_cache(maxsize=8192)
 def _number_part(word: str) -> tuple[str, int] | None:
-    """Слово як частина числівника: («add», 5), («hundred», 100), («scale», 1000) або None."""
+    """A word as part of a number: ("add", 5), ("hundred", 100), ("scale", 1000) or None."""
     if word in _EN_PARTS:
         return _EN_PARTS[word]
     for stem, value in _UA_COMPOUND.items():
@@ -110,14 +113,16 @@ def _number_part(word: str) -> tuple[str, int] | None:
 
 
 def _continues(prev: tuple[str, int], new: tuple[str, int]) -> bool:
-    """Чи може `new` стояти в одному числівнику після `prev` («twenty five», «двісті п'ять», але не «one two»)."""
+    """Whether `new` can follow `prev` within one number ("twenty five", Ukrainian "dvisti p'yat'" (two hundred five),
+    but not "one two")."""
     if new[0] != "add" or prev[0] != "add":
         return True
     return (20 <= prev[1] < 100 and prev[1] % 10 == 0 and new[1] < 10) or (prev[1] % 100 == 0 and new[1] < 100)
 
 
 def _compose(parts: list[tuple[str, int]]) -> int:
-    """Значення числівника з частин: two hundred -> 200, дві тисячі п'ятсот -> 2500."""
+    """Value of a number from its parts: two hundred -> 200,
+    Ukrainian "dvi tysyachi p'yatsot" (two thousand five hundred) -> 2500."""
     total = current = 0
     for kind, value in parts:
         if kind == "add":
@@ -131,7 +136,8 @@ def _compose(parts: list[tuple[str, int]]) -> int:
 
 
 def _word_numbers(text: str) -> set[str]:
-    """Числа, написані словами: «two hundred» дає 200, «twelve» 12, «п'ятисот» 500, «third» 3 і 33."""
+    """Numbers written as words: "two hundred" gives 200, "twelve" 12, Ukrainian "p'yatysot" (of five hundred) 500,
+    "third" 3 and 33."""
     low = text.lower().replace("’", "'").replace("ʼ", "'")
     found: set[str] = set()
     parts: list[tuple[str, int]] = []
@@ -144,10 +150,10 @@ def _word_numbers(text: str) -> set[str]:
 
     for m in _NUM_WORD.finditer(low):
         word = m.group(0)
-        near = not low[end : m.start()].strip(" \t -–—")  # між словами лише пробіли чи дефіс
+        near = not low[end : m.start()].strip(" \t -–—")  # only spaces or a hyphen between the words
         end = m.end()
         if word == "and" and parts and parts[-1][0] != "add" and near:
-            continue  # «one hundred and five»
+            continue  # "one hundred and five"
         part = _number_part(word)
         if part is None or not near or len(parts) >= MAX_NUMBER_WORDS or (parts and not _continues(parts[-1], part)):
             flush()
@@ -160,7 +166,7 @@ def _word_numbers(text: str) -> set[str]:
 
 
 def _shift(value: str, places: int) -> str:
-    """value * 10**places рядками: ("1.5", 6) -> "1500000"."""
+    """value * 10**places on strings: ("1.5", 6) -> "1500000"."""
     integer, _, frac = value.partition(".")
     frac += "0" * places
     integer = (integer + frac[:places]).lstrip("0") or "0"
@@ -169,7 +175,8 @@ def _shift(value: str, places: int) -> str:
 
 
 def _places(suffix: str) -> int:
-    """Скільки нулів дає суфікс: k, к, thousand, тис це 3; m, million, млн це 6."""
+    """How many zeros the suffix gives: k, the Cyrillic k (U+043A), thousand, Ukrainian "tys" (thousand) is 3;
+    m, million, Ukrainian "mln" (million) is 6."""
     s = suffix.strip().lower()
     if s.startswith(("k", "к", "thousand", "тис")):
         return 3
@@ -177,10 +184,10 @@ def _places(suffix: str) -> int:
 
 
 def _readings(m: re.Match[str]) -> list[tuple[str, ...]]:
-    """Можливі прочитання числа: набори канонічних значень, які мають бути дозволені всі разом.
+    """Possible readings of a number: sets of canonical values that must all be allowed together.
 
-    `1,200` і `1 200` це 1200. `3.8` і `3,8` це 3.8, а не 38 чи 3 та 8. `01.01.2004` це дата з частин
-    01, 01, 2004, тож рік збігається. Суфікс множить: `5k` це 5000 (і 5 як запасний варіант).
+    `1,200` and `1 200` are 1200. `3.8` and `3,8` are 3.8, not 38 or 3 and 8. `01.01.2004` is a date made of the parts
+    01, 01, 2004, so the year matches. A suffix multiplies: `5k` is 5000 (and 5 as a fallback).
     """
     num = m.group("num")
     seps = _SEPARATOR.findall(num)
@@ -207,7 +214,7 @@ def _readings(m: re.Match[str]) -> list[tuple[str, ...]]:
             or (len(groups) == 2 and len(groups[0]) <= 2 and re.fullmatch(r"(?:19|20)\d\d", groups[1]))
         )
         if is_date or any(s in _SPACES for s in seps) or not out:
-            out.append(tuple(groups))  # дата, «1» і «200» окремо, перелік «85,90,95»
+            out.append(tuple(groups))  # a date, "1" and "200" separately, a list like "85,90,95"
     places = _places(m.group("suf") or "")
     if places:
         out += [(_shift(r[0], places),) for r in out if len(r) == 1]
@@ -215,10 +222,11 @@ def _readings(m: re.Match[str]) -> list[tuple[str, ...]]:
 
 
 def _number_set(text: str) -> set[str]:
-    """Канонічні значення всіх чисел тексту: `1,200` і `1200` дають `1200`, `5k` дає 5000, «two hundred» 200.
+    """Canonical values of all numbers in the text: `1,200` and `1200` give `1200`, `5k` gives 5000, "two hundred" 200.
 
-    Десятковий дріб лишається дробом (`3.8` не дає 38). Складові дати (`01.01.2004`) додаються окремо,
-    щоб рік збігався з датою. Числа словом («twelve», «п'ять», «п'ятисот») беруться з _word_numbers.
+    A decimal fraction stays a fraction (`3.8` does not give 38). Date components (`01.01.2004`) are added separately
+    so that the year matches the date. Number words ("twelve", Ukrainian "p'yat'" (five) and
+    "p'yatysot" (of five hundred)) come from _word_numbers.
     """
     text = text[: MAX_CV_CHARS + MAX_FACTS_CHARS + MAX_BEFORE_CHARS]
     found = _word_numbers(text)
@@ -230,7 +238,7 @@ def _number_set(text: str) -> set[str]:
 
 
 def _invented(after: str, allowed: set[str]) -> list[str]:
-    """Числа з after (разом із %, $, k, +), яких немає в allowed. Квадратні дужки пропускаємо."""
+    """Numbers from after (with %, $, k, +) that are not in allowed. Square brackets are skipped."""
     visible = _BRACKETS.sub(" ", after[:MAX_AFTER_CHARS])
     found: list[str] = []
     for m in _NUMBER.finditer(visible):
@@ -241,37 +249,37 @@ def _invented(after: str, allowed: set[str]) -> list[str]:
 
 
 def find_invented_numbers(after: str, allowed_text: str) -> list[str]:
-    """Числа з `after`, яких немає в `allowed_text` (CV, відомі факти, `before`).
+    """Numbers from `after` that are not in `allowed_text` (CV, known facts, `before`).
 
-    Враховуються цілі, десяткові числа, відсотки, гроші, суфікси k/m, «+» і роки.
-    Числа в квадратних дужках `[N]`, `[X]%`, `[$1,000]` це плейсхолдери: їх пропускаємо.
-    Порівняння за значенням: `1,200`, `1200` і `1 200` однакові, `5k` дорівнює `5,000`,
-    «two hundred» дорівнює `200`, а `3.8` не дорівнює `38`.
+    Integers, decimals, percentages, money, k/m suffixes, "+" and years are all taken into account.
+    Numbers in square brackets `[N]`, `[X]%`, `[$1,000]` are placeholders: we skip them.
+    Compared by value: `1,200`, `1200` and `1 200` are the same, `5k` equals `5,000`,
+    "two hundred" equals `200`, and `3.8` does not equal `38`.
     """
     return _invented(after, _number_set(allowed_text))
 
 
-# ---------------- Якорі ----------------
+# ---------------- Anchors ----------------
 
 
 def _anchor_one(cv_text: str, before: str) -> str | None:
-    """Точний фрагмент CV для цитати: точний збіг або гнучкі пропуски. None, якщо не знайдено."""
+    """Exact CV fragment for a quote: an exact match or flexible whitespace. None if not found."""
     if before in cv_text:
         return before
-    if len(before) > MAX_BEFORE_CHARS:  # не схоже на рядок CV, дорогий пошук не запускаємо
+    if len(before) > MAX_BEFORE_CHARS:  # does not look like a CV line, so the expensive search is not run
         return None
     match = _loose_pattern(before).search(cv_text)
     return match.group(0) if match else None
 
 
 def _anchor(cv_text: str, edits: list[Edit]) -> tuple[list[Edit], int, int]:
-    """Повертає (правки з точними цитатами, скільки відкинуто, скільки цитат виправлено)."""
+    """Returns (edits with exact quotes, how many were dropped, how many quotes were fixed)."""
     kept: list[Edit] = []
     dropped = reanchored = fuzzy_used = 0
     fuzzy_spent = 0.0
     for edit in edits:
         before = edit.before.strip()
-        if not before:  # новий пункт: прив'язувати нема до чого
+        if not before:  # a new item: nothing to anchor to
             kept.append(edit)
             continue
         found = _anchor_one(cv_text, before)
@@ -292,25 +300,25 @@ def _anchor(cv_text: str, edits: list[Edit]) -> tuple[list[Edit], int, int]:
 
 
 def anchor_edits(cv_text: str, edits: list[Edit]) -> tuple[list[Edit], int]:
-    """Замінює `before` кожної правки на точний фрагмент CV. Повертає (правки, скільки відкинуто).
+    """Replaces each edit's `before` with the exact CV fragment. Returns (edits, how many were dropped).
 
-    Спершу точний збіг, потім гнучкі пропуски (`_loose_pattern`), потім нечіткий пошук
-    (`_fuzzy_span`, поріг 0.9). Правка, чию цитату не знайдено, відкидається.
-    Правки з порожнім `before` (нові пункти) лишаються без змін.
+    First an exact match, then flexible whitespace (`_loose_pattern`), then fuzzy search
+    (`_fuzzy_span`, threshold 0.9). An edit whose quote is not found is dropped.
+    Edits with an empty `before` (new items) stay unchanged.
     """
     kept, dropped, _ = _anchor(cv_text[:MAX_CV_CHARS], edits)
     return kept, dropped
 
 
-# ---------------- Запит до моделі ----------------
+# ---------------- Request to the model ----------------
 
-# Теги, якими ми відділяємо дані в запиті: з тексту CV і правок їх прибираємо, щоб не вийти з блоку.
+# Tags we use to separate data in the request: we strip them from the CV text and edits so they cannot break out of a block.
 _DELIMITERS = re.compile(r"</?\s*(?:cv|facts|edits)\b[^>]{0,40}>", re.I)
 
 
 def verify_system(feedback_language: str = "English") -> str:
-    """Системний промпт верифікатора."""
-    # Мова йде в промпт, тож приймаємо лише одне слово (English, Ukrainian), решта це англійська.
+    """System prompt of the verifier."""
+    # The language goes into the prompt, so we accept only a single word (English, Ukrainian); anything else falls back to English.
     language = str(feedback_language).strip()
     if not re.fullmatch(r"[A-Za-z]{2,20}", language):
         language = "English"
@@ -345,13 +353,13 @@ ok, and without quoting the CV."""
 
 
 def _clean_field(text: str, limit: int = PROMPT_FIELD_CHARS) -> str:
-    """Поле правки в один рядок без тегів-розділювачів і без символу `|`."""
+    """An edit field on one line, without delimiter tags and without the `|` character."""
     text = _DELIMITERS.sub(" ", text[: limit * 2])
     return " ".join(text.split()).replace("|", "/")[:limit]
 
 
 def _build_prompt(cv_text: str, facts: str, rows: list[tuple[int, Edit, list[str]]]) -> str:
-    """Запит верифікатору. `rows`: (номер правки, правка, числа, яких не знайдено)."""
+    """Request to the verifier. `rows`: (edit index, edit, numbers that were not found)."""
     lines = []
     for index, edit, invented in rows:
         before = _clean_field(edit.before) or "(new item)"
@@ -367,27 +375,27 @@ def _build_prompt(cv_text: str, facts: str, rows: list[tuple[int, Edit, list[str
     )
 
 
-# ---------------- Рішення по правці ----------------
+# ---------------- Decision on an edit ----------------
 
 
 def _is_trim_of(fixed: str, after: str) -> bool:
-    """fixed це after з прибраною або взятою в дужки частиною: нових слів поза дужками немає."""
+    """fixed is after with a part removed or put in brackets: there are no new words outside the brackets."""
     allowed = {w.lower() for w in _WORD.findall(after)}
     outside = [w.lower() for w in _WORD.findall(_BRACKETS.sub(" ", fixed))]
     return len(outside) >= MIN_FIXED_WORDS and all(w in allowed for w in outside)
 
 
 def _try_fix(edit: Edit, verdict: EditVerdict, allowed: set[str]) -> Edit | None:
-    """Правка з виправленим after, якщо пропозиція моделі допустима, інакше None."""
+    """The edit with a corrected after if the model's proposal is acceptable, otherwise None."""
     fixed = verdict.fixed_after.strip()
     if not fixed or fixed == edit.after.strip():
         return None
     if _invented(fixed, allowed) or not _is_trim_of(fixed, edit.after):
         return None
-    # Імпорт тут, а не нагорі: analyze.py сам підключає цей модуль, і верхній імпорт дав би цикл.
+    # Imported here rather than at the top: analyze.py itself imports this module, and a top-level import would create a cycle.
     from .analyze import is_cosmetic
 
-    if is_cosmetic(edit.before, fixed):  # вигадана частина була єдиним, що додав after: лишився б рядок CV без змін
+    if is_cosmetic(edit.before, fixed):  # the invented part was the only thing after added: we would be left with an unchanged CV line
         return None
     return edit.model_copy(update={"after": fixed})
 
@@ -399,11 +407,11 @@ def _plural(n: int) -> str:
 def verify_edits(
     client: Any, *, cv_text: str, facts: str, edits: list[Edit], feedback_language: str
 ) -> tuple[list[Edit], Verification]:
-    """Прибирає або урізає правки, які додають факти, яких немає в CV чи відповідях кандидата.
+    """Removes or trims edits that add facts that are not in the CV or the candidate's answers.
 
-    `facts`: відомі факти (профіль, відповіді Q&A). Повертає (перевірені правки, підсумок).
-    Будь-яка помилка виклику моделі (LLMError, але й ValidationError на відмові чи обрізаній відповіді)
-    не ламає розбір: лишається результат якорів і перевірки чисел, правки з вигаданими числами відкидаються.
+    `facts`: known facts (profile, Q&A answers). Returns (verified edits, summary).
+    Any error from the model call (LLMError, but also ValidationError on a refusal or truncated response)
+    does not break the review: the result of the anchors and the number check stays, and edits with invented numbers are dropped.
     """
     result = Verification(checked=len(edits))
     if not edits:
@@ -411,19 +419,19 @@ def verify_edits(
     cv_text = (cv_text or "")[:MAX_CV_CHARS]
     facts = (facts or "")[:MAX_FACTS_CHARS]
     if not cv_text.strip():
-        # Текстового шару немає (скан): цитати не звірити, не знищуємо всі правки.
+        # There is no text layer (a scan): the quotes cannot be checked, so we do not wipe out all the edits.
         result.notes.append("CV text unavailable, edits were not verified")
         return list(edits), result
 
-    # Крок 1: якорі.
+    # Step 1: anchors.
     anchored, lost, reanchored = _anchor(cv_text, edits)
     result.dropped += lost
 
-    # Крок 2: числа. Дозволено все, що є в CV, у фактах і в цитаті.
+    # Step 2: numbers. Everything in the CV, the facts and the quote is allowed.
     base = _number_set(cv_text + "\n" + facts)
     flags = [_invented(e.after, base | _number_set(e.before)) if e.after.strip() else [] for e in anchored]
 
-    # Крок 3: один виклик моделі для всіх правок із непорожнім after (видалення не перевіряємо).
+    # Step 3: one model call for all edits with a non-empty after (deletions are not checked).
     to_check = [i for i, e in enumerate(anchored) if e.after.strip()][:MAX_LLM_EDITS]
     verdicts: dict[int, EditVerdict] = {}
     unavailable = False
@@ -438,8 +446,8 @@ def verify_edits(
                 effort="low",
             )
         except Exception as exc:  # noqa: BLE001
-            # Не лише LLMError: клієнт Claude кидає pydantic.ValidationError на відмові чи обрізаному JSON.
-            # Кроки 1-2 уже пораховані, тож їх не губимо. Текст чужого винятку не логуємо: він може містити CV.
+            # Not only LLMError: the Claude client raises pydantic.ValidationError on a refusal or truncated JSON.
+            # Steps 1-2 are already computed, so we do not lose them. We do not log a foreign exception's text: it may contain CV text.
             log.warning("Edit verifier unavailable: %s", exc if isinstance(exc, LLMError) else type(exc).__name__)
             unavailable = True
         else:
@@ -448,11 +456,11 @@ def verify_edits(
                 if verdict.index in wanted and verdict.index not in verdicts:
                     verdicts[verdict.index] = verdict
 
-    # Крок 4: застосування вердиктів.
+    # Step 4: applying the verdicts.
     kept: list[Edit] = []
     dropped_numbers = dropped_model = skipped = 0
     for i, edit in enumerate(anchored):
-        if not edit.after.strip():  # видалення: лише якір
+        if not edit.after.strip():  # deletion: only the anchor
             kept.append(edit)
             continue
         verdict = verdicts.get(i)

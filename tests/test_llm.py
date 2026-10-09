@@ -1,4 +1,4 @@
-"""ClaudeLLM: помилки відповіді моделі стають LLMError, а не вилітають pydantic-винятками."""
+"""ClaudeLLM: model response errors become LLMError rather than escaping as pydantic exceptions."""
 
 from types import SimpleNamespace
 
@@ -12,11 +12,11 @@ SECRET = "SECRET-CV-FRAGMENT"
 
 
 def _validation_error() -> ValidationError:
-    """Справжня помилка схеми, у тексті якої є вхідні дані (як у відповіді моделі з уривком CV)."""
+    """A real schema error whose text contains the input data (like a model response with a CV fragment)."""
     try:
         GrillTurn.model_validate({"done": "not-a-bool", "kind": SECRET, "question": 1, "why_asking": None})
     except ValidationError as exc:
-        assert SECRET in str(exc)  # без цього тест нічого б не доводив
+        assert SECRET in str(exc)  # without this the test would prove nothing
         return exc
     raise AssertionError("ValidationError expected")
 
@@ -39,7 +39,7 @@ def test_validation_error_from_parse_becomes_llm_error():
 
     with pytest.raises(LLMError) as caught:
         _ask(_client(parse))
-    assert SECRET not in str(caught.value)  # текст відповіді моделі не йде юзеру
+    assert SECRET not in str(caught.value)  # the model response text does not go to the user
     assert caught.value.__cause__ is exc
 
 

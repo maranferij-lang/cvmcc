@@ -47,7 +47,7 @@ class _Messages:
                     Edit(
                         section="Leadership & Activities",
                         before="Member of Student Council",
-                        # Числа в дужках: демо не знає, що юзер відповів, тож верифікатор не має їх відкидати.
+                        # Numbers in brackets: the demo does not know what the user answered, so the verifier must not reject them.
                         after="Organised [6] university events for [300+] students as Student Council member, "
                         "managing a [$1,000] sponsorship budget",
                         reason="Your Q&A answer added numbers that were not in the CV. "
@@ -70,7 +70,7 @@ class _Messages:
 
 
 def _message_text(messages: Any) -> str:
-    """Увесь текст запиту: повідомлення бувають рядком або списком блоків {"type": "text", "text": ...}."""
+    """The whole request text: messages are either a string or a list of {"type": "text", "text": ...} blocks."""
     parts: list[str] = []
     for message in messages or []:
         content = message.get("content") if isinstance(message, dict) else None
@@ -82,9 +82,9 @@ def _message_text(messages: Any) -> str:
 
 
 def demo_edit_verdicts(prompt: str) -> EditVerdicts:
-    """Демо-вердикти верифікатора: ok для всіх правок, крім тих, де after містить DEMO-INVENTED.
+    """Demo verifier verdicts: ok for all edits except those whose after contains DEMO-INVENTED.
 
-    Рядок правки в запиті має вигляд `index | before | after` (див. cvmax.verify), блок <edits>...</edits>.
+    An edit line in the request looks like `index | before | after` (see cvmax.verify), inside an <edits>...</edits> block.
     """
     if "<edits>" not in prompt:
         return EditVerdicts(items=[])

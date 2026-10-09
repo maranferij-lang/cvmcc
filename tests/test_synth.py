@@ -1,4 +1,4 @@
-"""Синтетичні evals: каталог вад, кейси в evals/synth, генератор (без моделі) і нові перевірки run_evals."""
+"""Synthetic evals: the flaw catalogue, the cases in evals/synth, the generator (without a model) and the new run_evals checks."""
 
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ VERDICTS = {"keep", "cut", "shorten", "rewrite", "move"}
 CYRILLIC = re.compile(r"[а-яіїєґА-ЯІЇЄҐ]")
 
 
-# ---------------- Каталог вад ----------------
+# ---------------- Flaw catalogue ----------------
 
 
 def test_flaw_catalogue_has_every_code_of_the_plan():
@@ -70,7 +70,7 @@ def test_flaw_catalogue_verdicts_follow_the_plan():
     assert FLAWS["strong_keep"]["expect"]["verdicts"] == ["keep"]
 
 
-# ---------------- Кейси в evals/synth ----------------
+# ---------------- Cases in evals/synth ----------------
 
 
 def synth_cases() -> list[Path]:
@@ -78,7 +78,7 @@ def synth_cases() -> list[Path]:
 
 
 def load_synth(path: Path) -> tuple[dict, str]:
-    """(JSON кейсу, текст CV). Зрозуміле повідомлення, якщо файл зіпсований або TXT відсутній."""
+    """(the case JSON, the CV text). A clear message if the file is broken or the TXT is missing."""
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except ValueError as exc:
@@ -91,7 +91,7 @@ def load_synth(path: Path) -> tuple[dict, str]:
 
 
 def test_synth_cases_are_well_formed():
-    """Порожня папка проходить, зіпсований файл валить тест."""
+    """An empty folder passes, a broken file fails the test."""
     for path in synth_cases():
         data, text = load_synth(path)
         assert data.get("synthetic") is True, f"{path.name}: synthetic must be true"
@@ -131,7 +131,7 @@ def test_synth_cases_pass_the_generator_validation():
 
 
 def test_synth_cv_contacts_are_example_only():
-    """Вигаданий кандидат не має вказувати на справжній профіль: слаг LinkedIn закінчується на -example, домен пошти містить example."""
+    """A fictional candidate must not point to a real profile: the LinkedIn slug ends with -example, the email domain contains example."""
     for path in synth_cases():
         _, text = load_synth(path)
         for slug in re.findall(r"linkedin\.com/in/([\w%-]+)", text, flags=re.IGNORECASE):
@@ -152,7 +152,7 @@ def test_synth_profiles_are_loadable():
 
 
 def filler(count: int, start: int = 0) -> list[str]:
-    """Унікальні булети по 15 слів: щоб набрати потрібну кількість слів, не повторюючи рядків."""
+    """Unique bullets of 15 words each: to reach the needed word count without repeating lines."""
     return [f"- Delivered module {i} of the course project with {i % 5 + 2} teammates and {i * 3 + 10} automated tests"
             for i in range(start, start + count)]
 
@@ -218,7 +218,7 @@ def test_validate_catches_phrase_that_is_absent():
 
 
 def test_validate_catches_phrase_that_is_too_long():
-    long_line = "- " + " ".join(f"word{i}" for i in range(30))  # понад 120 символів
+    long_line = "- " + " ".join(f"word{i}" for i in range(30))  # over 120 characters
     assert len(long_line) > 120
     case = make_case(cv_text=make_text() + long_line + "\n",
                      planted=[{"code": "weak_opener", "line_contains": long_line[2:]}])
@@ -258,7 +258,7 @@ def test_validate_accepts_example_contacts_and_plain_hosts():
     ok = ("Contact: olena@mail.example.com | linkedin.com/in/olena-test-EXAMPLE | github.com/olena-test-example "
           "| https://linkedin.com/company/fictional-labs")
     assert gs.validate_case(make_case(cv_text=make_text() + ok + "\n")) == []
-    # Самі хости linkedin.com і github.com, як і слово «@» без адреси, помилкою не є.
+    # The hosts linkedin.com and github.com themselves, like a lone "@" without an address, are not an error.
     assert gs.find_bad_contacts("see linkedin.com and github.com; tweet @olena or a @ b") == []
 
 
@@ -269,7 +269,7 @@ def test_find_bad_contacts_reports_each_contact_once_and_stays_fast():
     import time
 
     started = time.perf_counter()
-    gs.find_bad_contacts("a" * 39_000 + " " + "a." * 500 + "@" * 400)  # слово без «@» і «@» без адреси
+    gs.find_bad_contacts("a" * 39_000 + " " + "a." * 500 + "@" * 400)  # a word without "@" and "@" without an address
     assert time.perf_counter() - started < 1
 
 
@@ -287,7 +287,7 @@ def test_banned_company_in_profile_is_caught():
 def test_validate_catches_word_count_outside_range():
     short = make_case(cv_text="\n".join(["Olena Test", SELF, f"- {WEAK}", f"- {CLEAN_A}", f"- {CLEAN_B}"]))
     assert "words, expected 300-1200" in errors_text(short)
-    huge = make_case(cv_text=make_text(bullets=100))  # близько 1500 слів
+    huge = make_case(cv_text=make_text(bullets=100))  # about 1500 words
     assert len(huge["cv_text"].split()) > 1200
     assert "words, expected 300-1200" in errors_text(huge)
 
@@ -304,7 +304,7 @@ def test_validate_over_length_needs_800_words_and_otherwise_forbids_them():
 
 
 def padded_text(words: int) -> str:
-    """make_text, добитий службовим рядком до точної кількості слів (рядок з великої літери, не продовження булета)."""
+    """make_text padded with a filler line to the exact word count (a line starting with a capital letter, not a bullet continuation)."""
     text = make_text(bullets=30)
     pad = words - len(text.split())
     assert pad > 0
@@ -312,11 +312,11 @@ def padded_text(words: int) -> str:
 
 
 def test_validate_unplanted_cv_must_fit_the_one_page_limit_of_the_app():
-    """Без over_length ліміт 650 слів, як checks.JUNIOR_MAX_WORDS: застосунок від 651 слова радить скорочувати CV."""
+    """Without over_length the limit is 650 words, like checks.JUNIOR_MAX_WORDS: the app advises shortening the CV from 651 words."""
     assert gs.JUNIOR_MAX_WORDS == checks.JUNIOR_MAX_WORDS == 650
     ok = make_case(cv_text=padded_text(650))
     assert len(ok["cv_text"].split()) == 650 and gs.validate_case(ok) == []
-    for text in (padded_text(651), make_text(bullets=40), make_text(bullets=44)):  # 651, 678 і 738 слів
+    for text in (padded_text(651), make_text(bullets=40), make_text(bullets=44)):  # 651, 678 and 738 words
         words = len(text.split())
         assert gs.JUNIOR_MAX_WORDS < words < gs.OVER_LENGTH_WORDS
         msg = errors_text(make_case(cv_text=text))
@@ -325,7 +325,7 @@ def test_validate_unplanted_cv_must_fit_the_one_page_limit_of_the_app():
 
 def test_validate_planted_over_length_still_needs_800_words():
     planted = [{"code": "over_length", "line_contains": ""}, {"code": "weak_opener", "line_contains": WEAK}]
-    mid = make_case(cv_text=make_text(bullets=44), planted=planted)  # 738 слів: для планованої вади замало
+    mid = make_case(cv_text=make_text(bullets=44), planted=planted)  # 738 words: too few for a planted flaw
     assert len(mid["cv_text"].split()) < gs.OVER_LENGTH_WORDS
     assert "over_length is planted" in errors_text(mid)
 
@@ -361,7 +361,7 @@ def test_validate_clean_lines():
 
 
 LONG_CLEAN = "Built a reporting pipeline for 12 regional teams " + " ".join(["metric"] * 40)
-FLAGGED_CLEAN = (  # (код знахідки checks, рядок у CV, фрагмент-контроль)
+FLAGGED_CLEAN = (  # (checks finding code, CV line, control fragment)
     ("weak_opener", "Supported the regional sales team of 9 people by building a reporting template in 2025",
      "Supported the regional sales team of 9 people"),
     ("first_person", "I led a team of 5 students to first place among 30 teams in 2025",
@@ -371,13 +371,13 @@ FLAGGED_CLEAN = (  # (код знахідки checks, рядок у CV, фраг
 
 
 def test_validate_clean_line_must_not_be_flagged_by_the_automatic_checks():
-    """Контроль strong_keep, який checks позначає як слабкий, довгий чи від першої особи, провалив би evals сам по собі."""
+    """A strong_keep control that checks flags as weak, long or first-person would fail the evals by itself."""
     for code, line, fragment in FLAGGED_CLEAN:
         case = make_case(cv_text=make_text() + f"- {line}\n", clean_lines=[CLEAN_A, fragment])
         report = checks.run_checks(checks.CVFile(filename="cv.txt", text=case["cv_text"]), checks.Profile(**GOOD_PROFILE))
-        assert code in {f.code for f in report.findings}, code  # знахідка справді є
+        assert code in {f.code for f in report.findings}, code  # the finding is really there
         assert f"({code})" in errors_text(case), code
-    # дубль рядка: checks позначає другу появу, і контроль на ній відхиляється
+    # a duplicated line: checks flags the second occurrence, and a control on it is rejected
     twice = "Won the cup with 12 teammates among 40 teams in 2024"
     case = make_case(cv_text=make_text() + f"- {twice}\n- {twice}.\n", clean_lines=[CLEAN_A, twice + "."])
     assert "(duplicate_line)" in errors_text(case)
@@ -385,10 +385,10 @@ def test_validate_clean_line_must_not_be_flagged_by_the_automatic_checks():
 
 def test_validate_clean_line_flagged_check_does_not_touch_planted_flaws_or_clean_controls():
     line = "Supported the regional sales team of 9 people by building a reporting template in 2025"
-    planted = [{"code": "weak_opener", "line_contains": line[:45]}]  # checks позначає цей рядок, але він закладена вада
+    planted = [{"code": "weak_opener", "line_contains": line[:45]}]  # checks flags this line, but it is a planted flaw
     case = make_case(cv_text=make_text() + f"- {line}\n", planted=planted)
     assert gs.validate_case(case) == []
-    assert gs.flagged_lines(make_text(), {}) == []  # без профілю checks не запускаємо
+    assert gs.flagged_lines(make_text(), {}) == []  # without a profile we do not run checks
 
 
 def test_validate_clean_line_must_not_be_the_first_occurrence_of_the_duplicate():
@@ -398,8 +398,8 @@ def test_validate_clean_line_must_not_be_the_first_occurrence_of_the_duplicate()
     text = make_text() + f"- {first}\n- {second}\n"
     msg = errors_text(make_case(cv_text=text, planted=planted, clean_lines=[CLEAN_A, first]))
     assert "with the duplicate" in msg and "figures 12, 40" in msg
-    assert gs.validate_case(make_case(cv_text=text, planted=planted)) == []  # контролі далекі від дубліката
-    one = "Reached 40 finalists in a national hackathon with 9 mentors"  # лише одне спільне число
+    assert gs.validate_case(make_case(cv_text=text, planted=planted)) == []  # the controls are far from the duplicate
+    one = "Reached 40 finalists in a national hackathon with 9 mentors"  # only one shared number
     case = make_case(cv_text=text + f"- {one}\n", planted=planted, clean_lines=[CLEAN_A, one])
     assert gs.validate_case(case) == []
 
@@ -446,7 +446,7 @@ def test_count_occurrences_is_overlap_aware_and_bounded():
     assert gs.count_occurrences("ab " * 1000, "ab", limit=2) == 2
 
 
-# ---------------- План вад і профілю ----------------
+# ---------------- Plan of flaws and profile ----------------
 
 
 def test_plan_flaws_is_deterministic_and_in_range():
@@ -476,7 +476,7 @@ def test_plan_profile_uses_values_from_the_lists():
             assert gs.plan_profile(seed, program, 1) == p
 
 
-# ---------------- Файли кейсу ----------------
+# ---------------- Case files ----------------
 
 
 def test_case_to_files_and_back_round_trip():
@@ -500,7 +500,7 @@ def test_global_flaws_get_type_and_no_line_contains():
     length, mentions = data["expect"][0], data["expect"][1]
     assert length["type"] == "length" and length["min_cut_words"] == 100 and "line_contains" not in length
     assert mentions["type"] == "mentions" and mentions["any_of"] == ["email", "e-mail"] and "line_contains" not in mentions
-    assert FLAWS["over_length"]["expect"] == {"type": "length", "min_cut_words": 100}  # шаблон не змінено
+    assert FLAWS["over_length"]["expect"] == {"type": "length", "min_cut_words": 100}  # the template is unchanged
 
 
 def test_write_case_does_not_overwrite_without_force(tmp_path):
@@ -513,11 +513,11 @@ def test_write_case_does_not_overwrite_without_force(tmp_path):
     assert "Інший" in (tmp_path / "law_s1_1.json").read_text(encoding="utf-8")
 
 
-# ---------------- Генерація із підміненою моделлю ----------------
+# ---------------- Generation with a substituted model ----------------
 
 
 class StubLLM:
-    """Підміна моделі: ask_structured викликає .ask; відповідь будує make(prompt, номер виклику)."""
+    """A model stand-in: ask_structured calls .ask; the reply is built by make(prompt, call number)."""
 
     def __init__(self, make):
         self.make = make
@@ -534,7 +534,7 @@ def requested_codes(prompt: str) -> list[str]:
 
 
 def synthetic_for(prompt: str, extra: str = ""):
-    """Придатна відповідь «моделі» для вад, названих у запиті."""
+    """A fit "model" reply for the flaws named in the request."""
     codes = requested_codes(prompt)
     lines = ["Test Person", "Lviv | +380 50 000 00 00 | " + ("" if "missing_contact" in codes else "test.person@example.test | ")
              + "linkedin.com/in/test-person-example", "", "EXPERIENCE"]
@@ -574,7 +574,7 @@ def test_generate_case_accepts_a_valid_answer_on_the_first_try():
         assert FLAWS[code]["plant"] in call["text"]
     assert gs.validate_case(case, required=codes) == []
     planned = gs.plan_profile(3, "law", 1)
-    assert all(case["profile"][k] == v for k, v in planned.items())  # значення зі списків задає план
+    assert all(case["profile"][k] == v for k, v in planned.items())  # the values from the lists are set by the plan
 
 
 def test_generate_case_regenerates_after_a_rejected_answer():
@@ -613,7 +613,7 @@ def test_main_writes_cases_and_skips_existing(tmp_path, monkeypatch, capsys):
         assert data["synthetic"] is True and all("flaw" in e for e in data["expect"])
         assert gs.validate_case(gs.saved_to_case(data, text)) == []
     over = [p for p in tmp_path.glob("*.json") if '"over_length"' in p.read_text(encoding="utf-8")]
-    assert len(over) == 1  # один over_length на програму
+    assert len(over) == 1  # one over_length per program
     calls = len(llm.calls)
     capsys.readouterr()
     assert gs.main(args) == 0
@@ -632,7 +632,7 @@ def test_main_reports_failures_and_bad_arguments(tmp_path, monkeypatch, capsys):
     assert not list(tmp_path.glob("*.json")) and "skipped, no valid case" in capsys.readouterr().out
 
 
-# ---------------- run_evals: типи length і mentions ----------------
+# ---------------- run_evals: the length and mentions types ----------------
 
 
 def make_analysis(edits=(), summary="", missing_info=()) -> Analysis:
@@ -656,13 +656,13 @@ def test_length_check_sums_the_cut_words():
     assert ok and "120" in detail
     two = [("X", words(80), words(20)), ("Y", words(70), words(25))]  # 60 + 45 = 105
     assert run_evals.check(LENGTH, make_analysis(edits=two))[0]
-    assert not run_evals.check(LENGTH, make_analysis(edits=[("X", words(120), words(30))]))[0]  # 90 слів
+    assert not run_evals.check(LENGTH, make_analysis(edits=[("X", words(120), words(30))]))[0]  # 90 words
 
 
 def test_length_check_ignores_edits_that_make_text_longer():
     edits = [("X", words(105), words(5)), ("Y", words(10), words(300)), ("Z", "", words(50))]
     ok, _ = run_evals.check(LENGTH, make_analysis(edits=edits))
-    assert ok  # 100 слів зрізано, подовження не віднімається
+    assert ok  # 100 words cut, a lengthening is not subtracted
     assert not run_evals.check(LENGTH, make_analysis(edits=[("X", words(99), words(0))]))[0]
     assert not run_evals.check(LENGTH, make_analysis())[0]
 
@@ -702,7 +702,7 @@ def test_old_format_without_type_still_works():
     assert run_evals.check(exp, analysis)[0]
 
 
-# ---------------- run_evals: перевірка вигаданих чисел ----------------
+# ---------------- run_evals: the invented-numbers check ----------------
 
 CV = "Sales Intern, Jun 2025 - Aug 2025\n- Prepared 12 weekly reports for 3 regional managers\n"
 
@@ -726,7 +726,7 @@ def test_hallucination_passes_bracketed_placeholders_and_known_numbers():
 
 def test_hallucination_allows_numbers_from_before_and_profile_background():
     analysis = make_analysis(edits=[("Experience", "scored 98 points", "Scored 98 points in the exam")])
-    assert run_evals.check_no_invented_numbers(analysis, CV)[0]  # число є в цитаті
+    assert run_evals.check_no_invented_numbers(analysis, CV)[0]  # the number is in the quote
     analysis = make_analysis(edits=[("Education", "BSc Economics", "BSc Economics, 2027")])
     assert not run_evals.check_no_invented_numbers(analysis, CV)[0]
     assert run_evals.check_no_invented_numbers(analysis, CV, "Studies Economics, graduates in 2027")[0]
@@ -738,7 +738,7 @@ def test_hallucination_reports_the_first_bad_edit():
     assert not ok and "70%" in detail
 
 
-# ---------------- run_evals: зведення за вадами ----------------
+# ---------------- run_evals: summary by flaw ----------------
 
 
 def test_by_flaw_aggregates_passes_over_runs_and_cases():
@@ -760,7 +760,7 @@ def test_by_flaw_aggregates_passes_over_runs_and_cases():
     }
     result = run_evals.build_result("M", 2, results, flaws)
     assert result["by_flaw"]["weak_opener"] == {"passed": 3, "total": 4}
-    assert result["total"] == 10 and result["passed"] == 8  # загальні лічильники лишились як були
+    assert result["total"] == 10 and result["passed"] == 8  # the overall counters stayed as they were
 
 
 def test_by_flaw_is_absent_when_no_expect_has_a_flaw():

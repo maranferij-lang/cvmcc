@@ -1,8 +1,8 @@
-"""Стабільний бал: зважена сума критеріїв рубрики замість «відчуття» моделі.
+"""Stable score: a weighted sum of the rubric criteria instead of the model's "feeling".
 
-Модель оцінює кожен критерій рубрики за шкалою 1..5. Підсумок рахуємо ми самі:
-вага критерію з rubrics/weights.json, невеликий внесок загальної оцінки моделі
-і штраф за детерміновані перевірки (cvmax.checks).
+The model rates each rubric criterion on a 1..5 scale. We compute the total ourselves:
+the criterion weight from rubrics/weights.json, a small contribution from the model's overall score
+and a penalty for the deterministic checks (cvmax.checks).
 """
 from __future__ import annotations
 
@@ -19,23 +19,23 @@ from .schemas import Analysis
 
 log = logging.getLogger(__name__)
 
-# Файл ваг лежить поруч із рубриками: його хеш входить у версію знань (learning/version.py).
+# The weights file sits next to the rubrics: its hash is part of the knowledge version (learning/version.py).
 WEIGHTS_PATH = Path(__file__).parent / "rubrics" / "weights.json"
 
-# Якщо зіставлено менше критеріїв, зваженій сумі довіряти не можна: беремо бал моделі.
+# If fewer criteria are matched, the weighted sum cannot be trusted: we take the model's score.
 MIN_MATCHED = 4
 
-# Резервні значення на випадок, коли config ще не має нових полів.
+# Fallback values for when config does not have the new fields yet.
 _DEFAULT_MODEL_WEIGHT = 0.3
 _DEFAULT_PENALTY_CAP = 15
 
-# Бали штрафу за знахідки перевірок (збігається з cvmax.checks.penalty).
+# Penalty points per check finding (matches cvmax.checks.penalty).
 _SEVERITY_POINTS = {"high": 4, "medium": 2, "low": 1}
 
-_MAX_ALIAS_HOPS = 5  # скільки разів йдемо за рядком-псевдонімом, щоб не зациклитись
-_MAX_NAME_CHARS = 200  # назву критерію обрізаємо перед зіставленням
+_MAX_ALIAS_HOPS = 5  # how many times we follow a string alias, so as not to loop forever
+_MAX_NAME_CHARS = 200  # the criterion name is cut to this before matching
 
-# Ваги за замовчуванням, якщо weights.json зник або зіпсований.
+# Default weights if weights.json is missing or corrupted.
 _BUILTIN_DEFAULT: dict[str, int] = {
     "Target fit": 25,
     "Impact bullets": 20,
@@ -49,19 +49,19 @@ _BUILTIN_DEFAULT: dict[str, int] = {
 
 @dataclass
 class ScoreDetail:
-    score: int  # підсумок 0..100
-    criteria_score: int  # зважена сума критеріїв 0..100 (при matched < MIN_MATCHED дорівнює model_score)
-    model_score: int  # overall_score, який дала модель
-    penalty: int  # з перевірок
-    matched: int  # скільки критеріїв моделі зіставлено з вагами
-    items: list[tuple[str, int, int]]  # (критерій за назвою з weights.json, вага, бал 1..5)
+    score: int  # total 0..100
+    criteria_score: int  # weighted sum of the criteria 0..100 (equals model_score when matched < MIN_MATCHED)
+    model_score: int  # overall_score given by the model
+    penalty: int  # from the checks
+    matched: int  # how many of the model's criteria were matched to weights
+    items: list[tuple[str, int, int]]  # (criterion under its name in weights.json, weight, score 1..5)
 
 
-# --- ваги ---
+# --- weights ---
 
 
 def _clean_weights(raw: Any) -> dict[str, int]:
-    """Лишає лише пари «назва -> додатне ціле»; усе інше мовчки відкидає."""
+    """Keeps only "name -> positive integer" pairs; silently drops everything else."""
     if not isinstance(raw, dict):
         return {}
     return {
@@ -81,11 +81,11 @@ def _read_weights_file(path: Path) -> dict[str, Any]:
 
 
 def load_weights(program: str, path: Path | None = None) -> dict[str, int]:
-    """Ваги критеріїв для програми.
+    """Criterion weights for a program.
 
-    Рядок замість об'єкта означає «як у цієї програми» (ланцюжок не довший за _MAX_ALIAS_HOPS).
-    Невідома програма, зіпсований запис або відсутній файл дають ваги "default".
-    Повертає новий словник: викликач може вилучати з нього використані ключі.
+    A string instead of an object means "same as that program" (a chain no longer than _MAX_ALIAS_HOPS).
+    An unknown program, a corrupted entry or a missing file give the "default" weights.
+    Returns a new dict: the caller may remove used keys from it.
     """
     data = _read_weights_file(Path(path) if path is not None else WEIGHTS_PATH)
     entry: Any = data.get(program) if isinstance(program, str) else None
@@ -99,21 +99,21 @@ def load_weights(program: str, path: Path | None = None) -> dict[str, int]:
     return weights or dict(_BUILTIN_DEFAULT)
 
 
-# --- зіставлення назви критерію з ключем ваг ---
+# --- matching a criterion name to a weights key ---
 
 
 def _words(text: str) -> list[str]:
-    """Нижній регістр, лише літери й пробіли (решта символів стає пробілом), слова окремо."""
+    """Lower case, letters and spaces only (every other character becomes a space), split into words."""
     chars = [ch.lower() if ch.isalpha() else " " for ch in str(text)[:_MAX_NAME_CHARS]]
     return "".join(chars).split()
 
 
 def match_criterion(name: str, weights: dict[str, int]) -> str | None:
-    """Ключ із weights, що відповідає назві критерію від моделі; None, якщо збігу немає.
+    """The key in weights that corresponds to the criterion name given by the model; None if there is no match.
 
-    Порядок: точний збіг після нормалізації; ключ, усі слова якого є серед слів назви
-    (при кількох береться найдовший, при рівності перший); ключ із тим самим першим словом.
-    Ключ, який уже використано, викликач вилучає з weights, тому двічі він не вибереться.
+    Order: an exact match after normalisation; a key all of whose words are among the words of the name
+    (if several, the longest is taken, the first on a tie); a key with the same first word.
+    The caller removes a used key from weights, so it cannot be chosen twice.
     """
     if not isinstance(weights, dict):
         return None
@@ -130,7 +130,7 @@ def match_criterion(name: str, weights: dict[str, int]) -> str | None:
     name_set = set(name_words)
     inside = [(k, w) for k, w in keys if set(w) <= name_set]
     if inside:
-        return max(inside, key=lambda kw: len(kw[1]))[0]  # max віддає перший із рівних
+        return max(inside, key=lambda kw: len(kw[1]))[0]  # max returns the first of the equals
 
     for key, key_words in keys:
         if key_words[0] == name_words[0]:
@@ -138,7 +138,7 @@ def match_criterion(name: str, weights: dict[str, int]) -> str | None:
     return None
 
 
-# --- штраф і конфіг ---
+# --- penalty and config ---
 
 
 def _clamp(value: int, low: int, high: int) -> int:
@@ -146,7 +146,7 @@ def _clamp(value: int, low: int, high: int) -> int:
 
 
 def _model_weight() -> Fraction:
-    """Частка загальної оцінки моделі в підсумку (0..1), точним дробом без похибок float."""
+    """Share of the model's overall score in the total (0..1), as an exact fraction without float error."""
     try:
         raw = float(getattr(config, "SCORE_MODEL_WEIGHT", _DEFAULT_MODEL_WEIGHT))
     except (TypeError, ValueError):
@@ -165,7 +165,7 @@ def _penalty_cap() -> int:
 
 
 def _local_penalty(checks: Any, cap: int) -> int:
-    """Запасний підрахунок штрафу, якщо cvmax.checks.penalty недоступна: high=4, medium=2, low=1."""
+    """Fallback penalty calculation when cvmax.checks.penalty is unavailable: high=4, medium=2, low=1."""
     findings = getattr(checks, "findings", None)
     if not isinstance(findings, (list, tuple)):
         return 0
@@ -174,17 +174,17 @@ def _local_penalty(checks: Any, cap: int) -> int:
 
 
 def _checks_penalty(checks: Any) -> int:
-    """Штраф за перевірки: cvmax.checks.penalty, якщо модуль уже є, інакше локальний підрахунок."""
+    """Penalty for the checks: cvmax.checks.penalty if the module already exists, otherwise a local calculation."""
     if checks is None:
         return 0
     cap = _penalty_cap()
     penalty_fn = None
     try:
-        # Лінивий імпорт: модуль checks пишеться паралельно, жорсткої залежності не робимо.
+        # Lazy import: the checks module is written in parallel, so we do not make a hard dependency.
         from . import checks as checks_module
 
         penalty_fn = getattr(checks_module, "penalty", None)
-    except Exception as exc:  # відсутній або зламаний модуль не повинен ламати бал
+    except Exception as exc:  # a missing or broken module must not break the score
         log.debug("cvmax.checks unavailable, using local penalty: %s", exc)
     if callable(penalty_fn):
         try:
@@ -194,17 +194,17 @@ def _checks_penalty(checks: Any) -> int:
     return _local_penalty(checks, cap)
 
 
-# --- підсумок ---
+# --- total ---
 
 
 def compute_score(analysis: Analysis, checks: Any | None, program: str) -> ScoreDetail:
-    """Підсумковий бал 0..100. Не змінює analysis; результат детермінований.
+    """Final score 0..100. Does not modify analysis; the result is deterministic.
 
-    criteria_score = round(100 * Σ w_i * (s_i - 1) / 4 / Σ w_i) по зіставлених критеріях;
+    criteria_score = round(100 * Σ w_i * (s_i - 1) / 4 / Σ w_i) over the matched criteria;
     score = clamp(round((1 - W) * criteria_score + W * model_score) - penalty, 0, 100),
-    де W = config.SCORE_MODEL_WEIGHT. Якщо зіставлено менше MIN_MATCHED критеріїв,
-    score = clamp(model_score - penalty), а criteria_score дорівнює model_score.
-    Округлення половин вгору, обчислення точні (цілі числа й дроби).
+    where W = config.SCORE_MODEL_WEIGHT. If fewer than MIN_MATCHED criteria are matched,
+    score = clamp(model_score - penalty), and criteria_score equals model_score.
+    Halves round up, the calculation is exact (integers and fractions).
     """
     model_score = _clamp(int(analysis.overall_score), 0, 100)
     penalty = _checks_penalty(checks)
@@ -215,7 +215,7 @@ def compute_score(analysis: Analysis, checks: Any | None, program: str) -> Score
         key = match_criterion(criterion.criterion, remaining)
         if key is None:
             continue
-        weight = remaining.pop(key)  # кожен ключ використовується один раз
+        weight = remaining.pop(key)  # each key is used once
         items.append((key, weight, _clamp(int(criterion.score), 1, 5)))
     matched = len(items)
 
@@ -232,7 +232,7 @@ def compute_score(analysis: Analysis, checks: Any | None, program: str) -> Score
     total_weight = sum(w for _, w, _ in items)
     numerator = 100 * sum(w * (s - 1) for _, w, s in items)
     denominator = 4 * total_weight
-    criteria_score = (2 * numerator + denominator) // (2 * denominator)  # половини вгору
+    criteria_score = (2 * numerator + denominator) // (2 * denominator)  # halves round up
 
     model_weight = _model_weight()
     blended = (1 - model_weight) * criteria_score + model_weight * model_score

@@ -84,7 +84,7 @@ def _parse(kind: str, data: bytes) -> dict:
 def _pdf_text(data: bytes) -> tuple[str, int, int | None]:
     result = _parse("pdf", data)
     images = result.get("images")
-    # Метрика не критична: чужий або непередбачений формат значення просто стає None.
+    # The metric is not critical: a foreign or unexpected value format just becomes None.
     if not isinstance(images, int) or isinstance(images, bool) or images < 0:
         images = None
     return result["text"], result["pages"], images

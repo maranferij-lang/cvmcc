@@ -190,9 +190,9 @@ class ClaudeLLM:
         except anthropic.APIStatusError as e:
             raise LLMError(f"API error ({e.status_code}). Try again later.") from e
         except ValidationError as e:
-            # parse() перевіряє JSON за схемою раніше, ніж ми бачимо stop_reason, тому без цього ловця
-            # помилка схеми минала б `except LLMError`. Текст pydantic-помилки юзеру не показуємо:
-            # у ньому може бути уривок відповіді моделі чи CV.
+            # parse() validates the JSON against the schema before we see stop_reason, so without this catch
+            # a schema error would slip past `except LLMError`. We do not show the user the pydantic error text:
+            # it may contain a fragment of the model's response or of the CV.
             raise LLMError("The model returned a response that does not fit the expected format. Please try again.") from e
 
         if response.stop_reason == "refusal":
