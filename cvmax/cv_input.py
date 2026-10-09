@@ -21,6 +21,7 @@ class CVFile:
     text: str  # Витягнутий текст: для застосування правок і для Grill me.
     pdf_bytes: bytes | None = None  # Оригінал PDF, щоб модель бачила й верстку.
     pages: int | None = None  # Для PDF: кількість сторінок.
+    images: int | None = None  # Для PDF: кількість вбудованих зображень; для DOCX і тексту None.
 
     @property
     def word_count(self) -> int:
@@ -72,15 +73,21 @@ def _parse(kind: str, data: bytes) -> dict:
     if error == "too_big":
         raise CVReadError(f"Could not read {label}: the file is too large or damaged.")
     if "text" not in result:  # битий файл або процес упав через ліміт пам'яті чи CPU
+        if proc.returncode < 0:  # убитий сигналом (ліміт CPU, SIGXCPU/SIGKILL): файл надто важкий, а не битий
+            raise CVReadError(f"Could not read {label}: the file is too large or damaged.")
         raise CVReadError(f"Could not read {label}. The file may be damaged.")
     if len(result["text"]) > MAX_TEXT_CHARS:
         raise CVReadError("Too much text for a CV. Keep only the CV itself, without attachments.")
     return result
 
 
-def _pdf_text(data: bytes) -> tuple[str, int]:
+def _pdf_text(data: bytes) -> tuple[str, int, int | None]:
     result = _parse("pdf", data)
-    return result["text"], result["pages"]
+    images = result.get("images")
+    # Метрика не критична: чужий або непередбачений формат значення просто стає None.
+    if not isinstance(images, int) or isinstance(images, bool) or images < 0:
+        images = None
+    return result["text"], result["pages"], images
 
 
 def _docx_text(data: bytes) -> str:
@@ -90,9 +97,9 @@ def _docx_text(data: bytes) -> str:
 def load_cv(filename: str, data: bytes) -> CVFile:
     name = filename.lower()
     if name.endswith(".pdf"):
-        text, pages = _pdf_text(data)
+        text, pages, images = _pdf_text(data)
         # Скановані PDF не мають тексту, але модель усе одно прочитає їх як картинку.
-        return CVFile(filename=filename, text=text, pdf_bytes=data, pages=pages)
+        return CVFile(filename=filename, text=text, pdf_bytes=data, pages=pages, images=images)
     if name.endswith(".docx"):
         text = _docx_text(data)
         if not text:

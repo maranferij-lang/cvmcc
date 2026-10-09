@@ -3,6 +3,7 @@
 PDF і DOCX можуть бути «бомбами»: маленький файл, який при розборі з'їдає гігабайти пам'яті й хвилини CPU.
 Тому розбір іде в дочірньому процесі з лімітом пам'яті й часу, і зависання не кладе весь сайт.
 Запуск: python -m cvmax.parse_worker pdf|docx < файл  ->  JSON {"text": ..., "pages": ...} у stdout.
+Для PDF є ще "images": кількість вбудованих зображень (для DOCX цього поля немає).
 """
 
 from __future__ import annotations
@@ -28,7 +29,88 @@ def limit_resources() -> None:
     resource.setrlimit(resource.RLIMIT_CPU, (MAX_CPU_SECONDS, MAX_CPU_SECONDS))
 
 
+# Підрахунок картинок це лише метрика для перевірок, тому він не має права відібрати час у розбору тексту:
+# якщо від початку розбору PDF уже витрачено стільки секунд CPU, решту сторінок не чіпаємо (ліміт процесу 8 с).
+IMAGES_CPU_BUDGET_S = 3.0
+# Форми (Form XObject) обходимо неглибоко й обмежено, щоб вкладені чи циклічні ресурси не з'їли час.
+MAX_FORM_DEPTH = 2
+MAX_XOBJECT_NODES = 200
+
+
+def _resolve(obj):
+    """Розкриває непряме посилання pypdf; для звичайних значень повертає їх самих."""
+    return obj.get_object() if hasattr(obj, "get_object") else obj
+
+
+def _dict_get(obj, key):
+    obj = _resolve(obj)
+    return _resolve(obj.get(key)) if hasattr(obj, "get") else None
+
+
+def _xobject_images(resources, depth: int, nodes: list) -> int:
+    """Рахує записи /Subtype /Image у /Resources /XObject без декодування зображень.
+
+    nodes[0] це спільний лічильник вузлів, що лишилися, на всю сторінку.
+    """
+    xobjects = _dict_get(resources, "/XObject")
+    if not hasattr(xobjects, "values"):
+        return 0
+    total = 0
+    for ref in list(xobjects.values()):
+        if nodes[0] <= 0:
+            break
+        nodes[0] -= 1
+        obj = _resolve(ref)
+        subtype = _dict_get(obj, "/Subtype")
+        if subtype == "/Image":
+            total += 1
+        elif subtype == "/Form" and depth < MAX_FORM_DEPTH:
+            total += _xobject_images(_dict_get(obj, "/Resources"), depth + 1, nodes)
+    return total
+
+
+def page_images(page) -> int:
+    """Кількість зображень на сторінці без їх декодування.
+
+    len(page.images) у pypdf повністю розпаковує кожне inline-зображення (BI/ID/EI), і одна сторінка
+    може з'їсти весь ліміт CPU. Тому рахуємо XObject-зображення за словником ресурсів, а inline за
+    оператором INLINE IMAGE у вже розібраному потоці команд (дані зображення не розпаковуються).
+    Inline-зображення всередині форм не рахуємо.
+    """
+    total = _xobject_images(_dict_get(page, "/Resources"), 0, [MAX_XOBJECT_NODES])
+    try:
+        contents = page.get_contents()
+        if contents is not None:
+            total += sum(1 for _, op in contents.operations if op == b"INLINE IMAGE")
+    except Exception:  # зіпсований потік команд: XObject-картинки вже пораховано
+        pass
+    return total
+
+
+def count_images(reader, pages: int, started: float | None = None) -> int:
+    """Скільки зображень на сторінках PDF. Помилка на сторінці рахується як 0 і не ламає розбір.
+
+    started: значення time.process_time() на початку розбору; за замовчуванням момент виклику.
+    """
+    import time
+
+    if started is None:
+        started = time.process_time()
+    total = 0
+    for i in range(pages):
+        if time.process_time() - started > IMAGES_CPU_BUDGET_S:
+            break
+        try:
+            total += page_images(reader.pages[i])
+        except Exception:  # зіпсований XObject, надто глибока вкладеність тощо
+            continue
+    return total
+
+
 def pdf_text(data: bytes, max_pages: int) -> dict:
+    import time
+
+    started = time.process_time()
     from pypdf import PdfReader
 
     reader = PdfReader(io.BytesIO(data))
@@ -36,7 +118,7 @@ def pdf_text(data: bytes, max_pages: int) -> dict:
     if pages > max_pages:
         return {"error": "pages", "pages": pages}
     text = "\n".join((page.extract_text() or "") for page in reader.pages).strip()
-    return {"text": text, "pages": pages}
+    return {"text": text, "pages": pages, "images": count_images(reader, pages, started)}
 
 
 def docx_text(data: bytes) -> dict:

@@ -1,0 +1,105 @@
+{
+  "name": "Синтетична випускниця-психологиня: over_length (~890 слів), missing_contact (немає email), порушений хронологічний порядок, довгий список курсів, пункт від першої особи, рядок References і два сильні пункти (strong_keep)",
+  "cv_file": "psychology_s0_2.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "psychology",
+    "status": "Graduate",
+    "background": "BA in Psychology at Odesa Coastal University (June 2026); peer support group facilitator at Seaside Youth Hub since January 2025; internship at Harbour Light Counselling Centre in summer 2024.",
+    "target_role": "Psychosocial Support Assistant",
+    "company_type": "Government / international org / NGO",
+    "company_details": "NGO providing psychosocial support to young people and displaced families",
+    "level": "Junior / first job",
+    "region": "Ukraine / Eastern Europe",
+    "vacancy_text": "Psychosocial Support Assistant (NGO, Odesa). You will support the psychologist in group sessions for young people, keep confidential case records, prepare materials for workshops and help with intake conversations. Requirements: degree in psychology, experience with groups, Ukrainian and English, strict confidentiality.",
+    "feedback_language": "Ukrainian"
+  },
+  "expect": [
+    {
+      "id": "over_length-1",
+      "flaw": "over_length",
+      "type": "length",
+      "min_cut_words": 100,
+      "description": "CV на ~890 слів для першої роботи: правки мають скоротити щонайменше 100 слів"
+    },
+    {
+      "id": "missing_contact-1",
+      "flaw": "missing_contact",
+      "type": "mentions",
+      "any_of": [
+        "email",
+        "e-mail"
+      ],
+      "description": "у заголовку є телефон і LinkedIn, але немає email: розбір має про це сказати"
+    },
+    {
+      "id": "first_person-1",
+      "flaw": "first_person",
+      "description": "пункт від першої особи («I managed ...»): переписати з дієсловом дії без займенника або прибрати",
+      "line_contains": [
+        "I managed the registration and reminders for the weekly peer support group"
+      ],
+      "verdicts": [
+        "rewrite",
+        "cut"
+      ]
+    },
+    {
+      "id": "long_coursework-1",
+      "flaw": "long_coursework",
+      "description": "список із 14 загальних курсів: скоротити до 3-4 релевантних для психосоціальної підтримки або прибрати",
+      "line_contains": [
+        "Coursework: General Psychology, Developmental Psychology, Social Psychology"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "not_reverse_chronological-1",
+      "flaw": "not_reverse_chronological",
+      "description": "запис Camp Counsellor (2023) стоїть вище записів 2024 і 2025: порядок у Experience має бути зворотно хронологічним",
+      "line_contains": [
+        "Camp Counsellor, Blue Wave Youth Camp, Zatoka, Jul 2023 - Aug 2023"
+      ],
+      "verdicts": [
+        "move"
+      ]
+    },
+    {
+      "id": "references_line-1",
+      "flaw": "references_line",
+      "description": "рядок «References available upon request» нічого не додає: прибрати разом із заголовком",
+      "line_contains": [
+        "References available upon request"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про 12 сесій груп підтримки і зростання відвідуваності з 9 до 14 у цифрах: не чіпати",
+      "line_contains": [
+        "Ran 12 weekly peer support sessions for 15 first-year students"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про опитування 320 студентів і звіт на 12 сторінок у цифрах: не чіпати",
+      "line_contains": [
+        "Co-authored a survey of 320 students on burnout and sleep"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

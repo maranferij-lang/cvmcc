@@ -1,0 +1,87 @@
+{
+  "weak_opener": {
+    "description": "пункт починається зі слабкого дієслова обов'язку («Responsible for», «Helped with», «Assisted with»): його треба переписати або прибрати",
+    "plant": "Write one experience or project bullet that starts with \"Responsible for\", \"Helped with\" or \"Assisted with\" and describes a real activity of the candidate. line_contains must be a distinctive fragment of that bullet, including its opening words.",
+    "expect": {"verdicts": ["rewrite", "cut"]}
+  },
+  "no_result": {
+    "description": "пункт описує обов'язок без результату й числа: його треба переписати або прибрати",
+    "plant": "Write one experience bullet that states a plain duty with no result and no number, for example \"Prepared weekly reports for the team\". Do not start it with Responsible for, Helped or Assisted. line_contains must be a distinctive fragment of that bullet.",
+    "expect": {"verdicts": ["rewrite", "cut"]}
+  },
+  "topics_only": {
+    "description": "пункт перелічує теми, а не внесок чи результат: його треба прибрати або переписати",
+    "plant": "Write one bullet that only lists topics, for example \"Topics included contract formation, remedies for breach and tort liability\", with no action by the candidate and no result. line_contains must be a distinctive fragment of that bullet.",
+    "expect": {"verdicts": ["cut", "rewrite"]}
+  },
+  "duplicate": {
+    "description": "той самий факт повторено в двох рядках: другий рядок треба прибрати, скоротити або переписати",
+    "plant": "State the same fact (the same achievement with the same figures) in two different places of the CV, for example once under Experience and again under Awards, worded a little differently. line_contains must be a distinctive fragment of the SECOND occurrence that does not appear in the first line. Neither occurrence may be one of the clean_lines.",
+    "expect": {"verdicts": ["cut", "shorten", "rewrite"]}
+  },
+  "generic_interests": {
+    "description": "загальний рядок інтересів («Gym, Travelling, Netflix») нічого не каже про кандидата: його треба прибрати або скоротити",
+    "plant": "Add an Interests line made only of generic items, for example \"Interests: Gym, Travelling, Netflix\". line_contains must be a fragment of that line.",
+    "expect": {"verdicts": ["cut", "shorten"]}
+  },
+  "long_coursework": {
+    "description": "довгий список загальних курсів займає місце й нічого не доводить: його треба прибрати, скоротити або переписати",
+    "plant": "Add a Relevant Coursework line (or a bullet under Education) that lists 8 or more generic university courses separated by commas. line_contains must be a distinctive fragment of that line, such as its first three courses.",
+    "expect": {"verdicts": ["cut", "shorten", "rewrite"]}
+  },
+  "personal_data": {
+    "description": "рядок з особистими даними (дата народження, сімейний стан, національність), які міжнародним роботодавцям не потрібні: його треба прибрати",
+    "plant": "Add one line with personal data that an employer should not see, such as \"Date of birth: 14 March 2003\", \"Marital status: single\" or \"Nationality: Ukrainian\". line_contains must be a fragment of that line.",
+    "expect": {"verdicts": ["cut"]}
+  },
+  "references_line": {
+    "description": "рядок «References available upon request» зайвий: його треба прибрати",
+    "plant": "Add a final line \"References available upon request\". line_contains must be a fragment of that line.",
+    "expect": {"verdicts": ["cut"]}
+  },
+  "objective_paragraph": {
+    "description": "загальний абзац Objective без фактів: його треба прибрати або переписати",
+    "plant": "Add an OBJECTIVE section with a generic paragraph, for example \"Seeking a challenging position in a dynamic company where I can use my skills and grow professionally\". line_contains must be a distinctive fragment of that paragraph.",
+    "expect": {"verdicts": ["cut", "rewrite"]}
+  },
+  "self_description": {
+    "description": "загальний самоопис без фактів («hard-working team player»): його треба прибрати або замінити конкретикою",
+    "plant": "Add a Summary line made of self-praise without facts, for example \"Hard-working team player with strong communication skills\". line_contains must be a distinctive fragment of that line.",
+    "expect": {"verdicts": ["cut", "rewrite"]}
+  },
+  "skill_no_evidence": {
+    "description": "у рядку Skills названо інструмент, якого нема в жодному пункті досвіду чи проєктів: рядок треба переписати, скоротити або прибрати",
+    "plant": "In the Skills section list one tool or technology that appears nowhere else in the CV (not in any bullet, project or course). line_contains must be a fragment of the Skills line that contains that tool, and the fragment must include the tool's name.",
+    "expect": {"verdicts": ["rewrite", "shorten", "cut"]}
+  },
+  "first_person": {
+    "description": "пункт написано від першої особи («I managed ...»): його треба переписати або прибрати займенник",
+    "plant": "Write one bullet in the first person, starting with \"I \", for example \"I managed the team schedule and I made sure everyone was on time\". line_contains must be a distinctive fragment of that bullet, including the opening \"I \".",
+    "expect": {"verdicts": ["rewrite", "cut"]}
+  },
+  "cv_title": {
+    "description": "перший рядок «Curriculum Vitae» зайвий: його треба прибрати",
+    "plant": "Make the very first line of the CV the title \"Curriculum Vitae\" (the candidate's name goes on the next line). line_contains must be \"Curriculum Vitae\" or a fragment of that first line.",
+    "expect": {"verdicts": ["cut"]}
+  },
+  "not_reverse_chronological": {
+    "description": "старіший запис стоїть вище за новіший в одній секції: порядок треба змінити",
+    "plant": "In one section (Education, Experience or Projects) put an OLDER entry above a NEWER one, with clear date ranges. line_contains must be a distinctive fragment of the header line of the OLDER entry (the one that stands too high).",
+    "expect": {"verdicts": ["move"]}
+  },
+  "over_length": {
+    "description": "CV на 800+ слів для першої роботи: правки мають скоротити щонайменше 100 слів",
+    "plant": "Make the CV text between 850 and 1100 words by adding many detailed bullets, long descriptions, extra courses and minor activities. Global flaw: leave line_contains empty.",
+    "expect": {"type": "length", "min_cut_words": 100}
+  },
+  "missing_contact": {
+    "description": "немає email: розбір має про це сказати",
+    "plant": "Do not write any email address anywhere in the CV. Keep a phone number and a LinkedIn link in the header. Global flaw: leave line_contains empty.",
+    "expect": {"type": "mentions", "any_of": ["email", "e-mail"]}
+  },
+  "strong_keep": {
+    "description": "сильний пункт з дією та числом (контроль хибних спрацювань): його не чіпати",
+    "plant": "Write a strong bullet with a clear action verb, a concrete number and a result. These are the clean lines: list them in clean_lines, not in planted. Each must be a fragment of its bullet.",
+    "expect": {"verdicts": ["keep"]}
+  }
+}

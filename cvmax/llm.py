@@ -11,7 +11,7 @@ import os
 import time
 from typing import Any, Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from . import config
 
@@ -189,6 +189,11 @@ class ClaudeLLM:
             raise LLMError("Cannot reach the API. Try again in a minute.") from e
         except anthropic.APIStatusError as e:
             raise LLMError(f"API error ({e.status_code}). Try again later.") from e
+        except ValidationError as e:
+            # parse() перевіряє JSON за схемою раніше, ніж ми бачимо stop_reason, тому без цього ловця
+            # помилка схеми минала б `except LLMError`. Текст pydantic-помилки юзеру не показуємо:
+            # у ньому може бути уривок відповіді моделі чи CV.
+            raise LLMError("The model returned a response that does not fit the expected format. Please try again.") from e
 
         if response.stop_reason == "refusal":
             raise LLMError("The model declined this request. Try changing the text.")

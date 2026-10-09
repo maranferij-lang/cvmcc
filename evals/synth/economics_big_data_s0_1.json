@@ -1,0 +1,101 @@
+{
+  "name": "Вигадана студентка-економістка: weak_opener, no_result, personal_data, skill_no_evidence, generic_interests і два сильні пункти (strong_keep)",
+  "cv_file": "economics_big_data_s0_1.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "economics_big_data",
+    "status": "3rd year",
+    "background": "3rd-year student of Economics and Data Analytics at Carpathian University of Economics; one summer internship at a payments company.",
+    "target_role": "Data Analyst Intern",
+    "company_type": "Fintech / bank",
+    "company_details": "",
+    "level": "Internship",
+    "region": "EU",
+    "vacancy_text": "",
+    "feedback_language": "English"
+  },
+  "expect": [
+    {
+      "id": "weak_opener-1",
+      "flaw": "weak_opener",
+      "description": "пункт, що починається з «Helped with», переписати з конкретною дією і результатом або прибрати",
+      "line_contains": [
+        "Helped with cleaning and merging transaction data"
+      ],
+      "verdicts": [
+        "rewrite",
+        "cut"
+      ]
+    },
+    {
+      "id": "no_result-1",
+      "flaw": "no_result",
+      "description": "пункт-обов'язок без результату й числа переписати або прибрати",
+      "line_contains": [
+        "Prepared weekly reports on card transaction volumes"
+      ],
+      "verdicts": [
+        "rewrite",
+        "cut"
+      ]
+    },
+    {
+      "id": "personal_data-1",
+      "flaw": "personal_data",
+      "description": "дату народження і сімейний стан прибрати із заголовка",
+      "line_contains": [
+        "Date of birth: 22 August 2005"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "generic_interests-1",
+      "flaw": "generic_interests",
+      "description": "загальні інтереси (спортзал, подорожі, серіали) прибрати або скоротити",
+      "line_contains": [
+        "Gym, Travelling, Netflix"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten"
+      ]
+    },
+    {
+      "id": "skill_no_evidence-1",
+      "flaw": "skill_no_evidence",
+      "description": "у Skills є Tableau, Apache Spark і Hadoop, яких немає в жодному пункті: прибрати або підтвердити",
+      "line_contains": [
+        "Tableau, Apache Spark, Hadoop"
+      ],
+      "verdicts": [
+        "rewrite",
+        "shorten",
+        "cut"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про дашборд з числами не чіпати",
+      "line_contains": [
+        "flagged 140 at-risk merchant accounts"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про реплікацію дослідження з числами не чіпати",
+      "line_contains": [
+        "reproducing 11 of 12 reported estimates"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

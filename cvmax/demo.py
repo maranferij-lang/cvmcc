@@ -10,7 +10,7 @@ import re
 from types import SimpleNamespace
 from typing import Any
 
-from .schemas import Analysis, JobFit, RankedJobs, BuiltCV, LineVerdict, CVEducation, CVEntry, CVSkillGroup, CareerMatch, CriterionScore, Direction, Edit, Gap, GrillResult, GrillTurn
+from .schemas import Analysis, JobFit, RankedJobs, BuiltCV, LineVerdict, CVEducation, CVEntry, CVSkillGroup, CareerMatch, CriterionScore, Direction, Edit, EditVerdict, EditVerdicts, Gap, GrillResult, GrillTurn
 
 DEMO_QUESTIONS = [
     ("In your Student Council role, how many events did you organise and how many people came?",
@@ -47,13 +47,17 @@ class _Messages:
                     Edit(
                         section="Leadership & Activities",
                         before="Member of Student Council",
-                        after="Organised 6 university events for 300+ students as Student Council member, "
-                        "managing a $1,000 sponsorship budget",
-                        reason="Your Q&A answer added numbers that were not in the CV.",
+                        # Числа в дужках: демо не знає, що юзер відповів, тож верифікатор не має їх відкидати.
+                        after="Organised [6] university events for [300+] students as Student Council member, "
+                        "managing a [$1,000] sponsorship budget",
+                        reason="Your Q&A answer added numbers that were not in the CV. "
+                        "Check the numbers in brackets before you use this line.",
                         priority="high",
                     )
                 ],
             )
+        elif fmt is EditVerdicts:
+            out = demo_edit_verdicts(_message_text(kwargs.get("messages")))
         elif fmt is CareerMatch:
             out = demo_career()
         elif fmt is BuiltCV:
@@ -63,6 +67,40 @@ class _Messages:
         else:
             raise ValueError(f"Unknown output format: {fmt}")
         return SimpleNamespace(stop_reason="end_turn", parsed_output=out)
+
+
+def _message_text(messages: Any) -> str:
+    """Увесь текст запиту: повідомлення бувають рядком або списком блоків {"type": "text", "text": ...}."""
+    parts: list[str] = []
+    for message in messages or []:
+        content = message.get("content") if isinstance(message, dict) else None
+        if isinstance(content, str):
+            parts.append(content)
+        elif isinstance(content, list):
+            parts.extend(str(b.get("text", "")) for b in content if isinstance(b, dict))
+    return "\n".join(parts)
+
+
+def demo_edit_verdicts(prompt: str) -> EditVerdicts:
+    """Демо-вердикти верифікатора: ok для всіх правок, крім тих, де after містить DEMO-INVENTED.
+
+    Рядок правки в запиті має вигляд `index | before | after` (див. cvmax.verify), блок <edits>...</edits>.
+    """
+    if "<edits>" not in prompt:
+        return EditVerdicts(items=[])
+    block = prompt.split("<edits>", 1)[1].split("</edits>", 1)[0]
+    items = []
+    for line in block.splitlines():
+        parts = line.split(" | ")
+        if len(parts) < 3 or not parts[0].strip().isdigit():
+            continue
+        invented = "DEMO-INVENTED" in parts[2]
+        items.append(EditVerdict(
+            index=int(parts[0]), ok=not invented,
+            problem="Demo: this edit adds a fact that is not in the CV." if invented else "",
+            fixed_after="",
+        ))
+    return EditVerdicts(items=items)
 
 
 def demo_ranked_jobs(ids: list[str]) -> RankedJobs:

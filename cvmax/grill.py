@@ -2,15 +2,20 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from typing import Any
 
 from . import config
+from .analyze import is_cosmetic
 from .cv_input import CVFile
 from .llm import ask_structured
 from .profile import Profile
 from .prompts import grill_finalize_system, grill_system
 from .schemas import GrillResult, GrillTurn
+from .verify import Verification, verify_edits
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -26,6 +31,7 @@ class GrillSession:
     turns: list[QA] = field(default_factory=list)
     finished: bool = False
     max_questions: int = config.GRILL_MAX_QUESTIONS
+    verification: Verification | None = None  # підсумок перевірки правок після finalize; None, якщо її не було
 
     @property
     def pending(self) -> QA | None:
@@ -103,12 +109,37 @@ def answer(session: GrillSession, text: str) -> None:
     session.turns[-1].answer = text.strip() or "(skipped)"
 
 
-def finalize(client: Any, profile: Profile, cv: CVFile, session: GrillSession) -> GrillResult:
+def _answer_facts(profile: Profile, session: GrillSession) -> str:
+    """Факти для верифікатора: відповіді кандидата й опис його досвіду з профілю.
+
+    Питання моделі сюди не йдуть: у них можуть бути числа, яких кандидат не називав.
+    """
+    answers = [t.answer.strip() for t in session.turns if t.answer.strip() and t.answer.strip() != "(skipped)"]
+    return "\n".join([profile.background.strip(), *answers]).strip()
+
+
+def finalize(client: Any, profile: Profile, cv: CVFile, session: GrillSession, verify: bool = True) -> GrillResult:
     session.finished = True
-    return ask_structured(
+    result = ask_structured(
         client,
         system=grill_finalize_system(profile),
         content=_content(profile, cv, session, "Turn the interview into CV improvements."),
         output_model=GrillResult,
         effort=config.EFFORT_ANALYSIS,
     )
+    # Як і в analyze_full: правки, що міняють лише формат чи дати, не показуємо. Це до верифікатора й незалежно від нього.
+    result.edits = [e for e in result.edits if not is_cosmetic(e.before, e.after)]
+    session.verification = None
+    if verify and config.VERIFY_ENABLED:
+        try:
+            edits, session.verification = verify_edits(
+                client, cv_text=cv.text, facts=_answer_facts(profile, session), edits=result.edits,
+                feedback_language=profile.feedback_language,
+            )
+            result.edits = edits
+        except Exception as exc:  # без верифікатора правки лишаються як є, як і в analyze_full
+            # У журнал іде лише тип помилки: у повідомленні може бути текст CV чи відповідей.
+            log.warning("Edit verification failed (%s); edits were not verified", type(exc).__name__)
+            log.debug("Edit verification failure details", exc_info=True)
+            session.verification = None
+    return result

@@ -1,0 +1,106 @@
+{
+  "name": "Вигаданий випускник: over_length (~890 слів), missing_contact (немає email), duplicate, not_reverse_chronological, no_result, generic_interests і два сильні пункти (strong_keep)",
+  "cv_file": "software_engineering_s0_2.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "software_engineering",
+    "status": "Graduate",
+    "background": "BSc in Software Engineering at Dnipro Institute of Information Technologies (June 2026); part-time Junior Frontend Developer at Mossgate Payments since February 2025; freelance websites in 2024.",
+    "target_role": "Junior Frontend Developer",
+    "company_type": "Startup",
+    "company_details": "Product startup building B2B web applications",
+    "level": "Junior / first job",
+    "region": "Remote, anywhere",
+    "vacancy_text": "",
+    "feedback_language": "Ukrainian"
+  },
+  "expect": [
+    {
+      "id": "over_length-1",
+      "flaw": "over_length",
+      "type": "length",
+      "min_cut_words": 100,
+      "description": "CV на ~890 слів для першої роботи: правки мають скоротити щонайменше 100 слів"
+    },
+    {
+      "id": "missing_contact-1",
+      "flaw": "missing_contact",
+      "type": "mentions",
+      "any_of": [
+        "email",
+        "e-mail"
+      ],
+      "description": "у заголовку є телефон, але немає email: розбір має про це сказати"
+    },
+    {
+      "id": "duplicate-1",
+      "flaw": "duplicate",
+      "description": "той самий результат про швидкість сторінки оплати повторено в «Key achievements»: другий рядок прибрати або скоротити",
+      "line_contains": [
+        "load time down from 4.1 s to 1.6 s after lazy-loading"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "not_reverse_chronological-1",
+      "flaw": "not_reverse_chronological",
+      "description": "запис Quillstack (2023) стоїть вище запису Harbourline (2024): порядок у Experience має бути зворотно хронологічним",
+      "line_contains": [
+        "Web Developer Intern, Quillstack Studio, Dnipro, Jul 2023 - Sep 2023"
+      ],
+      "verdicts": [
+        "move"
+      ]
+    },
+    {
+      "id": "no_result-1",
+      "flaw": "no_result",
+      "description": "пункт-обов'язок без результату й числа: переписати з наслідком або прибрати",
+      "line_contains": [
+        "Maintained the team wiki and wrote release notes for each sprint"
+      ],
+      "verdicts": [
+        "rewrite",
+        "cut"
+      ]
+    },
+    {
+      "id": "generic_interests-1",
+      "flaw": "generic_interests",
+      "description": "загальні інтереси (подорожі, музика, фільми, футбол) прибрати або скоротити",
+      "line_contains": [
+        "Interests: Travelling, Music, Movies, Football"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про міграцію сторінок на React з числами не чіпати",
+      "line_contains": [
+        "Migrated 14 legacy jQuery pages to React and TypeScript"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про npm-пакет з числами не чіпати",
+      "line_contains": [
+        "flags 12 common accessibility issues in React components"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

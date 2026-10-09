@@ -1,0 +1,106 @@
+{
+  "name": "Вигаданий випускник-юрист: over_length (~900 слів), missing_contact (немає email), duplicate, not_reverse_chronological, self_description, topics_only і два сильні пункти (strong_keep)",
+  "cv_file": "law_s0_2.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "law",
+    "status": "Graduate",
+    "background": "LLB in Law at Dnipro Institute of Law and Economics (June 2022); LLM in International Commercial Law at Eastgate University, UK (August 2026); junior lawyer at Berezin & Partners 2023-2025; paralegal intern at Halden & Rowe Solicitors in Leeds 2025-2026.",
+    "target_role": "Junior Commercial Paralegal",
+    "company_type": "Law firm",
+    "company_details": "Commercial law firm with corporate and dispute resolution teams in the UK",
+    "level": "Junior / first job",
+    "region": "UK",
+    "vacancy_text": "",
+    "feedback_language": "Ukrainian"
+  },
+  "expect": [
+    {
+      "id": "over_length-1",
+      "flaw": "over_length",
+      "type": "length",
+      "min_cut_words": 100,
+      "description": "CV на ~900 слів для першої роботи: правки мають скоротити щонайменше 100 слів"
+    },
+    {
+      "id": "missing_contact-1",
+      "flaw": "missing_contact",
+      "type": "mentions",
+      "any_of": [
+        "email",
+        "e-mail"
+      ],
+      "description": "у заголовку є телефон і LinkedIn, але немає email: розбір має про це сказати"
+    },
+    {
+      "id": "duplicate-1",
+      "flaw": "duplicate",
+      "description": "той самий результат про 37 ризикових пунктів у 120 договорах повторено в нагородах: другий рядок прибрати або скоротити",
+      "line_contains": [
+        "flagged 37 high-risk clauses across 120 supplier agreements"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "not_reverse_chronological-1",
+      "flaw": "not_reverse_chronological",
+      "description": "запис LLB (2018) стоїть вище запису LLM (2025): порядок в Education має бути зворотно хронологічним",
+      "line_contains": [
+        "Dnipro Institute of Law and Economics, LLB in Law, Dnipro, Sep 2018 - Jun 2022"
+      ],
+      "verdicts": [
+        "move"
+      ]
+    },
+    {
+      "id": "self_description-1",
+      "flaw": "self_description",
+      "description": "загальний самоопис без фактів («hard-working team player»): прибрати або замінити конкретикою про досвід",
+      "line_contains": [
+        "Hard-working team player with strong communication skills"
+      ],
+      "verdicts": [
+        "cut",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "topics_only-1",
+      "flaw": "topics_only",
+      "description": "пункт перелічує теми семінарів, а не внесок чи результат: прибрати або переписати",
+      "line_contains": [
+        "Topics included contract formation, remedies for breach"
+      ],
+      "verdicts": [
+        "cut",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про 8 справ у комерційному суді, 6 виграних і суму стягнення не чіпати",
+      "line_contains": [
+        "winning 6 and recovering UAH 2.4 million in unpaid invoices"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про базу з 210 зразків пунктів і скорочення пошуку з 30 до 5 хвилин не чіпати",
+      "line_contains": [
+        "searchable database of 210 precedent clauses"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

@@ -6,7 +6,11 @@ on:
   workflow_dispatch:
     inputs:
       bootstrap_baseline:
-        description: "Record evals/baseline.json (first run) and open a PR instead of learning"
+        description: "Record evals/baseline.json and evals/synth_baseline.json (first run) and open a PR instead of learning"
+        type: boolean
+        default: false
+      regenerate_synth:
+        description: "Generate new synthetic CVs into evals/synth before the evals run"
         type: boolean
         default: false
 
@@ -27,9 +31,21 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements-dev.txt
+      - name: Generate synthetic cases
+        # Нові вигадані CV із закладеними вадами; існуючі файли не перезаписуються. Сід = номер запуску.
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.regenerate_synth }}
+        run: python evals/generate_synthetic.py --program all --n 2 --seed "$SYNTH_SEED"
+        env:
+          SYNTH_SEED: ${{ github.run_number }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - name: Record evals baseline
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.bootstrap_baseline }}
         run: python evals/run_evals.py --runs 2 --update-baseline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Record synthetic evals baseline
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.bootstrap_baseline }}
+        run: python evals/run_evals.py evals/synth --runs 1 --baseline evals/synth_baseline.json --update-baseline
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - name: Reflect on student feedback
@@ -43,6 +59,11 @@ jobs:
       - name: Evals gate
         if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.bootstrap_baseline) }}
         run: python evals/run_evals.py --runs 2 --json evals/last_run.json --baseline evals/baseline.json
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Synthetic evals gate
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.bootstrap_baseline) }}
+        run: python evals/run_evals.py evals/synth --runs 1 --json evals/last_synth.json --baseline evals/synth_baseline.json
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - name: Evals gate (prompt variants)
@@ -61,6 +82,8 @@ jobs:
             cvmax/variants
             docs/learning
             evals/baseline.json
+            evals/synth
+            evals/synth_baseline.json
           if-no-files-found: error
 
   pr:
@@ -91,6 +114,8 @@ jobs:
             cvmax/variants
             docs/learning
             evals/baseline.json
+            evals/synth
+            evals/synth_baseline.json
       - name: Enable auto-merge
         if: ${{ vars.LEARN_AUTOMERGE == '1' && steps.pr.outputs.pull-request-number != '' }}
         run: gh pr merge --auto --squash "${{ steps.pr.outputs.pull-request-number }}"

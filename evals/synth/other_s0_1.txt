@@ -1,0 +1,45 @@
+Marta Hrytsenko
+Groningen, Netherlands | marta.hrytsenko@mailbox.example | +31 6 5550 0142 | linkedin.com/in/marta-hrytsenko-example
+Nationality: Ukrainian | Marital status: single
+
+SUMMARY
+Hard-working, motivated team player with strong communication skills and a passion for the environment.
+
+EDUCATION
+Rhine Valley University of Applied Sciences, BSc in Environmental Science, Sep 2024 - expected Jun 2027, GPA 8.1/10
+- Focus on water quality, energy systems and environmental data analysis
+- Exchange semester at Nordic Coast University, Feb 2026 - Jun 2026, with a course in climate modelling
+- Dean's list in 2025
+
+EXPERIENCE
+Research Assistant (part-time), Institute for Water and Soil, Groningen, Sep 2025 - Present
+- Responsible for sampling water at three river sites and entering the results into the lab database
+- Cleaned and merged 14 months of nitrate readings from 9 sensors using SQL and R, so the team could publish its first seasonal trend chart two weeks earlier than planned
+- Wrote the field protocol for turbidity measurements that two new student assistants now follow
+Sustainability Intern, Green Loop Packaging, Rotterdam, Jun 2025 - Aug 2025
+- Analysed 18 months of energy-meter data for 6 production halls in Python and proposed a shift-schedule change that cut projected electricity use by 12%
+- Drafted a 10-page waste-sorting guide for 45 warehouse staff, adopted at two sites
+- Compared offers from 3 waste-collection suppliers in a one-page table that the sustainability manager used for the annual tender
+- Presented the findings to the plant manager and 8 team leads in a 15-minute briefing
+
+PROJECTS
+Urban Tree Canopy Map, course project, Mar 2026 - May 2026
+- Mapped canopy cover for 4 city districts in QGIS using open satellite data and ranked them by shade deficit for the final class presentation
+Home Energy Survey, group project, Oct 2025 - Dec 2025
+- Surveyed 52 student households about heating habits and summarised the answers in a 6-page report with 3 practical recommendations
+
+ACTIVITIES
+Clean Rivers Student Initiative, volunteer coordinator, Sep 2024 - Present
+- Led 5 river clean-up days with 140 volunteers, collecting 420 kg of waste and raising turnout by 35% compared with the previous season
+- Recruited and briefed 12 new volunteers each term through the faculty newsletter and info stands
+
+CERTIFICATES
+Introduction to Geographic Information Systems, Open Learning Platform, online course, 2025
+First Aid and Field Safety, Northern Rescue Training Centre, 2025
+
+SKILLS
+Tools: QGIS, Python, R, SQL, Tableau, Power BI, AutoCAD
+
+ADDITIONAL
+Languages: Ukrainian (native), English (C1, IELTS 7.5), Dutch (A2)
+Interests: Hiking, Music, Social media, Travelling

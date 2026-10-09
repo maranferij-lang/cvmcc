@@ -1,0 +1,83 @@
+Iryna Savchenko
+Dnipro, Ukraine | +380 67 555 01 23 | linkedin.com/in/iryna-savchenko-example | github.com/iryna-savchenko-example | iryna-savchenko.example.dev
+
+EDUCATION
+Dnipro Institute of Information Technologies, BSc in Software Engineering, Sep 2022 - Jun 2026, GPA 4.8/5, top 3 of 120 graduates
+- Bachelor thesis "Performance budgets for single-page applications", graded 98/100 by a committee of 5 lecturers and 2 industry reviewers
+- Academic scholarship for the top 10% of the year, 2023 - 2025
+- Coursework: Web Technologies, Human-Computer Interaction, Algorithms, Databases, Software Testing, Computer Graphics
+Dnipro Lyceum of Natural Sciences, secondary education with distinction, Sep 2019 - Jun 2022
+- Finalist of the regional Informatics Olympiad, 2021
+- Gold medal for academic achievement, 2022
+- Captain of the school robotics club, 2020 - 2022
+
+EXPERIENCE
+Junior Frontend Developer (part-time), Mossgate Payments, Dnipro, Feb 2025 - Present
+- Cut load time of the payment checkout page from 4.1 s to 1.6 s by lazy-loading components and compressing images
+- Migrated 14 legacy jQuery pages to React and TypeScript, which cut front-end bug reports by 40% over 6 months
+- Wrote 120 unit and component tests with Jest and React Testing Library, raising coverage of the checkout module from 31% to 74%
+- Reviewed about 6 pull requests per week from 4 teammates and kept the average review turnaround under one day
+- Introduced a performance budget of 170 kB of JavaScript per page, enforced in the build, which blocked 7 oversized pull requests from merging
+- Maintained the team wiki and wrote release notes for each sprint
+- Collaborated with 3 designers and 2 backend developers in two-week sprints using Jira and Figma
+
+Web Developer Intern, Quillstack Studio, Dnipro, Jul 2023 - Sep 2023
+- Built the responsive landing page for a dental clinic in React and CSS that increased online appointment requests by 35% in two months
+- Converted 9 Figma mockups into accessible HTML and CSS components
+- Fixed 25 cross-browser layout bugs found during testing in Chrome, Safari and Firefox
+- Learned the studio's Git workflow and deployed 6 releases to the staging server
+- Attended the weekly design review with the 3 clients of the studio and recorded the feedback in the shared tracker
+
+Frontend Developer (freelance), Harbourline Digital, Dnipro, Mar 2024 - Dec 2024
+- Delivered 5 small business websites in React and Next.js for clients in retail and hospitality, each launched in under 4 weeks
+- Added a contact form with validation and spam protection to every site, which brought in 60 customer enquiries during the first month after launch
+- Agreed scope, timelines and prices directly with clients and invoiced 11 projects
+- Set up a shared component library for the 5 sites, so a new page took 2 days instead of 5
+
+PROJECTS
+A11y Lint for React, open-source npm package, Jan 2025 - Present
+- Published an npm package that flags 12 common accessibility issues in React components; it reached 1,800 weekly downloads
+- Merged 9 pull requests from external contributors and shipped 14 releases with automated changelogs
+- Wrote a documentation site with 20 examples and a short video guide for new users
+Weather Dashboard, personal project, Jun 2024 - Aug 2024
+- Built a weather dashboard in React and TypeScript that renders 7-day forecasts for 40 cities from a public API
+- Cached API responses in the browser, which reduced repeated requests by 65%
+- Added a dark theme and full keyboard navigation, then tested both with 15 volunteers
+Student Marketplace, team project, Sep 2023 - Dec 2023
+- Built the product search and filter interface in React for a team of 5; 300 students used it in the first month
+- Wrote the contributor guide that let 4 new teammates make their first commit within a day
+- Set up automated deployment to a free hosting plan so every merged pull request went live within 3 minutes
+
+KEY ACHIEVEMENTS
+- Mossgate Payments: checkout page load time down from 4.1 s to 1.6 s after lazy-loading and image compression
+- Presented the bachelor thesis findings to about 150 attendees at the Dnipro Student Tech Conference, May 2026
+
+AWARDS
+- Best Bachelor Project of the Faculty of Information Technologies, 2026
+- First place of 14 teams at the Dnipro Frontend Cup with a real-time bus tracker, 2025
+- Second place in the university programming contest, team of 3, 2024
+- Special prize for the best user interface at the Dnipro Student Hackathon, 2023
+
+CONFERENCES AND MEETUPS
+- Attended 8 frontend meetups in Dnipro and Kyiv in 2024 and 2025, and gave 2 lightning talks on web accessibility
+- Participant of the Frontend Weekend in Lviv, 2024
+
+CERTIFICATES
+- Web Accessibility Specialist, Open Web Academy, 2025
+- JavaScript Algorithms and Data Structures, Codemint Learn, 2023
+- Responsive Web Design, Codemint Learn, 2022
+
+VOLUNTEERING
+Organiser, University Hackathon, Nov 2023
+- Coordinated 30 participants, 6 mentors and 4 sponsors for a 24-hour hackathon and collected feedback from 28 of them
+Mentor, Dnipro Code Club, Sep 2023 - Jun 2024
+- Taught basic HTML and CSS to 20 teenagers every Saturday and guided 12 of them to publish their first personal web page
+
+SKILLS
+Languages: JavaScript, TypeScript, HTML, CSS
+Frameworks and libraries: React, Next.js, Jest, React Testing Library
+Tools: Git, Figma, Jira, npm
+
+ADDITIONAL
+Languages: Ukrainian (Native), English (C1), Polish (A2)
+Interests: Travelling, Music, Movies, Football

@@ -1,0 +1,100 @@
+{
+  "name": "Вигаданий студент: cv_title, personal_data, objective_paragraph, weak_opener, skill_no_evidence і два сильні пункти (strong_keep)",
+  "cv_file": "software_engineering_s0_1.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "software_engineering",
+    "status": "3rd year",
+    "background": "BSc in Software Engineering at Slobozhansky Technical University (expected June 2027); six-month backend internship at Orchard Loop in 2025; teaching assistant for Programming 1.",
+    "target_role": "Backend Developer Intern",
+    "company_type": "Big Tech / product company",
+    "company_details": "Product company with Python or Go backend services",
+    "level": "Internship",
+    "region": "EU",
+    "vacancy_text": "Backend Developer Intern, product company. Requirements: Python or Go, SQL and relational databases, REST APIs, Git, good written English. Nice to have: Docker, automated tests, experience with CI.",
+    "feedback_language": "English"
+  },
+  "expect": [
+    {
+      "id": "cv_title-1",
+      "flaw": "cv_title",
+      "description": "заголовок «Curriculum Vitae» на початку займає місце і нічого не дає: прибрати",
+      "line_contains": [
+        "Curriculum Vitae"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "personal_data-1",
+      "flaw": "personal_data",
+      "description": "дата народження, сімейний стан і національність у заголовку: прибрати",
+      "line_contains": [
+        "Date of birth: 22 August 2004"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "objective_paragraph-1",
+      "flaw": "objective_paragraph",
+      "description": "загальний абзац Objective без конкретики про роль чи стек: прибрати або переписати під ціль",
+      "line_contains": [
+        "seeking a challenging internship in a dynamic and innovative company"
+      ],
+      "verdicts": [
+        "cut",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "weak_opener-1",
+      "flaw": "weak_opener",
+      "description": "пункт починається з «Helped with» і не називає внеску чи результату: переписати або прибрати",
+      "line_contains": [
+        "Helped with fixing bugs in the order-processing service"
+      ],
+      "verdicts": [
+        "rewrite",
+        "cut"
+      ]
+    },
+    {
+      "id": "skill_no_evidence-1",
+      "flaw": "skill_no_evidence",
+      "description": "Redis, Kafka і GraphQL у Skills ніде не підтверджені досвідом: прибрати або позначити як вивчені",
+      "line_contains": [
+        "PostgreSQL, FastAPI, Docker, Git, Redis, Kafka, GraphQL"
+      ],
+      "verdicts": [
+        "rewrite",
+        "shorten",
+        "cut"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про оптимізацію нічного звіту з числами не чіпати",
+      "line_contains": [
+        "nightly report job from 41 to 9 minutes"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про Telegram-бота з числами не чіпати",
+      "line_contains": [
+        "answers class schedule questions for 450 students"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

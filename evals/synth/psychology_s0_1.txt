@@ -1,0 +1,48 @@
+Curriculum Vitae
+
+Daryna Melnyk
+Lviv, Ukraine | +380 63 555 01 17 | daryna.melnyk@example.com | linkedin.com/in/daryna-melnyk-example
+
+OBJECTIVE
+Motivated psychology student seeking a challenging position in a dynamic organisation that offers opportunities for professional growth and the chance to develop new skills.
+
+EDUCATION
+Lviv Institute of Social Sciences, BA in Psychology, Sep 2024 - Jun 2028 (expected), GPA 4.6/5
+- Dean's list in 3 of 4 semesters
+- Coursework: Research Methods, Statistics for Psychology, Cognitive Psychology, Developmental Psychology
+- Faculty scholarship for research potential, 2025
+
+EXPERIENCE
+Peer Listener (volunteer), Open Door Youth Helpline, Lviv, Jan 2026 - present
+- Completed 40 hours of active-listening and crisis-protocol training before taking the first conversation
+- Handled 210 chat conversations with teenagers and referred 18 of them to professional counsellors under the helpline protocol
+- Topics included anxiety, exam stress, friendships and family conflict
+- Attended 12 weekly supervision meetings with the helpline psychologist and applied the feedback in later conversations
+
+Research Assistant (volunteer), Cognition and Learning Lab, Lviv Institute of Social Sciences, Oct 2025 - present
+- Recruited and scheduled 64 participants for a working-memory experiment and reached the target sample two weeks ahead of plan
+- Assisted with data entry and checking of questionnaires
+- Cleaned responses from 180 questionnaires in SPSS and flagged 11 incomplete records before the analysis started
+- Presented the preliminary results to the 6-person lab team at the monthly meeting
+
+Tutor (part-time), Bright Steps Learning Centre, Lviv, Sep 2024 - Jun 2025
+- Tutored 8 secondary school pupils weekly in mathematics and study skills; 6 of them raised their term grade by at least one level
+- Built a 4-week study-habits plan with reminders and a progress tracker, which 5 pupils kept using after the course ended
+
+ACTIVITIES
+Psychology Students' Society, Events Team Member, Oct 2024 - present
+- Co-organised 3 open lectures with invited researchers, each attended by 40 to 90 students
+- Edited the society newsletter for 120 subscribers and published 6 issues
+
+PROJECTS
+Sleep and Exam Stress Survey, course project, Feb 2026 - Jun 2026
+- Designed an online questionnaire in Qualtrics and collected 142 responses from first- and second-year students
+- Found a moderate negative correlation (r = -0.34) between sleep duration and self-reported exam stress and summarised it in a 10-slide report
+
+COURSES
+Introduction to Psychological Research Methods, online course, 6 weeks, Mar 2025
+Mental Health First Aid, 12-hour certified workshop, Nov 2025
+
+SKILLS AND LANGUAGES
+Technical skills: SPSS, Qualtrics, JASP, R, Python, NVivo, MATLAB, E-Prime
+Languages: Ukrainian (Native), English (C1, IELTS 7.5), German (A2)

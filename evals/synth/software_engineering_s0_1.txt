@@ -1,0 +1,43 @@
+Curriculum Vitae
+
+Andrii Kovalchuk
+Kharkiv, Ukraine | andrii.kovalchuk@example.com | +380 50 123 45 67 | linkedin.com/in/andrii-kovalchuk-example | github.com/andrii-kovalchuk-example
+Date of birth: 22 August 2004 | Marital status: single | Nationality: Ukrainian
+
+OBJECTIVE
+A motivated third-year student seeking a challenging internship in a dynamic and innovative company, with the goal of applying academic knowledge in practice and growing professionally as a software engineer.
+
+EDUCATION
+Slobozhansky Technical University, Kharkiv, BSc in Software Engineering, expected Jun 2027, GPA 4.7/5
+- Relevant coursework: Algorithms and Data Structures, Databases, Operating Systems, Computer Networks
+- Dean's list in 2024 and 2025 (top 5% of the year)
+
+EXPERIENCE
+Backend Intern, Orchard Loop (logistics software startup), Kharkiv, Jul 2025 - Dec 2025
+- Reduced the nightly report job from 41 to 9 minutes by moving aggregation from Python loops into 3 PostgreSQL queries with indexes
+- Helped with fixing bugs in the order-processing service
+- Wrote unit tests with pytest for the pricing module, raising its coverage from 38% to 82%
+- Added request logging to 12 API endpoints, which cut the time to find a failing request from about 30 minutes to 5
+
+Teaching Assistant, Programming 1, Slobozhansky Technical University, Sep 2024 - Jun 2025
+- Ran weekly Python lab sessions for 2 groups of 24 first-year students and graded about 120 assignments per semester
+- Wrote 15 practice tasks with automated checks that the next year's course adopted
+
+PROJECTS
+Telegram Schedule Bot, personal project, Nov 2025 - Feb 2026
+- Designed and shipped a Telegram bot in Python that answers class schedule questions for 450 students, with 99% uptime over 12 weeks
+- Packaged the bot in Docker and set up a CI pipeline that runs the tests on every push to the Git repository
+Library App, team project, Sep 2024 - Dec 2024
+- Built the book-reservation API with FastAPI and PostgreSQL in a team of 4; 80 students used the pilot version
+Expense Tracker CLI, personal project, Jun 2024 - Aug 2024
+- Wrote a command-line expense tracker in Python with SQLite storage and CSV export; 6 friends used it for their monthly budgets
+
+ACTIVITIES
+Volunteer, Open Source Day, Oct 2025
+- Guided 25 first-time contributors through opening their first pull request during a one-day workshop
+Member, Kharkiv Algorithms Club, Sep 2023 - present
+- Solved 140 competitive programming problems and placed 7th of 62 teams at the regional university contest in Nov 2025
+
+SKILLS
+Technologies: Python, SQL, PostgreSQL, FastAPI, Docker, Git, Redis, Kafka, GraphQL
+Languages: Ukrainian (Native), English (B2, IELTS 6.5)

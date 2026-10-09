@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import re
 import uuid
+from dataclasses import asdict
 
 import streamlit as st
 
 from cvmax import config
-from cvmax.analyze import analyze_cv
+from cvmax.analyze import AnalysisRun, analyze_full
 from cvmax.cv_render import has_placeholders, pdf_preview, render_docx, render_pdf
 from cvmax.learning.bandit import choose_variant, variant_text
 from cvmax.learning.version import knowledge_version, lessons_version
@@ -17,6 +18,7 @@ from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
 from cvmax.profile import ANY_COMPANY, COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
 from cvmax.safe_text import md_escape
+from cvmax.scoring import MIN_MATCHED
 from cvmax.structure import changed_bullets, structure_cv
 from ui.account import (
     limit_caption, log_edit_feedback, log_event, profile_value, require_login, save_result, send_feedback,
@@ -32,14 +34,76 @@ def plural(n: int, word: str) -> str:
 
 PRIORITY_LABEL = {"high": ":red-badge[High]", "medium": ":gray-badge[Medium]", "low": ":gray-badge[Low]"}
 
+# Іконка за важливістю знахідки автоматичних перевірок; найважливіші показуються першими.
+CHECK_ICON = {"high": ":material/error:", "medium": ":material/warning:", "low": ":material/info:"}
+CHECK_ORDER = {"high": 0, "medium": 1, "low": 2}
+
 
 def get_client():
     return get_llm()
 
 
+def score_caption(run: AnalysisRun | None, program: str) -> str:
+    """Підпис під балом: з чого він складається. Порожній, якщо результату розбору немає."""
+    if run is None:
+        return ""
+    score = run.score
+    if score.matched >= MIN_MATCHED:
+        base = f"Weighted rubric criteria for {md_escape(PROGRAMS.get(program, program))}"
+    else:  # критеріїв замало для зваженої суми: бал це загальна оцінка розбору
+        base = "Overall assessment of the review"
+    if run.checks is None:  # перевірки вимкнені або зламалися: про штрафи нічого не кажемо
+        return base
+    if score.penalty > 0:
+        return f"{base}; {plural(score.penalty, 'point')} off for automatic checks"
+    return f"{base}; no automatic-check penalties"
+
+
+def verification_totals(s) -> tuple[int, int]:
+    """Скільки правок верифікатор прибрав і скільки урізав: у розборі й після Q&A разом."""
+    run = s.get("analysis_run")
+    found = [run.verification if run is not None else None]
+    if s.grill is not None and s.grill_result is not None:
+        found.append(s.grill.verification)
+    done = [v for v in found if v is not None]
+    return sum(v.dropped for v in done), sum(v.fixed for v in done)
+
+
+def verification_caption(dropped: int, fixed: int) -> str:
+    """Підпис на вкладці Edits про правки, які верифікатор прибрав або урізав. Порожній, якщо їх не було."""
+    if dropped <= 0 and fixed <= 0:
+        return ""
+    if dropped > 0 and fixed > 0:
+        what = f"{plural(dropped, 'suggested edit')} {'was' if dropped == 1 else 'were'} removed and {fixed} trimmed"
+    elif dropped > 0:
+        what = f"{plural(dropped, 'suggested edit')} {'was' if dropped == 1 else 'were'} removed"
+    else:
+        what = f"{plural(fixed, 'suggested edit')} {'was' if fixed == 1 else 'were'} trimmed"
+    return f"{what} because {'it' if dropped + fixed == 1 else 'they'} added facts that are not in your CV."
+
+
+def render_checks(report) -> None:
+    """Знахідки автоматичних перевірок: текст із CV і від перевірок показуємо лише через md_escape."""
+    findings = sorted(report.findings, key=lambda f: CHECK_ORDER.get(f.severity, len(CHECK_ORDER)))
+    # Без icon=: expander з іконкою AppTest показує як status, а не як expander.
+    with st.expander(f"Automatic checks ({len(findings)})"):
+        if not findings:
+            st.markdown("No problems found by the automatic checks.")
+            return
+        st.caption(
+            "Counted by code, not by the AI. High findings take 4 points off the score, medium 2, low 1 "
+            f"(at most {config.PENALTY_CAP} in total)."
+        )
+        for f in findings:
+            icon = CHECK_ICON.get(f.severity, CHECK_ICON["low"])
+            evidence = f"  \n  {md_escape(f.line)}" if f.line else ""
+            st.markdown(f"- {icon} {md_escape(f.message)}{evidence}")
+
+
 def state():
     s = st.session_state
     s.setdefault("analysis", None)
+    s.setdefault("analysis_run", None)
     s.setdefault("cv", None)
     s.setdefault("profile", None)
     s.setdefault("grill", None)
@@ -93,16 +157,22 @@ def log_export(s, fmt: str) -> None:
     log_event("export", analysis_id=s.analysis_id, format=fmt)
 
 
-def log_analysis(s, *, program: str, region: str, level: str, clarity: str, variant: str) -> None:
+def log_analysis(s, run: AnalysisRun, *, program: str, region: str, level: str, clarity: str, variant: str) -> None:
     """Події після успішного розбору: результат, а за повторного розбору тієї ж цілі ще й динаміка."""
     a, role = s.analysis, s.profile.target_role
     previous = s.get("last_analysis")
     same = bool(previous) and previous["role"] == role
+    verification = run.verification
     log_event("analysis_done", analysis_id=s.analysis_id, task="analysis", variant=variant, program=program,
               region=region, level=level, score=a.overall_score, knowledge_version=knowledge_version(),
               lessons_version=lessons_version(),
               previous_score=previous["score"] if same else None, n_edits=len(a.edits), n_gaps=len(a.gaps),
-              clarity=clarity)
+              clarity=clarity,
+              # Складові балу, кількість автоматичних знахідок і що зробив верифікатор правок.
+              model_score=run.score.model_score, criteria_score=run.score.criteria_score,
+              penalty=run.score.penalty, n_checks=len(run.checks.findings) if run.checks is not None else 0,
+              verify_dropped=verification.dropped if verification is not None else 0,
+              verify_fixed=verification.fixed if verification is not None else 0)
     if same:
         log_event("rescan", analysis_id=s.analysis_id, previous_analysis_id=previous["analysis_id"],
                   previous_score=previous["score"], score=a.overall_score,
@@ -199,16 +269,20 @@ with form_box:
         try:
             with st.spinner("Reviewing your CV. Usually under a minute; at peak times the free model can take 2–3 minutes..."):
                 variant = choose_variant("analysis", program, variant_stats_cached("analysis"))
-                s.analysis = analyze_cv(get_client(), profile, cv, addendum=variant_text("analysis", variant))
+                run = analyze_full(get_client(), profile, cv, addendum=variant_text("analysis", variant))
+                s.analysis, s.analysis_run = run.analysis, run
                 s["variant"] = variant
             s.cv, s.profile = cv, profile
             s.analysis_id = uuid.uuid4().hex
             s.pop("feedback_sent", None)
-            log_analysis(s, program=program, region=region, level=level, clarity=clarity, variant=variant)
+            log_analysis(s, run, program=program, region=region, level=level, clarity=clarity, variant=variant)
             s.pop("formatted_cv", None)
             s.pop("open_form", None)
+            # score_detail: складові балу простим словником (кортежі критеріїв стають списками).
+            score_detail = {**asdict(run.score), "items": [list(item) for item in run.score.items]}
             save_result("analysis", f"{target_role} · {s.analysis.overall_score}/100",
-                        {"analysis_id": s.analysis_id, "role": target_role, "company_type": company_type, "analysis": s.analysis.model_dump()})
+                        {"analysis_id": s.analysis_id, "role": target_role, "company_type": company_type,
+                         "analysis": s.analysis.model_dump(), "score_detail": score_detail})
             s.grill, s.grill_result = None, None
             for k in [k for k in st.session_state if str(k).startswith("accept_")]:
                 del st.session_state[k]
@@ -230,12 +304,19 @@ tab_overview, tab_grill, tab_edits, tab_gaps, tab_jobs, tab_export = st.tabs(
     ["Overview", "Q&A", "Edits", "Skills to build", "Jobs", "Final CV"]
 )
 
+run = s.get("analysis_run")  # None, якщо результат з'явився не через analyze_full: тоді без нових блоків
+
 with tab_overview:
     st.metric("CV fit for this goal", f"{a.overall_score}/100")
+    caption = score_caption(run, s.profile.program)
+    if caption:
+        st.caption(caption)
     st.write(md_escape(a.summary))
     with st.expander("How I understood your goal (fix it in the form if it's off)"):
         for t in a.target_assumptions:
             st.markdown(f"- {md_escape(t)}")
+    if run is not None and run.checks is not None:
+        render_checks(run.checks)
     st.subheader("Scores by criterion")
     for c in a.scores:
         st.markdown(f"**{md_escape(c.criterion)}**: {'●' * c.score}{'○' * (5 - c.score)}  {md_escape(c.comment)}")
@@ -283,6 +364,10 @@ def known_facts(s) -> str:
 
 
 with tab_edits:
+    removed_edits, trimmed_edits = verification_totals(s)
+    note = verification_caption(removed_edits, trimmed_edits)
+    if note:
+        st.caption(note)
     if not all_edits(s) and s.grill_result is None:
         st.info(
             "No edits yet: your CV already reads well for this goal. To get edits, do the **Q&A** "

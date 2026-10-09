@@ -1,0 +1,101 @@
+{
+  "name": "Синтетична студентка екологічних наук: загальний опис про себе, особисті дані, пункт «Responsible for», навички без підтвердження, загальні інтереси і два сильні пункти (strong_keep)",
+  "cv_file": "other_s0_1.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "other",
+    "status": "3rd year",
+    "background": "BSc in Environmental Science at Rhine Valley University of Applied Sciences (expected June 2027); part-time research assistant at the Institute for Water and Soil since September 2025; sustainability internship at Green Loop Packaging in summer 2025.",
+    "target_role": "Sustainability Analyst Intern",
+    "company_type": "Startup",
+    "company_details": "Climate tech startup that helps manufacturers measure and reduce their carbon footprint",
+    "level": "Internship",
+    "region": "EU",
+    "vacancy_text": "",
+    "feedback_language": "English"
+  },
+  "expect": [
+    {
+      "id": "self_description-1",
+      "flaw": "self_description",
+      "description": "загальний опис «Hard-working team player with strong communication skills» нічого не доводить: прибрати або переписати на конкретне резюме з фактами",
+      "line_contains": [
+        "Hard-working, motivated team player with strong communication skills"
+      ],
+      "verdicts": [
+        "cut",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "personal_data-1",
+      "flaw": "personal_data",
+      "description": "національність і сімейний стан не потрібні міжнародному роботодавцю: прибрати рядок",
+      "line_contains": [
+        "Nationality: Ukrainian | Marital status: single"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "weak_opener-1",
+      "flaw": "weak_opener",
+      "description": "пункт починається з «Responsible for» і описує обов'язок без результату: переписати з дієсловом дії та результатом або прибрати",
+      "line_contains": [
+        "Responsible for sampling water at three river sites"
+      ],
+      "verdicts": [
+        "rewrite",
+        "cut"
+      ]
+    },
+    {
+      "id": "skill_no_evidence-1",
+      "flaw": "skill_no_evidence",
+      "description": "у рядку Tools є Tableau, Power BI і AutoCAD, яких немає в жодному пункті досвіду чи проєктів: підтвердити прикладом, скоротити або прибрати",
+      "line_contains": [
+        "Tools: QGIS, Python, R, SQL, Tableau, Power BI, AutoCAD"
+      ],
+      "verdicts": [
+        "rewrite",
+        "shorten",
+        "cut"
+      ]
+    },
+    {
+      "id": "generic_interests-1",
+      "flaw": "generic_interests",
+      "description": "загальні інтереси (Hiking, Music, Social media, Travelling) не допомагають цілі: прибрати або скоротити",
+      "line_contains": [
+        "Interests: Hiking, Music, Social media, Travelling"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про аналіз даних лічильників для 6 цехів і економію 12% електроенергії: не чіпати",
+      "line_contains": [
+        "Analysed 18 months of energy-meter data for 6 production halls in Python"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про 5 прибирань річок із 140 волонтерами і зростання явки на 35%: не чіпати",
+      "line_contains": [
+        "Led 5 river clean-up days with 140 volunteers"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "Синтетична студентка-економістка: слабкий початок пункту, теми замість внеску, довгий список курсів, загальні інтереси, навички без доказів",
+  "cv_file": "business_economics_s0_1.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "business_economics", "status": "3rd year",
+    "background": "Business Economics student at Carpathian University of Economics; one retail analytics internship",
+    "target_role": "Business Analyst Intern", "company_type": "FMCG / retail / industry",
+    "company_details": "", "level": "Internship", "region": "Ukraine / Eastern Europe",
+    "vacancy_text": "", "feedback_language": "Ukrainian"
+  },
+  "expect": [
+    {"id": "weak_opener-1", "flaw": "weak_opener",
+     "description": "пункт починається зі слабкого «Helped with»: переписати з дієсловом дії та власним внеском або прибрати",
+     "line_contains": ["Helped with the monthly price comparison of 40 competitor products"],
+     "verdicts": ["rewrite", "cut"]},
+    {"id": "topics_only-1", "flaw": "topics_only",
+     "description": "пункт перелічує теми замість внеску людини: прибрати або переписати на конкретну дію",
+     "line_contains": ["Topics included inflation, exchange rates, consumer behaviour"],
+     "verdicts": ["cut", "rewrite"]},
+    {"id": "long_coursework-1", "flaw": "long_coursework",
+     "description": "список із 10 загальних курсів: скоротити до 3-4 релевантних для аналітики або прибрати",
+     "line_contains": ["Relevant coursework: Microeconomics, Macroeconomics, Accounting"],
+     "verdicts": ["cut", "shorten", "rewrite"]},
+    {"id": "generic_interests-1", "flaw": "generic_interests",
+     "description": "загальні інтереси без зв'язку з ціллю: прибрати або скоротити",
+     "line_contains": ["Interests: Reading, Music, Football, Travelling, Movies"],
+     "verdicts": ["cut", "shorten"]},
+    {"id": "skill_no_evidence-1", "flaw": "skill_no_evidence",
+     "description": "у Skills є інструменти (Power BI, Tableau, Python, R, SPSS, Photoshop), яких немає в жодному пункті досвіду: скоротити до підтверджених або прибрати",
+     "line_contains": ["Excel, SQL, Power BI, Tableau, Python, R, SPSS, Photoshop"],
+     "verdicts": ["rewrite", "shorten", "cut"]},
+    {"id": "strong_keep-1", "flaw": "strong_keep",
+     "description": "сильний пункт з дією і результатом у цифрах (запаси, з 14% до 6%): не чіпати",
+     "line_contains": ["cutting stock-outs from 14% to 6%"],
+     "verdicts": ["keep"]},
+    {"id": "strong_keep-2", "flaw": "strong_keep",
+     "description": "сильний пункт про конкурс зі 180 учасниками і спонсорами у цифрах: не чіпати",
+     "line_contains": ["raised 4,500 UAH from 5 local sponsors"],
+     "verdicts": ["keep"]}
+  ]
+}

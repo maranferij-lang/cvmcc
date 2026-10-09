@@ -126,3 +126,14 @@ class JobFit(BaseModel):
 
 class RankedJobs(BaseModel):
     items: List[JobFit]
+
+
+class EditVerdict(BaseModel):
+    index: int  # номер правки зі списку в запиті
+    ok: bool  # false, якщо after додає факти, яких немає в CV, або описує іншу діяльність
+    problem: str  # коротко, що не так (мовою відповіді); порожньо, якщо ok
+    fixed_after: str  # after без вигаданої частини або з нею в [дужках]; порожньо, якщо виправити не можна
+
+
+class EditVerdicts(BaseModel):
+    items: List[EditVerdict]

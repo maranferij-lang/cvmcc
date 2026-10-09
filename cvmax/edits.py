@@ -183,19 +183,6 @@ _ALIASES = {
 }
 
 
-def _numbers(text: str) -> set[str]:
-    found = {re.sub(r"\D", "", n) for n in re.findall(r"\d[\d.,]*", text)}
-    for word in re.findall(r"[a-z]+", text.lower()):
-        if word in _NUMBER_WORDS:
-            found.add(_NUMBER_WORDS[word])
-    for word in re.findall(r"[а-яіїєґ']+", text.lower()):
-        for stem, value in _UA_NUMBER_STEMS.items():
-            if word.startswith(stem) and len(word) <= len(stem) + 4:
-                found.add(value)
-                break
-    return found
-
-
 def _known_alias(token: str, known_low: str) -> bool:
     # Синонім має стояти на початку слова: «ші» в «ШІ-школа» рахується, а в «інші» ні.
     return any(re.search(r"(?<![a-zа-яіїєґ])" + re.escape(alias), known_low)
@@ -207,9 +194,13 @@ def unverified_terms(after: str, known_text: str) -> list[str]:
 
     Це евристика: вона не ловить усе, але підсвічує найчастіші вигадки моделі.
     """
+    # Числа порівнюємо за значенням, як верифікатор: «3.8» не збігається з «38», а «20 000» з «20000» збігається.
+    # Імпорт тут, бо verify сам імпортує цей модуль.
+    from .verify import _NUMBER, _number_set, _readings
+
     visible = re.sub(r"\[[^\]]*\]", " ", after)  # плейсхолдери в дужках не рахуються
     known_low = known_text.lower()
-    known_nums = _numbers(known_text)
+    known_nums = _number_set(known_text)
     flagged: list[str] = []
 
     for phrase in _PHRASES:
@@ -217,17 +208,25 @@ def unverified_terms(after: str, known_text: str) -> list[str]:
             flagged.append(phrase.title())
         visible = re.sub(re.escape(phrase), " ", visible, flags=re.I)
 
-    for token in _TOKEN.findall(visible):
-        token = token.strip(".,/-")
-        if not token or not _suspicious(token):
+    number_end = 0  # число з пробілом («1 200») розбивається на кілька токенів: решту пропускаємо
+    for found in _TOKEN.finditer(visible):
+        token = found.group(0).strip(".,/-")
+        if not token:
             continue
         if token[0].isdigit():
-            digits = re.sub(r"\D", "", token)
-            if not digits or digits in known_nums or digits.rstrip("0") in known_nums:
+            number = _NUMBER.match(visible, found.start())
+            if number is None or found.start() < number_end:
                 continue
-        elif re.search(r"(?<![a-z0-9])" + re.escape(token.lower()) + r"(?![a-z0-9])", known_low):
+            number_end = number.end()
+            shown = number.group("num")
+            if shown not in flagged and not any(all(v in known_nums for v in r) for r in _readings(number)):
+                flagged.append(shown)
             continue
-        elif _known_alias(token, known_low):
+        if not _suspicious(token):
+            continue
+        if re.search(r"(?<![a-z0-9])" + re.escape(token.lower()) + r"(?![a-z0-9])", known_low) or _known_alias(
+            token, known_low
+        ):
             continue
         if token not in flagged:
             flagged.append(token)

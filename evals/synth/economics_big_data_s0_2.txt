@@ -1,0 +1,73 @@
+Yaroslav Danylenko
+Warsaw, Poland | +48 512 555 019 | linkedin.com/in/yaroslav-danylenko-example | github.com/ydanylenko-example
+
+SUMMARY
+Hard-working, motivated team player with strong communication skills and a great passion for data, economics and continuous learning.
+
+EDUCATION
+Vistula Valley School of Economics, MSc in Economics and Data Science, Sep 2024 - Jun 2026, GPA 4.5/5
+- Master's thesis on the pass-through of energy prices to household consumption in six Central European countries, graded 5.0/5 and typeset in LaTeX
+- Estimated a fixed-effects panel model on 14 years of household budget data from 6 countries and showed that energy price shocks cut the consumption of low-income households by 0.8%, twice the effect for high-income households
+- Relevant coursework: Advanced Microeconomics, Advanced Macroeconomics, Econometrics I, Econometrics II, Time Series Analysis, Panel Data Methods, Machine Learning, Bayesian Statistics, Mathematical Optimisation, Database Systems, Public Economics, International Trade, Behavioural Economics, Research Methods, Academic Writing
+- Merit scholarship for the top 10% of the cohort in both years of the programme
+- Capstone seminar: presented a team policy brief on the 2022 energy crisis to a panel of 3 professors
+Dnipro State University of Economics, BSc in Economics, Sep 2020 - Jun 2024, GPA 4.4/5
+- Bachelor's thesis on regional wage inequality in Ukraine, graded 5.0/5
+- Chair of the Student Research Society in the final year, with 35 active members
+- Member of the faculty council representing students of the economics department
+
+EXPERIENCE
+Data Analyst (part-time), Northgate Advisory, Warsaw, Feb 2025 - Jun 2026
+- Automated the monthly refresh of the merger-case dataset in Python and SQL (PostgreSQL), cutting preparation time from 5 hours to 45 minutes
+- Built regression models for 4 competition cases that estimated the price effects of proposed mergers, and the results were cited in 2 client submissions
+- Prepared charts and tables for client presentations and reviewed the numbers with senior economists before each meeting
+- Mentored 2 new interns on the team's data cleaning standards and documented the standards in a 12-page internal guide
+- Attended weekly team meetings and contributed to discussions on methodology and data sources
+- Drafted the data appendix for two expert reports and answered about 30 data requests from the case team
+Analyst Intern, Kestrel Analytics, Dnipro, Jul 2022 - Sep 2022
+- Cleaned and formatted monthly retail sales files from 8 client stores in Excel and prepared summary tables for the account manager
+- Learned the basics of SQL and wrote simple queries to pull sales data for the weekly report
+- Supported the senior analyst in preparing presentation slides for client meetings
+- Took part in the daily team stand-up and in two internal training sessions on data visualisation
+Research Assistant, Institute for Applied Economics, Dnipro, Oct 2023 - Jun 2024
+- Compiled and cleaned a dataset of 52,000 firm-level records from 3 national statistics offices, which became the basis for 2 working papers
+- Wrote R scripts to estimate total factor productivity for firms in 9 industries and checked the results against published benchmarks
+- Maintained the research data repository in Git and documented the variable definitions for other team members
+- Helped the senior researchers with literature reviews and with formatting references for two papers
+
+PROJECTS
+Household Energy Consumption Dashboard, personal project, Jan 2026 - Mar 2026
+- Built an interactive Tableau dashboard on Eurostat household energy data covering 27 countries, used by 3 classmates in their thesis work
+- Published the cleaned data and the Python code on GitHub with a README and a data dictionary
+Credit Risk Scoring Model, team project of 4 students, Mar 2025 - May 2025
+- Compared a logistic regression and a random forest in Python with scikit-learn on 30,000 loan records, reaching an AUC of 0.81 with the random forest
+- Prepared a 15-slide report that explained the model results to non-technical readers
+Wage Inequality Explorer, course project, Oct 2022 - Dec 2022
+- Wrote a Stata do-file that computes Gini coefficients for 24 Ukrainian regions from household survey data
+
+KEY ACHIEVEMENTS
+- Cut monthly dataset preparation time from 5 hours to 45 minutes by automating the refresh in Python and SQL at Northgate Advisory
+- Finished the MSc programme with a GPA of 4.5/5 while working part-time for 17 months
+
+PUBLICATIONS AND CONFERENCES
+- Co-author, "Firm-Level Productivity Dynamics in Central Europe", Working Paper No. 14, Institute for Applied Economics, 2024
+- Poster presenter, Young Economists Conference, Krakow, May 2025: presented the thesis results to an audience of about 80 participants
+- Speaker, Student Research Society Annual Meeting, Dnipro, Nov 2023: gave a 15-minute talk on regional wage inequality
+
+AWARDS AND CERTIFICATES
+- Winner, Faculty Data Challenge, Dnipro, Apr 2023: ranked 1st among 18 teams in a forecasting competition
+- Best Poster Prize, Young Economists Conference, Krakow, May 2025
+- Open Data Academy, Applied Panel Data Econometrics, certificate, 2025
+- Polish Language Certificate, level B2, 2024
+
+VOLUNTEERING
+Volunteer Tutor, Ukrainian Students Support Group, Warsaw, Sep 2024 - Present
+- Taught basic statistics and Excel to 12 first-year students from Ukraine
+- Organised 6 Saturday study sessions per semester and prepared the exercise sheets
+Volunteer, Dnipro Community Kitchen, Sep 2021 - Jun 2023
+- Sorted and delivered food parcels to about 40 families each month
+
+SKILLS
+Programming: Python (pandas, statsmodels, scikit-learn), SQL (PostgreSQL), R, Stata
+Tools: Excel, Tableau, Git, LaTeX
+Languages: Ukrainian (Native), English (C1), Polish (B2), German (A2)

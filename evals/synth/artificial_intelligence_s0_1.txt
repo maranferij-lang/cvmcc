@@ -1,0 +1,42 @@
+Curriculum Vitae
+
+Andrii Melnychuk
+Kyiv, Ukraine | andrii.melnychuk@mail.example | +380 50 555 01 77 | linkedin.com/in/andrii-melnychuk-example | github.com/amelnychuk-example
+
+OBJECTIVE
+To obtain a challenging internship in a dynamic company that offers opportunities for professional growth and the chance to work with modern technologies.
+
+EDUCATION
+Podil Technical University, Kyiv, BSc in Artificial Intelligence, expected June 2028, GPA 4.8/5
+- Ranked 6th of 118 students in the year after four semesters
+- Scored 97/100 in the Machine Learning course, the second highest result of the year
+- Awarded the university merit scholarship for the 2024/25 and 2025/26 academic years
+
+EXPERIENCE
+Machine Learning Intern, Fernwood Analytics, Kyiv, Jun 2026 - Aug 2026
+- Trained a gradient boosting model in Python with scikit-learn that predicted customer churn with an AUC of 0.81, 9 points above the previous rule-based baseline
+- Cleaned and joined 4 tables with 2.3 million records using SQL and pandas, which cut the weekly data preparation from 6 hours to 40 minutes
+- Presented the churn results to a team of 8 analysts and engineers and wrote a 6-page handover document for the next intern
+- Responsible for monitoring the model after deployment
+Teaching Assistant, Machine Learning course, Podil Technical University, Sep 2025 - Jan 2026
+- Led weekly lab sessions for 2 groups of 24 students and wrote 5 new Python exercises that the course kept for the next year
+- Topics included linear regression, decision trees, neural networks and model evaluation
+
+PROJECTS
+Plant Disease Classifier, personal project, Feb 2026 - Apr 2026
+- Fine-tuned a ResNet-18 model in PyTorch on 8,000 leaf images, reaching 93% accuracy on a held-out test set of 1,600 images
+- Packaged a Streamlit demo in a Docker container, and 15 classmates used it to test the model on their own images
+Ukrainian News Topic Classifier, team project of 3 students, Oct 2025 - Dec 2025
+- Collected 12,000 news headlines and trained a logistic regression baseline and a fine-tuned BERT model, raising macro F1 from 0.62 to 0.74
+- Tracked experiments and code with Git, and documented the results in a public GitHub repository with a README and 10 unit tests
+
+ACTIVITIES
+Organizer, Podil AI Club, Sep 2025 - Present
+- Organized 6 reading-group meetings on recent machine learning papers with 20 attendees on average and presented 2 of the papers
+- Set up a mailing list and a simple club website that grew membership from 15 to 48 students in one year
+
+SKILLS
+Python, PyTorch, scikit-learn, pandas, SQL, Git, Docker, TensorFlow, Kubernetes, Apache Spark
+
+LANGUAGES
+Ukrainian (Native), English (B2)

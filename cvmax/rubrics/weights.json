@@ -1,0 +1,13 @@
+{
+  "default": {"Target fit": 25, "Impact bullets": 20, "Evidence and numbers": 15,
+              "Structure and scannability": 10, "Length and density": 10,
+              "ATS-friendliness": 10, "Language quality": 10},
+  "software_engineering": {"Target fit": 20, "Impact bullets": 20, "Evidence and numbers": 20,
+              "Structure and scannability": 10, "Length and density": 10,
+              "ATS-friendliness": 10, "Language quality": 10},
+  "artificial_intelligence": "software_engineering",
+  "law": {"Target fit": 25, "Impact bullets": 15, "Evidence and numbers": 10,
+              "Structure and scannability": 15, "Length and density": 10,
+              "ATS-friendliness": 10, "Language quality": 15},
+  "psychology": "law"
+}

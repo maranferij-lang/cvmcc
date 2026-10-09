@@ -37,6 +37,15 @@ EFFORT_GRILL = os.environ.get("CVMAX_EFFORT_GRILL", "low")
 
 MAX_TOKENS = 16000
 
+# Детерміновані перевірки CV (cvmax.checks) і верифікатор правок (cvmax.verify): 1 = увімкнено, 0 = вимкнено.
+CHECKS_ENABLED = os.environ.get("CVMAX_CHECKS", "1") == "1"
+VERIFY_ENABLED = os.environ.get("CVMAX_VERIFY", "1") == "1"
+
+# Стабільний бал (cvmax.scoring): яка частка підсумку припадає на загальну оцінку моделі (решта це зважені критерії).
+SCORE_MODEL_WEIGHT = 0.3
+# Найбільший штраф до балу за знахідки автоматичних перевірок, пункти.
+PENALTY_CAP = 15
+
 # Grill me: не більше стількох питань за одну сесію.
 GRILL_MAX_QUESTIONS = 8
 

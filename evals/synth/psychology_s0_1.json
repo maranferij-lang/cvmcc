@@ -1,0 +1,101 @@
+{
+  "name": "Синтетична студентка-психологиня: заголовок «Curriculum Vitae», загальний Objective, слабкий початок пункту, теми замість внеску, навички без доказів і два сильні пункти (strong_keep)",
+  "cv_file": "psychology_s0_1.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "psychology",
+    "status": "3rd year",
+    "background": "BA in Psychology student at Lviv Institute of Social Sciences; volunteer research assistant in a cognition lab since October 2025; peer listener on a youth helpline since January 2026.",
+    "target_role": "Research Assistant Intern",
+    "company_type": "Research lab / academia",
+    "company_details": "Cognitive psychology or learning sciences lab",
+    "level": "Internship",
+    "region": "EU",
+    "vacancy_text": "",
+    "feedback_language": "English"
+  },
+  "expect": [
+    {
+      "id": "cv_title-1",
+      "flaw": "cv_title",
+      "description": "перший рядок «Curriculum Vitae» зайвий: роботодавець і так бачить, що це CV; прибрати",
+      "line_contains": [
+        "Curriculum Vitae"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "objective_paragraph-1",
+      "flaw": "objective_paragraph",
+      "description": "загальний абзац Objective без конкретики про ціль: прибрати або переписати на короткий підсумок із фактами",
+      "line_contains": [
+        "seeking a challenging position in a dynamic organisation"
+      ],
+      "verdicts": [
+        "cut",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "weak_opener-1",
+      "flaw": "weak_opener",
+      "description": "пункт починається зі слабкого «Assisted with»: переписати з дієсловом дії та власним внеском або прибрати",
+      "line_contains": [
+        "Assisted with data entry and checking of questionnaires"
+      ],
+      "verdicts": [
+        "rewrite",
+        "cut"
+      ]
+    },
+    {
+      "id": "topics_only-1",
+      "flaw": "topics_only",
+      "description": "пункт перелічує теми розмов замість внеску людини: прибрати або переписати на конкретну дію",
+      "line_contains": [
+        "Topics included anxiety, exam stress, friendships and family conflict"
+      ],
+      "verdicts": [
+        "cut",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "skill_no_evidence-1",
+      "flaw": "skill_no_evidence",
+      "description": "у Skills є інструменти (JASP, R, Python, NVivo, MATLAB, E-Prime), яких немає в жодному пункті досвіду: скоротити до підтверджених або прибрати",
+      "line_contains": [
+        "Technical skills: SPSS, Qualtrics, JASP, R, Python, NVivo, MATLAB, E-Prime"
+      ],
+      "verdicts": [
+        "rewrite",
+        "shorten",
+        "cut"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про набір 64 учасників експерименту з результатом у цифрах: не чіпати",
+      "line_contains": [
+        "Recruited and scheduled 64 participants for a working-memory experiment"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про 210 розмов на лінії підтримки і 18 направлень у цифрах: не чіпати",
+      "line_contains": [
+        "Handled 210 chat conversations with teenagers and referred 18 of them"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

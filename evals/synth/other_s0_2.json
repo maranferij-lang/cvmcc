@@ -1,0 +1,105 @@
+{
+  "name": "Синтетичний випускник-журналіст: over_length (~900 слів), missing_contact (немає email), заголовок «Curriculum Vitae», порушений хронологічний порядок, теми замість внеску, дублювання і два сильні пункти (strong_keep)",
+  "cv_file": "other_s0_2.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "other",
+    "status": "Graduate",
+    "background": "BA in Journalism and Media Studies at Eastern Plains National University (June 2025); content writer at BrightPath Learning since February 2025; editorial internship at Open City Radio in summer 2024 and summer reporting at Kharkiv Weekly Courier in 2023.",
+    "target_role": "Communications Coordinator",
+    "company_type": "Government / international org / NGO",
+    "company_details": "Local NGO supporting families and young people in eastern Ukraine",
+    "level": "Junior / first job",
+    "region": "Ukraine / Eastern Europe",
+    "vacancy_text": "Communications Coordinator (NGO, Kharkiv). You will plan and publish content for the website and social media, write press releases and donor updates, coordinate with partner organisations and track audience reach. Requirements: degree in journalism, communications or a related field; excellent written Ukrainian and English; experience with content tools; attention to detail.",
+    "feedback_language": "Ukrainian"
+  },
+  "expect": [
+    {
+      "id": "over_length-1",
+      "flaw": "over_length",
+      "type": "length",
+      "min_cut_words": 100,
+      "description": "CV на ~900 слів для першої роботи: правки мають скоротити щонайменше 100 слів (кафе, ліцей, список публікацій, конференції)"
+    },
+    {
+      "id": "missing_contact-1",
+      "flaw": "missing_contact",
+      "type": "mentions",
+      "any_of": [
+        "email",
+        "e-mail"
+      ],
+      "description": "у заголовку є телефон і LinkedIn, але немає email: розбір має про це сказати"
+    },
+    {
+      "id": "cv_title-1",
+      "flaw": "cv_title",
+      "description": "перший рядок «Curriculum Vitae» зайвий: усі й так бачать, що це CV, прибрати",
+      "line_contains": [
+        "Curriculum Vitae"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "not_reverse_chronological-1",
+      "flaw": "not_reverse_chronological",
+      "description": "запис Summer Reporter (2023) стоїть вище записів 2025 і 2024: порядок у Experience має бути зворотно хронологічним",
+      "line_contains": [
+        "Summer Reporter, Kharkiv Weekly Courier, Kharkiv, Jun 2023 - Aug 2023"
+      ],
+      "verdicts": [
+        "move"
+      ]
+    },
+    {
+      "id": "topics_only-1",
+      "flaw": "topics_only",
+      "description": "пункт перелічує теми матеріалів, а не внесок автора: прибрати або переписати на конкретну дію й результат",
+      "line_contains": [
+        "Topics included local elections, public transport, university funding"
+      ],
+      "verdicts": [
+        "cut",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "duplicate-1",
+      "flaw": "duplicate",
+      "description": "той самий факт про зростання відкриттів розсилки з 21% до 34% повторюється в «Selected achievements»: друге згадування прибрати або скоротити",
+      "line_contains": [
+        "Newsletter relaunch: open rate rose from 21% to 34% in four months"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про 46 пояснювальних матеріалів і зростання читачів з 9 000 до 15 500: не чіпати",
+      "line_contains": [
+        "Produced 46 explainers on education reform in 8 months"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про триденний воркшоп для 60 підлітків і 12 навчених волонтерів: не чіпати",
+      "line_contains": [
+        "Organised a 3-day media literacy workshop for 60 teenagers"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

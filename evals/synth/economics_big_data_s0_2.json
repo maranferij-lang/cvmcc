@@ -1,0 +1,107 @@
+{
+  "name": "Вигаданий випускник: over_length (890 слів), missing_contact (немає email), duplicate, not_reverse_chronological, self_description, long_coursework і два сильні пункти (strong_keep)",
+  "cv_file": "economics_big_data_s0_2.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "economics_big_data",
+    "status": "Graduate",
+    "background": "MSc in Economics and Data Science at Vistula Valley School of Economics (2026); 17 months part-time as a data analyst at an economic advisory firm.",
+    "target_role": "Junior Data Analyst",
+    "company_type": "Consulting (Big 4, MBB, boutique)",
+    "company_details": "Economic consulting boutique, competition and regulatory cases",
+    "level": "Junior / first job",
+    "region": "UK",
+    "vacancy_text": "Junior Data Analyst, economic consulting boutique. Requirements: degree in economics or statistics, Python and SQL, experience with panel data and regression analysis, clear written English. You will build datasets and models for competition and regulatory cases.",
+    "feedback_language": "Ukrainian"
+  },
+  "expect": [
+    {
+      "id": "over_length-1",
+      "flaw": "over_length",
+      "type": "length",
+      "min_cut_words": 100,
+      "description": "CV на ~890 слів для першої роботи: правки мають скоротити щонайменше 100 слів"
+    },
+    {
+      "id": "missing_contact-1",
+      "flaw": "missing_contact",
+      "type": "mentions",
+      "any_of": [
+        "email",
+        "e-mail"
+      ],
+      "description": "у заголовку немає email: розбір має про це сказати"
+    },
+    {
+      "id": "duplicate-1",
+      "flaw": "duplicate",
+      "description": "той самий факт про автоматизацію оновлення даних повторено в «Key achievements»: другий рядок прибрати або скоротити",
+      "line_contains": [
+        "by automating the refresh in Python and SQL at Northgate Advisory"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "not_reverse_chronological-1",
+      "flaw": "not_reverse_chronological",
+      "description": "запис 2022 року стоїть вище запису 2023 року: порядок у Experience має бути зворотно хронологічним",
+      "line_contains": [
+        "Analyst Intern, Kestrel Analytics, Dnipro, Jul 2022 - Sep 2022"
+      ],
+      "verdicts": [
+        "move"
+      ]
+    },
+    {
+      "id": "self_description-1",
+      "flaw": "self_description",
+      "description": "загальне самоопис («hard-working team player») прибрати або переписати на конкретику",
+      "line_contains": [
+        "Hard-working, motivated team player with strong communication skills"
+      ],
+      "verdicts": [
+        "cut",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "long_coursework-1",
+      "flaw": "long_coursework",
+      "description": "список із 15 курсів скоротити до релевантних для аналітики",
+      "line_contains": [
+        "Advanced Microeconomics, Advanced Macroeconomics"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про панельну модель з числами не чіпати",
+      "line_contains": [
+        "cut the consumption of low-income households by 0.8%"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про збір і чистку даних з числами не чіпати",
+      "line_contains": [
+        "Compiled and cleaned a dataset of 52,000 firm-level records"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

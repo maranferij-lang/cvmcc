@@ -1,0 +1,73 @@
+Andrii Lysenko
+Warsaw, Poland | +48 512 555 014 | linkedin.com/in/andrii-lysenko-example
+Date of birth: 22 November 2002
+
+EDUCATION
+Mazovian School of Economics, BA in Business Economics, Sep 2021 - Jun 2025, GPA 4.5/5
+- Bachelor thesis: Price elasticity of demand in online grocery retail, supervised by Prof. Anna Wisniewska, graded 5.0/5
+- Dean's Scholarship for top 5% academic performance in 3 of 6 semesters
+- Exchange semester at Rhine University of Applied Sciences, Cologne, Germany, Feb 2024 - Jun 2024, with courses in Corporate Finance, Supply Chain Management and Business Analytics
+Lyceum No. 5, Kharkiv, Ukraine, Sep 2017 - Jun 2021, graduated with a silver medal
+- 3rd place at the regional Economics Olympiad in 2020
+- Member of the school debate club and captain of the school quiz team for two years
+
+EXPERIENCE
+Data and Reporting Intern, Rivermark Insurance, Warsaw, Jul 2023 - Sep 2023
+- Cleaned and validated claims data for 4 product lines in Excel and SQL, reducing duplicate records by 18%
+- Prepared a weekly dashboard of claim volumes and average claim cost for the head of the claims department
+- Documented the data cleaning steps in a 6-page guide that two new interns used during their onboarding
+- Joined the weekly team meetings, took notes and sent short summaries of the action points to all participants
+Business Analyst Intern, Brightline Logistics, Warsaw, Feb 2025 - Aug 2025
+- Consolidated monthly sales data from 5 regional offices into one report for the finance director, replacing manual copy-paste between 3 spreadsheets
+- Built a Power BI dashboard tracking 14 KPIs for 6 warehouses, so managers no longer wait for the Monday morning report
+- Analysed delivery data for 120 routes and identified 3 with repeated delays, which led to a carrier change that cut late deliveries from 17% to 9%
+- I managed the shared reporting calendar and reminded colleagues about upcoming deadlines
+- Compiled one monthly report from the sales data of the 5 regional offices for the finance director
+- Prepared 12 slides for the quarterly business review with the managing director and the heads of four departments
+Sales Operations Assistant, Greenbridge Trading Group, Warsaw, Jun 2022 - Sep 2022
+- Entered and checked about 300 purchase orders per week in the ERP system with an error rate below 1%
+- Updated the product catalogue with prices and detailed descriptions for 150 items
+- Answered customer questions by phone and passed complex cases to senior colleagues
+- Prepared the company stand for a trade fair in Poznan together with 3 colleagues and handed out leaflets to visitors
+
+PROJECTS
+Retail Demand Forecast, university project, Oct 2024 - Jan 2025
+- Built a demand forecast in Python for 25 stores of a grocery chain, cutting forecast error from 14% to 9% compared with the previous moving-average method
+- Presented the model, its assumptions and its limits to a panel of 4 lecturers and 2 industry guests
+- Documented the code and the data sources in a short readme so that other students could repeat the analysis
+Market Entry Case, team project, Mar 2024 - May 2024
+- Evaluated the entry of a Polish cosmetics brand into the German market with a team of 4 and recommended a pilot in 2 cities
+- Estimated the market size, the price levels of three competitors and a break-even point of 14 months
+- Prepared a 20-slide deck and a one-page executive summary for the final presentation
+Personal Finance Tracker, personal project, Jan 2023 - Mar 2023
+- Created a simple Excel template for tracking monthly spending that 40 classmates downloaded
+- Added charts for spending by category and a short instruction in Ukrainian and English
+
+LEADERSHIP AND ACTIVITIES
+International Students Buddy Programme, Buddy, Sep 2023 - Jun 2024
+- Guided 5 incoming exchange students through registration, housing search and city orientation
+- Organised two city tours and a welcome dinner for the whole group of 30 exchange students
+Mazovian Economics Society, Treasurer, Oct 2022 - Jun 2025
+- Led a team of 6 volunteers and raised 120,000 PLN for a children's hospital in 3 weeks through a charity auction
+- Managed the society budget of 25,000 PLN per year and prepared monthly expense reports for the board
+- Organised 8 guest lectures with managers from banks, retail chains and consulting firms
+- Maintained the society website and the social media accounts, publishing two posts per week
+Student Debate League, Participant, Oct 2021 - Jun 2022
+- Took part in 12 debates on economic and social topics and reached the semi-final of the university league
+
+CONFERENCES AND PUBLICATIONS
+- Presented the thesis results at the Student Economics Conference in Lodz, April 2025
+- Co-authored the article "Online grocery prices in Poland, 2021-2024" in the student journal Economic Notes, 2025
+- Attended the Retail Analytics Forum in Warsaw, October 2024, and the Supply Chain Meetup in Cologne, May 2024
+
+CERTIFICATIONS AND COURSES
+- Financial Modelling Fundamentals, online course, 2024
+- Power BI Data Analyst track, online course, 2025
+- SQL for Data Analysis, online course, 2023
+- Project Management Basics, workshop, 2023
+- Introduction to Python, online course, 2022
+- Presentation Skills Workshop, Mazovian School of Economics, 2022
+
+SKILLS AND LANGUAGES
+Skills: Excel, SQL, Python, Power BI, financial modelling, data cleaning
+Languages: Ukrainian (Native), Polish (C1), English (C1, IELTS 7.5), German (A2)

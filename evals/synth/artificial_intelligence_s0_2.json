@@ -1,0 +1,105 @@
+{
+  "name": "Вигаданий випускник-ШІ: понад 800 слів, немає email, старіший запис вище новішого, дубль пункту про FastAPI, «I maintained», рядок References і два сильні пункти (strong_keep)",
+  "cv_file": "artificial_intelligence_s0_2.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "artificial_intelligence",
+    "status": "Graduate",
+    "background": "MSc in Artificial Intelligence (2026) and BSc in Computer Science (2024) from Danube Institute of Technology in Vienna; working student machine learning engineer since March 2025; looking for a first full-time role.",
+    "target_role": "Junior Machine Learning Engineer",
+    "company_type": "Big Tech / product company",
+    "company_details": "Applied computer vision and ML product teams in Vienna, Munich and Zurich",
+    "level": "Junior / first job",
+    "region": "EU",
+    "vacancy_text": "Junior Machine Learning Engineer, Auroravale Systems (Vienna). You will train, evaluate and deploy computer vision and NLP models together with a product team of 8 engineers. We expect a degree in computer science or AI, solid Python and PyTorch, experience with Docker and REST APIs, and good written English. We offer mentoring, a hybrid schedule and a learning budget.",
+    "feedback_language": "English"
+  },
+  "expect": [
+    {
+      "id": "over_length-1",
+      "flaw": "over_length",
+      "type": "length",
+      "min_cut_words": 100,
+      "description": "CV на понад 900 слів для рівня Junior: розбір мусить запропонувати скоротити щонайменше 100 слів (школа, сертифікати, нагороди, конференції, другорядні проєкти)"
+    },
+    {
+      "id": "missing_contact-1",
+      "flaw": "missing_contact",
+      "type": "mentions",
+      "any_of": [
+        "email",
+        "e-mail"
+      ],
+      "description": "у шапці немає email: розбір мусить згадати, що його треба додати"
+    },
+    {
+      "id": "not_reverse_chronological-1",
+      "flaw": "not_reverse_chronological",
+      "description": "стажування 2024 року стоїть вище роботи 2025 року в Experience: перемістити записи у зворотному хронологічному порядку",
+      "line_contains": [
+        "Data Scientist Intern, Lumenfield Energy"
+      ],
+      "verdicts": [
+        "move"
+      ]
+    },
+    {
+      "id": "duplicate-1",
+      "flaw": "duplicate",
+      "description": "той самий факт про сервіс FastAPI у Docker з 15 000 зображень на день уже є вище: другий пункт прибрати або злити з першим",
+      "line_contains": [
+        "Packaged the defect model in Docker behind a FastAPI endpoint"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "first_person-1",
+      "flaw": "first_person",
+      "description": "пункт від першої особи «I maintained»: переписати без займенника або прибрати",
+      "line_contains": [
+        "I maintained the lab's shared GPU booking sheet"
+      ],
+      "verdicts": [
+        "rewrite",
+        "cut"
+      ]
+    },
+    {
+      "id": "references_line-1",
+      "flaw": "references_line",
+      "description": "рядок «References available upon request» зайвий: прибрати",
+      "line_contains": [
+        "References available upon request"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про зменшення затримки моделі зі 180 до 95 мс не чіпати",
+      "line_contains": [
+        "from 180 ms to 95 ms by exporting it to ONNX and batching requests"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про модель дефектів з recall 91% при precision 95% не чіпати",
+      "line_contains": [
+        "reaching 91% recall at 95% precision on a held-out set"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

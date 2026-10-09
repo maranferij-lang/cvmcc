@@ -1,0 +1,99 @@
+{
+  "name": "Вигадана студентка-юристка: cv_title, personal_data, long_coursework, weak_opener, references_line і два сильні пункти (strong_keep)",
+  "cv_file": "law_s0_1.txt",
+  "synthetic": true,
+  "profile": {
+    "program": "law",
+    "status": "3rd year",
+    "background": "LLB in Law at Carpathian State Law Academy (expected June 2027); legal intern at Lexora Partners in summer 2025; volunteer paralegal at the university law clinic; member of the moot court team.",
+    "target_role": "Legal Intern",
+    "company_type": "Law firm",
+    "company_details": "Mid-size law firm with a commercial and IP practice",
+    "level": "Internship",
+    "region": "EU",
+    "vacancy_text": "Legal Intern, commercial law firm. Requirements: law student in the 3rd year or above, legal research and drafting in English, attention to detail, interest in commercial and IP law. Nice to have: moot court or legal clinic experience.",
+    "feedback_language": "English"
+  },
+  "expect": [
+    {
+      "id": "cv_title-1",
+      "flaw": "cv_title",
+      "description": "заголовок «Curriculum Vitae» на початку займає місце і нічого не дає: прибрати",
+      "line_contains": [
+        "Curriculum Vitae"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "personal_data-1",
+      "flaw": "personal_data",
+      "description": "дата народження, сімейний стан і національність у заголовку: прибрати",
+      "line_contains": [
+        "Date of birth: 14 February 2005"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "long_coursework-1",
+      "flaw": "long_coursework",
+      "description": "список із 10 загальних курсів: залишити 2-3 релевантні для комерційного права або прибрати",
+      "line_contains": [
+        "Relevant coursework: Theory of State and Law"
+      ],
+      "verdicts": [
+        "cut",
+        "shorten",
+        "rewrite"
+      ]
+    },
+    {
+      "id": "weak_opener-1",
+      "flaw": "weak_opener",
+      "description": "пункт починається з «Assisted with» і не називає внеску чи результату: переписати або прибрати",
+      "line_contains": [
+        "Assisted with sorting and filing client documents"
+      ],
+      "verdicts": [
+        "rewrite",
+        "cut"
+      ]
+    },
+    {
+      "id": "references_line-1",
+      "flaw": "references_line",
+      "description": "рядок «References available upon request» займає місце без користі: прибрати",
+      "line_contains": [
+        "References available upon request"
+      ],
+      "verdicts": [
+        "cut"
+      ]
+    },
+    {
+      "id": "strong_keep-1",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про чекліст пунктів договору й скорочення перевірки з 5 до 2 днів не чіпати",
+      "line_contains": [
+        "cut first-draft review time from 5 days to 2 days"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    },
+    {
+      "id": "strong_keep-2",
+      "flaw": "strong_keep",
+      "description": "сильний пункт про moot court з місцем серед команд і мовців не чіпати",
+      "line_contains": [
+        "ranked 3rd of 18 teams and 5th best oralist of 72 speakers"
+      ],
+      "verdicts": [
+        "keep"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+Mariia Lysenko
+Lviv, Ukraine | mariia.lysenko@mail.example | +380 67 555 01 42 | linkedin.com/in/mariia-lysenko-example
+Date of birth: 22 August 2005 | Marital status: single
+
+EDUCATION
+Carpathian University of Economics, BSc in Economics and Data Analytics, expected June 2027, GPA 4.7/5
+- Dean's list in 2025 and 2026, top 5% of the year by GPA
+- Merit scholarship for two consecutive years
+- Thesis topic: forecasting regional unemployment in Ukraine with time series models (in progress)
+
+EXPERIENCE
+Data Analyst Intern, Brightwave Payments, Lviv, Jun 2026 - Aug 2026
+- Built a churn dashboard in Power BI that flagged 140 at-risk merchant accounts, and the retention team recovered 31 of them in one quarter
+- Helped with cleaning and merging transaction data from SQL and Excel sources for the risk team
+- Prepared weekly reports on card transaction volumes for the product team
+- Wrote the SQL queries that fed the dashboard and joined daily stand-ups with 5 engineers and analysts
+Research Assistant, Department of Econometrics, Carpathian University of Economics, Oct 2025 - May 2026
+- Replicated a published regional unemployment study in Python with pandas and statsmodels, reproducing 11 of 12 reported estimates and documenting the one that differed
+- Wrote a short methodology note for the supervisor describing the data sources and the estimation steps
+- Presented the replication results at the department seminar to an audience of 20 lecturers and students
+
+PROJECTS
+Inflation Nowcasting, course project, Feb 2026 - May 2026
+- Built a gradient boosting model in Python that predicted monthly CPI changes with an error of 0.3 percentage points, 22% lower than the naive benchmark
+- Documented the pipeline in a public GitHub repository with a README and 12 unit tests
+Credit Default Explorer, team project of 3 students, Oct 2025 - Dec 2025
+- Trained a logistic regression on 30,000 loan records in Python and reached an AUC of 0.78 on the held-out set
+- Presented the findings to a panel of 4 lecturers and a bank risk manager
+
+LEADERSHIP
+Treasurer, Economics Students' Club, Carpathian University of Economics, Sep 2024 - Present
+- Managed a budget of UAH 85,000 for 12 events and secured sponsors who covered 60% of the costs
+- Introduced a shared spreadsheet for expense tracking, which the new board kept using
+
+SKILLS
+Python (pandas, statsmodels), SQL, Power BI, Excel, Tableau, Apache Spark, Hadoop
+
+CERTIFICATES
+Open Data Academy, SQL for Analysts, certificate, 2025
+
+ADDITIONAL
+Languages: Ukrainian (Native), English (C1, IELTS 7.5), Polish (B1)
+Interests: Gym, Travelling, Netflix, Music

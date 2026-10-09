@@ -1,0 +1,76 @@
+Nikola Petrović
+Vienna, Austria | +43 660 555 0182 | linkedin.com/in/nikola-petrovic-example | github.com/npetrovic-example
+
+EDUCATION
+Danube Institute of Technology, Vienna, MSc in Artificial Intelligence, Oct 2024 - Jun 2026, GPA 4.7/5
+- Master's thesis: efficient fine-tuning of small vision transformers for defect detection on industrial images, graded with the highest mark
+- Awarded the merit scholarship for the top 10% of the master's cohort in 2024 and 2025
+Danube Institute of Technology, Vienna, BSc in Computer Science, Oct 2021 - Jun 2024, GPA 4.5/5
+- Bachelor's thesis: semi-automatic cell counting in microscope images with a U-Net model
+- Completed an exchange semester at the University of Brno in the spring of 2023
+Belgrade Mathematical Gymnasium, Belgrade, Serbia, Sep 2017 - Jun 2021
+- Graduated with distinction and a specialization in mathematics and computer science
+- Won the silver medal at the national informatics olympiad in 2020 among 140 finalists
+
+EXPERIENCE
+Data Scientist Intern, Lumenfield Energy, Vienna, Jul 2024 - Sep 2024
+- Built a gradient boosting forecast of hourly electricity demand for 14 substations with scikit-learn, lowering the mean absolute error from 6.8% to 4.9%
+- Wrote SQL queries over 3 years of meter readings, about 40 million rows, and documented 12 data quality issues for the metering team
+- Automated the nightly retraining job with a Python script and cron, saving the team about 3 hours of manual work per week
+- Presented the forecast results to 9 engineers at the end-of-internship demo day
+Machine Learning Engineer (working student), Cobalt Vision, Vienna, Mar 2025 - Present
+- Reduced the inference latency of the visual inspection model from 180 ms to 95 ms by exporting it to ONNX and batching requests
+- Trained a defect detection model with PyTorch on 22,000 labelled factory images, reaching 91% recall at 95% precision on a held-out set
+- Deployed the model as a FastAPI service in a Docker container that now processes about 15,000 images per day on 3 production lines
+- Wrote an evaluation script with 40 unit tests that checks every new model version against a fixed set of 500 edge-case images before release
+- Reviewed 25 pull requests in Git from 3 teammates and introduced a model card template that all new models now use
+- Packaged the defect model in Docker behind a FastAPI endpoint that now serves around 15,000 images per day across 3 production lines
+Research Assistant, Institute of Computer Vision, Danube Institute of Technology, Oct 2022 - Jun 2024
+- Annotated and cleaned a dataset of 4,500 microscope images for a cell-counting study and wrote the labeling guide used by 3 other students
+- Trained a U-Net segmentation model in PyTorch that improved the Dice score from 0.71 to 0.82 compared with the previous lab baseline
+- Co-authored a workshop paper accepted at a national conference on computer vision, listed under Publications
+- I maintained the lab's shared GPU booking sheet and reminded colleagues about maintenance windows
+- Held 4 tutorials on Python and NumPy for 30 first-year students
+
+PROJECTS
+Wildfire Smoke Detector, personal project, Jan 2026 - Mar 2026
+- Fine-tuned a small Hugging Face vision transformer on 18,000 labelled forest camera frames, reaching 94% accuracy with a model of 22 million parameters
+- Published the training code with a reproducible Docker setup and a README on GitHub, where the repository collected 85 stars
+Course Materials Question Answering Bot, team project of 4 students, Mar 2025 - Jun 2025
+- Built a retrieval-augmented question answering bot over 600 pages of lecture notes using sentence embeddings and a vector index
+- Measured answer quality on 120 hand-written questions and improved top-3 retrieval accuracy from 68% to 83% by tuning the chunk size
+- Presented the bot to 2 professors, one of whom adopted it for a seminar of 35 students
+Music Genre Classifier, course project, Nov 2022 - Jan 2023
+- Trained a convolutional network on 10,000 audio clips converted to spectrograms with librosa, reaching 78% accuracy across 10 genres
+- Compared 3 augmentation strategies and documented the results in a 4-page project report
+
+PUBLICATIONS AND CONFERENCES
+- N. Petrović, A. Weiss and M. Horvat, "Semi-automatic cell counting with U-Net on low-contrast microscope images", Proceedings of the Austrian Conference on Computer Vision Workshops, 2024
+- Poster presenter, Vienna AI Meetup, March 2025, poster title "Edge inference with ONNX for visual inspection"
+- Participant, Central European Machine Learning Summer School, Brno, July 2023
+
+CERTIFICATES
+- Deep Learning Specialization, Brightpath Online, 2023, 5 courses and 120 hours
+- Applied Data Science with Python, Brightpath Online, 2022, 4 courses and 60 hours
+- SQL for Data Analysis, Brightpath Online, 2022, 20 hours
+- Cloud Fundamentals Certificate, Skyline Learning Academy, 2024, 30 hours
+
+LEADERSHIP AND VOLUNTEERING
+Organizer, Danube AI Student Society, Oct 2022 - Jun 2024
+- Organized 8 workshops with 40 attendees on average and invited 5 speakers from local companies
+- Grew the newsletter from 60 to 210 subscribers in two years
+Volunteer Coding Teacher, Code for Kids Vienna, Sep 2022 - Jun 2023
+- Taught Scratch and basic Python to 12 children between 10 and 13 years old every Saturday for 9 months
+
+AWARDS
+- Winner, Danube Institute of Technology Hackathon 2023, team of 4 among 36 teams
+- Third place, Central Europe Student Datathon 2022, team of 3 among 52 teams
+- Dean's list at the Faculty of Informatics, 2022 and 2023
+
+SKILLS
+Python, PyTorch, scikit-learn, SQL, Docker, FastAPI, ONNX, Hugging Face, Git, NumPy, librosa
+
+LANGUAGES
+Serbian (Native), English (C1, TOEFL 108), German (B2)
+
+References available upon request
