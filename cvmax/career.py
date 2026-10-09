@@ -1,4 +1,4 @@
-"""«Куди податись»: за CV пропонує напрями, де в людини найбільше шансів."""
+""""Where to apply": from the CV, suggests directions where the person has the best chances."""
 
 from __future__ import annotations
 
@@ -19,8 +19,8 @@ DEFAULT_COMPANY_TYPE = COMPANY_TYPES[0]
 class CareerPrefs:
     program: str
     status: str
-    interests: str  # що подобається, чого хочеться
-    avoid: str  # чого точно не хочеться
+    interests: str  # what they like, what they want
+    avoid: str  # what they definitely do not want
     level: str
     region: str
     feedback_language: str

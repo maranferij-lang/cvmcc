@@ -1,138 +1,72 @@
-# Тижнева рефлексія (петля B)
+# Weekly reflection (loop B)
 
-Раз на тиждень GitHub Actions читає анонімні сигнали студентів і перетворює їх на короткі уроки для рубрик.
+Once a week, GitHub Actions reads anonymous student signals and turns them into short lessons for the rubrics.
 
-## Як це працює
+## How it works
 
-1. `scripts/learn.py` бере з Supabase `learning_export` за останні 30 днів: рішення щодо правок, лайки, події.
-2. Для кожної сфери, де є щонайменше 20 сигналів, модель читає прийняті й відхилені правки та пише
-   підсумок і до 8 антипатернів.
-3. Результат лягає в `cvmax/rubrics/learned/<сфера>.md`. Ці файли автоматично додаються до рубрики
-   в розділі «Learned from student feedback» (до 3000 символів).
-4. Якщо дані явно просять іншого підходу, модель пропонує новий варіант промпту. Він додається в
-   `cvmax/variants/analysis.json` (якщо активних менше 5) як **неактивний** `auto-*` варіант, далі його
-   оцінює бандит лише після активації людиною (див. нижче).
-5. Workflow «Weekly lessons» проганяє evals: звичайні (`evals/cases`) і синтетичні (`evals/synth`, див. нижче).
-   Якщо якість впала нижче базової лінії, PR не створюється.
-   Неактивний `auto-*` варіант, що не пройшов evals (`--prune-failing`), видаляється з JSON у PR, а job не падає;
-   активний варіант, що не пройшов, провалює job.
-6. Звіт тижня лежить у `docs/learning/<YYYY-MM-DD>.md` і йде в тому ж PR.
+1. `scripts/learn.py` takes `learning_export` from Supabase for the last 30 days: decisions on edits, likes, events.
+2. For each field where there are at least 20 signals, the model reads the accepted and rejected edits and writes
+   a summary and up to 8 anti-patterns.
+3. The result goes to `cvmax/rubrics/learned/<field>.md`. These files are automatically added to the rubric
+   in the section "Learned from student feedback" (up to 3000 characters).
+4. If the data clearly calls for a different approach, the model proposes a new prompt variant. It is added to
+   `cvmax/variants/analysis.json` (if there are fewer than 5 active ones) as an **inactive** `auto-*` variant, and the bandit
+   evaluates it only after a human activates it (see below).
+5. The "Weekly lessons" workflow runs evals. If quality drops below the baseline, no PR is created.
+   An inactive `auto-*` variant that fails evals (`--prune-failing`) is removed from the JSON in the PR, and the job does not fail;
+   an active variant that fails makes the job fail.
+6. The weekly report is stored in `docs/learning/<YYYY-MM-DD>.md` and goes in the same PR.
 
-## Як читати звіт
+## How to read the report
 
-- **Accept rate by section / priority**: частка прийнятих правок. Низька частка в розділі означає,
-  що модель там пропонує зайве.
-- **Thumbs up by variant**: який стиль розбору людям подобається більше.
-- **Thumbs up by knowledge version**: версія знань = хеш рубрик, уроків, ринку й варіантів. Падіння
-  частки лайків після нової версії запускає автовідкат.
-- Не вірте відсоткам при малих числах: дивіться на колонку з кількістю.
+- **Accept rate by section / priority**: the share of accepted edits. A low share in a section means
+  the model suggests unnecessary changes there.
+- **Thumbs up by variant**: which review style people like more.
+- **Thumbs up by knowledge version**: knowledge version = hash of rubrics, lessons, market data and variants. A drop
+  in the share of likes after a new version triggers an automatic rollback.
+- Do not trust percentages on small numbers: look at the count column.
 
-## Автовідкат і ручний відкат
+## Automatic and manual rollback
 
-Якщо остання версія знань має на 10 і більше пунктів нижчу частку лайків за попередню (обидві з 30+
-оцінок), скрипт перезаписує всі файли уроків однорядковим коментарем «reverted».
-Вручну: видали `cvmax/rubrics/learned/<сфера>.md` (або поверни попередню версію з git) і злий PR.
+If the latest knowledge version has a share of likes at least 10 points lower than the previous one (both with 30+
+ratings), the script overwrites all lesson files with a one-line comment "reverted".
+Manually: delete `cvmax/rubrics/learned/<field>.md` (or restore the previous version from git) and merge the PR.
 
-## Права workflow
+## Workflow permissions
 
-Кожен workflow має два job. Перший (`contents: read`) виконує скрипти, evals і `pytest`, а потім вантажить змінені шляхи
-як артефакт. Другий (`contents: write`, `pull-requests: write`) лише розпаковує артефакт, відкриває PR і вмикає
-автозлиття; код репозиторію там не виконується.
+Each workflow has two jobs. The first (`contents: read`) runs the scripts, evals and `pytest`, then uploads the changed paths
+as an artifact. The second (`contents: write`, `pull-requests: write`) only unpacks the artifact, opens the PR and turns on
+auto-merge; no repository code is executed there.
 
-## Автозлиття й PR
+## Auto-merge and PRs
 
-Налаштування репозиторію:
+Repository settings:
 
-- Settings -> Actions -> General -> «Allow GitHub Actions to create and approve pull requests»;
-- Settings -> General -> «Allow auto-merge»;
-- змінна репозиторію `LEARN_AUTOMERGE=1` вмикає `gh pr merge --auto --squash` для PR уроків і ринку. Без неї
-  ти сам натискаєш merge після огляду. Автозлиття спрацює лише коли пройдуть обов'язкові перевірки гілки.
+- Settings -> Actions -> General -> "Allow GitHub Actions to create and approve pull requests";
+- Settings -> General -> "Allow auto-merge";
+- the repository variable `LEARN_AUTOMERGE=1` turns on `gh pr merge --auto --squash` for lesson and market PRs. Without it
+  you press merge yourself after review. Auto-merge works only when the branch's required checks pass.
 
-`LEARN_PR_TOKEN`: fine-grained PAT на цей репозиторій з правами `Contents: write` і `Pull requests: write`.
-PR, відкриті через `GITHUB_TOKEN`, не запускають `tests.yml`, тож обов'язкові перевірки не стартують і PR
-не злиється. З `LEARN_PR_TOKEN` перевірки працюють. Без нього workflow падає назад на `GITHUB_TOKEN`.
+`LEARN_PR_TOKEN`: a fine-grained PAT for this repository with `Contents: write` and `Pull requests: write`.
+PRs opened through `GITHUB_TOKEN` do not trigger `tests.yml`, so the required checks do not start and the PR
+will not merge. With `LEARN_PR_TOKEN` the checks run. Without it the workflow falls back to `GITHUB_TOKEN`.
 
-### Залишковий ризик автозлиття
+### Residual risk of auto-merge
 
-Текст уроків потрапляє в промпт кожного студента, а його пише модель з даних, які контролюють студенти.
-Фільтри є, але вони не ідеальні. Тому з `LEARN_AUTOMERGE=1` ін'єкція в промпт може дійти до всіх без
-людського огляду. Рекомендація: тримай автозлиття вимкненим, доки не запущено paywall, і щотижня
-переглядай PR вручну.
+The lesson text goes into every student's prompt, and it is written by a model from data that students control.
+There are filters, but they are not perfect. So with `LEARN_AUTOMERGE=1` a prompt injection can reach everyone without
+human review. Recommendation: keep auto-merge off until the paywall is launched, and
+review the PR manually every week.
 
-### Варіанти `auto-*`
+### `auto-*` variants
 
-Нові `auto-*` варіанти додаються неактивними. Щоб увімкнути, людина сама ставить `"active": true` у
-`cvmax/variants/analysis.json` після огляду тексту.
+New `auto-*` variants are added as inactive. To enable one, a person sets `"active": true` in
+`cvmax/variants/analysis.json` after reviewing the text.
 
-## Потрібні secrets
+## Required secrets
 
-`SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_LEARN_TOKEN` (токен зі scope `learning`, крок 5 у `supabase/README.md`), `GEMINI_API_KEY`, а також необов'язковий `LEARN_PR_TOKEN` (див. вище). Ніколи не клади сюди токен застосунку `CVMAX_DB_TOKEN`: він читає всі збережені CV. Ключі не потрапляють у логи й файли.
+`SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_LEARN_TOKEN` (a token with the `learning` scope, step 5 in `supabase/README.md`), `GEMINI_API_KEY`, and also the optional `LEARN_PR_TOKEN` (see above). Never put the app token `CVMAX_DB_TOKEN` here: it reads all saved CVs. Keys do not end up in logs or files.
 
-## Локально
+## Locally
 
-`python scripts/learn.py --dry-run` показує звіт і нічого не пише. Ті самі змінні середовища потрібні й тут.
-
-## Синтетичні evals
-
-Набір `evals/synth/` це вигадані CV, у які свідомо закладено відомі вади. Кожна вада має код із каталогу
-`evals/flaws.json` (наприклад `weak_opener`, `no_result`, `personal_data`) і правило, яке розбір мусить
-виконати: знайти ваду або не чіпати сильний рядок. Тож видно по кожному типу вади, скільки разів розбір
-її знайшов і скільки разів вигадав.
-
-Формат той самий, що в `evals/cases/`: JSON і TXT. У JSON є `"synthetic": true`, у кожній перевірці поле
-`flaw`. Для кожного кейсу додається автоматична перевірка `_no_invented_numbers` (вада `hallucination`):
-правка не має вводити число, якого немає в CV.
-
-Прогін: `python evals/run_evals.py evals/synth --runs 1`. Наприкінці друкується таблиця «By flaw» з найгіршими
-вадами зверху, а з `--json` у файл потрапляє `by_flaw`. Прапорець `--raw` запускає сиру модель без
-перевірок і верифікатора, щоб порівняти з тим, що дає застосунок.
-
-### Як згенерувати
-
-```bash
-python evals/generate_synthetic.py --program all --n 3 --seed 1 --out evals/synth
-```
-
-Потрібен ключ моделі (`GEMINI_API_KEY` або `ANTHROPIC_API_KEY`). `--program` приймає ключ програми з
-`cvmax/profile.py` або `all`. У кожному кейсі 4-6 вад, вибраних за `--seed` (той самий seed дає той самий
-набір), а в одному кейсі програми ще `over_length`. Файли називаються `<program>_s<seed>_<i>.json` і `.txt`.
-Наявні файли не перезаписуються без `--force`.
-
-Перед записом кейс проходить `validate_case`, яку можна викликати без моделі: кожен фрагмент рядка
-(`line_contains`) має зустрічатися в CV рівно один раз, довжина 15-120 символів, CV 300-1200 слів, реальні
-компанії заборонені. Непридатний кейс перегенеровується до двох разів, далі пропускається. Стартовий набір
-(по 2 кейси на програму, `_s0_1` і `_s0_2`) написано вручну, щоб набір працював без ключа моделі.
-
-### Ворота і базова лінія
-
-- Базова лінія: `evals/synth_baseline.json` (`pass_rate`, `passed`, `total`). Вона окрема від
-  `evals/baseline.json`, яку рахують звичайні кейси.
-- Ворота в «Weekly lessons» це крок «Synthetic evals gate»:
-  `python evals/run_evals.py evals/synth --runs 1 --json evals/last_synth.json --baseline evals/synth_baseline.json`.
-  Він завершується з кодом 3, якщо `pass_rate` нижчий за базову лінію більш ніж на допуск. Допуск це більше
-  з двох чисел: 0.05 або 2·√(p·(1−p)/n), де p це базова частка, а n це кількість перевірок у прогоні. При малій вибірці допуск
-  більший, бо модель шумить.
-- Порожня базова лінія (`total` = 0) теж закриває ворота. Поки її немає, щотижневий запуск завершується
-  з кодом 3, і PR не відкривається.
-
-### Bootstrap базової лінії
-
-Робиться один раз, з реальним ключем моделі:
-
-- у GitHub: Actions → «Weekly lessons» → Run workflow з `bootstrap_baseline` = true. Workflow записує
-  `evals/baseline.json` і `evals/synth_baseline.json` і відкриває PR замість навчання;
-- локально: `python evals/run_evals.py evals/synth --runs 1 --baseline evals/synth_baseline.json --update-baseline`,
-  потім закоміть `evals/synth_baseline.json`.
-
-Якщо жодну перевірку не вдалося оцінити, базова лінія не записується і команда завершується з кодом 3.
-
-### Регенерація в «Weekly lessons»
-
-Ручний запуск з `regenerate_synth` = true генерує перед воротами `--program all --n 2 --seed <номер запуску>`:
-до 2 нових кейсів на кожну з 7 програм (непридатні пропускаються). Seed це номер запуску, тож імена файлів не повторюються. Нові файли
-потрапляють у PR разом зі звітом (`evals/synth` є в `add-paths`), тому їх переглядаєш так само, як уроки.
-Потрібен той самий `GEMINI_API_KEY`, що й для уроків.
-
-Ворота порівнюють `pass_rate` по всьому `evals/synth`, тож нові кейси можуть його змінити без змін у коді.
-Якщо ворота впали після регенерації, спершу перевір, чи падіння в нових кейсах, а не в коді. Лише потім
-перезапиши `evals/synth_baseline.json` командою з розділу «Bootstrap базової лінії».
+`python scripts/learn.py --dry-run` shows the report and writes nothing. The same environment variables are needed here too.

@@ -1,4 +1,4 @@
-"""Демо-вакансії для демо-режиму й AppTest (вигадані, на дозволених доменах)."""
+"""Demo job postings for demo mode and AppTest (made up, on allowed domains)."""
 from __future__ import annotations
 
 import re
@@ -11,7 +11,7 @@ from cvmax.jobs.search import SearchResult
 
 def demo_search_result(q: JobQuery, *, today: date | None = None) -> SearchResult:
     day = today or date.today()
-    # Рівень у назві додають шаблони нижче, тому з ролі прибираємо власні «Intern» чи «Junior».
+    # The templates below add the level to the title, so we remove our own "Intern" or "Junior" from the role.
     p = re.sub(r"\b(intern(ship)?|junior|trainee|graduate|entry[- ]level)\b", "", q.primary, flags=re.I)
     p = " ".join(p.split()) or q.primary
 

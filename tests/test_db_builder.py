@@ -49,7 +49,7 @@ def test_memory_db_limits_per_user_and_global():
     assert db.consume("u1", "career", 2, 3) == {"allowed": False, "reason": "user", "used": 2, "limit": 2}
     assert db.consume("u2", "career", 2, 3)["allowed"]
     assert db.consume("u3", "career", 2, 3)["reason"] == "global"
-    assert db.consume("u3", "analysis", 2, 3)["allowed"]  # інший вид не впливає
+    assert db.consume("u3", "analysis", 2, 3)["allowed"]  # another kind has no effect
 
 
 def draft():
@@ -76,10 +76,10 @@ def test_render_docx_and_markdown():
     doc = Document(io.BytesIO(render_docx(cv)))
     text = "\n".join(p.text for p in doc.paragraphs)
     assert "Maya Chen" in text and "EDUCATION" in text and "EXPERIENCE" in text
-    assert "PROJECTS" not in text  # порожні розділи не друкуються
+    assert "PROJECTS" not in text  # empty sections are not printed
     md = render_markdown(cv)
     assert "#### EXPERIENCE" in md and "Sales Intern" in md
-    json.dumps(cv.model_dump())  # результат можна зберегти в базу
+    json.dumps(cv.model_dump())  # the result can be saved to the database
 
 
 def test_heading_border_comes_before_spacing_in_ppr():

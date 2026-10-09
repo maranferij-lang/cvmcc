@@ -1,4 +1,4 @@
-"""Glassdoor: лише посилання на пошук (параметри з пам'яті, низька впевненість)."""
+"""Glassdoor: search link only (parameters from memory, low confidence)."""
 from __future__ import annotations
 
 from urllib.parse import quote_plus, urlencode

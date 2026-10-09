@@ -1,4 +1,4 @@
-"""Живі вакансії під напрямом: пошук, ранжування за CV, чесні посилання на пошук самому."""
+"""Live job postings under a direction: search, ranking against the CV, honest links for searching yourself."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ _LABEL_URL = re.compile(r"(?:https?://|www\.)\S+", re.IGNORECASE)
 
 
 class _SearchFailed(Exception):
-    """Усі джерела недоступні: такий результат не кешуємо."""
+    """All sources are unavailable: we do not cache such a result."""
 
     def __init__(self, result) -> None:
         super().__init__("all job sources failed")
@@ -33,10 +33,10 @@ class _SearchFailed(Exception):
 
 @st.cache_data(ttl=config.JOBS_CACHE_TTL_S, show_spinner=False)
 def _search(keywords: tuple[str, ...], region: str, level: str, company: str):
-    """Кешований пошук: аргументи хешуються, тому запит збираємо тут."""
+    """Cached search: arguments are hashed, so we build the query here."""
     result = search_jobs(JobQuery(keywords=keywords, region=region, level=level, company=company), env=os.environ)
     if not result.sources_ok and result.sources_failed:
-        raise _SearchFailed(result)  # виняток не потрапляє в кеш
+        raise _SearchFailed(result)  # an exception does not get into the cache
     return result
 
 
@@ -48,8 +48,8 @@ def _cached_search(keywords: tuple[str, ...], region: str, level: str, company: 
 
 
 def _role_tag(role: str) -> str:
-    """Короткий відбиток ролі: HMAC-SHA256 із серверним секретом (без словникового підбору).
-    Без ключа повертає "" і тег у подію не потрапляє."""
+    """A short fingerprint of the role: HMAC-SHA256 with a server secret (no dictionary guessing).
+    Without a key it returns "" and the tag does not go into the event."""
     key = (os.environ.get("CVMAX_EVENT_SALT") or os.environ.get("CVMAX_DB_TOKEN")
            or secret("CVMAX_EVENT_SALT") or secret("CVMAX_DB_TOKEN") or "")
     if not key:
@@ -63,12 +63,12 @@ def _tag_fields(role: str) -> dict:
 
 
 def _state_key(key: str, q: JobQuery) -> str:
-    """Ключ стану залежить від запиту: результати іншої ролі не підмішуються."""
+    """The state key depends on the query: results of another role are not mixed in."""
     raw = repr((q.keywords, q.region, q.level, q.company)).encode()
     return f"jobs_{key}_{hashlib.sha1(raw).hexdigest()[:10]}"
 
 def safe_url(url: str) -> bool:
-    """Суворо: лише http(s), без пробілів, з хостом і без логіна в адресі."""
+    """Strict: only http(s), no spaces, with a host and no login in the address."""
     if not isinstance(url, str) or not url.startswith(("https://", "http://")) or re.search(r"\s", url):
         return False
     try:
@@ -79,7 +79,7 @@ def safe_url(url: str) -> bool:
 
 
 def plain_label(text: str, limit: int = 90) -> str:
-    """Підпис кнопки: простий текст без розмітки."""
+    """Button label: plain text without markup."""
     return _LABEL_BAD.sub("", _LABEL_URL.sub("", text)).strip()[:limit]
 
 
@@ -110,7 +110,7 @@ def _applied(key: str, vacancy, fit, role: str, region: str) -> None:
     wid = f"applied_{key}_{vacancy.id}"
     sent = st.session_state.setdefault("jobs_applied_sent", set())
     if not st.session_state.get(wid) or wid in sent:
-        return  # зняття галочки й повторні кліки не рахуються
+        return  # unchecking and repeated clicks do not count
     sent.add(wid)
     log_event("job_applied", **_tag_fields(role), region=region, source=vacancy.source, fit=fit.fit if fit else None)
 
@@ -133,11 +133,11 @@ def _vacancy(key: str, i: int, vacancy, fit, role: str, region: str) -> None:
 
 def render_jobs(*, key: str, role: str, keywords: list[str], region: str, level: str, company: str,
                 cv_text: str, gaps: list[str], feedback_language: str) -> None:
-    """Кнопка пошуку і список вакансій зі стану сесії."""
+    """The search button and the list of postings from the session state."""
     kws = _keywords(role, keywords)
     try:
         q = JobQuery(keywords=kws, region=region, level=level, company=company) if kws else None
-    except ValueError:  # вироджені ключові слова (керівні символи)
+    except ValueError:  # degenerate keywords (control characters)
         q = None
         st.caption("No searchable role for this direction yet.")
     if q and st.button("Show live vacancies", key=f"jobs_btn_{key}") and take_limit("jobs"):

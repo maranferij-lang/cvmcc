@@ -1,4 +1,4 @@
-"""Arbeitnow (GET JSON без ключа). Пошук на сервері неточний, тому фільтруємо локально."""
+"""Arbeitnow (GET JSON without a key). Server-side search is imprecise, so we filter locally."""
 from __future__ import annotations
 
 from collections.abc import Mapping

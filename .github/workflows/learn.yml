@@ -14,13 +14,13 @@ on:
         type: boolean
         default: false
 
-# Мінімальні права за замовчуванням; запис дозволено лише в job «pr»
+# Minimal permissions by default; writing is allowed only in the job "pr"
 permissions:
   contents: read
 
 jobs:
   learn:
-    # Лише читання: тут виконується код репозиторію, скрипти й evals
+    # Read-only: the repository code, scripts and evals run here
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -87,7 +87,7 @@ jobs:
           if-no-files-found: error
 
   pr:
-    # Лише запис: код репозиторію тут не виконується, лише розпаковуємо артефакт і відкриваємо PR
+    # Write-only: no repository code runs here, we only unpack the artifact and open the PR
     needs: learn
     runs-on: ubuntu-latest
     permissions:
@@ -103,7 +103,7 @@ jobs:
         id: pr
         uses: peter-evans/create-pull-request@v7
         with:
-          # PAT потрібен, щоб PR запускав tests.yml (GITHUB_TOKEN цього не робить)
+          # A PAT is needed so the PR triggers tests.yml (GITHUB_TOKEN does not do this)
           token: ${{ secrets.LEARN_PR_TOKEN || secrets.GITHUB_TOKEN }}
           branch: "learn/${{ github.run_id }}"
           commit-message: "Weekly lessons from student feedback"

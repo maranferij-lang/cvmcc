@@ -1,4 +1,4 @@
-"""Сторінка «Аналіз CV»: огляд, опитування про досвід, правки, план навчання, готове CV."""
+"""The "CV review" page: overview, experience questionnaire, edits, learning plan, ready CV."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
 from ui.jobs import render_jobs
 
 def plural(n: int, word: str) -> str:
-    """Число з англійським словом: 1 line, 5 lines."""
+    """A number with an English word: 1 line, 5 lines."""
     return f"{n} {word}" if n == 1 else f"{n} {word}s"
 
 
@@ -120,7 +120,7 @@ def all_edits(s):
 
 
 def latest_per_line(edits: list) -> list:
-    """Якщо дві прийняті правки змінюють той самий рядок, лишаємо пізнішу: опитування знає більше фактів."""
+    """If two accepted edits change the same line, we keep the later one: the questionnaire knows more facts."""
     by_line: dict[str, object] = {}
     for e in edits:
         key = " ".join(e.before.lower().split()) or f"new:{id(e)}"
@@ -136,7 +136,7 @@ def edit_sources(s) -> list[str]:
 
 
 def log_accepted_edits(s) -> None:
-    """Один раз на аналіз (і ще раз, якщо змінився вибір): які правки прийнято, а які ні."""
+    """Once per analysis (and again if the selection changed): which edits were accepted and which not."""
     edits = all_edits(s)
     items = [
         {"source": src, "section": e.section, "priority": e.priority, "before": e.before, "after": e.after,
@@ -152,13 +152,13 @@ def log_accepted_edits(s) -> None:
 
 
 def log_export(s, fmt: str) -> None:
-    """Вибір правок і подія експорту одним викликом для on_click."""
+    """Selecting edits and the export event in one call for on_click."""
     log_accepted_edits(s)
     log_event("export", analysis_id=s.analysis_id, format=fmt)
 
 
 def log_analysis(s, run: AnalysisRun, *, program: str, region: str, level: str, clarity: str, variant: str) -> None:
-    """Події після успішного розбору: результат, а за повторного розбору тієї ж цілі ще й динаміка."""
+    """Events after a successful review: the result, and on a repeated review of the same goal also the dynamics."""
     a, role = s.analysis, s.profile.target_role
     previous = s.get("last_analysis")
     same = bool(previous) and previous["role"] == role
@@ -180,10 +180,10 @@ def log_analysis(s, run: AnalysisRun, *, program: str, region: str, level: str, 
     s["last_analysis"] = {"analysis_id": s.analysis_id, "role": role, "score": a.overall_score}
 
 
-# ---------- Шапка ----------
+# ---------- Header ----------
 require_login("CV review")
 s = state()
-# Значення з профілю підставляються в форму один раз за сесію.
+# Values from the profile are put into the form once per session.
 if not s.get("analyze_defaults_set"):
     s["analyze_defaults_set"] = True
     if profile_value("program") in PROGRAMS:
@@ -191,11 +191,11 @@ if not s.get("analyze_defaults_set"):
     if profile_value("status") in STATUSES:
         s["analyze_status"] = profile_value("status")
     s["analyze_background"] = profile_value("background", "")
-# Перехід зі сторінки «Куди податись»: підставляємо обраний напрям у форму.
+# Transition from the "Where to apply" page: we put the chosen direction into the form.
 if "prefill_role" in st.session_state:
     st.session_state["target_role"] = st.session_state.pop("prefill_role")
     st.session_state["company_type"] = st.session_state.pop("prefill_company")
-    s["open_form"] = True  # нова ціль: показати форму, навіть якщо є старий результат
+    s["open_form"] = True  # a new goal: show the form even if there is an old result
 
 st.title("CV review")
 st.caption("Edits tailored to a specific role, a short Q&A about your experience, and a plan for what to learn.")
@@ -203,8 +203,8 @@ demo_banner()
 if not consent("analyze"):
     st.stop()
 
-# ---------- Онбординг ----------
-# Після аналізу форма згортається, щоб результат був одразу під заголовком.
+# ---------- Onboarding ----------
+# After the analysis the form collapses, so the result is right under the heading.
 form_box = (
     st.expander("Goal and CV: edit and run again", icon=":material/tune:", expanded=s.get("open_form", False))
     if s.analysis is not None else st.container()
@@ -286,7 +286,7 @@ with form_box:
             s.grill, s.grill_result = None, None
             for k in [k for k in st.session_state if str(k).startswith("accept_")]:
                 del st.session_state[k]
-            st.rerun()  # згорнути форму і показати результат зверху
+            st.rerun()  # collapse the form and show the result on top
         except LLMError as e:
             st.error(str(e))
     if not target_role.strip():
@@ -295,7 +295,7 @@ with form_box:
 if s.analysis is None:
     st.stop()
 
-# ---------- Результати ----------
+# ---------- Results ----------
 a = s.analysis
 st.header("Results")
 company = "" if s.profile.company_type == ANY_COMPANY else s.profile.company_type
@@ -356,7 +356,7 @@ with tab_overview:
         st.page_link("views/feedback.py", label="Tell us more", icon=":material/chat:")
 
 def known_facts(s) -> str:
-    """Усе, що юзер сам про себе сказав: CV, онбординг і відповіді в опитуванні."""
+    """Everything the user said about themselves: the CV, onboarding and the questionnaire answers."""
     parts = [s.cv.text, s.profile.background]
     if s.grill:
         parts += [t.answer for t in s.grill.turns]
@@ -429,7 +429,7 @@ with tab_gaps:
 
 with tab_jobs:
     st.caption("Live postings for this goal, ranked by fit to your CV.")
-    # Дошка компанії лише за явним slug; вільний текст company_details сторонім API не передаємо
+    # The company board only by an explicit slug; we do not pass the free text company_details to third-party APIs
     board = st.text_input("Company careers board (optional)", placeholder="E.g.: stripe",
                           max_chars=40, key="analyze_board_slug").strip().lower()
     if board and not re.fullmatch(r"[a-z0-9-]{2,40}", board):
@@ -447,7 +447,7 @@ with tab_grill:
         "Your answers become stronger edits. Nothing is made up, GetCVmax only uses what you say. "
         "You can skip questions and finish at any time."
     )
-    if s.get("grill_error"):  # помилка з попереднього проходу, до st.rerun()
+    if s.get("grill_error"):  # an error from the previous pass, before st.rerun()
         st.error(s.pop("grill_error"))
     if s.grill is None:
         if st.button("Start Q&A", type="primary") and take_limit("grill"):
@@ -480,7 +480,7 @@ with tab_grill:
                 send = c1.form_submit_button("Answer", type="primary")
                 skip = c2.form_submit_button("Skip")
             if send or skip:
-                # Вид питання беремо до того, як просимо наступне.
+                # We take the question kind before asking for the next one.
                 asked_kind = g.turns[-1].kind
                 log_event("grill_turn", analysis_id=s.analysis_id, kind=asked_kind, answered=not skip)
                 answer(g, "" if skip else reply)
@@ -491,7 +491,7 @@ with tab_grill:
                     s["grill_error"] = str(e)
                 st.rerun()
         elif not g.finished and g.turns and len(g.turns) < g.max_questions and s.grill_result is None:
-            # Наступне питання не прийшло (модель була зайнята): даємо спробувати ще раз.
+            # The next question did not arrive (the model was busy): we let the user try again.
             if st.button("Next question"):
                 try:
                     with st.spinner("Next question..."):

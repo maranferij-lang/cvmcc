@@ -15,7 +15,7 @@ def busy():
 
 
 def make(responses, models=("m1", "m2")):
-    """GeminiLLM із фейковим клієнтом, що віддає відповіді по черзі."""
+    """GeminiLLM with a fake client that returns answers in turn."""
     calls = []
 
     def generate_content(model, contents, config):
@@ -84,11 +84,11 @@ def daily_quota():
 def test_daily_quota_model_is_skipped_until_reset(monkeypatch):
     g, calls = make([daily_quota(), OK, OK])
     assert ask(g) == OK and calls == ["m1", "m2"]
-    assert ask(g) == OK and calls == ["m1", "m2", "m2"]  # m1 більше не пробуємо сьогодні
+    assert ask(g) == OK and calls == ["m1", "m2", "m2"]  # we no longer try m1 today
     monkeypatch.setattr(llm_mod, "_pacific_day", lambda: "2099-01-01")
     g2, calls2 = make([OK])
     llm_mod._EXHAUSTED["m1"] = "2000-01-01"
-    assert ask(g2) == OK and calls2 == ["m1"]  # новий день, модель знову доступна
+    assert ask(g2) == OK and calls2 == ["m1"]  # a new day, the model is available again
 
 
 def test_light_tasks_use_light_chain():

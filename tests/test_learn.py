@@ -1,4 +1,4 @@
-"""Тести тижневої рефлексії: статистика, очищення, відповідь моделі, рендер, відкат і CLI."""
+"""Tests of the weekly reflection: statistics, cleaning, the model response, rendering, rollback and the CLI."""
 from __future__ import annotations
 
 import json
@@ -36,7 +36,7 @@ def synthetic_export():
             edit("software_engineering", "projects", "high", False),
         ],
         "feedback": [],
-        "events": [  # від нових до старих
+        "events": [  # from newest to oldest
             ev("analysis_rated", "2026-01-05T10:00", analysis_id="a2", rating=0),
             ev("analysis_rated", "2026-01-04T10:00", analysis_id="a1", rating=1),
             ev("analysis_done", "2026-01-03T10:00", analysis_id="a2", variant="v2", program="law",
@@ -63,7 +63,7 @@ def test_summarise_counts_and_rates():
     assert s["rescan"] == {"n": 2, "mean": 8.0}
     assert s["grill"] == {"answered": 1, "skipped": 1}
     assert s["outcomes"] == {"yes": 1, "no": 0, "not_yet": 1}
-    assert s["signals"] == {"law": 5, "software_engineering": 1}  # 3 правки + 2 оцінки
+    assert s["signals"] == {"law": 5, "software_engineering": 1}  # 3 edits + 2 ratings
 
 
 def test_sample_edits_skips_placeholders_and_empty():
@@ -115,7 +115,7 @@ def good_report(variant=None):
 def test_reflect_drops_contact_examples_and_scrubs():
     llm = FakeLLM(good_report(variant="Use plain steps. " * 40))
     rep = R.reflect(llm, "law", {"signals": 3}, [{"section": "s", "priority": "p", "before": "b", "after": "a@b.com"}], [])
-    assert rep.good_examples == []  # реальні рядки CV не йдуть у файли уроків
+    assert rep.good_examples == []  # real CV lines do not go into lesson files
     assert "@" not in rep.summary
     assert len(rep.patterns_to_avoid) == R.MAX_PATTERNS
     assert rep.proposed_variant is not None
@@ -150,7 +150,7 @@ def test_revert_if_worse():
     assert R.revert_if_worse(_versions(0.8, 0.6, n=10))[0] is False
     assert R.revert_if_worse({"lessons_order": ["k1"], "thumbs_by_lessons": {}})[0] is False
     assert R.revert_if_worse(_versions(0.8, 0.6), "k2")[0] is True
-    assert R.revert_if_worse(_versions(0.8, 0.6), "k3")[0] is False  # застаріла пара після відкату
+    assert R.revert_if_worse(_versions(0.8, 0.6), "k3")[0] is False  # a stale pair after a rollback
 
 
 def test_render_learned_has_no_cv_text():
@@ -190,7 +190,7 @@ def seeded_db():
                                       "knowledge_version": "k1"}})
         db.events.append({"user_key": "u", "kind": "analysis_rated", "created_at": now - timedelta(hours=i),
                           "payload": {"analysis_id": aid, "rating": i % 2}})
-    db.learning_export = lambda days=30: {  # MemoryDB не зберігає правки, тож підміняємо
+    db.learning_export = lambda days=30: {  # MemoryDB does not store edits, so we substitute them
         **MemoryDB.learning_export(db, days),
         "edit_feedback": [edit("law", "experience", "high", i % 2 == 0, after=f"Did thing {i}") for i in range(15)],
         "breadth": {"law": {"users": 12, "analyses": 25}},
@@ -254,7 +254,7 @@ def test_make_payload_drops_free_text_role():
 
 
 def test_make_payload_accepts_kind_field():
-    """Поле kind у grill_turn не конфліктує з позиційним параметром."""
+    """The kind field in grill_turn does not conflict with the positional parameter."""
     from cvmax.learning.events import GRILL_TURN, make_payload
     p = make_payload(GRILL_TURN, analysis_id="a", kind="numbers", answered=True)
     assert p == {"analysis_id": "a", "kind": "numbers", "answered": True}
@@ -262,7 +262,7 @@ def test_make_payload_accepts_kind_field():
 
 def test_cli_skips_program_without_breadth(cli):
     run, dirs, variants = cli
-    # той самий запуск, але з одним користувачем: уроків немає
+    # the same run, but with one user: no lessons
     import scripts.learn as L
     orig = L.has_breadth
     L.has_breadth = lambda export, program, args: orig({**export, "breadth": {"law": {"users": 1, "analyses": 30}}}, program, args)
@@ -295,7 +295,7 @@ def test_learn_never_deactivates_variants(tmp_path):
     assert [v["active"] for v in data[:4]] == [True, True, True, False]
 
 
-# ---------- G2: словник секцій, суворий фільтр, ліміт варіантів ----------
+# ---------- G2: section vocabulary, strict filter, variant limit ----------
 
 def test_canonical_section():
     assert R.canonical_section("Experience - Deloitte Kyiv") == "experience"
@@ -309,7 +309,7 @@ def test_canonical_section():
 def test_summarise_and_samples_use_canonical_sections():
     export = {"edit_feedback": [edit("law", "Experience - Deloitte Kyiv", "high", True),
                                 edit("law", "Work Experience", "high", False)]}
-    s = R.summarise(export)  # без ключа breadth
+    s = R.summarise(export)  # without the breadth key
     assert list(s["accept_by_section"]["law"]) == ["experience"]
     acc, rej = R.sample_edits(export, "law")
     assert acc[0]["section"] == rej[0]["section"] == "experience"

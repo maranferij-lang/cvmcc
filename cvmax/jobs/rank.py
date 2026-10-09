@@ -1,4 +1,4 @@
-"""LLM-ранжування вакансій за CV: fit 0-100, чому, чого бракує."""
+"""LLM ranking of job postings against the CV: fit 0-100, why, what is missing."""
 from __future__ import annotations
 
 from cvmax import config
@@ -50,7 +50,7 @@ def rank_jobs(
     vacancies: list[Vacancy],
     feedback_language: str,
 ) -> list[tuple[Vacancy, JobFit | None]]:
-    """Повертає пари (вакансія, оцінка), відсортовані за fit; LLMError не перехоплюється."""
+    """Returns (posting, score) pairs sorted by fit; LLMError is not caught."""
     if not vacancies:
         return []
     ranked = ask_structured(

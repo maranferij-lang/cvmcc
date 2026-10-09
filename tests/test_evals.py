@@ -1,4 +1,4 @@
-"""Тести evals: check() на синтетичних Analysis, compare_to_baseline, шлях через analyze_full і прапорець --raw."""
+"""Evals tests: check() on synthetic Analysis objects, compare_to_baseline, the analyze_full path and the --raw flag."""
 
 from __future__ import annotations
 

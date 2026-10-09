@@ -1,9 +1,9 @@
-"""Окремий процес для читання CV.
+"""A separate process for reading the CV.
 
-PDF і DOCX можуть бути «бомбами»: маленький файл, який при розборі з'їдає гігабайти пам'яті й хвилини CPU.
-Тому розбір іде в дочірньому процесі з лімітом пам'яті й часу, і зависання не кладе весь сайт.
-Запуск: python -m cvmax.parse_worker pdf|docx < файл  ->  JSON {"text": ..., "pages": ...} у stdout.
-Для PDF є ще "images": кількість вбудованих зображень (для DOCX цього поля немає).
+PDF and DOCX files can be "bombs": a small file that eats gigabytes of memory and minutes of CPU when parsed.
+So parsing runs in a child process with a memory and time limit, and a hang does not take down the whole site.
+Run: python -m cvmax.parse_worker pdf|docx < file  ->  JSON {"text": ..., "pages": ...} on stdout.
+For PDF there is also "images": the number of embedded images (DOCX has no such field).
 """
 
 from __future__ import annotations
@@ -20,10 +20,10 @@ MAX_CPU_SECONDS = 8
 
 
 def limit_resources() -> None:
-    """Процес сам обмежує собі пам'ять і CPU. Батьківський процес ще й зупиняє його за таймаутом."""
+    """The process limits its own memory and CPU. The parent process also stops it on a timeout."""
     try:
         import resource
-    except ImportError:  # Windows: лишається тільки таймаут
+    except ImportError:  # Windows: only the timeout remains
         return
     resource.setrlimit(resource.RLIMIT_AS, (MAX_MEMORY_BYTES, MAX_MEMORY_BYTES))
     resource.setrlimit(resource.RLIMIT_CPU, (MAX_CPU_SECONDS, MAX_CPU_SECONDS))
@@ -130,7 +130,7 @@ def docx_text(data: bytes) -> dict:
 
     doc = Document(io.BytesIO(data))
     lines = [p.text for p in doc.paragraphs]
-    # Багато шаблонів CV тримають текст у таблицях.
+    # Many CV templates keep text in tables.
     for table in doc.tables:
         for row in table.rows:
             cells = [c.text.strip() for c in row.cells if c.text.strip()]
@@ -147,7 +147,7 @@ def main() -> int:
         result = pdf_text(data, max_pages) if kind == "pdf" else docx_text(data)
     except MemoryError:
         result = {"error": "too_big"}
-    except Exception:  # битий файл: деталі не потрібні, юзер побачить загальне повідомлення
+    except Exception:  # a broken file: details are not needed, the user will see a general message
         result = {"error": "broken"}
     sys.stdout.write(json.dumps(result))
     return 0

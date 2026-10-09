@@ -1,7 +1,7 @@
-"""Виклик моделі: один запит, структурована відповідь за pydantic-схемою.
+"""Model call: one request, a structured response following a pydantic schema.
 
-Підтримуються два провайдери: Gemini і Claude. Решта коду про це не знає:
-вона передає CV і текст у форматі блоків і отримує готовий pydantic-об'єкт.
+Two providers are supported: Gemini and Claude. The rest of the code does not know about this:
+it passes the CV and the text as blocks and gets a ready pydantic object.
 """
 
 from __future__ import annotations
@@ -19,26 +19,26 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class LLMError(RuntimeError):
-    """Помилка, яку можна показати юзеру зрозумілим текстом."""
+    """An error that can be shown to the user as understandable text."""
 
 
 # ---------------- Gemini ----------------
 
 _GEMINI_THINKING = {"low": "low", "medium": "medium", "high": "high", "xhigh": "high", "max": "high"}
-# Коди, за яких є сенс спробувати наступну модель.
+# Codes for which it makes sense to try the next model.
 _GEMINI_TRY_NEXT = {429, 500, 503, 504}
 RETRY_PAUSE_SECONDS = 5
 
 
 def _pacific_day() -> str:
-    """Денні ліміти Gemini скидаються опівночі за тихоокеанським часом."""
+    """Gemini daily limits reset at midnight Pacific time."""
     from datetime import datetime
     from zoneinfo import ZoneInfo
 
     return datetime.now(ZoneInfo("America/Los_Angeles")).date().isoformat()
 
 
-# Моделі, які сьогодні вже вичерпали денний ліміт: не витрачаємо на них час до скидання.
+# Models that have already used up their daily limit today: we do not waste time on them until the reset.
 _EXHAUSTED: dict[str, str] = {}
 
 
@@ -59,7 +59,7 @@ class GeminiLLM:
         from google import genai
         from google.genai import types
 
-        # Власні повтори SDK вимкнено: ми самі переходимо на іншу модель, так швидше.
+        # The SDK's own retries are turned off: we switch to another model ourselves, which is faster.
         http = types.HttpOptions(retry_options=types.HttpRetryOptions(attempts=1), timeout=180_000)
         self.client = genai.Client(api_key=api_key, http_options=http) if api_key else genai.Client(http_options=http)
         self.models = models or config.GEMINI_MODELS_HEAVY
@@ -100,7 +100,7 @@ class GeminiLLM:
         )
         parts = self._parts(content)
         last_error: Exception | None = None
-        # Безплатні моделі Gemini часто перевантажені. Два кола по всіх моделях із паузою між ними.
+        # Free Gemini models are often overloaded. Two rounds over all models with a pause between them.
         for round_no in range(2):
             if round_no:
                 time.sleep(RETRY_PAUSE_SECONDS)
@@ -117,7 +117,7 @@ class GeminiLLM:
         raise LLMError("The free AI models are overloaded right now. Try again in a minute.") from last_error
 
     def _try_models(self, models: list[str], parts: list[Any], cfg: Any, output_model: Type[T]) -> T | Exception:
-        """Повертає відповідь, або останню тимчасову помилку, якщо всі моделі зайняті."""
+        """Returns the response, or the last temporary error if all models are busy."""
         from google.genai import errors
 
         last_error: Exception = LLMError("no models configured")
@@ -133,7 +133,7 @@ class GeminiLLM:
                 if e.code in (401, 403) or "API key" in str(e):
                     raise LLMError("Invalid Gemini key. Check GEMINI_API_KEY.") from e
                 raise LLMError(f"Gemini rejected the request ({e.code}): {e.message}") from e
-            except Exception as e:  # мережа
+            except Exception as e:  # network
                 raise LLMError("Cannot reach the Gemini API. Try again in a minute.") from e
 
             parsed = response.parsed
@@ -204,11 +204,11 @@ class ClaudeLLM:
         return response.parsed_output
 
 
-# ---------------- Вибір провайдера ----------------
+# ---------------- Provider selection ----------------
 
 
 def make_llm(gemini_key: str | None = None, anthropic_key: str | None = None) -> GeminiLLM | ClaudeLLM | None:
-    """Повертає клієнт потрібного провайдера або None, якщо ключів немає (демо-режим)."""
+    """Returns the client of the needed provider, or None if there are no keys (demo mode)."""
     gemini_key = gemini_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
     anthropic_key = anthropic_key or os.environ.get("ANTHROPIC_API_KEY")
     choice = config.PROVIDER
@@ -223,15 +223,15 @@ def make_llm(gemini_key: str | None = None, anthropic_key: str | None = None) ->
     return None
 
 
-MAX_REQUEST_CHARS = 200_000  # промпт із рубриками ~15 тис. символів, CV до 40 тис., решта форми до 15 тис.
+MAX_REQUEST_CHARS = 200_000  # prompt with rubrics ~15k characters, CV up to 40k, the rest of the form up to 15k
 
 
 def ask_structured(llm: Any, *, system: str, content: list[dict], output_model: Type[T], effort: str) -> T:
-    """Надсилає один запит і повертає відповідь, перевірену за pydantic-схемою."""
+    """Sends one request and returns a response validated against the pydantic schema."""
     size = len(system) + sum(len(b.get("text", "")) for b in content)
-    if size > MAX_REQUEST_CHARS:  # захист від гігантських запитів в обхід обмежень форми
+    if size > MAX_REQUEST_CHARS:  # protection against giant requests bypassing the form limits
         raise LLMError("The request is too large. Shorten the job posting or your answers and try again.")
     if not hasattr(llm, "ask"):
-        # Сирий клієнт у стилі Anthropic SDK (напр. фейковий клієнт у демо й тестах).
+        # A raw client in the Anthropic SDK style (e.g. the fake client in demo and tests).
         llm = ClaudeLLM(client=llm)
     return llm.ask(system=system, content=content, output_model=output_model, effort=effort)

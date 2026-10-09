@@ -1,5 +1,5 @@
-"""Djinni: RSS-фід (підтверджено лише primary_keyword). Посилання і поля з опису потребують
-перевірки на реальному фіді; елементи без дозволеного посилання відкидаються."""
+"""Djinni: RSS feed (only primary_keyword is confirmed). The link and the fields from the description need
+checking on a real feed; items without an allowed link are dropped."""
 from __future__ import annotations
 
 import re

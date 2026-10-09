@@ -1,4 +1,4 @@
-"""Спільна основа провайдерів: протокол, розбір RSS/JSON/дат, allowlist доменів."""
+"""Common base of the providers: protocol, RSS/JSON/date parsing, domain allowlist."""
 from __future__ import annotations
 
 import html
@@ -15,7 +15,7 @@ from defusedxml import ElementTree as SafeET
 from cvmax.jobs.models import JobQuery, Vacancy
 from cvmax.profile import REGIONS
 
-# Регіони: точні рядки з cvmax.profile.REGIONS.
+# Regions: exact strings from cvmax.profile.REGIONS.
 US = "US / Canada"
 UK = "UK"
 EU = "EU"
@@ -26,11 +26,11 @@ for _r in (US, UK, EU, UA, REMOTE):
 ALL_REGIONS = frozenset(REGIONS)
 
 SNIPPET_LEN = 400
-# Обмежені шаблони: без квадратичного відкату на «<script » чи «<» без закриття.
+# Bounded patterns: no quadratic backtracking on "<script " or an unclosed "<".
 _TAG = re.compile(r"<[^<>]*>")
 _SKIP_BLOCKS = re.compile(
     r"<(script|style)\b[^<]{0,5000}(?:<(?!/\1)[^<]{0,5000}){0,50}</\1\s*>", re.I)
-_MAX_HTML = 20000  # вхід обрізається до будь-яких regex
+_MAX_HTML = 20000  # the input is truncated before any regex
 _BAD_URL_CHARS = re.compile(r"[\s\\\x00-\x1f\x7f]")
 
 
@@ -49,7 +49,7 @@ class Provider(Protocol):
 
 
 class BaseProvider:
-    """Типові значення: за замовчуванням провайдер є лише посиланням на пошук."""
+    """Default values: by default a provider is only a search link."""
 
     name = ""
     kind = "deeplink"
@@ -69,7 +69,7 @@ class BaseProvider:
 
 def requests_for(provider: Any, q: JobQuery,
                  env: Mapping[str, str]) -> list[tuple[str, Any]]:
-    """Список (url, json_body | None): build_requests, якщо є, інакше GET-адреси."""
+    """A list of (url, json_body | None): build_requests if present, otherwise GET addresses."""
     builder = getattr(provider, "build_requests", None)
     if builder is not None:
         return list(builder(q, env))
@@ -84,22 +84,22 @@ def has_needs(provider: Any, env: Mapping[str, str]) -> bool:
     return all(env_value(env, n) for n in provider.needs)
 
 
-# ---------- текст і ключові слова ----------
+# ---------- text and keywords ----------
 
 def quote_kw(s: str) -> str:
-    """Очищене ключове слово для query-рядка."""
+    """A cleaned keyword for the query string."""
     return quote_plus(" ".join(str(s).split()))
 
 
 def clean_html(s: Any, limit: int | None = SNIPPET_LEN) -> str:
-    """HTML -> простий текст. Прибирає теги (і двічі екрановані), розкодовує сутності."""
+    """HTML -> plain text. Removes tags (including doubly escaped ones), decodes entities."""
     if not isinstance(s, str):
         return ""
     s = s[:_MAX_HTML]
     text = _SKIP_BLOCKS.sub(" ", s)
     text = _TAG.sub(" ", text)
     text = html.unescape(text)
-    text = _SKIP_BLOCKS.sub(" ", text)  # Greenhouse віддає екранований HTML
+    text = _SKIP_BLOCKS.sub(" ", text)  # Greenhouse returns escaped HTML
     text = _TAG.sub(" ", text)
     text = " ".join(text.split())
     if limit is not None and len(text) > limit:
@@ -116,7 +116,7 @@ def as_str(value: Any) -> str:
 
 
 def matches_query(q: JobQuery, *texts: str) -> bool:
-    """True, якщо для якогось ключового слова всі його слова є в тексті."""
+    """True if for some keyword all its words are in the text."""
     hay = " ".join(texts).lower()
     for kw in q.keywords:
         words = [w for w in kw.lower().split() if len(w) >= 2]
@@ -126,15 +126,15 @@ def matches_query(q: JobQuery, *texts: str) -> bool:
 
 
 def company_slug(q: JobQuery) -> str | None:
-    """Slug компанії для Greenhouse/Lever; None, якщо порожній чи недозволений."""
+    """A company slug for Greenhouse/Lever; None if empty or not allowed."""
     slug = "".join(q.company.lower().split())
     return slug if re.fullmatch(r"[a-z0-9-]{2,40}", slug) else None
 
 
-# ---------- дати ----------
+# ---------- dates ----------
 
 def parse_date(value: Any) -> str | None:
-    """RFC 2822, ISO 8601, YYYY-MM-DD або unix-час -> YYYY-MM-DD."""
+    """RFC 2822, ISO 8601, YYYY-MM-DD or unix time -> YYYY-MM-DD."""
     if value is None or isinstance(value, bool):
         return None
     if isinstance(value, (int, float)):
@@ -160,7 +160,7 @@ def parse_date(value: Any) -> str | None:
 
 
 def _from_timestamp(ts: float) -> str | None:
-    if ts > 1e11:  # мілісекунди
+    if ts > 1e11:  # milliseconds
         ts /= 1000
     try:
         return datetime.fromtimestamp(ts, tz=timezone.utc).date().isoformat()
@@ -171,7 +171,7 @@ def _from_timestamp(ts: float) -> str | None:
 # ---------- URL allowlist ----------
 
 def url_host(url: Any) -> str | None:
-    """Хост для http(s)-адреси без userinfo/пробілів/нестандартного порту, інакше None."""
+    """The host for an http(s) address without userinfo/spaces/a non-standard port, otherwise None."""
     if not isinstance(url, str) or not url or len(url) > 2000:
         return None
     if _BAD_URL_CHARS.search(url):
@@ -191,7 +191,7 @@ def url_host(url: Any) -> str | None:
 
 
 def http_url_ok(url: Any) -> bool:
-    """Будь-який безпечний http(s)-хост (лише для агрегаторів на кшталт Jooble)."""
+    """Any safe http(s) host (only for aggregators like Jooble)."""
     return url_host(url) is not None
 
 
@@ -208,7 +208,7 @@ def make_vacancy(*, url: Any, title: Any, company: Any = "", location: Any = "",
                  snippet: Any = "", remote: bool | None = None,
                  tags: Any = (), allow: Callable[[str], bool] | None = None
                  ) -> Vacancy | None:
-    """Збирає Vacancy; None, якщо адреса не проходить allowlist або немає назви."""
+    """Builds a Vacancy; None if the address does not pass the allowlist or there is no title."""
     ok = allow(url) if allow is not None else allowed_url(url, domains)
     if not ok:
         return None
@@ -231,7 +231,7 @@ def make_vacancy(*, url: Any, title: Any, company: Any = "", location: Any = "",
     )
 
 
-# ---------- розбір форматів ----------
+# ---------- parsing formats ----------
 
 def parse_json(body: Any) -> Any | None:
     try:
@@ -241,7 +241,7 @@ def parse_json(body: Any) -> Any | None:
 
 
 def dict_items(obj: Any, key: str | None = None) -> list[dict]:
-    """Список словників з obj (або з obj[key]); усе інше відкидається."""
+    """A list of dicts from obj (or from obj[key]); everything else is dropped."""
     if key is not None:
         obj = obj.get(key) if isinstance(obj, dict) else None
     return [x for x in obj if isinstance(x, dict)] if isinstance(obj, list) else []
@@ -256,7 +256,7 @@ def _text(el: Any) -> str:
 
 
 def parse_rss(body: bytes) -> list[dict]:
-    """RSS 2.0 <item> або Atom <entry> -> dict(title, link, description, pubDate, guid)."""
+    """RSS 2.0 <item> or Atom <entry> -> dict(title, link, description, pubDate, guid)."""
     try:
         root = SafeET.fromstring(body, forbid_dtd=True)
     except Exception:

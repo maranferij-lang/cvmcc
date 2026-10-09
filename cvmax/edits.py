@@ -1,4 +1,4 @@
-"""Застосування прийнятих правок «було / стало» до тексту CV і експорт."""
+"""Applying accepted "before / after" edits to the CV text, and export."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ class ApplyReport:
 
 
 def _loose_pattern(snippet: str) -> re.Pattern[str]:
-    # Текст із PDF часто має зайві переноси й пробіли, тому шукаємо з гнучкими пропусками.
+    # Text from a PDF often has extra line breaks and spaces, so we search with flexible gaps.
     words = snippet.split()
     return re.compile(r"\s+".join(re.escape(w) for w in words))
 
@@ -31,9 +31,9 @@ def _norm(text: str) -> str:
 
 
 def _fuzzy_span(text: str, snippet: str, threshold: float = 0.9) -> tuple[int, int] | None:
-    """Шукає фрагмент, майже однаковий зі snippet (модель інколи цитує з дрібною помилкою: Build/Built).
+    """Finds a fragment almost identical to snippet (the model sometimes quotes with a small error: Build/Built).
 
-    Порівнюємо snippet з вікнами з 1-6 сусідніх рядків і беремо найсхожіше, якщо схожість не менше threshold.
+    We compare snippet with windows of 1-6 neighboring lines and take the most similar one, if the similarity is at least threshold.
     """
     target = _norm(snippet)
     if len(target) < 20:
@@ -81,7 +81,7 @@ def apply_edits(cv_text: str, edits: list[Edit]) -> ApplyReport:
         else:
             report.not_found.append(edit)
 
-    # Прибрані пункти лишають порожні рядки, чистимо їх.
+    # Removed items leave empty lines, we clean them up.
     report.text = re.sub(r"\n{3,}", "\n\n", report.text).strip()
 
     if report.added:
@@ -117,9 +117,9 @@ def text_to_docx(text: str) -> bytes:
     return buf.getvalue()
 
 
-# ---------------- Перевірка вигаданих фактів ----------------
+# ---------------- Check for invented facts ----------------
 
-# Інструменти й технології, які модель найчастіше «дописує» від себе.
+# Tools and technologies that the model most often adds on its own.
 TECH_TERMS = {
     "python", "pandas", "numpy", "scipy", "matplotlib", "seaborn", "plotly", "scikit-learn", "sklearn",
     "pytorch", "tensorflow", "keras", "xgboost", "statsmodels", "beautifulsoup", "selenium", "scrapy",
@@ -130,7 +130,7 @@ TECH_TERMS = {
     "figma", "miro", "canva", "hubspot", "salesforce", "sap", "1c", "crm", "a/b", "etl", "api",
     "javascript", "typescript", "react", "node", "java", "kotlin", "swift", "c++", "c#", "go", "django",
     "flask", "fastapi", "langchain", "llm", "gpt",
-    # маркетинг і продуктова аналітика
+    # marketing and product analytics
     "google analytics", "ga4", "meta business suite", "ads manager", "google ads", "semrush", "ahrefs",
     "mailchimp", "hotjar", "amplitude", "mixpanel", "dbt", "seo", "ppc", "cac", "ltv", "roas", "ctr", "cpc", "cpa",
 }
@@ -144,14 +144,14 @@ def _suspicious(token: str) -> bool:
         return True
     if any(ch.isdigit() for ch in token):
         return True
-    if re.search(r"\.(com|org|io|dev|net|me|ua)\b|/", low):  # посилання: linkedin.com/in/...
+    if re.search(r"\.(com|org|io|dev|net|me|ua)\b|/", low):  # link: linkedin.com/in/...
         return True
     if len(token) >= 2 and token.isupper():  # SQL, VLOOKUP, KPI
         return True
     return any(c.isupper() for c in token[1:]) and any(c.islower() for c in token)  # PostgreSQL, NumPy
 
 
-# Числа, які в CV часто написані словами.
+# Numbers that in a CV are often written as words.
 _NUMBER_WORDS = {
     "half": "50", "quarter": "25", "third": "33", "twice": "2", "double": "2", "triple": "3",
     "one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7",
@@ -159,7 +159,7 @@ _NUMBER_WORDS = {
 }
 
 
-# Українські числівники за основою: «п'ять», «пятьма», «десяти»...
+# Ukrainian numerals by stem: "п'ять" (five), "пятьма" (by five), "десяти" (of ten)...
 _UA_NUMBER_STEMS = {
     "один": "1", "одн": "1", "два": "2", "дві": "2", "двох": "2", "три": "3", "трьох": "3",
     "чотир": "4", "п'ят": "5", "пят": "5", "шіст": "6", "шест": "6", "сім": "7", "сем": "7",
@@ -167,7 +167,7 @@ _UA_NUMBER_STEMS = {
     "тридцят": "30", "сорок": "40", "сто": "100", "тисяч": "1000", "половин": "50",
 }
 
-# Назви платформ, які юзери пишуть кирилицею.
+# Platform names that users write in Cyrillic.
 _ALIASES = {
     "tiktok": ("тік ток", "тікток", "тик ток", "тикток"),
     "instagram": ("інстаграм", "инстаграм", "інста"),
@@ -184,21 +184,21 @@ _ALIASES = {
 
 
 def _known_alias(token: str, known_low: str) -> bool:
-    # Синонім має стояти на початку слова: «ші» в «ШІ-школа» рахується, а в «інші» ні.
+    # A synonym must stand at the start of a word: "ші" in "ШІ-школа" (AI school) counts, but in "інші" (others) it does not.
     return any(re.search(r"(?<![a-zа-яіїєґ])" + re.escape(alias), known_low)
                for alias in _ALIASES.get(token.lower(), ()))
 
 
 def unverified_terms(after: str, known_text: str) -> list[str]:
-    """Назви інструментів і числа з правки, яких немає ні в CV, ні у відповідях юзера.
+    """Tool names and numbers from an edit that are in neither the CV nor the user's answers.
 
-    Це евристика: вона не ловить усе, але підсвічує найчастіші вигадки моделі.
+    This is a heuristic: it does not catch everything, but it highlights the model's most frequent inventions.
     """
-    # Числа порівнюємо за значенням, як верифікатор: «3.8» не збігається з «38», а «20 000» з «20000» збігається.
-    # Імпорт тут, бо verify сам імпортує цей модуль.
+    # Numbers are compared by value, as the verifier does: "3.8" does not match "38", but "20 000" matches "20000".
+    # Imported here because verify itself imports this module.
     from .verify import _NUMBER, _number_set, _readings
 
-    visible = re.sub(r"\[[^\]]*\]", " ", after)  # плейсхолдери в дужках не рахуються
+    visible = re.sub(r"\[[^\]]*\]", " ", after)  # placeholders in brackets do not count
     known_low = known_text.lower()
     known_nums = _number_set(known_text)
     flagged: list[str] = []
@@ -237,9 +237,9 @@ _FACT_NUMBER = re.compile(r"\d[\d.,]*\s?%?")
 
 
 def lost_facts(before: str, after: str) -> list[str]:
-    """Числа з початкового пункту, які зникли в переписаному. Порожній after (видалення) не перевіряємо.
+    """Numbers from the original item that disappeared in the rewritten one. An empty after (deletion) is not checked.
 
-    Сильний пункт тримається на цифрах, і модель іноді губить їх, коли переписує. Юзер має це бачити.
+    A strong item stands on numbers, and the model sometimes loses them when rewriting. The user should see this.
     """
     if not before.strip() or not after.strip():
         return []
@@ -254,9 +254,9 @@ def lost_facts(before: str, after: str) -> list[str]:
 
 
 def changed_action(before: str, after: str) -> tuple[str, str] | None:
-    """Головне дієслово пункту змінилось на інше, якого в оригіналі не було («Produce» -> «Research»).
+    """The main verb of the item changed to another one that was not in the original ("Produce" -> "Research").
 
-    Так модель іноді видає один досвід за інший. Повертає (було, стало) або None.
+    This is how the model sometimes passes off one experience as another. Returns (was, became) or None.
     """
     def first_word(text: str) -> str:
         m = re.match(r"[\s•▪\-–—*]*([A-Za-z]+)", text)
@@ -266,7 +266,7 @@ def changed_action(before: str, after: str) -> tuple[str, str] | None:
     if not old or not new or old[:4].lower() == new[:4].lower():
         return None
     if not old[0].isupper() or not new[0].isupper():
-        return None  # не пункт, що починається з дієслова
+        return None  # not an item that starts with a verb
     if re.search(r"\b" + re.escape(new[:5].lower()), before.lower()):
-        return None  # нове слово вже є в оригіналі
+        return None  # the new word is already in the original
     return old, new

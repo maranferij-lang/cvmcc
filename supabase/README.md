@@ -1,60 +1,60 @@
-# База даних GetCVmax
+# GetCVmax database
 
-Схема вже застосована в проєкті Supabase `cvmax`. Ці файли потрібні, щоб відтворити її в новому проєкті.
+The schema is already applied in the Supabase project `cvmax`. These files are needed to recreate it in a new project.
 
-1. Виконай `schema.sql` у SQL Editor.
-2. Згенеруй випадковий токен, напр. `python -c "import secrets; print('cvmx_' + secrets.token_urlsafe(32))"`.
-3. Збережи в базі тільки його хеш:
+1. Run `schema.sql` in the SQL Editor.
+2. Generate a random token, e.g. `python -c "import secrets; print('cvmx_' + secrets.token_urlsafe(32))"`.
+3. Store only its hash in the database:
    ```sql
    insert into cvmax_private.app_config (id, token_hash)
-   values (1, encode(extensions.digest('ТВІЙ_ТОКЕН', 'sha256'), 'hex'))
+   values (1, encode(extensions.digest('YOUR_TOKEN', 'sha256'), 'hex'))
    on conflict (id) do update set token_hash = excluded.token_hash;
    ```
-4. Сам токен встав у Streamlit Secrets як `CVMAX_DB_TOKEN`.
+4. Put the token itself into Streamlit Secrets as `CVMAX_DB_TOKEN`.
 
-5. Окремий токен для GitHub Actions (область `learning`: лише функції навчання і вакансій, без доступу до
-   збережених CV). Згенеруй інший токен і збережи його хеш:
+5. A separate token for GitHub Actions (scope `learning`: only the learning and jobs functions, with no access to
+   saved CVs). Generate another token and store its hash:
    ```sql
    insert into cvmax_private.app_config (id, scope, token_hash)
-   values (2, 'learning', encode(extensions.digest('ТОКЕН_ДЛЯ_CI', 'sha256'), 'hex'))
+   values (2, 'learning', encode(extensions.digest('TOKEN_FOR_CI', 'sha256'), 'hex'))
    on conflict (scope) do update set token_hash = excluded.token_hash;
    ```
-   Його встав у GitHub Secrets як `CVMAX_LEARN_TOKEN`. `CVMAX_DB_TOKEN` у GitHub не клади.
-   Workflow виконують скрипти в job з правом лише читання; PR відкриває окремий job (див. docs/learning/README.md).
+   Put it into GitHub Secrets as `CVMAX_LEARN_TOKEN`. Do not put `CVMAX_DB_TOKEN` into GitHub.
+   Workflows run the scripts in a job with read-only permission; the PR is opened by a separate job (see docs/learning/README.md).
 
-Щоб змінити токен, повтори кроки 2-4. Старий одразу перестане працювати.
+To change a token, repeat steps 2-4. The old one stops working immediately.
 
-## Оновлення існуючого проєкту: навчання і вакансії
+## Updating an existing project: learning and jobs
 
-Якщо проєкт уже створено раніше, застосуй нову частину схеми. Ці команди ідемпотентні
-(`create ... if not exists` і `create or replace`), тож їх безпечно повторити.
+If the project was created earlier, apply the new part of the schema. These commands are idempotent
+(`create ... if not exists` and `create or replace`), so it is safe to repeat them.
 
-1. Відкрий SQL Editor і виконай весь `schema.sql` повторно: він не містить `drop` і не чіпає токен.
-   Не виконуй лише блок від `-- ===== Learning loops and job links`: функції навчання викликають
-   `cvmax_private.check_token(text, text)`, а крок 5 потребує колонки `app_config.scope`. Обидва
-   визначені на початку файлу, поза цим блоком. Якщо все ж запускаєш частинами, спершу виконай
-   з початку `schema.sql`: `alter table cvmax_private.app_config add column if not exists scope ...`,
+1. Open the SQL Editor and run the whole `schema.sql` again: it contains no `drop` and does not touch the token.
+   Do not run only the block starting from `-- ===== Learning loops and job links`: the learning functions call
+   `cvmax_private.check_token(text, text)`, and step 5 needs the column `app_config.scope`. Both are
+   defined at the beginning of the file, outside this block. If you still run it in parts, first run
+   from the beginning of `schema.sql`: `alter table cvmax_private.app_config add column if not exists scope ...`,
    `drop constraint if exists app_config_id_check`, `create unique index ... app_config_scope_uniq`,
-   обидві `create or replace function cvmax_private.check_token` (з одним і з двома аргументами)
-   та `revoke all on function cvmax_private.check_token(text, text) from public`, і лише потім блок навчання.
-2. Онови `cvmax_delete_my_data`. Її визначення в `schema.sql` тепер також видаляє події
-   (`delete from public.cvmax_events`). Старе визначення в проєкті цього не робить, тому виконай
-   оновлене, якщо не запускаєш файл повністю.
-3. Перевір, що з'явилися таблиці в схемі `public`, з увімкненим RLS і без політик:
-   - `cvmax_events`: події (`kind`, `payload`, `user_key`), без тексту CV;
-   - `cvmax_vacancies`: знімок вакансій (унікальність за `url_hash`);
-   - `cvmax_skill_demand`: навички з вакансій за напрямом і регіоном.
-4. Перевір функції. Усі приймають `p_token` і працюють лише з коректним токеном, тому
-   `CVMAX_DB_TOKEN` у Secrets мусить збігатися з хешем у `cvmax_private.app_config`:
-   - `cvmax_log_event`: записати подію;
-   - `cvmax_variant_stats`: статистика варіантів промпту;
-   - `cvmax_learning_export`: експорт подій для `scripts/learn.py`;
-   - `cvmax_upsert_vacancies`: запис знімка, використовує `scripts/snapshot_jobs.py`;
-   - `cvmax_recent_vacancies`: свіжі вакансії за напрямом і регіоном;
-   - `cvmax_save_skill_demand` і `cvmax_skill_demand`: запис і читання навичок ринку
+   both `create or replace function cvmax_private.check_token` (with one and with two arguments)
+   and `revoke all on function cvmax_private.check_token(text, text) from public`, and only then the learning block.
+2. Update `cvmax_delete_my_data`. Its definition in `schema.sql` now also deletes events
+   (`delete from public.cvmax_events`). The old definition in the project does not do this, so run the
+   updated one if you do not run the whole file.
+3. Check that these tables appeared in the `public` schema, with RLS enabled and no policies:
+   - `cvmax_events`: events (`kind`, `payload`, `user_key`), without CV text;
+   - `cvmax_vacancies`: a snapshot of job postings (unique by `url_hash`);
+   - `cvmax_skill_demand`: skills from job postings by direction and region.
+4. Check the functions. All of them accept `p_token` and work only with a correct token, so
+   `CVMAX_DB_TOKEN` in Secrets must match the hash in `cvmax_private.app_config`:
+   - `cvmax_log_event`: record an event;
+   - `cvmax_variant_stats`: statistics of prompt variants;
+   - `cvmax_learning_export`: export of events for `scripts/learn.py`;
+   - `cvmax_upsert_vacancies`: write a snapshot, used by `scripts/snapshot_jobs.py`;
+   - `cvmax_recent_vacancies`: fresh job postings by direction and region;
+   - `cvmax_save_skill_demand` and `cvmax_skill_demand`: write and read market skills
      (`scripts/learn_market.py`).
-5. Аналітика в SQL Editor. Два приватні вигляди, які не відкриті для застосунку:
-   - `cvmax_private.variant_performance`: успіхи й невдачі варіантів за 90 днів;
-   - `cvmax_private.events_by_day`: кількість подій за днями і видами.
+5. Analytics in the SQL Editor. Two private views that are not exposed to the app:
+   - `cvmax_private.variant_performance`: successes and failures of variants over 90 days;
+   - `cvmax_private.events_by_day`: number of events by day and kind.
 
-   Приклад: `select * from cvmax_private.variant_performance;`
+   Example: `select * from cvmax_private.variant_performance;`

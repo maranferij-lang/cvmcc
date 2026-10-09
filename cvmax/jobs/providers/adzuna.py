@@ -1,4 +1,4 @@
-"""Adzuna API (GET JSON, ключі ADZUNA_APP_ID і ADZUNA_APP_KEY). Україну не покриває."""
+"""Adzuna API (GET JSON, keys ADZUNA_APP_ID and ADZUNA_APP_KEY). Does not cover Ukraine."""
 from __future__ import annotations
 
 import re
@@ -13,7 +13,7 @@ from cvmax.jobs.providers.base import (
 API = "https://api.adzuna.com/v1/api/jobs"
 COUNTRIES = {UK: ["gb"], US: ["us", "ca"], EU: ["de", "pl", "nl"]}
 CURRENCY = {"gb": "£", "us": "$", "ca": "CA$", "de": "€", "nl": "€", "pl": "PLN "}
-# Лише справжні домени Adzuna (а не будь-який зареєстрований adzuna.<tld>).
+# Only real Adzuna domains (not any registered adzuna.<tld>).
 _ADZUNA_DOMAINS = ("adzuna.co.uk", "adzuna.com", "adzuna.com.au", "adzuna.ca", "adzuna.de", "adzuna.pl", "adzuna.nl")
 _CRED = re.compile(r"[A-Za-z0-9_-]{3,64}")
 

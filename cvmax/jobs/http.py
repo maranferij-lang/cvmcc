@@ -1,4 +1,4 @@
-"""Безпечний HTTP-шар: таймаут, ліміт розміру, без редиректів, кеш і паралельність."""
+"""Safe HTTP layer: timeout, size limit, no redirects, cache and parallelism."""
 from __future__ import annotations
 
 import threading
@@ -20,9 +20,9 @@ _cache: OrderedDict[str, tuple[float, bytes]] = OrderedDict()
 _lock = threading.Lock()
 CONNECT_TIMEOUT_S = 3.0
 
-# Спільний пул: потоки ThreadPoolExecutor НЕ daemon (з Python 3.9), тому розмір обмежено
-# config.JOBS_WORKERS, щоб «покинуті» потоки не накопичувались без межі. Кожен потік
-# завершується сам за загальним дедлайном у _read_limited (connect 3 с + read-таймаут).
+# A shared pool: ThreadPoolExecutor threads are NOT daemon (since Python 3.9), so the size is limited by
+# config.JOBS_WORKERS, so "abandoned" threads do not pile up without bound. Each thread
+# finishes by itself on the overall deadline in _read_limited (connect 3 s + read timeout).
 _executor = ThreadPoolExecutor(max_workers=max(1, config.JOBS_WORKERS), thread_name_prefix="jobs-http")
 
 
@@ -38,14 +38,14 @@ def _scheme_ok(url: str) -> bool:
 
 
 def _timeouts(timeout: float, deadline: float) -> tuple[float, float]:
-    """(connect, read) для requests: connect 3 с, read не більше за залишок дедлайну."""
+    """(connect, read) for requests: connect 3 s, read no more than the remaining deadline."""
     remaining = max(0.05, deadline - time.monotonic())
     return (min(CONNECT_TIMEOUT_S, remaining), min(timeout, remaining))
 
 
 def _read_limited(resp: Any, max_bytes: int, timeout: float | None = None,
                   deadline: float | None = None) -> bytes | None:
-    """Читає тіло дрібними шматками; None, якщо статус не 200, тіло завелике або вичерпано загальний дедлайн."""
+    """Reads the body in small chunks; None if the status is not 200, the body is too large or the overall deadline has run out."""
     if deadline is None and timeout is not None:
         deadline = time.monotonic() + timeout
     try:
@@ -54,7 +54,7 @@ def _read_limited(resp: Any, max_bytes: int, timeout: float | None = None,
         chunks: list[bytes] = []
         total = 0
         for chunk in resp.iter_content(chunk_size=4096):
-            # дедлайн перевіряємо після кожного шматка, навіть порожнього (повільний «крапельний» сервер)
+            # we check the deadline after every chunk, even an empty one (a slow "dripping" server)
             if deadline is not None and time.monotonic() > deadline:
                 return None
             if not chunk:
@@ -73,7 +73,7 @@ def _read_limited(resp: Any, max_bytes: int, timeout: float | None = None,
 
 def fetch(url: str, *, timeout: float = 8.0, max_bytes: int = 2_000_000,
           session: Any = None) -> bytes | None:
-    """GET без редиректів. Ніколи не кидає виняток: при будь-якій проблемі повертає None."""
+    """GET without redirects. Never raises an exception: on any problem returns None."""
     if not _scheme_ok(url):
         return None
     try:
@@ -88,7 +88,7 @@ def fetch(url: str, *, timeout: float = 8.0, max_bytes: int = 2_000_000,
 
 def fetch_post(url: str, json_body: Any, *, timeout: float = 8.0,
                max_bytes: int = 2_000_000, session: Any = None) -> bytes | None:
-    """POST з JSON-тілом; ті самі гарантії, що й у fetch."""
+    """POST with a JSON body; the same guarantees as fetch."""
     if not _scheme_ok(url):
         return None
     try:
@@ -108,7 +108,7 @@ def clear_cache() -> None:
 
 def cached_fetch(url: str, ttl: float = 1800, *, timeout: float = 8.0,
                  max_bytes: int = 2_000_000, session: Any = None) -> bytes | None:
-    """fetch із TTL-кешем (до 200 записів). Невдачі не кешуються."""
+    """fetch with a TTL cache (up to 200 entries). Failures are not cached."""
     now = time.monotonic()
     with _lock:
         hit = _cache.get(url)
@@ -132,13 +132,13 @@ def _safe_call(func: Callable[[], bytes | None]) -> bytes | None:
 
 
 def _run_all(tasks: list[Callable[[], bytes | None]]) -> list[bytes | None]:
-    """Виконує задачі у спільному пулі; чекає не довше JOBS_TIMEOUT_S + 1 с, решту покидає."""
+    """Runs tasks in the shared pool; waits no longer than JOBS_TIMEOUT_S + 1 s and abandons the rest."""
     futs = [_executor.submit(_safe_call, t) for t in tasks]
     wait(futs, timeout=config.JOBS_TIMEOUT_S + 1)
     out: list[bytes | None] = []
     for f in futs:
         if not f.done():
-            f.cancel()  # скасовується лише те, що ще не стартувало
+            f.cancel()  # only what has not started yet is cancelled
             out.append(None)
         else:
             out.append(None if f.cancelled() else f.result())
@@ -147,9 +147,9 @@ def _run_all(tasks: list[Callable[[], bytes | None]]) -> list[bytes | None]:
 
 def fetch_many(urls: list[str], fetch: Callable[[str], bytes | None] = cached_fetch,
                workers: int = 6) -> dict[str, bytes | None]:
-    """Паралельно завантажує унікальні адреси; результат: url -> тіло або None.
+    """Downloads unique addresses in parallel; result: url -> body or None.
 
-    `workers` збережено для сумісності: паралельність обмежує спільний пул (JOBS_WORKERS)."""
+    `workers` is kept for compatibility: parallelism is limited by the shared pool (JOBS_WORKERS)."""
     unique = list(dict.fromkeys(urls))
     if not unique:
         return {}
@@ -158,7 +158,7 @@ def fetch_many(urls: list[str], fetch: Callable[[str], bytes | None] = cached_fe
 
 
 def fetch_requests(reqs: list[tuple[str, Any]], workers: int = 6) -> list[bytes | None]:
-    """Виконує список (url, json_body | None): GET для None, інакше POST. Порядок збережено."""
+    """Runs a list of (url, json_body | None): GET for None, otherwise POST. Order is preserved."""
     if not reqs:
         return []
 

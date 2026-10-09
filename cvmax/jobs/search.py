@@ -1,4 +1,4 @@
-"""Маршрутизація пошуку вакансій: запити до джерел, дедуплікація, фільтр рівня, ранжування."""
+"""Job search routing: requests to sources, deduplication, level filter, ranking."""
 from __future__ import annotations
 
 import os
@@ -28,7 +28,7 @@ class SearchResult:
 
 
 def _has_word(text: str, word: str) -> bool:
-    """Ціле слово, якщо слово складається з літер/цифр; інакше проста підрядкова перевірка."""
+    """A whole word if the word consists of letters/digits; otherwise a simple substring check."""
     low, w = text.lower(), word.lower().strip()
     if not w:
         return False
@@ -63,14 +63,14 @@ def _score(v: Vacancy, q: JobQuery, today: date) -> int:
 
 
 def prerank(vacancies: list[Vacancy], q: JobQuery, *, today: date | None = None) -> list[Vacancy]:
-    """Сортує за збігом слів і свіжістю (стабільно), обрізає до JOBS_MAX_RESULTS."""
+    """Sorts by word match and freshness (stable), truncates to JOBS_MAX_RESULTS."""
     day = today or date.today()
     ranked = sorted(vacancies, key=lambda v: -_score(v, q, day))
     return ranked[: config.JOBS_MAX_RESULTS]
 
 
 def dedupe(vacancies: list[Vacancy]) -> list[Vacancy]:
-    """Спершу за url, потім за title|company; лишається перша (порядок провайдерів важливий)."""
+    """First by url, then by title|company; the first one stays (provider order matters)."""
     urls: set[str] = set()
     keys: set[str] = set()
     out: list[Vacancy] = []
@@ -84,10 +84,10 @@ def dedupe(vacancies: list[Vacancy]) -> list[Vacancy]:
 
 
 def filter_level(vacancies: list[Vacancy], q: JobQuery) -> list[Vacancy]:
-    """Для студентських рівнів прибирає senior-ролі, якщо їх не просили самим запитом."""
+    """For student levels removes senior roles, unless the query itself asked for them."""
     if not q.wants_entry_level or any(SENIOR_RE.search(k) for k in q.keywords):
         return list(vacancies)
-    # Позначки початкового рівня (Junior/Intern/...) мають перевагу над 'manager' тощо.
+    # Entry-level markers (Junior/Intern/...) take precedence over 'manager' and the like.
     return [v for v in vacancies if ENTRY_RE.search(v.title) or not SENIOR_RE.search(v.title)]
 
 
@@ -104,10 +104,10 @@ def search_jobs(
     providers: list | None = None,
     today: date | None = None,
 ) -> SearchResult:
-    """Шукає вакансії паралельно в усіх доступних джерелах. Ніколи не кидає виняток.
+    """Searches for job postings in parallel in all available sources. Never raises an exception.
 
-    fetch_many приймає список (url, json_body | None) і повертає список тіл
-    (bytes | None) у тому самому порядку; за замовчуванням http.fetch_requests.
+    fetch_many takes a list of (url, json_body | None) and returns a list of bodies
+    (bytes | None) in the same order; by default http.fetch_requests.
     """
     result = SearchResult()
     try:

@@ -1,9 +1,9 @@
-# Джерела рубрик
+# Rubric sources
 
-Рубрики в `cvmax/rubrics/` складені на основі публічних порад кар'єрних центрів університетів,
-рекрутерів і практичних гайдів. Приклади пунктів у рубриках вигадані й служать лише зразком стилю.
+The rubrics in `cvmax/rubrics/` are based on public advice from university career centers,
+recruiters and practical guides. The example items in the rubrics are made up and serve only as a style sample.
 
-## Загальні правила
+## General rules
 - Harvard Mignone Center, Guide to Creating a Strong Resume: https://careerservices.fas.harvard.edu/resources/create-a-strong-resume/
 - MIT CAPD, Resumes: https://capd.mit.edu/resources/resumes
 - Columbia Career Education, Resumes & CVs: https://www.careereducation.columbia.edu/topics/resumes-cvs
@@ -17,7 +17,7 @@
 - Life at Google, Create Your Resume for Google: https://www.youtube.com/watch?v=BYUy1yvjHxE
 - Nielsen Norman Group, Effective Resumes for UX Students and Graduates: https://www.nngroup.com/articles/resumes-ux-students-and-graduates
 
-## Економіка й аналітика даних
+## Economics and data analytics
 - Federal Reserve Board, Research Assistants: https://www.federalreserve.gov/careers-research-assistants.htm
 - Yale Tobin Center, predoc posting: https://tobin.yale.edu/opportunities/csap-predoc-quantitative-political-behavior-research
 - NBER/Penn, Predoc 2026: https://www.nber.org/sites/default/files/2026-02/Job%20Announcement%20-%20Predoc%202026.pdf
@@ -25,7 +25,7 @@
 - University of Arizona, Adding Research to Your Resume: https://career.arizona.edu/blog/2023/03/02/tips-for-adding-research-to-your-resume
 - Binghamton University, Research Experience on a Resume: https://careertools.binghamton.edu/resources/how-to-add-research-experience-to-your-resume-or-cv
 
-## Бізнес-економіка, консалтинг, фінанси
+## Business economics, consulting, finance
 - McKinsey, Resume tips (archived): https://web.archive.org/web/20131012024123/https://www.mckinsey.com/careers/join_us/resume_tips
 - BCG Careers, FAQs: https://careers.bcg.com/global/en/work-at-bcg/faqs
 - BCG Switzerland, Application and interviews: https://careers.bcg.com/global/en/locations/switzerland/application-interviews
@@ -34,18 +34,18 @@
 - UChicago Career Advancement, resume guides: https://careeradvancement.uchicago.edu/career-toolkit/resumes-and-cover-letters/resume-and-cover-letter-guides-and-templates
 - Penn, undergraduate resume samples: https://careerservices.upenn.edu/preparing-effective-resumes/undergraduates-student-resume-samples
 
-## Програмна інженерія і штучний інтелект
+## Software engineering and artificial intelligence
 - Business Insider, Google recruiters' internship resume tips: https://www.businessinsider.com/google-internship-resume-tips-advice-recruiters-past-experience-2021-10
 - Jake's Resume template: https://github.com/jakegut/resume
 - BCG X, Advanced Degree candidates: https://careers.bcg.com/global/en/students/advanced-degree
 - Huntr, ML Engineer resume examples: https://huntr.co/resume-examples/machine-learning-engineer
 - UC Berkeley Fung Institute, My first data science resume: https://funginstitute.berkeley.edu/news/my-first-data-science-resume-sample-data-scientist-resume
 
-## Психологія
+## Psychology
 - Tufts Career Center, Applying for a UN job: https://careers.tufts.edu/resources/applying-for-a-un-job-using-inspira
 - Coursera, What Is People Analytics: https://www.coursera.org/articles/people-analytics
 
-## Право
+## Law
 - Yale Law School, Resume Advice & Samples: https://law.yale.edu/student-life/career-development/students/toolkit-student-job-seekers/resume-advice-samples
 - Michigan Law, Writing Legal Resumes: https://events.law.umich.edu/eiw/wp-content/uploads/sites/15/2018/06/Writing-Legal-Resumes.pdf
 - UC Berkeley Law, Legal Resumes: https://www.law.berkeley.edu/careers/resources/legal-resumes

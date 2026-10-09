@@ -1,7 +1,7 @@
-"""Акаунт: вхід через Google, профіль, денні ліміти, збережені результати.
+"""Account: Google sign-in, profile, daily limits, saved results.
 
-Вхід вмикається, коли в Streamlit Secrets є розділ [auth]. Без нього сайт працює анонімно:
-ліміти рахуються на вкладку браузера, а результати не зберігаються.
+Sign-in is turned on when Streamlit Secrets has an [auth] section. Without it the site works anonymously:
+limits are counted per browser tab, and results are not saved.
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ LIMIT_NAMES = {
 
 
 def auth_configured() -> bool:
-    """Вхід через Google налаштовано повністю. Якщо в Secrets лишились заглушки, сайт працює без входу."""
+    """Google sign-in is fully configured. If placeholders remain in Secrets, the site works without sign-in."""
     try:
         auth = st.secrets.get("auth")
         client_id = str(auth["google"]["client_id"]) if auth else ""
@@ -42,7 +42,7 @@ def auth_configured() -> bool:
 
 @st.cache_resource
 def _fallback_db() -> MemoryDB:
-    """Лічильники в пам'яті на випадок, коли Supabase недоступний: ліміти не вимикаються."""
+    """In-memory counters for when Supabase is unavailable: the limits do not switch off."""
     return MemoryDB()
 
 
@@ -55,7 +55,7 @@ def get_db():
 
 
 def is_logged_in() -> bool:
-    """Увійшов через Google і має підтверджений email: без підтвердження не можна бути певним, що email його."""
+    """Signed in through Google and has a verified email: without verification we cannot be sure the email is theirs."""
     if not auth_configured() or not getattr(st.user, "is_logged_in", False):
         return False
     return st.user.get("email_verified") in (True, "true")
@@ -66,7 +66,7 @@ def current_email() -> str | None:
 
 
 def user_row() -> dict | None:
-    """Запис юзера в базі. Створюється при першому вході, кешується на сесію."""
+    """The user's record in the database. Created at the first sign-in, cached for the session."""
     email = current_email()
     if email is None:
         return None
@@ -103,11 +103,11 @@ def profile_value(field: str, default=None):
 
 
 def require_login(page_title: str) -> None:
-    """На сторінках інструментів: якщо вхід увімкнено і юзер не увійшов, показати вхід і зупинитись."""
+    """On the tool pages: if sign-in is on and the user is not signed in, show the sign-in and stop."""
     if not auth_configured() or is_logged_in():
         return
     st.title(page_title)
-    if getattr(st.user, "is_logged_in", False):  # увійшов, але Google не підтвердив email
+    if getattr(st.user, "is_logged_in", False):  # signed in, but Google did not verify the email
         st.warning("Google has not verified this account's email. Sign in with another account.")
         st.button("Sign out", on_click=st.logout)
         st.stop()
@@ -131,7 +131,7 @@ def _user_key() -> str:
 
 
 def take_limit(kind: str) -> bool:
-    """Списує одне використання. Якщо ліміт вичерпано, показує пояснення і повертає False."""
+    """Spends one use. If the limit is used up, shows an explanation and returns False."""
     user_limit, global_limit = config.LIMITS[kind]
     try:
         result = get_db().consume(_user_key(), kind, user_limit, global_limit)
@@ -163,7 +163,7 @@ def save_result(kind: str, title: str, payload: dict) -> None:
 
 
 def log_edit_feedback(analysis_id: str, target_role: str, program: str, items: list[dict]) -> None:
-    """Зберігає, які правки прийнято. Помилка тут не повинна заважати юзеру завантажити CV."""
+    """Saves which edits were accepted. An error here must not stop the user from downloading the CV."""
     if not items or not get_db().persistent:
         return
     try:
@@ -173,7 +173,7 @@ def log_edit_feedback(analysis_id: str, target_role: str, program: str, items: l
 
 
 def send_feedback(page: str, rating: int | None, message: str) -> bool:
-    """Зберігає анонімний відгук. Повертає True, якщо вдалося."""
+    """Saves anonymous feedback. Returns True if it succeeded."""
     if not take_limit("feedback"):
         return False
     try:
@@ -186,7 +186,7 @@ def send_feedback(page: str, rating: int | None, message: str) -> bool:
 
 
 def join_waitlist(email: str, plan: str, source: str | None = None) -> bool:
-    """Записує email у список запуску. Повертає True, якщо вдалося."""
+    """Writes the email to the waitlist. Returns True if it succeeded."""
     if not take_limit("feedback"):
         return False
     try:
@@ -199,24 +199,24 @@ def join_waitlist(email: str, plan: str, source: str | None = None) -> bool:
 
 
 def limit_caption(kind: str) -> None:
-    """Показує денний ліміт заздалегідь, щоб він не був сюрпризом посеред роботи."""
+    """Shows the daily limit in advance, so it is not a surprise in the middle of work."""
     user_limit, _ = config.LIMITS[kind]
     st.caption(f"Free: up to {user_limit} {LIMIT_NAMES.get(kind, 'requests')} a day. Limits reset daily.")
 
 
 
 def log_event(kind: str, /, **fields) -> None:
-    """Пише подію для самонавчання. Ніколи не кидає виняток і нічого не показує юзеру."""
+    """Writes an event for self-learning. Never raises an exception and shows nothing to the user."""
     try:
         payload = make_payload(kind, **fields)
         get_db().log_event(_user_key(), kind, payload)
-    except Exception as e:  # навчання не повинно ламати сторінку
+    except Exception as e:  # learning must not break the page
         log.warning("log_event %s failed: %s", kind, e)
 
 
 @st.cache_data(ttl=600, show_spinner=False)
 def variant_stats_cached(task: str) -> list[dict]:
-    """Статистика варіантів промпту, кеш на 10 хвилин."""
+    """Prompt variant statistics, cached for 10 minutes."""
     try:
         return get_db().variant_stats(task)
     except DBError as e:
@@ -226,7 +226,7 @@ def variant_stats_cached(task: str) -> list[dict]:
 
 @st.cache_data(ttl=600, show_spinner=False)
 def skill_demand_cached(program: str, region: str) -> list[dict]:
-    """Навички, яких просять у вакансіях, кеш на 10 хвилин."""
+    """Skills requested in job postings, cached for 10 minutes."""
     try:
         return get_db().skill_demand(program, region)
     except DBError as e:

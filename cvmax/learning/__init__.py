@@ -1,1 +1,1 @@
-"""Самонавчання GetCVmax: події, бандит над варіантами промпту, версія знань."""
+"""GetCVmax self-learning: events, a bandit over prompt variants, the knowledge version."""

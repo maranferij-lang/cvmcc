@@ -1,4 +1,4 @@
-"""Онбординг після першого входу: знайомство з платформою і короткий профіль."""
+"""Onboarding after the first sign-in: an introduction to the platform and a short profile."""
 
 import html
 

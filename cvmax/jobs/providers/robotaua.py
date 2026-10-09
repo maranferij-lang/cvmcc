@@ -1,4 +1,4 @@
-"""Robota.ua (rabota.ua): публічний API не підтверджено, тому лише посилання на пошук."""
+"""Robota.ua (rabota.ua): a public API is not confirmed, so search link only."""
 from __future__ import annotations
 
 from urllib.parse import quote

@@ -1,4 +1,4 @@
-"""Тести пошуку й ранжування вакансій (без мережі)."""
+"""Tests of job search and ranking (no network)."""
 from __future__ import annotations
 
 from datetime import date

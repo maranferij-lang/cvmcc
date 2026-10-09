@@ -1,4 +1,4 @@
-"""Конструктор: CV з нуля за формою, вільною розповіддю і коротким інтерв'ю."""
+"""Builder: a CV from scratch using a form, a free-form story and a short interview."""
 
 from __future__ import annotations
 
@@ -19,13 +19,13 @@ class BuilderDraft:
     email: str
     phone: str
     city: str
-    links: str  # LinkedIn, GitHub, портфоліо
+    links: str  # LinkedIn, GitHub, portfolio
     program: str
     status: str
     grad_year: str
     gpa: str
     target_role: str
-    notes: str  # вільна розповідь про досвід
+    notes: str  # a free-form story about experience
     feedback_language: str
 
     def to_prompt(self) -> str:

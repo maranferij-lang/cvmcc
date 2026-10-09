@@ -1,4 +1,4 @@
-"""DOU (jobs.dou.ua): публічний RSS-фід вакансій, параметри search, remote, exp."""
+"""DOU (jobs.dou.ua): a public RSS feed of job postings, parameters search, remote, exp."""
 from __future__ import annotations
 
 import re
@@ -17,7 +17,7 @@ _REMOTE_WORDS = ("віддалено", "remote")
 
 
 def split_title(title: str) -> tuple[str, str, str, str | None, bool]:
-    """'Role в Company, $sal, City, віддалено' -> (role, company, location, salary, remote)."""
+    """'Role в Company, $sal, City, віддалено' (в = "at", віддалено = "remote") -> (role, company, location, salary, remote)."""
     head, sep, rest = title.rpartition(" в ")
     role = head.strip() if sep else title.strip()
     parts = [p.strip() for p in rest.split(",") if p.strip()] if sep else []
@@ -47,7 +47,7 @@ class Dou(BaseProvider):
         if q.remote_ok or q.region == REMOTE:
             flags += "&remote"
         if q.wants_entry_level:
-            flags += "&exp=0-1"  # підтверджено дослідженням
+            flags += "&exp=0-1"  # confirmed by research
         return flags
 
     def build_urls(self, q: JobQuery, env: Mapping[str, str]) -> list[str]:
