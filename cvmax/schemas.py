@@ -137,3 +137,18 @@ class EditVerdict(BaseModel):
 
 class EditVerdicts(BaseModel):
     items: List[EditVerdict]
+
+
+class Requirement(BaseModel):
+    text: str  # the requirement as the posting states it, at most 120 characters
+    kind: Literal["must", "nice"]
+    status: Literal["covered", "partial", "missing"]
+    evidence: str  # an exact quote from the CV that covers it; empty when missing
+    action: str  # what to add or change on the CV, in the feedback language; empty when covered
+
+
+class VacancyMatch(BaseModel):
+    role_title: str
+    requirements: List[Requirement]  # at most 15, must-haves first
+    keywords_missing: List[str]  # ATS keywords from the posting that are absent from the CV, at most 10
+    summary: str  # 1-2 sentences in the feedback language

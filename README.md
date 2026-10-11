@@ -79,12 +79,15 @@ This is stated in the consent text and on the "Privacy" page.
 
 ## How to deploy for students
 
-The simplest way is [Streamlit Community Cloud](https://streamlit.io/cloud), which is free.
+The quick option is [Streamlit Community Cloud](https://streamlit.io/cloud), which is free.
 
 1. A GitHub repository that contains `app.py`.
 2. On streamlit.io: New app, choose the repository and the file `app.py`.
 3. In Advanced settings, Secrets, paste the settings from `.streamlit/secrets.toml.example`.
 4. Get the link and send it to students.
+
+Community Cloud has two limits: it cannot use a custom domain (only a `*.streamlit.app` address), and it puts idle apps to sleep after about 12 hours (with roughly a 1 GB memory cap).
+For production (`app.getcvmax.com`, no sleeping) use the Docker image on Railway: the `Dockerfile` in the repo root and the step-by-step guide in [docs/deploy.md](docs/deploy.md). Community Cloud stays as the fallback.
 
 On the free Gemini tier no money is charged, but there is a limit of requests per minute and per day.
 For Claude, set a monthly spending limit on platform.claude.com.

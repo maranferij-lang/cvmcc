@@ -229,6 +229,7 @@ a { color: var(--ink); text-decoration-color: var(--red); }
 .cvx-founder .sig { font-family: var(--f-pen); color: var(--red); font-size: 1.5rem; }
 
 .cvx-plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.cvx-plans.one { grid-template-columns: minmax(0, 560px); }
 .cvx-plan { border: 1.5px solid var(--line); border-radius: 8px; padding: 22px 20px; display: grid; gap: 12px; align-content: start; position: relative; }
 .cvx-plan.hot { border: 2.5px solid var(--red); }
 .cvx-plan .tag { position: absolute; top: -12px; left: 18px; background: var(--red); color: #fff; font-weight: 800; font-size: .78rem; padding: 2px 9px; border-radius: 4px; }

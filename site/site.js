@@ -1,5 +1,6 @@
-// While payments are closed, every price button leads to the launch list.
-// When the app takes payments, set APP_URL and the buttons go straight to checkout.
+// The launch is free. APP_URL is the address of the app (the owner sets it when the app is open to everyone).
+// While it is null, every "Try it free" button leads to the email section ("Get one email when something new ships").
+// When it is set, the buttons open the app and pass the traffic source along.
 var APP_URL = null; // e.g. "https://app.getcvmax.com"
 
 (function () {
@@ -28,16 +29,13 @@ var APP_URL = null; // e.g. "https://app.getcvmax.com"
     try { source = new URL(document.referrer).hostname.replace(/^www\./, '').slice(0, 60); } catch (e) {}
   }
 
-  // Price buttons
-  document.querySelectorAll('a[data-plan]').forEach(function (a) {
-    var plan = a.getAttribute('data-plan');
+  // "Try it free" buttons
+  document.querySelectorAll('a[data-cta]').forEach(function (a) {
     if (APP_URL) {
-      a.href = APP_URL + '/?plan=' + encodeURIComponent(plan) + (source ? '&src=' + encodeURIComponent(source) : '');
+      a.href = APP_URL + (source ? '/?src=' + encodeURIComponent(source) : '/');
       return;
     }
     a.addEventListener('click', function () {
-      var radio = document.getElementById('wl-' + plan);
-      if (radio) radio.checked = true;
       setTimeout(function () {
         var email = document.getElementById('wl-email');
         if (email) email.focus({ preventScroll: true });
@@ -45,7 +43,7 @@ var APP_URL = null; // e.g. "https://app.getcvmax.com"
     });
   });
 
-  // Launch list
+  // Email list: one email when something new ships
   var form = document.getElementById('wl-form');
   if (!form) return;
   var msg = document.getElementById('wl-msg');
@@ -53,7 +51,6 @@ var APP_URL = null; // e.g. "https://app.getcvmax.com"
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var email = form.email.value.trim();
-    var planInput = form.querySelector('input[name=plan]:checked');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       msg.className = 'msg err';
       msg.textContent = 'Check your email address: it looks incomplete.';
@@ -67,14 +64,14 @@ var APP_URL = null; // e.g. "https://app.getcvmax.com"
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: email,
-        plan: planInput ? planInput.value : 'full',
+        plan: 'full', // kept so the database function needs no change
         source: source,
         company: form.company.value
       })
     }).then(function (r) {
       if (!r.ok) throw new Error(String(r.status));
       msg.className = 'msg ok';
-      msg.textContent = "You're on the list. We'll email you when payments open.";
+      msg.textContent = "You're on the list. We'll email you once when something new ships.";
       form.email.value = '';
     }).catch(function () {
       msg.className = 'msg err';

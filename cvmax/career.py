@@ -75,7 +75,7 @@ Rules:
 
 Reference rubric of what employers look for:
 
-{load_rubric(prefs.program)}"""
+{load_rubric(prefs.program, prefs.region)}"""
 
 
 def match_careers(llm: Any, prefs: CareerPrefs, cv: CVFile) -> CareerMatch:

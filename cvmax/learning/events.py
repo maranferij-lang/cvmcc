@@ -12,10 +12,16 @@ RESCAN = "rescan"
 JOBS_SHOWN = "jobs_shown"
 JOB_APPLIED = "job_applied"
 OUTCOME = "outcome"
+MATCH_DONE = "match_done"
+SHARE_CARD = "share_card"
+RESOURCE_CLICKED = "resource_clicked"
+RESOURCE_RATED = "resource_rated"
+RESOURCE_MISSING = "resource_missing"
 
 KINDS = frozenset({
     ANALYSIS_DONE, ANALYSIS_RATED, EDITS_DECIDED, GRILL_TURN, EXPORT,
-    RESCAN, JOBS_SHOWN, JOB_APPLIED, OUTCOME,
+    RESCAN, JOBS_SHOWN, JOB_APPLIED, OUTCOME, MATCH_DONE, SHARE_CARD,
+    RESOURCE_CLICKED, RESOURCE_RATED, RESOURCE_MISSING,
 })
 
 ALLOWED_FIELDS: dict[str, frozenset[str]] = {
@@ -33,6 +39,14 @@ ALLOWED_FIELDS: dict[str, frozenset[str]] = {
     JOBS_SHOWN: frozenset({"role_tag", "region", "n", "sources"}),
     JOB_APPLIED: frozenset({"role_tag", "region", "source", "fit"}),
     OUTCOME: frozenset({"result_id", "analysis_id", "answer"}),
+    # Review against a posting: counts only, never the posting or CV text. source: "form" | "jobs".
+    MATCH_DONE: frozenset({"analysis_id", "score", "must_total", "must_covered", "nice_total", "source"}),
+    # A downloaded share card: before is None when the card shows a single score.
+    SHARE_CARD: frozenset({"analysis_id", "before", "after", "size"}),
+    # Learning resources: catalog ids and skill ids only, never free text from a CV.
+    RESOURCE_CLICKED: frozenset({"skill", "resource_id", "rank"}),
+    RESOURCE_RATED: frozenset({"skill", "resource_id", "rank", "helpful"}),
+    RESOURCE_MISSING: frozenset({"skill"}),
 }
 
 MAX_PAYLOAD_CHARS = 4000

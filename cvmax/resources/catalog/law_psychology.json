@@ -1,0 +1,657 @@
+{
+  "cluster": "law_psychology",
+  "resources": [
+    {
+      "id": "edpb-sme-data-protection-guide",
+      "title": "Data protection guide for small business",
+      "provider": "European Data Protection Board",
+      "url": "https://www.edpb.europa.eu/sme-data-protection-guide/home_en",
+      "kind": "tutorial",
+      "skills": [
+        "gdpr"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A one-page GDPR checklist for a small company covering privacy by design, records of processing and when a DPIA is needed",
+      "why_picked": "The EU regulators' own guide for small businesses, in 21 languages. Covers basics, compliance duties and risk assessment. EU law; general information, not legal advice.",
+      "evidence": [
+        {
+          "claim": "EDPB-hosted SME guide: 'practical guidance and easy-to-use tools' to comply with GDPR, with sections Learn the basics, Be compliant, Assess the risks, Find practical info; site offered in 21 languages",
+          "url": "https://www.edpb.europa.eu/sme-data-protection-guide/home_en",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Be compliant section explains data protection by design and default, records of processing, DPIA, codes of conduct and certification, and links to the GDPR articles on EUR-Lex",
+          "url": "https://www.edpb.europa.eu/sme-data-protection-guide/be-compliant_en",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "ico-guide-to-the-data-protection-principles",
+      "title": "A guide to the data protection principles",
+      "provider": "Information Commissioner's Office (ICO)",
+      "url": "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/data-protection-principles/a-guide-to-the-data-protection-principles/",
+      "kind": "tutorial",
+      "skills": [
+        "gdpr"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A short memo mapping the seven UK GDPR principles to how a small company handles personal data",
+      "why_picked": "UK regulator's guidance on the seven Article 5 principles, revised March 2026 for the Data (Use and Access) Act. UK GDPR, which differs from EU GDPR in places. Not legal advice.",
+      "evidence": [
+        {
+          "claim": "ICO page explains the seven UK GDPR Article 5 principles, each with its own subpage; last updated 23 March 2026 (purpose limitation page revised for the Data (Use and Access) Act); ICO says the guidance is under review",
+          "url": "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/data-protection-principles/a-guide-to-the-data-protection-principles/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "diia-dpo-training-course-uk",
+      "title": "Course for Data Protection Officers (DPO), in Ukrainian",
+      "provider": "Diia.Osvita (Ministry of Digital Transformation of Ukraine)",
+      "url": "https://osvita.diia.gov.ua/courses/data-protection-officer-dpo-training-course",
+      "kind": "video-course",
+      "skills": [
+        "gdpr"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": false,
+      "output": "A one-page note applying GDPR roles (controller, processor) and a record of processing to a sample product",
+      "why_picked": "Ukrainian-language series on GDPR and Ukrainian law: principles, data subject rights, DPIA, transfers, AI. Made with EU4DigitalUA. Free on Diia.Osvita (free sign-in needed). Not legal advice.",
+      "evidence": [
+        {
+          "claim": "Course page: educational series 'prepares DPOs under GDPR and Ukrainian law'; topics include GDPR and EU acts, legal bases, data subject rights, controller/processor roles, ROPA, DPIA, international transfers, AI; created by EU4DigitalUA (EU-funded) with AEPD and the Ombudsman's Office; page lists the first three episodes at 38, 35 and 36 minutes (full programme collapsed); episodes 2 and 3 ask for sign-in; no price shown",
+          "url": "https://osvita.diia.gov.ua/courses/data-protection-officer-dpo-training-course",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Ukraine's Ombudsman announced the DPO series on Diia.Osvita on 12 Jan 2026; topics range from data subject rights to cloud services and AI (no price mentioned)",
+          "url": "https://ombudsman.gov.ua/en/news_details/doluchajtesya-do-novogo-osvitnogo-serialu-na-diyaosvita-kurs-z-pidgotovki-upovnovazhenih-iz-zahistu-personalnih-danih-dpo",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Trade press (18 Dec 2025): Diia.Osvita launched the DPO series, 13 episodes, covering GDPR, Ukrainian legislation and related EU acts; open to all Ukrainians who work with personal data (no price mentioned)",
+          "url": "https://prokadry.com.ua/news/108908-serial-pro-personalni-dani-diia-osvita-zapustyla-novyi-kurs",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Diia.Osvita FAQ (official platform site): 'Доступ до освітніх серіалів є абсолютно безкоштовним для всіх громадян' (access to the educational series is completely free for all citizens) and registration is free; the About page says anyone can study 'безоплатно'. The DPO course is an educational series on this platform; its own page shows no price",
+          "url": "https://osvita.diia.gov.ua/faq",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "unglobalcompact-doing-business-with-integrity",
+      "title": "Doing Business with Integrity",
+      "provider": "UN Global Compact Academy with UNODC",
+      "url": "https://unglobalcompact.org/academy/course-library/doing-business-integrity",
+      "kind": "course",
+      "skills": [
+        "compliance"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "en",
+        "uk"
+      ],
+      "hands_on": true,
+      "output": "A completion certificate and a one-page summary of anti-corruption rules on gifts, conflicts of interest and third-party checks",
+      "why_picked": "UN-backed e-learning of nine scenario sessions: gifts and hospitality, conflicts of interest, bid rigging, whistle-blower protection. Also available in Ukrainian, with a certificate.",
+      "evidence": [
+        {
+          "claim": "Course page: free e-learning, over 60 minutes, self-paced, foundational level, nine interactive scenario sessions; languages include English and Ukrainian; certificate on completion",
+          "url": "https://unglobalcompact.org/academy/course-library/doing-business-integrity",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "UN Global Compact announcement: UNODC and UN Global Compact launch the free e-learning course 'Doing Business with Integrity', nine interactive sessions",
+          "url": "https://acca.unglobalcompact.org/unodc-and-un-global-compact-launch-new-e-learning-course-to-champion-doing-business-with-integrity",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "coursera-penn-what-is-compliance",
+      "title": "What is Compliance?",
+      "provider": "University of Pennsylvania via Coursera",
+      "url": "https://www.coursera.org/learn/what-is-compliance",
+      "kind": "course",
+      "skills": [
+        "compliance"
+      ],
+      "level": "beginner",
+      "cost": "paid",
+      "price_usd": 59,
+      "price_note": "per month with Coursera Plus",
+      "hours": 11,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A short written brief on how compliance supports an organization's financial and reputational goals, plus a Coursera certificate",
+      "why_picked": "Penn intro to compliance from its Regulatory Compliance specialization: four modules, about 11 hours. $59 a month with Coursera Plus, or $399 a year.",
+      "evidence": [
+        {
+          "claim": "Course page: University of Pennsylvania, four modules of about 3, 3, 2 and 3 hours, part of Regulatory Compliance Specialization; no dollar price shown ('Included with Coursera Plus'); FAQ says materials and certificate need the Certificate experience; rating 4.8 from 1,563 reviews",
+          "url": "https://www.coursera.org/learn/what-is-compliance",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Coursera Plus pricing page: $59 per month (cancel anytime; 7-day free trial on the monthly plan) or $399 per year; the page lists individual courses at $49 to $79 per month; this course page shows no dollar price and says the course is included with Coursera Plus",
+          "url": "https://www.coursera.org/courseraplus",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": {
+        "value": 4.8,
+        "scale": 5,
+        "count": 1563,
+        "source_url": "https://www.coursera.org/learn/what-is-compliance",
+        "seen": "2026-10-11"
+      },
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "cornell-law-library-introduction-to-legal-research",
+      "title": "Introduction to Legal Research",
+      "provider": "Cornell University Law Library",
+      "url": "https://guides.library.cornell.edu/legalresearchintro",
+      "kind": "tutorial",
+      "skills": [
+        "legal research"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A research log tracing one US legal question from a secondary source to a statute, a regulation and a case",
+      "why_picked": "Law library guide to the research process with free sources: secondary sources, cases, statutes, regulations, updating case law. US federal and state law only; use it for method, not EU or UK sources.",
+      "evidence": [
+        {
+          "claim": "Cornell Law Library guide 'Introduction to Legal Research': outlines the basic process using freely available online resources; sections How to Start, Secondary Sources, Cases, Statutes, Regulations, Updating Case Law; covers US federal and state law; last updated 24 Feb 2026",
+          "url": "https://guides.library.cornell.edu/legalresearchintro",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "globalex-understanding-eu-legal-materials",
+      "title": "Understanding European Union Legal Materials",
+      "provider": "GlobaLex, NYU School of Law",
+      "url": "https://www.nyulawglobal.org/globalex/European_Union1.html",
+      "kind": "tutorial",
+      "skills": [
+        "legal research"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A source map for one EU law question showing the treaty article, regulation or directive, and court case found in EUR-Lex",
+      "why_picked": "NYU law librarian's guide to finding EU treaties, legislation, case law and reports; names EUR-Lex as the best free source. Published autumn 2025. Introductory, not exhaustive.",
+      "evidence": [
+        {
+          "claim": "GlobaLex (NYU School of Law) guide by Janet Kearney, NYU Law Library; published Sept/Oct 2025; covers EU institutions, treaties, legislation and the Official Journal, case law, official reports; calls EUR-Lex the best free source of official EU legal information; author says it is not comprehensive",
+          "url": "https://www.nyulawglobal.org/globalex/European_Union1.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "EUR-Lex page for the GDPR (Regulation (EU) 2016/679) shows the official text as published in the Official Journal (OJ L 119, 4.5.2016), an example of the primary source the guide teaches you to find",
+          "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2025,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "cornell-lii-introduction-to-basic-legal-citation",
+      "title": "Introduction to Basic Legal Citation",
+      "provider": "Cornell Legal Information Institute (Peter W. Martin)",
+      "url": "https://www.law.cornell.edu/citation/",
+      "kind": "book",
+      "skills": [
+        "legal writing"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 4,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A short legal memo excerpt with cases, statutes and regulations cited correctly in Bluebook or ALWD form",
+      "why_picked": "Covers citing opinions, statutes, agency material and books, with Bluebook, ALWD and state tables. Citation only, not memo or brief drafting. US conventions; PDF and eBook offered on the page.",
+      "evidence": [
+        {
+          "claim": "Cornell LII page by Peter W. Martin (c) 2026: how to cite judicial opinions, constitutions and statutes, agency material, court rules, books and law journal writing, with cross-reference tables for The Bluebook, ALWD and state practices; PDF and eBook downloads; no edition or update date stated; openly readable, no login or price shown",
+          "url": "https://www.law.cornell.edu/citation/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Duke Law's legal writing resources page lists Peter W. Martin's 'Introduction to Basic Legal Citation' (Cornell Law) under citation resources",
+          "url": "https://law.duke.edu/study/legalwriting/resources",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "harvard-contract-law-trust-promise-contract",
+      "title": "Contract Law: From Trust to Promise to Contract",
+      "provider": "Harvard Online (HarvardX on edX), Charles Fried",
+      "url": "https://pll.harvard.edu/course/contractsx-trust-promise-contract",
+      "kind": "course",
+      "skills": [
+        "contract law basics"
+      ],
+      "level": "intermediate",
+      "cost": "free-audit",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 36,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Case notes on offer, acceptance, enforceability and remedies written from the course readings",
+      "why_picked": "Harvard Law professor's 8-week course on formation, enforceability, breach and remedies. Audit for free; the Verified Certificate costs $299. The page names no jurisdiction. Not legal advice.",
+      "evidence": [
+        {
+          "claim": "Harvard Online listing: instructor Charles Fried (Harvard Law School), 8 weeks self-paced at 3 to 6 hours a week, on edX; page says 'Audit for Free' and 'Add a Verified Certificate for $299'; level intermediate; contract law topics; no jurisdiction stated",
+          "url": "https://pll.harvard.edu/course/contractsx-trust-promise-contract",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "usc-libraries-organizing-social-sciences-research-paper",
+      "title": "Organizing Your Social Sciences Research Paper",
+      "provider": "USC Libraries (Robert V. Labaree)",
+      "url": "https://libguides.usc.edu/writingguide",
+      "kind": "tutorial",
+      "skills": [
+        "research methods",
+        "academic writing"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A research-paper outline with a research question, design, methods section and literature search plan",
+      "why_picked": "University library guide to research design, qualitative and quantitative methods, literature review and each section of a paper. Updated October 2026. Social and behavioural sciences focus.",
+      "evidence": [
+        {
+          "claim": "USC Libraries guide by Dr. Robert V. Labaree: research designs, methodology section (qualitative and quantitative), literature review and source evaluation, and writing each paper section through citing sources; page last updated 6 Oct 2026; publicly accessible, no price shown",
+          "url": "https://libguides.usc.edu/writingguide",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "openlearn-carrying-out-research-policy-advocacy",
+      "title": "Carrying out research for policy and advocacy work",
+      "provider": "The Open University (OpenLearn)",
+      "url": "https://www.open.edu/openlearn/society-politics-law/carrying-out-research-policy-and-advocacy-work/content-section-0",
+      "kind": "course",
+      "skills": [
+        "research methods"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A short research plan with questions, methods, ethics note and analysis approach; free OU statement of participation",
+      "why_picked": "Free OU course on research design and ethics, literature reviews, FOI requests, surveys, interviews, documentary research, data analysis and report writing. Eight hours; statement of participation.",
+      "evidence": [
+        {
+          "claim": "OpenLearn course page: 8 hours, Level 2 intermediate, free to start without signing up, free statement of participation with an account; covers research design and ethics, empirical methods, analysing data and writing a report; first published 13 Aug 2024",
+          "url": "https://www.open.edu/openlearn/society-politics-law/carrying-out-research-policy-and-advocacy-work/content-section-0",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2024,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "kent-state-libraries-spss-tutorials",
+      "title": "SPSS Tutorials",
+      "provider": "Kent State University Libraries",
+      "url": "https://libguides.library.kent.edu/SPSS",
+      "kind": "tutorial",
+      "skills": [
+        "spss"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "An SPSS analysis of a sample dataset (descriptives, t tests, ANOVA, chi-square) with the syntax file saved",
+      "why_picked": "SPSS tutorials from a university statistical-consulting service, with sample data and syntax. Made with SPSS 21 and 22 (update for 25 noted in 2018); newer versions differ slightly. SPSS is not free.",
+      "evidence": [
+        {
+          "claim": "Kent State University Libraries Statistical Consulting guide: written and illustrated SPSS tutorials on getting started, working with data, exploring data, chi-square, correlation, t tests and one-way ANOVA; sample dataset in CSV, Excel, SPSS and other formats plus syntax files; page says tutorials were made with SPSS 21 and 22 and 'are being updated for' version 25 (a 2018 note) and other versions may show minor differences; page timestamp 21 Jul 2026",
+          "url": "https://libguides.library.kent.edu/SPSS",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "learning-statistics-with-jamovi",
+      "title": "Learning Statistics with jamovi",
+      "provider": "Open Book Publishers (Navarro and Foxcroft)",
+      "url": "https://www.learnstatswithjamovi.com/",
+      "kind": "book",
+      "skills": [
+        "statistics"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A results write-up from a public dataset (descriptives, t-test, correlation, ANOVA, regression) run in jamovi",
+      "why_picked": "Free beginner text taught to undergraduate psychology students, using jamovi, a free point-and-click statistics program. It does not teach SPSS; the statistics and reporting skills carry over.",
+      "evidence": [
+        {
+          "claim": "Book page: Learning Statistics with jamovi, Navarro and Foxcroft, 2025, Open Book Publishers (DOI 10.11647/OBP.0333), free to read and download, CC BY-SA 4.0, introductory level as taught to undergraduate psychology students; covers descriptives, probability, tests, correlation, regression, ANOVA, factor analysis",
+          "url": "https://www.learnstatswithjamovi.com/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "jamovi project site: 'a free and open statistical spreadsheet, designed to be easy to use and powered by the R statistical language'",
+          "url": "https://www.jamovi.org/about.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2025,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "purdue-owl-general-writing",
+      "title": "Purdue OWL: General Writing",
+      "provider": "Purdue University Writing Lab",
+      "url": "https://owl.purdue.edu/owl/general_writing/index.html",
+      "kind": "tutorial",
+      "skills": [
+        "academic writing"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 6,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A revised academic essay or research paper with a clear thesis, paragraph structure and conciseness edits",
+      "why_picked": "Purdue writing lab handouts on thesis, argument, paragraphs, conciseness, research papers and grammar. Duke Law lists it under grammar and style resources. Follow your own department's style guide.",
+      "evidence": [
+        {
+          "claim": "Purdue OWL General Writing index, by The Writing Lab and The OWL at Purdue University: writing process, academic writing, common assignments, mechanics, grammar, punctuation; openly readable, no login or price shown",
+          "url": "https://owl.purdue.edu/owl/general_writing/index.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Duke Law legal writing resources page lists Purdue OWL among online grammar and style resources",
+          "url": "https://law.duke.edu/study/legalwriting/resources",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "university-of-manchester-academic-phrasebank",
+      "title": "Academic Phrasebank",
+      "provider": "University of Manchester (John Morley)",
+      "url": "https://www.phrasebank.manchester.ac.uk/",
+      "kind": "tutorial",
+      "skills": [
+        "academic writing"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 4,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A rewritten introduction and methods section of a paper using phrases sorted by function (referring, comparing, being cautious)",
+      "why_picked": "Phrases sorted by paper section and by language function, from the University of Manchester. Use it to reword drafts, not to copy. An expanded PDF or Kindle edition is sold separately.",
+      "evidence": [
+        {
+          "claim": "University of Manchester site by John Morley (c) 2023: top menu follows the sections of a research paper (introducing work, referring to sources, describing methods, reporting results, discussing findings, conclusions); left menu lists language functions; openly readable, no login or price shown; a separate enhanced and expanded PDF or Kindle version is offered, price not shown",
+          "url": "https://www.phrasebank.manchester.ac.uk/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "nngroup-ux-research-cheat-sheet",
+      "title": "UX Research Cheat Sheet",
+      "provider": "Nielsen Norman Group",
+      "url": "https://www.nngroup.com/articles/ux-research-cheat-sheet/",
+      "kind": "tutorial",
+      "skills": [
+        "ux research"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A one-page UX research plan that picks methods for each project stage (discover, explore, test, listen)",
+      "why_picked": "Maps research methods to project stages in one article by Susan Farrell, with a free PDF. Published 2017; the page shows no later update date, so treat it as a method overview.",
+      "evidence": [
+        {
+          "claim": "NN/g article by Susan Farrell, published 12 Feb 2017: when to run user research and which methods fit each stage, grouped as Discover, Explore, Test, Listen; full text visible without login, free PDF download offered",
+          "url": "https://www.nngroup.com/articles/ux-research-cheat-sheet/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "nngroup-usability-testing-101",
+      "title": "Usability (User) Testing 101",
+      "provider": "Nielsen Norman Group",
+      "url": "https://www.nngroup.com/articles/usability-testing-101/",
+      "kind": "tutorial",
+      "skills": [
+        "ux research"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A draft usability test plan with tasks, participants, facilitation approach and success measures",
+      "why_picked": "Kate Moran's introduction to usability testing: facilitator, tasks, participants, qualitative versus quantitative, moderated versus unmoderated. Free to read; last reviewed July 2026.",
+      "evidence": [
+        {
+          "claim": "NN/g article by Kate Moran, published 1 Dec 2019, last reviewed 15 Jul 2026: defines usability testing, its core elements and the main test types (qualitative vs quantitative, remote moderated, remote unmoderated, in person); full text visible without signing in",
+          "url": "https://www.nngroup.com/articles/usability-testing-101/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "handbook-of-regression-modeling-in-people-analytics",
+      "title": "Handbook of Regression Modeling in People Analytics",
+      "provider": "Keith McNulty (Chapman & Hall/CRC)",
+      "url": "https://peopleanalytics-regression-book.org/",
+      "kind": "book",
+      "skills": [
+        "people analytics"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A people-analytics notebook in R or Python: a regression on an HR dataset with a plain-language interpretation",
+      "why_picked": "Free online edition of a CRC Press book with R and Python code and datasets for people data. Starts with R basics and statistics foundations, then regression models. Needs some stats comfort.",
+      "evidence": [
+        {
+          "claim": "Book site: 2nd edition, Keith McNulty, Chapman & Hall/CRC Press; online version free to read under CC BY-NC-SA 4.0; 16 chapters from R basics and statistics foundations to linear, logistic and survival models; datasets via the peopleanalyticsdata package for R and Python; last update 26 Sep 2026",
+          "url": "https://peopleanalytics-regression-book.org/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    }
+  ]
+}

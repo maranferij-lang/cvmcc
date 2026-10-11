@@ -29,3 +29,14 @@ Example bullets (style reference only):
 - Represented the university as oralist in the Jessup moot court (national round); team ranked 3rd of 14.
 - Reviewed 60+ supply contracts for GDPR compliance; flagged 11 non-compliant data-transfer clauses.
 - Advised 35 displaced clients on compensation procedures at a legal clinic, under attorney supervision.
+- Drafted 15 procedural documents (claims, motions, appeals) in consumer-credit cases at a university legal
+  clinic under supervision; 6 of 8 decided cases ended in the client's favour.
+- Cite-checked 3 articles (about 90 pages) as associate editor of a student law journal; verified 600+
+  footnotes against primary sources.
+
+## Screening order
+1. First: education and grades, placed at the top (Prospects). UK firms expect a 2:1, achieved or predicted (Freshfields).
+2. Second: legal experience that shows research, writing and analysis: clinics, moots, journals, memos (Yale Law; Berkeley Law; Prospects).
+3. Third: motivation for law and skills from non-legal jobs and activities; "Motivation is key" (Freshfields via TARGETjobs, 2026).
+- US: give class rank or standing where grading curves differ, and never round the GPA (Ole Miss Law).
+- First-pass reject: any spelling or grammar error; "the reason for most of our rejections" (US firm in London via Legal 500; LawCareers.Net, 2026).

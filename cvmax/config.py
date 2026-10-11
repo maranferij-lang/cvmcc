@@ -1,5 +1,6 @@
 """Settings that can be changed through environment variables."""
 
+import logging
 import os
 
 # Which model provider: auto | gemini | claude.
@@ -63,7 +64,45 @@ LIMITS = {
     "export": (5, 30),
     "feedback": (10, 500),
     "jobs": (10, 300),
+    "match": (5, 60),
 }
+
+
+def apply_limit_overrides(limits: dict, raw: str | None) -> list[str]:
+    """Applies `CVMAX_LIMITS` to `limits` in place and returns the entries it ignored.
+
+    Format: `analysis=10:200,jobs=20:600` (per-user:site-wide per day). A side may be `none` for no limit.
+    Kind names are not case sensitive. Unknown kinds, malformed numbers and negative values are ignored, never raised: a typo in a
+    deployment variable must not take the site down.
+    """
+    ignored: list[str] = []
+    for part in (raw or "").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        kind, _, value = part.partition("=")
+        kind = kind.strip().lower()
+        user_s, sep, site_s = value.partition(":")
+        try:
+            if kind not in limits or not sep:
+                raise ValueError(part)
+            parsed = []
+            for side in (user_s, site_s):
+                side = side.strip().lower()
+                number = None if side == "none" else int(side)
+                if number is not None and not 0 <= number <= 1_000_000:
+                    raise ValueError(part)
+                parsed.append(number)
+            limits[kind] = (parsed[0], parsed[1])
+        except ValueError:
+            ignored.append(part[:60])
+    return ignored
+
+
+# Raise limits after enabling paid Gemini, without a code change: CVMAX_LIMITS="analysis=10:300,jobs=20:600".
+_IGNORED_LIMITS = apply_limit_overrides(LIMITS, os.environ.get("CVMAX_LIMITS"))
+for _entry in _IGNORED_LIMITS:  # only the entry text (already cut to 60 characters), nothing else from the environment
+    logging.getLogger("cvmax").warning("Ignored invalid CVMAX_LIMITS entry: %r", _entry)
 
 # Job search: overall timeout of one request to a source, in seconds.
 JOBS_TIMEOUT_S = 8.0

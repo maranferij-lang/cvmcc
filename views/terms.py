@@ -3,7 +3,7 @@
 import streamlit as st
 
 from cvmax import config
-from ui.account import auth_configured
+from ui.account import auth_configured, user_limit_text
 from ui.common import secret
 
 st.title("Terms")
@@ -33,10 +33,12 @@ sections = [
     ("Account and limits",
      ("Sign-in is through Google. " if auth_configured() else "No sign-up needed. ")
      + "To keep the service free, the number of actions per day is limited: "
-     f"{limits['analysis'][0]} CV reviews, {limits['career'][0]} career searches, "
-     f"{limits['grill'][0]} Q&A sessions, {limits['builder'][0]} builder interviews, "
-     f"{limits['build'][0]} CV builds and {limits['export'][0]} PDF exports. "
-     "There is also an overall daily limit for the whole site. Limits reset every day."),
+     f"{user_limit_text('analysis')}, {user_limit_text('career')}, "
+     f"{user_limit_text('grill')}, {user_limit_text('builder')}, "
+     f"{user_limit_text('build')} and {user_limit_text('export')}. "
+     + ("There is also an overall daily limit for the whole site. " if any(v[1] is not None for v in limits.values())
+        else "")
+     + "Limits reset every day."),
     ("Your content",
      "Your CV and answers remain yours. You allow us to process them only to show you results, and to store "
      "the text of edits to improve our advice. You can use your final CV however you like."),

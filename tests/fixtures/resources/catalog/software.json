@@ -1,0 +1,83 @@
+{
+  "cluster": "software",
+  "resources": [
+    {
+      "id": "pycamp-python-intro",
+      "title": "Python for Beginners",
+      "provider": "PyCamp",
+      "url": "https://pycamp-example.org/python-intro",
+      "kind": "course",
+      "skills": [
+        "python"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 25,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Three small Python scripts in a GitHub repo",
+      "why_picked": "Run code in the browser from lesson one; exercises are auto-graded.",
+      "evidence": [
+        {
+          "claim": "Claim 1 seen on the provider page",
+          "url": "https://example.org/review/1",
+          "seen": "2026-10-12"
+        },
+        {
+          "claim": "Claim 2 seen on the provider page",
+          "url": "https://example.org/review/2",
+          "seen": "2026-10-12"
+        }
+      ],
+      "rating": {
+        "value": 4.9,
+        "scale": 5,
+        "count": 9800,
+        "source_url": "https://example.org/ratings",
+        "seen": "2026-10-12"
+      },
+      "updated_year": 2025,
+      "verified_at": "2026-10-12",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "datalab-pandas-audit",
+      "title": "Data Analysis with pandas",
+      "provider": "DataLab University",
+      "url": "https://datalab-example.edu/pandas",
+      "kind": "course",
+      "skills": [
+        "pandas",
+        "python"
+      ],
+      "level": "intermediate",
+      "cost": "free-audit",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 16,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A pandas notebook cleaning and summarising a public dataset",
+      "why_picked": "University course; auditing is free, the graded certificate is optional.",
+      "evidence": [
+        {
+          "claim": "Claim 1 seen on the provider page",
+          "url": "https://example.org/review/1",
+          "seen": "2026-10-12"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2023,
+      "verified_at": "2026-10-12",
+      "verification": "fetched",
+      "status": "active"
+    }
+  ]
+}

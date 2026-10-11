@@ -27,6 +27,7 @@ LIMIT_NAMES = {
     "export": "PDF exports",
     "feedback": "feedback messages",
     "jobs": "job searches",
+    "match": "posting matches",
 }
 
 
@@ -198,10 +199,22 @@ def join_waitlist(email: str, plan: str, source: str | None = None) -> bool:
     return True
 
 
+def user_limit_text(kind: str) -> str:
+    """The per-user daily limit of `kind` in words: "5 CV reviews", or "unlimited CV reviews" when there is
+    no limit (None is never shown to people)."""
+    user_limit = config.LIMITS[kind][0]
+    what = LIMIT_NAMES.get(kind, "requests")
+    return f"unlimited {what}" if user_limit is None else f"{user_limit} {what}"
+
+
 def limit_caption(kind: str) -> None:
     """Shows the daily limit in advance, so it is not a surprise in the middle of work."""
-    user_limit, _ = config.LIMITS[kind]
-    st.caption(f"Free: up to {user_limit} {LIMIT_NAMES.get(kind, 'requests')} a day. Limits reset daily.")
+    user_limit = config.LIMITS[kind][0]
+    what = LIMIT_NAMES.get(kind, "requests")
+    if user_limit is None:
+        st.caption(f"Free: no daily limit on {what} for you. Limits reset daily.")
+    else:
+        st.caption(f"Free: up to {user_limit} {what} a day. Limits reset daily.")
 
 
 

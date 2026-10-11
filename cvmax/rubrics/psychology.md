@@ -30,3 +30,14 @@ Example bullets (style reference only):
 - Coded 42 interview transcripts in NVivo with a second coder (Cohen's kappa 0.82).
 - Co-facilitated 12 group support sessions for displaced teenagers under a licensed psychologist's
   supervision.
+- Programmed a 25-minute attention task in PsychoPy and ran 64 participants; results formed a poster at a
+  national student conference.
+- Analysed a 1,200-response engagement survey in R; found 3 drivers of intent to leave, which HR used to
+  redesign onboarding for 150 new hires.
+
+## Screening order
+1. First: degree, GPA or class. An NHS Scotland assistant-psychologist post requires a 2:1 with BPS GBC eligibility (person specification, 2023); UX reviewers expect the GPA (NN/g).
+2. Second: research methods and tools in use (R, SPSS, Qualtrics, Excel) and reliability; a psychology lab lists these as a plus when hiring RAs (Duke).
+3. Third: paid or voluntary experience with the client group or users: health, social care, education, research (University of Nottingham Careers; NHS Scotland).
+- Industry roles (UX, HR, customer research) read a resume, not an academic CV (NN/g).
+- First-pass reject: an essential criterion not clearly shown; NHS applicants who miss one are "normally eliminated at the short listing stage" (NHS Scotland).

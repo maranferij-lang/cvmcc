@@ -1,6 +1,6 @@
 # GetCVmax launch texts
 
-A link with a channel tag: `getcvmax.com/?ref=<channel>`. Who brought how many is visible in `cvmax_private.waitlist_by_source`.
+The launch is free: no prices, no discounts, no "pay once". A link with a channel tag: `getcvmax.com/?ref=<channel>`. Who brought how many is visible in `cvmax_private.waitlist_by_source`.
 
 ## Post for DOU (forum)
 
@@ -13,24 +13,24 @@ What it does:
 2. Marks every line: keep, cut, rewrite or move, and explains why.
 3. Rewrites for a specific job posting. It does not invent numbers: where there is no number, it puts [N] and asks you.
 4. Asks up to 8 questions that pull out forgotten results.
-5. Tells you what to build up for your dream job: courses, hackathons, certificates with deadlines.
+5. Tells you what to build up for your dream job and points to learning resources that a person checked: free first, no sponsors, no affiliate links.
 6. Returns a ready one-page CV in PDF and DOCX.
 
 Why not ChatGPT: it happily adds numbers that never existed, and you will have to defend them in the interview.
 
 A recruiter looks at a CV for 7.4 seconds on average (Ladders eye-tracking study, 2018). In that time the CV must say the main thing.
 
-There is no free version, and that is deliberate. Scan $5, full review for a job posting $15, a pack of 5 postings $29, you pay once. I am opening payments soon. Whoever joins the list gets the launch price for 72 hours: getcvmax.com/?ref=dou
+It is free while I launch: no payment, no card, up to 5 CV reviews a day per person. Paid options may come later, and I will email you before anything changes. What you made stays yours. Try it: getcvmax.com/?ref=dou
 
 I am waiting for harsh criticism in the comments, especially from those who hire.
 
 ## Post for student Telegram channels
 
-For those applying for internships abroad. GetCVmax reads an English CV like a recruiter in your field: a score out of 100, a verdict on every line, rewriting for a job posting without invented numbers and a list of what to build up for your dream job. You pay once, from $5. Join the list and get the launch price: getcvmax.com/?ref=tg-CHANNELNAME
+For those applying for internships abroad. GetCVmax reads an English CV like a recruiter in your field: a score out of 100, a verdict on every line, rewriting for a job posting without invented numbers and a list of what to build up for your dream job, with learning resources that a person checked. It is free while I launch (5 reviews a day): getcvmax.com/?ref=tg-CHANNELNAME
 
 ## Faceless slideshow (TikTok, Reels, Shorts)
 
-Format: 5 slides, white background, black text, red pen. The CV lines are in English, because the CV is in English. The last slide is always: "Check your CV: getcvmax.com". All lines are made up, we do not show real CVs.
+Format: 5 slides, white background, black text, red pen. The CV lines are in English, because the CV is in English. The last slide is always: "Check your CV free: getcvmax.com". All lines are made up, we do not show real CVs.
 
 1. **"Responsible for"**
    1) This line is in half of student CVs. 2) ~~Responsible for making reports in Excel~~ 3) Built [N] weekly Excel reports on sales for the regional team 4) A recruiter cares what you did and for whom, not what you were responsible for.

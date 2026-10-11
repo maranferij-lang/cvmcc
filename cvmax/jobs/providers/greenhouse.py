@@ -1,11 +1,12 @@
 """Greenhouse Job Board API (GET JSON without a key) for one company (q.company)."""
 from __future__ import annotations
 
+import html
 from collections.abc import Mapping
 
 from cvmax.jobs.models import JobQuery, Vacancy
 from cvmax.jobs.providers.base import (
-    ALL_REGIONS, BaseProvider, as_str, clean_html, company_slug, dict_items, make_vacancy,
+    _MAX_HTML, ALL_REGIONS, BaseProvider, as_str, clean_html, company_slug, dict_items, make_vacancy,
     matches_query, parse_date, parse_json,
 )
 
@@ -40,7 +41,11 @@ class Greenhouse(BaseProvider):
                 company=j.get("company_name") or q.company, location=where,
                 source=self.name, domains=self.domains,
                 posted_at=parse_date(j.get("first_published") or j.get("updated_at")),
+                # Same input as the snippet: the content is escaped twice and needs both passes.
                 snippet=content, remote=remote, tags=depts,
+                # The content is HTML escaped once more: undo that layer (capped first, like every
+                # input) and let the description cleaner keep the line structure.
+                description=html.unescape(as_str(j.get("content"))[:_MAX_HTML]),
             )
             if v:
                 out.append(v)

@@ -1,0 +1,48 @@
+# Keep the image small and free of secrets, private CVs and non-runtime files.
+
+# Version control and environments
+.git
+.gitignore
+.github
+.devcontainer
+.venv
+venv
+.env
+.env.*
+.pytest_cache
+.mypy_cache
+.ruff_cache
+__pycache__
+**/__pycache__
+*.pyc
+
+# Secrets: never copied into the image (use STREAMLIT_SECRETS_TOML or Railway variables)
+.streamlit/secrets.toml
+**/secrets.toml
+secrets*.toml
+*.pem
+*.key
+
+# Not needed at runtime
+tests
+requirements-dev.txt
+CLAUDE.md
+docs
+site
+node_modules
+scripts
+supabase
+
+# Evals: private CVs and run output stay out of the image
+evals/private
+evals/last_*.json
+evals/__pycache__
+
+# Documents and scratch files (real CVs must never be in an image)
+*.pdf
+scratch
+tmp
+*.log
+.DS_Store
+Dockerfile
+.dockerignore

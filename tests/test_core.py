@@ -284,3 +284,92 @@ def test_changed_action_and_already_known_skill():
     a.gaps = [Gap(item="SQL (joins)", why_it_matters="x", how_to_close="Take a course.", time_estimate="3 weeks", impact="high")]
     a = drop_noise(a)
     assert a.gaps[0].how_to_close.startswith("If you already use it")
+
+
+REGION_HEADINGS = {
+    "US / Canada": "## Regional conventions: US",
+    "UK": "## Regional conventions: UK",
+    "EU": "## Regional conventions: EU",
+    "Ukraine / Eastern Europe": "## Regional conventions: Ukraine",
+    "Remote, anywhere": "## Regional conventions: Remote",
+}
+
+
+def _region_files():
+    from cvmax import prompts
+    return sorted((prompts.RUBRICS_DIR / "regions").glob("*.md"))
+
+
+def test_system_prompt_has_the_regional_section_of_each_region():
+    from cvmax.profile import REGIONS
+    from cvmax.prompts import REGION_FILES, load_region
+    assert set(REGION_FILES) == set(REGIONS) == set(REGION_HEADINGS)
+    for region in REGIONS:
+        system = analysis_system(make_profile(region=region))
+        assert "Regional conventions" in system
+        assert system.count("## Regional conventions:") == 1
+        assert load_region(region) in system
+        assert system.count(REGION_HEADINGS[region]) == 1
+        for other in set(REGIONS) - {region}:
+            assert load_region(other) not in system
+
+
+def test_unknown_region_adds_nothing():
+    from cvmax.prompts import load_region
+    assert load_region("Narnia") == "" and load_region("") == ""
+    assert load_rubric("law", "Narnia") == load_rubric("law") == load_rubric("law", "")
+    assert "Regional conventions" not in analysis_system(make_profile(region="Narnia"))
+
+
+def test_regional_section_sits_between_program_rubric_and_learned(monkeypatch, tmp_path):
+    from cvmax import prompts
+    (tmp_path / "regions").mkdir()
+    (tmp_path / "learned").mkdir()
+    (tmp_path / "market").mkdir()
+    (tmp_path / "general.md").write_text("GEN", encoding="utf-8")
+    (tmp_path / "law.md").write_text("PROGRAM-RUBRIC", encoding="utf-8")
+    (tmp_path / "regions" / "uk.md").write_text(
+        "<!-- service header -->\n## Regional conventions: UK\nUK-BODY\n", encoding="utf-8")
+    (tmp_path / "learned" / "law.md").write_text("LEARNED-BODY", encoding="utf-8")
+    (tmp_path / "market" / "law.md").write_text("MARKET-BODY", encoding="utf-8")
+    monkeypatch.setattr(prompts, "RUBRICS_DIR", tmp_path)
+    text = prompts.load_rubric("law", "UK")
+    order = [text.index(s) for s in ("PROGRAM-RUBRIC", "## Regional conventions: UK", "UK-BODY", "LEARNED-BODY", "MARKET-BODY")]
+    assert order == sorted(order)
+    assert "service header" not in text
+    # a missing regional file is skipped quietly
+    assert "Regional" not in prompts.load_rubric("law", "EU")
+
+
+def test_real_system_prompt_orders_program_regional_learned():
+    from cvmax import prompts
+    learned = prompts.RUBRICS_DIR / "learned" / "economics_big_data.md"
+    system = analysis_system(make_profile(region="UK"))
+    program = system.index("Economics and Big Data")
+    regional = system.index("## Regional conventions: UK")
+    assert program < regional
+    if learned.exists() and "## Learned" in system:
+        assert regional < system.index("## Learned")
+
+
+def test_regional_files_are_short_and_have_the_heading():
+    from cvmax.prompts import REGION_FILES
+    files = _region_files()
+    assert {f.stem for f in files} == set(REGION_FILES.values())
+    for f in files:
+        text = f.read_text(encoding="utf-8")
+        assert len(text) <= 1500, f.name
+        assert text.startswith("## Regional conventions:"), f.name
+
+
+def test_regional_file_change_changes_knowledge_version(tmp_path):
+    from cvmax.learning import version
+    (tmp_path / "rubrics" / "regions").mkdir(parents=True)
+    f = tmp_path / "rubrics" / "regions" / "uk.md"
+    f.write_text("## Regional conventions: UK\none", encoding="utf-8")
+    version.knowledge_version.cache_clear()
+    v1 = version.knowledge_version(tmp_path)
+    f.write_text("## Regional conventions: UK\ntwo", encoding="utf-8")
+    version.knowledge_version.cache_clear()
+    assert version.knowledge_version(tmp_path) != v1
+    version.knowledge_version.cache_clear()

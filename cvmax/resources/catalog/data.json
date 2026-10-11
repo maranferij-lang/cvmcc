@@ -1,0 +1,728 @@
+{
+  "cluster": "data",
+  "resources": [
+    {
+      "id": "kaggle-intro-to-sql",
+      "title": "Intro to SQL",
+      "provider": "Kaggle",
+      "url": "https://www.kaggle.com/learn/intro-to-sql",
+      "kind": "course",
+      "skills": [
+        "sql"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A set of BigQuery queries (select, group by, joins) on a public dataset, saved as a Kaggle notebook you can link on your CV",
+      "why_picked": "Six short lessons, each with an in-browser exercise on real BigQuery data: select, group by, order by, aliases and CTEs (As & With), and joins. Kaggle states 3 hours and no cost.",
+      "evidence": [
+        {
+          "claim": "Course page: 'Learn SQL for working with databases, using Google BigQuery'; 6 lessons each with a tutorial and an exercise (Getting Started, Select/From/Where, Group By/Having/Count, Order By, As & With, Joining Data); 'Hours to earn certificate 3 (estimated)'; 'No cost, like all Kaggle Learn Courses'. No update date shown.",
+          "url": "https://www.kaggle.com/learn/intro-to-sql",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "harvard-cs50-databases-with-sql",
+      "title": "CS50's Introduction to Databases with SQL",
+      "provider": "Harvard University (CS50)",
+      "url": "https://cs50.harvard.edu/sql/",
+      "kind": "course",
+      "skills": [
+        "sql"
+      ],
+      "level": "intermediate",
+      "cost": "free-audit",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 32,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A designed and queried relational database (schema, constraints, indexes, queries) as the final project, with the SQL in a GitHub repo",
+      "why_picked": "University course beyond SELECT: schema design, normalization, indexes, views, weekly problem sets, final project. Free to take; the certificate costs money. Harvard lists 3 to 6 hours a week.",
+      "evidence": [
+        {
+          "claim": "Course page: seven weeks (0 to 6) each with a problem set, plus final project; topics CRUD, relationships, normalization, joins, views, indexes, SQLite with PostgreSQL and MySQL; non-Harvard students can take it for free as OpenCourseWare; verified and professional certificates via edX are optional paid extras",
+          "url": "https://cs50.harvard.edu/sql/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Harvard Online course page: 7 weeks, 3-6 hours a week, on demand; learners can audit for free (select course materials, no certificate); a Verified Certificate costs $299",
+          "url": "https://www.harvardonline.harvard.edu/course/cs50s-introduction-databases-sql",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "prometheus-python-for-databases",
+      "title": "Python для баз даних",
+      "provider": "Prometheus (course by Charles Severance, University of Michigan)",
+      "url": "https://prometheus.org.ua/prometheus-free/python-for-databases/",
+      "kind": "course",
+      "skills": [
+        "sql",
+        "python"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 6,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": true,
+      "output": "A small SQLite database built and queried from Python, plus the course certificate; keep the code in your own GitHub repo to show it",
+      "why_picked": "Ukrainian translation of a University of Michigan course: SQL basics, many-to-many tables, SQLite from Python, auto-checked tasks. Prometheus advises taking its first three Python courses first.",
+      "evidence": [
+        {
+          "claim": "Course page: marked 'Безкоштовно', 6 hours of video lectures, available at any time, certificate on completion, auto-checked tasks; translated and voiced by Prometheus from Charles Severance's 'Using Databases with Python' (Creative Commons); topics SQLite3, many-to-many tables, D3.js visualisation, Google Maps API; recommends first taking the three earlier Prometheus Python courses",
+          "url": "https://prometheus.org.ua/prometheus-free/python-for-databases/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "DOU news article (29 Nov 2024) lists the course among five new Prometheus courses (lead calls them free), duration 6 hours, SQL basics and database architecture",
+          "url": "https://dou.ua/lenta/news/new-prometheus-courses-from-global-university/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "microsoft-learn-prepare-and-visualize-data-with-power-bi",
+      "title": "Prepare and visualize data with Microsoft Power BI",
+      "provider": "Microsoft Learn",
+      "url": "https://learn.microsoft.com/en-us/training/paths/prepare-visualize-data-power-bi/",
+      "kind": "course",
+      "skills": [
+        "power bi"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Learn badges and a path trophy on your profile; the labs run in a hosted VM, so for a CV item rebuild the report on your own dataset",
+      "why_picked": "Seven Microsoft modules, about 8 hours: get data, clean in Power Query, semantic model, report design, Copilot, Fabric intro. Some labs run in a hosted VM. Assumes basic data concepts.",
+      "evidence": [
+        {
+          "claim": "Learning path page (ms.date 2025-06-24): 7 modules, Beginner; Get started, Get data, Clean/transform/load, Configure a semantic model, Design reports, Copilot in Power BI, Fabric intro; prerequisite 'familiar with data and analytics concepts'; Microsoft's catalogue lists 492 minutes",
+          "url": "https://learn.microsoft.com/en-us/training/paths/prepare-visualize-data-power-bi/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Module 'Get data in Power BI' (ms.date 2026-06-12) has 'Exercise - Get data in Power BI', about 30 minutes, run in a provided virtual machine (limited concurrent sessions); 'Clean, transform, and load data' has a Power BI Desktop load exercise",
+          "url": "https://learn.microsoft.com/en-us/training/modules/get-data/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Microsoft Learn FAQ, 'How much does the training cost?': 'Microsoft Learn training is free and available to anyone who has an interest to learn about Microsoft products.' Signing in is optional; certification exams are separate",
+          "url": "https://learn.microsoft.com/en-us/training/support/faq",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2025,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "tableau-free-training-videos",
+      "title": "Tableau Free Training Videos",
+      "provider": "Tableau",
+      "url": "https://www.tableau.com/learn/training",
+      "kind": "video-course",
+      "skills": [
+        "tableau"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Working knowledge of connecting data and building a dashboard in Tableau Desktop; apply it to your own project to produce the CV item",
+      "why_picked": "The vendor's own short videos. The Desktop set is 8 videos, 26 minutes: connect data, workspace, calculations, dashboards. Cloud and Prep sets add more. A start, not full training.",
+      "evidence": [
+        {
+          "claim": "Tableau page 'Free Training Videos': Tableau Cloud/Server set (11 videos, 31 min), Tableau Desktop set (8 videos, 26 min: connecting data, workspace, dimensions and measures, dashboards, combining data, mapping, calculations), Prep set (2 videos, 10 min)",
+          "url": "https://www.tableau.com/learn/training",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "New York University library guide links 'Tableau Free Training Videos' on Tableau's site and says 'Students can get free access to Tableau Desktop Public Edition directly from Tableau'",
+          "url": "https://guides.nyu.edu/viz/tableau",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Boston College Libraries FAQ (last updated Feb 08, 2023) points to Tableau's training and says 'Registration is necessary before you will be given access to the training'",
+          "url": "https://answers.bc.edu/faq/224433",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "tableau-public-how-to-videos",
+      "title": "Tableau Public How-To Videos and sample data",
+      "provider": "Tableau Public",
+      "url": "https://public.tableau.com/app/learn/how-to-videos",
+      "kind": "tutorial",
+      "skills": [
+        "tableau",
+        "data visualization"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A dashboard built in Tableau Public from the Sample Superstore data; publish a version on your own data and link it from your CV",
+      "why_picked": "About 20 minutes of follow-along videos on the Sample Superstore data in free Tableau Public: map, area, bar charts and an interactive dashboard. Practise on your own data after.",
+      "evidence": [
+        {
+          "claim": "Tableau Public Learn page: 8 how-to videos (Get Started, Connect to Data, Navigate the Workspace, Map, Area Charts, Text Table, Bar Chart, Build a Dashboard), about 20 minutes in total, using the 'Sample - Superstore' Excel data set; also Sample Data and Community Resources tabs",
+          "url": "https://public.tableau.com/app/learn/how-to-videos",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "NYU library guide: 'Tableau Public is available for free to everyone' and links the 'Official Tableau Public How-To Videos'",
+          "url": "https://guides.nyu.edu/viz/tableau",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "University of Texas at Austin Data Lab guide lists basic tutorial videos from Tableau Public and warns: 'Do not use it for confidential or proprietary data'",
+          "url": "https://guides.lib.utexas.edu/datalab/tableau",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "openintro-statistics",
+      "title": "OpenIntro Statistics",
+      "provider": "OpenIntro",
+      "url": "https://www.openintro.org/book/os/",
+      "kind": "book",
+      "skills": [
+        "statistics"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A short statistical analysis (confidence intervals, a hypothesis test, a regression) of a public dataset, with the code in a GitHub repo",
+      "why_picked": "Free textbook PDF (you can set the price to $0): probability, distributions, inference and regression, with a software lab per chapter in R and, from chapter 2, Python. No edition year shown.",
+      "evidence": [
+        {
+          "claim": "Book page: 'FREE -- OpenIntro Statistics PDF' (optional contribution; set the price to $0); nine chapters from Intro to Data to Multiple and Logistic Regression; a lab for each of chapters 1 to 9 in R (Base and Tidyverse) and other tools, Python from chapter 2; no edition year or date shown",
+          "url": "https://www.openintro.org/book/os/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "prometheus-data-analysis-statistical-inference-r",
+      "title": "Аналіз даних та статистичне виведення на мові R",
+      "provider": "Prometheus (instructor Anastasiia Kornilova)",
+      "url": "https://prometheus.org.ua/prometheus-free/data-analysis-statistics/",
+      "kind": "course",
+      "skills": [
+        "statistics",
+        "r"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 20,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": true,
+      "output": "The course certificate and a small R script computing a confidence interval and a hypothesis test from the course practice",
+      "why_picked": "Ukrainian intro to statistics: probability, confidence intervals, hypothesis tests, R from week 2. Course dated 2016, so its R tooling is dated; the statistics are not. Hours estimated.",
+      "evidence": [
+        {
+          "claim": "Course page: dated 17 Oct 2016, 'Безкоштовно', always available, in Ukrainian, five weeks, certificate on completion; syllabus from data types to probability, confidence intervals, p-value and hypothesis testing; 'Вступ до R' in week 2; R is the practice language; no hours stated",
+          "url": "https://prometheus.org.ua/prometheus-free/data-analysis-statistics/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "DOU news article (2 Jan 2025) lists the course (number 12, analytics and data) among '20 безплатних курсів' on Prometheus",
+          "url": "https://dou.ua/lenta/news/20-courses-by-prometheus/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2016,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "r-for-data-science-2e",
+      "title": "R for Data Science (2e)",
+      "provider": "Hadley Wickham, Mine Cetinkaya-Rundel, Garrett Grolemund",
+      "url": "https://r4ds.hadley.nz/",
+      "kind": "book",
+      "skills": [
+        "r"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A Quarto report analysing a public dataset in R (tidyverse wrangling plus ggplot2 charts), published on GitHub Pages",
+      "why_picked": "Free online R introduction by tidyverse authors: visualisation, wrangling, tidying, importing and Quarto reports. Chapters have exercises; suggested answers are published separately.",
+      "evidence": [
+        {
+          "claim": "Book site: 2nd edition by Wickham, Cetinkaya-Rundel, Grolemund; 'This website is and will always be free' (CC BY-NC-ND 3.0); suggested answers to exercises are linked. Chapter 'Data visualization' has four 'Exercises' sections (e.g. 'How many rows are in penguins?'); topics include visualization, transformation, tidying, import, Quarto",
+          "url": "https://r4ds.hadley.nz/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "moderndive-statistical-inference-via-data-science",
+      "title": "Statistical Inference via Data Science: A ModernDive into R and the Tidyverse (2nd ed.)",
+      "provider": "Ismay, Kim and Valdivia (ModernDive)",
+      "url": "https://moderndive.com/v2/",
+      "kind": "book",
+      "skills": [
+        "r"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "An R analysis with regression and bootstrap confidence intervals on a public dataset, as a reproducible report on GitHub",
+      "why_picked": "Teaches R from first steps through regression, sampling, bootstrapping and hypothesis tests with the tidyverse. Open-source and reproducible, second edition. Learning checks have published solutions.",
+      "evidence": [
+        {
+          "claim": "Book site: 'A ModernDive into R and the Tidyverse (Second Edition)', authors Chester Ismay, Albert Y. Kim, Arturo Valdivia, CC BY-NC-SA 4.0, dated September 21, 2026; 11 chapters from Getting Started with Data in R through regression, sampling, confidence intervals, hypothesis testing; appendix of learning check solutions",
+          "url": "https://moderndive.com/v2/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "wilke-fundamentals-of-data-visualization",
+      "title": "Fundamentals of Data Visualization",
+      "provider": "Claus O. Wilke (O'Reilly)",
+      "url": "https://clauswilke.com/dataviz/",
+      "kind": "book",
+      "skills": [
+        "data visualization"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 12,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Redrawn versions of two or three weak charts from a public report, with a short note on why each design choice was made",
+      "why_picked": "Tool-independent rules for chart types, colour and layout. The online text is the author manuscript before copy-editing; the book is published by O'Reilly and its source is on GitHub.",
+      "evidence": [
+        {
+          "claim": "Book site: author Claus O. Wilke, published by O'Reilly, CC BY-NC-ND 4.0; website holds the complete author manuscript before final copy-editing; parts on amounts, distributions, proportions, relationships, uncertainty, figure design, colour pitfalls, storytelling; source on GitHub; no date shown",
+          "url": "https://clauswilke.com/dataviz/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "kaggle-data-visualization",
+      "title": "Data Visualization",
+      "provider": "Kaggle",
+      "url": "https://www.kaggle.com/learn/data-visualization",
+      "kind": "course",
+      "skills": [
+        "data visualization"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 4,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A Kaggle notebook with line, bar, scatter and distribution charts built in seaborn, answering a question about a real dataset",
+      "why_picked": "Four hours of seaborn exercises in the browser: line charts, bar charts and heatmaps, scatter plots, distributions, plus a final project. Basic Python helps. No update date is shown.",
+      "evidence": [
+        {
+          "claim": "Course page: 8 lessons (Hello Seaborn, Line Charts, Bar Charts and Heatmaps, Scatter Plots, Distributions, Choosing Plot Types and Custom Styles, Final Project, Creating Your Own Notebooks); 7 with exercises; 'Hours to earn certificate 4 (estimated)'; 'No cost, like all Kaggle Learn Courses'; instructor Alexis Cook; no update date shown",
+          "url": "https://www.kaggle.com/learn/data-visualization",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "udacity-ab-testing",
+      "title": "A/B Testing",
+      "provider": "Udacity (instructors from Google)",
+      "url": "https://www.udacity.com/course/ab-testing--ud257",
+      "kind": "course",
+      "skills": [
+        "a/b testing"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 15,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A written experiment design (hypothesis, metrics, sample size, analysis plan) for a product change, as a one-page case study",
+      "why_picked": "Five lessons by three Google instructors: metrics, policy and ethics, designing and analysing an experiment. Free. No duration on the page; hours are our estimate.",
+      "evidence": [
+        {
+          "claim": "Course page: 'Free Course', Beginner, 'Updated: May 23, 2025', no prerequisites listed, 5 lessons (overview, policy and ethics, choosing metrics, designing an experiment, analysing results), instructors Carrie Grimes, Caroline Buckey and Diane Tang (Google); no duration stated; Trustpilot 4.6 from 68 reviews is below our rating threshold so no rating is used",
+          "url": "https://www.udacity.com/course/ab-testing--ud257",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2025,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "google-analytics-academy-skillshop",
+      "title": "Analytics Academy courses on Skillshop",
+      "provider": "Google",
+      "url": "https://support.google.com/analytics/answer/15068052",
+      "kind": "course",
+      "skills": [
+        "google analytics"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Skillshop course completions and, if you pass, the Google Analytics Certification listed on Skillshop; pair with the demo account for a portfolio sample",
+      "why_picked": "Google's own free GA4 e-learning: four courses, beginner to advanced, plus a certification, on Skillshop (Google sign-in). Course lengths and certification price not seen; hours is an estimate.",
+      "evidence": [
+        {
+          "claim": "Analytics Help 'Enroll in Analytics Academy courses on Skillshop': 'free e-learning courses'; 101 Get started (Beginner), 102 Manage GA data and read reports (Beginner), 201 Dive deeper (Intermediate), 301 Use GA with other tools (Advanced), plus Google Analytics Certification; no certification price stated",
+          "url": "https://support.google.com/analytics/answer/15068052",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Analytics Help article '[GA4] Analytics Academy': 'a collection of free e-learning courses' on Skillshop; 'currently offers 4 training courses and a certification'",
+          "url": "https://support.google.com/analytics/answer/15440208?hl=en",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Skillshop home page has a Google Analytics section: 'Learn Google's measurement tools to help grow your business through intelligent data collection and analysis'; the catalogue host lists 'Google Analytics Certification (2026)' and requires sign-in with Google to open courses",
+          "url": "https://skillshop.withgoogle.com/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "google-analytics-demo-account",
+      "title": "Google Analytics demo account",
+      "provider": "Google",
+      "url": "https://support.google.com/analytics/answer/6367342",
+      "kind": "practice",
+      "skills": [
+        "google analytics"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A written analysis of the demo store's traffic sources and conversion paths, as a portfolio sample",
+      "why_picked": "A working GA4 account with data from the Google Merchandise Store and the Flood-It! app; explore its reports without owning a website. Pair it with the Skillshop courses.",
+      "evidence": [
+        {
+          "claim": "Analytics Help article 'Demo account': a fully functional Google Analytics account any Google user can access, with Google Merchandise Store (web) and Flood-It! (app and web) properties; Viewer role only; report and exploration export is not available",
+          "url": "https://support.google.com/analytics/answer/6367342",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "harvard-cs50-introduction-to-programming-with-python",
+      "title": "CS50's Introduction to Programming with Python",
+      "provider": "Harvard University (CS50)",
+      "url": "https://cs50.harvard.edu/python/",
+      "kind": "course",
+      "skills": [
+        "python"
+      ],
+      "level": "beginner",
+      "cost": "free-audit",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 60,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A final Python project plus weekly problem sets, with the code in a GitHub repo",
+      "why_picked": "University beginner course, no experience needed: functions, loops, exceptions, unit tests, libraries, file I/O, problem sets, final project. Certificates are paid. Harvard lists 3 to 9 hours a week.",
+      "evidence": [
+        {
+          "claim": "Course page: ten weeks (0 to 9) plus final project; functions, conditionals, loops, exceptions, libraries, unit tests, file I/O, regular expressions, object-oriented programming; for students with or without prior programming experience; free to take as OpenCourseWare; verified or professional certificates are on edX",
+          "url": "https://cs50.harvard.edu/python/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Harvard Online course page: 10 weeks, 3-9 hours a week, on demand; learners can audit for free (select course material, no certificate); certificate prices shown on the page are inconsistent ($219 and $299), so no price is recorded",
+          "url": "https://harvardonline.harvard.edu/course/cs50s-introduction-programming-python",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "kaggle-python",
+      "title": "Python",
+      "provider": "Kaggle",
+      "url": "https://www.kaggle.com/learn/python",
+      "kind": "course",
+      "skills": [
+        "python"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 5,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A Kaggle notebook of solved Python exercises you can link as practice evidence",
+      "why_picked": "Seven short lessons with exercises on syntax, functions, conditionals, lists, loops, strings and using libraries. A quick base before pandas and data work.",
+      "evidence": [
+        {
+          "claim": "Course page: 'Learn the most important language for data science'; 7 lessons each with a tutorial and an exercise; 'Hours to earn certificate 5 (estimated)'; 'No cost, like all Kaggle Learn Courses'; leads on to Pandas and Intro to SQL; no update date shown",
+          "url": "https://www.kaggle.com/learn/python",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "kaggle-pandas",
+      "title": "Pandas",
+      "provider": "Kaggle",
+      "url": "https://www.kaggle.com/learn/pandas",
+      "kind": "course",
+      "skills": [
+        "pandas"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 4,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A Kaggle notebook that loads, selects, groups and merges a real dataset with pandas",
+      "why_picked": "Six lessons of short coding exercises: reading data, indexing, grouping, sorting, missing values, combining. Needs basic Python. No update date is shown; check against current pandas docs.",
+      "evidence": [
+        {
+          "claim": "Course page: 'Solve short hands-on challenges to perfect your data manipulation skills'; 6 lessons each with a tutorial and an exercise; 'Hours to earn certificate 4 (estimated)'; 'No cost, like all Kaggle Learn Courses'; builds on Kaggle's Python course; no update date shown",
+          "url": "https://www.kaggle.com/learn/pandas",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "mckinney-python-for-data-analysis-3e",
+      "title": "Python for Data Analysis, 3rd edition",
+      "provider": "Wes McKinney (creator of pandas)",
+      "url": "https://wesmckinney.com/book/",
+      "kind": "book",
+      "skills": [
+        "pandas"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A cleaned and analysed public dataset in a Jupyter notebook, with the code and data on GitHub",
+      "why_picked": "Written by the author of pandas: loading, cleaning, wrangling, aggregation and time series, with code and datasets on GitHub. Covers pandas 2.0, so a few newer 3.x details differ.",
+      "evidence": [
+        {
+          "claim": "Book site: 3rd edition by Wes McKinney, open-access HTML version, 'updated for pandas 2.0.0' and Python 3.10, update dated April 12, 2023; code examples MIT-licensed with datasets on GitHub",
+          "url": "https://wesmckinney.com/book/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2023,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "pandas-10-minutes-to-pandas",
+      "title": "10 minutes to pandas",
+      "provider": "pandas project",
+      "url": "https://pandas.pydata.org/docs/user_guide/10min.html",
+      "kind": "tutorial",
+      "skills": [
+        "pandas"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A short notebook reproducing the guide's selection, grouping, merging and time-series examples on your own dataset",
+      "why_picked": "Official, current quick tour (docs for pandas 3.0.6): Series, DataFrame, selection, missing data, merge, groupby, pivot tables, plotting. A reference to code along with; it has no exercises.",
+      "evidence": [
+        {
+          "claim": "Official pandas documentation page '10 minutes to pandas', pandas 3.0.6 documentation; sections on data structures, selection, missing data, merge, grouping, reshaping and pivot tables, time series, plotting, CSV/Parquet/Excel I/O; runnable examples shown as IPython sessions, no exercises",
+          "url": "https://pandas.pydata.org/docs/user_guide/10min.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    }
+  ]
+}

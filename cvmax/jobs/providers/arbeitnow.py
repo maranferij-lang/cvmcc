@@ -38,7 +38,7 @@ class Arbeitnow(BaseProvider):
                 url=j.get("url"), title=j.get("title"), company=j.get("company_name"),
                 location=j.get("location"), source=self.name, domains=self.domains,
                 posted_at=parse_date(j.get("created_at")), snippet=j.get("description"),
-                remote=remote, tags=tags + types,
+                remote=remote, tags=tags + types, description=j.get("description"),
             )
             if v:
                 out.append(v)

@@ -64,6 +64,7 @@ class Dou(BaseProvider):
                 url=it["link"], title=role, company=company, location=location,
                 source=self.name, domains=self.domains, posted_at=parse_date(it["pubDate"]),
                 salary=salary, snippet=it["description"], remote=remote,
+                description=it["description"],
             )
             if v:
                 out.append(v)

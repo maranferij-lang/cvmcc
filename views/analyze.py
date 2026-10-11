@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import logging
 import re
 import uuid
 from dataclasses import asdict
@@ -16,9 +18,13 @@ from cvmax.learning.version import knowledge_version, lessons_version
 from cvmax.edits import apply_edits, changed_action, changes_markdown, lost_facts, unverified_terms
 from cvmax.grill import GrillSession, answer, finalize, next_question
 from cvmax.llm import LLMError
+from cvmax.match import match_counts, match_score, match_vacancy
 from cvmax.profile import ANY_COMPANY, COMPANY_TYPES, FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES, Profile
+from cvmax.resources import CatalogError, match_skills
 from cvmax.safe_text import md_escape
+from cvmax.schemas import Requirement, VacancyMatch
 from cvmax.scoring import MIN_MATCHED
+from cvmax.share_card import CARD_SIZES, render_card
 from cvmax.structure import changed_bullets, structure_cv
 from ui.account import (
     limit_caption, log_edit_feedback, log_event, profile_value, require_login, save_result, send_feedback,
@@ -26,17 +32,56 @@ from ui.account import (
 )
 from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
 from ui.jobs import render_jobs
+from ui.resources import render_controls, render_how_we_pick, render_resources, SOFT_ERROR
+
+log = logging.getLogger("cvmax")
+
 
 def plural(n: int, word: str) -> str:
     """A number with an English word: 1 line, 5 lines."""
     return f"{n} {word}" if n == 1 else f"{n} {word}s"
 
 
+# Review against a posting: shorter posting text is not worth a model call, and the form holds at most this much.
+MATCH_MIN_CHARS = 200
+VACANCY_MAX_CHARS = 8000
+# The Jobs tab puts a posting into the form only when its description is long enough to hold the requirements.
+REVIEW_MIN_CHARS = 300
+
+# Share cards offered for download: size name -> label and file name.
+SHARE_DOWNLOADS = {
+    "story": ("Download card", "getcvmax-score.png"),
+    "square": ("Download square", "getcvmax-score-square.png"),
+}
+
 PRIORITY_LABEL = {"high": ":red-badge[High]", "medium": ":gray-badge[Medium]", "low": ":gray-badge[Low]"}
 
 # Icon by severity of an automatic-check finding; the most important are shown first.
 CHECK_ICON = {"high": ":material/error:", "medium": ":material/warning:", "low": ":material/info:"}
 CHECK_ORDER = {"high": 0, "medium": 1, "low": 2}
+
+# Status of a posting requirement: an icon and a word (the word is for screen readers and for black-and-white print).
+MATCH_ICON = {"covered": ":material/check_circle:", "partial": ":material/contrast:", "missing": ":material/cancel:"}
+MATCH_WORD = {"covered": "Covered", "partial": "Partial", "missing": "Missing"}
+MATCH_KIND = {"must": ":red-badge[Must]", "nice": ":gray-badge[Nice to have]"}
+
+
+IMPACT_RANK = {"high": 0, "medium": 1, "low": 2}
+
+
+def gap_demand(skills: list[str], demand: list[dict]) -> int:
+    """The highest number of postings among the market skills that the gap maps to (0 when none is listed)."""
+    by_skill = {str(d.get("skill", "")).lower(): int(d.get("postings") or 0) for d in demand}
+    return max((by_skill.get(sid.lower(), 0) for sid in skills), default=0)
+
+
+def order_gaps(gaps: list, skills: list[list[str]], demand: list[dict]) -> list[int]:
+    """Gap indexes in display order. With market demand data, gaps whose skills are asked for more come first and
+    the impact order breaks ties; without demand data the order of the analysis is kept."""
+    order = list(range(len(gaps)))
+    if demand:
+        order.sort(key=lambda i: (-gap_demand(skills[i], demand), IMPACT_RANK.get(gaps[i].impact, 3), i))
+    return order
 
 
 def get_client():
@@ -100,6 +145,39 @@ def render_checks(report) -> None:
             st.markdown(f"- {icon} {md_escape(f.message)}{evidence}")
 
 
+def same_text(a: str, b: str) -> bool:
+    """The same text up to whitespace."""
+    return " ".join((a or "").split()) == " ".join((b or "").split())
+
+
+def same_role(a: str, b: str) -> bool:
+    """The same target role: letter case and extra whitespace do not make a new goal."""
+    return " ".join((a or "").casefold().split()) == " ".join((b or "").casefold().split())
+
+
+def match_headline(m: VacancyMatch) -> str:
+    """The score line of the match block: "68% · 5 of 7 must-haves covered"."""
+    counts = match_counts(m)
+    if counts["must_total"]:
+        total, covered, word = counts["must_total"], counts["must_covered"], "must-have"
+    else:  # a posting with only nice-to-haves
+        total, covered, word = counts["nice_total"], counts["nice_covered"], "nice-to-have"
+    return f"{match_score(m)}% · {covered} of {total} {word if total == 1 else word + 's'} covered"
+
+
+def requirement_markdown(r: Requirement) -> str:
+    """One requirement for the list: status, the posting's words, the CV quote and what to do.
+
+    Everything except the fixed labels comes from the posting or the model, so it goes through md_escape.
+    """
+    lines = [f"- {MATCH_ICON[r.status]} **{MATCH_WORD[r.status]}** · {MATCH_KIND[r.kind]} {md_escape(r.text)}"]
+    if r.evidence:
+        lines.append(f"  \n  On your CV: «{md_escape(r.evidence)}»")
+    if r.status != "covered":
+        lines.append(f"  \n  **To do:** {md_escape(r.action) or 'Not found on your CV.'}")
+    return "".join(lines)
+
+
 def state():
     s = st.session_state
     s.setdefault("analysis", None)
@@ -161,7 +239,7 @@ def log_analysis(s, run: AnalysisRun, *, program: str, region: str, level: str, 
     """Events after a successful review: the result, and on a repeated review of the same goal also the dynamics."""
     a, role = s.analysis, s.profile.target_role
     previous = s.get("last_analysis")
-    same = bool(previous) and previous["role"] == role
+    same = bool(previous) and same_role(previous["role"], role)
     verification = run.verification
     log_event("analysis_done", analysis_id=s.analysis_id, task="analysis", variant=variant, program=program,
               region=region, level=level, score=a.overall_score, knowledge_version=knowledge_version(),
@@ -177,7 +255,124 @@ def log_analysis(s, run: AnalysisRun, *, program: str, region: str, level: str, 
         log_event("rescan", analysis_id=s.analysis_id, previous_analysis_id=previous["analysis_id"],
                   previous_score=previous["score"], score=a.overall_score,
                   delta=a.overall_score - previous["score"])
-    s["last_analysis"] = {"analysis_id": s.analysis_id, "role": role, "score": a.overall_score}
+    # previous_score: the score to show as "before" on the share card. It is set only for the same goal, a CV whose text
+    # changed since that review and a strictly higher score; a re-run of the same CV is not progress.
+    cv_hash = hashlib.sha256((s.cv.text or "").strip().encode("utf-8")).hexdigest()
+    improved = same and previous.get("cv_hash") != cv_hash and a.overall_score > previous["score"]
+    s["last_analysis"] = {"analysis_id": s.analysis_id, "role": role, "score": a.overall_score, "cv_hash": cv_hash,
+                          "previous_score": previous["score"] if improved else None}
+
+
+def vacancy_match(s) -> dict | None:
+    """The review against the posting of this analysis: made once and kept in session state (match:<analysis_id>).
+
+    Returns {"match": VacancyMatch} or, when the model failed, {"match": None, "note": text}; both are kept, so a page
+    rerun never calls the model again. None when the daily limit is used up (take_limit has shown why; not kept).
+    """
+    key = f"match:{s.analysis_id}"
+    if key in s:
+        return s[key]
+    if not (s.cv.text or "").strip():  # a scanned PDF: nothing to quote, so do not spend a use
+        s[key] = {"match": None,
+                  "note": "Matching to a posting needs a CV with selectable text, and this PDF looks like a scan."}
+        return s[key]
+    if not take_limit("match"):
+        return None
+    try:
+        with st.spinner("Comparing your CV with the posting..."):
+            m = match_vacancy(get_client(), s.profile, s.cv, s.profile.vacancy_text)
+    except LLMError as e:
+        s[key] = {"match": None, "note": str(e)}
+        return s[key]
+    s[key] = {"match": m}
+    log_event("match_done", analysis_id=s.analysis_id, score=match_score(m), source=s.get("match_source", "form"),
+              **match_counts(m))
+    return s[key]
+
+
+def render_match(s) -> None:
+    """The "Match to this posting" block of the Overview tab. Posting and model text is shown only through md_escape."""
+    with card("match"):
+        st.subheader("Match to this posting")
+        result = vacancy_match(s)
+        if result is None:
+            st.caption("Your CV review is complete; only the match to the posting is paused.")
+            return
+        m = result["match"]
+        if m is None:
+            st.info(md_escape(result["note"]))
+            if st.button("Try again", key=f"match_retry_{s.analysis_id}"):
+                del s[f"match:{s.analysis_id}"]
+                st.rerun()
+            return
+        if not m.requirements:
+            st.info("No concrete requirements were found in the pasted text. Check that it is the whole posting, "
+                    "with its requirements section.")
+            return
+        if m.role_title:
+            st.caption(f"Posting: {md_escape(m.role_title)}")
+        st.markdown(f"**{match_headline(m)}**")
+        if m.summary:
+            st.write(md_escape(m.summary))
+        with st.expander(f"Requirements from the posting ({len(m.requirements)})"):
+            for r in m.requirements:
+                st.markdown(requirement_markdown(r))
+        if m.keywords_missing:
+            st.caption("Words from the posting that are not on your CV: "
+                       + ", ".join(md_escape(k) for k in m.keywords_missing)
+                       + ". Add one only where it is true for you.")
+        st.caption("Counted by code from the statuses: a must-have weighs 1, a nice-to-have 0.3, a partial match half. "
+                   "A quote that is not on your CV does not count.")
+
+
+def review_for_posting(vacancy) -> None:
+    """The "Review for this posting" button of the Jobs tab: puts the posting text into the form.
+
+    The form's text area already exists in this script run, so its state cannot be set here; the text waits in
+    prefill_vacancy and the top of the page puts it into the form (the same way as prefill_role).
+    """
+    text = (vacancy.description or "").strip()
+    if len(text) < REVIEW_MIN_CHARS:
+        st.info("Open the posting and paste its text into the form above.")
+        return
+    st.session_state["prefill_vacancy"] = text[:VACANCY_MAX_CHARS]
+    st.session_state["open_form"] = True
+    st.rerun()
+
+
+def log_share(s, before: int | None, after: int, size: str) -> None:
+    """on_click of a share-card download."""
+    log_event("share_card", analysis_id=s.analysis_id, before=before, after=after, size=size)
+
+
+def share_cards(s, before: int | None) -> dict[str, bytes]:
+    """The share cards of this analysis, drawn once and kept in session state (share:<analysis_id>)."""
+    key = f"share:{s.analysis_id}"
+    if key not in s:
+        s[key] = {size: render_card(s.analysis.overall_score, before=before, role=s.profile.target_role, size=size)
+                  for size in SHARE_DOWNLOADS}
+    return s[key]
+
+
+def render_share(s) -> None:
+    """The "Share your score" row under the score; after a repeated review of the same goal, "Your progress"."""
+    after = s.analysis.overall_score
+    last = s.get("last_analysis") or {}
+    before = last.get("previous_score") if last.get("analysis_id") == s.analysis_id else None
+    if before is not None and after <= before:
+        before = None  # an equal or lower score is not progress, so the card shows the score alone
+    try:
+        cards = share_cards(s, before)
+    except Exception as e:  # a card must not break the results page
+        log.warning("share card failed: %s", e)
+        return
+    with card("share"):
+        st.markdown(f"**Your progress: {before} → {after}**" if before is not None else "**Share your score**")
+        for col, (size, (label, file_name)) in zip(st.columns(len(SHARE_DOWNLOADS)), SHARE_DOWNLOADS.items()):
+            width, height = CARD_SIZES[size]
+            col.download_button(f"{label} ({width}×{height})", cards[size], file_name, mime="image/png",
+                                key=f"share_{size}", on_click=log_share, args=(s, before, after, size))
+        st.caption("The card shows only the score and your target role: no name, no CV text.")
 
 
 # ---------- Header ----------
@@ -196,6 +391,13 @@ if "prefill_role" in st.session_state:
     st.session_state["target_role"] = st.session_state.pop("prefill_role")
     st.session_state["company_type"] = st.session_state.pop("prefill_company")
     s["open_form"] = True  # a new goal: show the form even if there is an old result
+# Transition from the Jobs tab ("Review for this posting"): the posting text goes into the form's text area.
+# This has to happen before the text area is created in this run.
+if "prefill_vacancy" in st.session_state:
+    st.session_state["analyze_vacancy"] = st.session_state.pop("prefill_vacancy")
+    s["jobs_pasted"] = st.session_state["analyze_vacancy"]  # to tell later whether the posting came from the Jobs tab
+    s["open_form"] = True
+    st.toast("Posting pasted into the form. Click Review my CV.", icon=":material/content_paste:")
 
 st.title("CV review")
 st.caption("Edits tailored to a specific role, a short Q&A about your experience, and a plan for what to learn.")
@@ -235,7 +437,7 @@ with form_box:
         region = st.selectbox("Market", REGIONS, key="analyze_region")
         vacancy_text = st.text_area(
             "Job posting text (highly recommended)",
-            max_chars=8000,
+            max_chars=VACANCY_MAX_CHARS,
             placeholder="Paste the full job posting here: responsibilities and requirements. This improves the advice the most.",
             height=160, key="analyze_vacancy",
         )
@@ -275,6 +477,8 @@ with form_box:
             s.cv, s.profile = cv, profile
             s.analysis_id = uuid.uuid4().hex
             s.pop("feedback_sent", None)
+            from_jobs = bool(vacancy_text.strip()) and same_text(vacancy_text, s.get("jobs_pasted", ""))
+            s["match_source"] = "jobs" if from_jobs else "form"  # for the match_done event
             log_analysis(s, run, program=program, region=region, level=level, clarity=clarity, variant=variant)
             s.pop("formatted_cv", None)
             s.pop("open_form", None)
@@ -284,8 +488,8 @@ with form_box:
                         {"analysis_id": s.analysis_id, "role": target_role, "company_type": company_type,
                          "analysis": s.analysis.model_dump(), "score_detail": score_detail})
             s.grill, s.grill_result = None, None
-            for k in [k for k in st.session_state if str(k).startswith("accept_")]:
-                del st.session_state[k]
+            for k in [k for k in st.session_state if str(k).startswith(("accept_", "match:", "share:"))]:
+                del st.session_state[k]  # the edit ticks, the posting match and the share cards of the previous review
             st.rerun()  # collapse the form and show the result on top
         except LLMError as e:
             st.error(str(e))
@@ -311,7 +515,12 @@ with tab_overview:
     caption = score_caption(run, s.profile.program)
     if caption:
         st.caption(caption)
+    render_share(s)
     st.write(md_escape(a.summary))
+    if len((s.profile.vacancy_text or "").strip()) >= MATCH_MIN_CHARS:
+        render_match(s)
+    else:
+        st.caption("Tip: paste a job posting into the form above to see how well your CV matches it.")
     with st.expander("How I understood your goal (fix it in the form if it's off)"):
         for t in a.target_assumptions:
             st.markdown(f"- {md_escape(t)}")
@@ -421,11 +630,29 @@ with tab_gaps:
         st.caption(f"In the last {demand[0].get('window_days')} days, of {total} postings for your field in "
                    f"{md_escape(s.profile.region)}: {top}")
     st.caption("What to do beyond your CV to boost your chances, most important first.")
-    for j, g in enumerate(a.gaps):
+    with st.expander("How we pick resources", icon=":material/verified:"):
+        render_how_we_pick()
+    try:
+        gap_skill_ids = [match_skills(f"{g.item}. {g.how_to_close}") for g in a.gaps]
+    except CatalogError:
+        gap_skill_ids = None
+        st.info(SOFT_ERROR, icon=":material/info:")
+    learn_key = f"learn_{s.analysis_id}"
+    budget, hours = ("free", 5)
+    if gap_skill_ids is not None and a.gaps:
+        budget, hours = render_controls(learn_key)
+    for j in order_gaps(a.gaps, gap_skill_ids or [[] for _ in a.gaps], demand):
+        g = a.gaps[j]
         with card(f"gap-{j}"):
             st.markdown(f"**{md_escape(g.item)}** · {PRIORITY_LABEL[g.impact]} · {md_escape(g.time_estimate)}")
             st.markdown(md_escape(g.why_it_matters))
             st.markdown(f"**How:** {md_escape(g.how_to_close)}")
+            if gap_skill_ids is not None:
+                st.markdown("**Learn it**")
+                render_resources(
+                    gap_skill_ids[j], key=f"{learn_key}_g{j}", feedback_language=s.profile.feedback_language,
+                    budget=budget, hours_per_week=hours, demand=demand, missing_text=g.item, scope=learn_key,
+                )
 
 with tab_jobs:
     st.caption("Live postings for this goal, ranked by fit to your CV.")
@@ -439,6 +666,7 @@ with tab_jobs:
         key="analyze", role=s.profile.target_role, keywords=[s.profile.target_role], region=s.profile.region,
         level=s.profile.level, company=board, cv_text=s.cv.text,
         gaps=[g.item for g in a.gaps], feedback_language=s.profile.feedback_language,
+        on_review=review_for_posting,
     )
 
 with tab_grill:

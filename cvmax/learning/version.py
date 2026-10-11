@@ -8,6 +8,7 @@ from pathlib import Path
 _PATTERNS = (
     "rubrics/*.md",
     "rubrics/*.json",
+    "rubrics/regions/*.md",
     "rubrics/learned/*.md",
     "rubrics/market/*.md",
     "variants/*.json",

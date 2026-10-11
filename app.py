@@ -19,6 +19,7 @@ else:
         home,
         st.Page("views/analyze.py", title="CV review", icon=":material/description:"),
         st.Page("views/career.py", title="Where to apply", icon=":material/explore:"),
+        st.Page("views/learn.py", title="Learn", icon=":material/school:"),
         st.Page("views/builder.py", title="CV builder", icon=":material/edit_note:"),
     ]
     if is_logged_in():

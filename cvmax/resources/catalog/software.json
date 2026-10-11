@@ -1,0 +1,1293 @@
+{
+  "cluster": "software",
+  "resources": [
+    {
+      "id": "exercism-python-track",
+      "title": "Exercism Python Track",
+      "provider": "Exercism",
+      "url": "https://exercism.org/tracks/python",
+      "kind": "practice",
+      "skills": [
+        "python"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A public Exercism profile with solved Python exercises and mentor feedback, plus your solutions in a GitHub repo",
+      "why_picked": "Free practice: 146 Python exercises with automatic code analysis and volunteer mentors who review your code. Run by a not-for-profit organisation.",
+      "evidence": [
+        {
+          "claim": "Track page: 146 exercises in 17 concepts, 840,190 students, 6,709 mentors, 'all 100% free'; Exercism describes itself as a not-for-profit organisation registered in the UK, run by trustees",
+          "url": "https://exercism.org/tracks/python",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "mdn-dynamic-scripting-with-javascript",
+      "title": "Dynamic scripting with JavaScript",
+      "provider": "MDN Web Docs (Mozilla)",
+      "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting",
+      "kind": "tutorial",
+      "skills": [
+        "javascript"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Small browser apps using the DOM, events, fetch and JSON, published on GitHub Pages and linked on the CV",
+      "why_picked": "Mozilla's own learning module on core JavaScript, from variables to DOM, network requests and debugging. Free to read, openly licensed, and edited this year.",
+      "evidence": [
+        {
+          "claim": "Module page lists variables, arrays, loops, functions, events, objects, DOM scripting, network requests, JSON and debugging; written by MDN contributors, openly licensed, free to read; 'last modified on Aug 27, 2026'",
+          "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "javascript-info-modern-javascript-tutorial-uk",
+      "title": "The Modern JavaScript Tutorial (Ukrainian edition)",
+      "provider": "javascript.info (Ilya Kantor)",
+      "url": "https://uk.javascript.info/",
+      "kind": "tutorial",
+      "skills": [
+        "javascript"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 60,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": true,
+      "output": "A set of small JavaScript exercises and a browser mini-project in a public repo",
+      "why_picked": "Full JavaScript course in Ukrainian (language, browser, extras): a community translation of Ilya Kantor's tutorial, updated Oct 2026. Free to read online; the EPUB/PDF is sold separately.",
+      "evidence": [
+        {
+          "claim": "Ukrainian version of The Modern JavaScript Tutorial: three parts (language, browser, extras), 'Останнє оновлення: 1 жовтня 2026', © 2007-2026 Ilya Kantor, readable online; the page also offers an EPUB/PDF for purchase",
+          "url": "https://uk.javascript.info/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "GitHub repository javascript-tutorial/uk.javascript.info, 'Modern JavaScript Tutorial in Ukrainian': a community translation in the javascript-tutorial organisation; README credits maintainers and translators (for example Stanislav Dolgachov, Taras Korzhak) and takes issues and pull requests",
+          "url": "https://github.com/javascript-tutorial/uk.javascript.info",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "odin-project-javascript-course",
+      "title": "The Odin Project: JavaScript course",
+      "provider": "The Odin Project",
+      "url": "https://www.theodinproject.com/paths/full-stack-javascript/courses/javascript",
+      "kind": "course",
+      "skills": [
+        "javascript"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 100,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Twelve JavaScript projects (library, to-do list, weather app, Battleship and more) in public GitHub repos",
+      "why_picked": "Project-based: 12 projects with async code, testing and Git. Free and community maintained, so you finish with a portfolio of code, not just notes.",
+      "evidence": [
+        {
+          "claim": "Course page lists 12 projects (Library, Tic Tac Toe, Restaurant Page, Todo List, Weather App, Testing Practice, Recursion, Linked Lists, HashMap, Binary Search Trees, Knights Travails, Battleship) and sections on asynchronous JavaScript and APIs, testing and intermediate Git",
+          "url": "https://www.theodinproject.com/paths/full-stack-javascript/courses/javascript",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Path page: the JavaScript course is 29 lessons and 12 projects; 'Start learning for free now!'; footer says 'High quality coding education maintained by an open source community' and 'The Odin Project is funded by the community'",
+          "url": "https://www.theodinproject.com/paths/full-stack-javascript",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Curriculum repository shows 13.1k GitHub stars",
+          "url": "https://github.com/TheOdinProject/curriculum",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "typescript-handbook",
+      "title": "The TypeScript Handbook",
+      "provider": "Microsoft (typescriptlang.org)",
+      "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
+      "kind": "tutorial",
+      "skills": [
+        "typescript"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A small JavaScript project migrated to TypeScript with strict mode on, in a GitHub repo",
+      "why_picked": "The official guide from the TypeScript team: everyday types, narrowing, generics, modules. Updated Oct 2026. Assumes you already know JavaScript.",
+      "evidence": [
+        {
+          "claim": "Handbook page: official TypeScript docs, © 2012-2026 Microsoft, 'The TypeScript docs are an open source project', 'Last updated: Oct 05, 2026'; covers basics, everyday types, narrowing, functions, objects, generics, classes, modules; advises learning JavaScript first",
+          "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "microsoft/TypeScript repository shows about 111k GitHub stars, Apache-2.0 license",
+          "url": "https://github.com/microsoft/TypeScript",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "university-of-helsinki-full-stack-open",
+      "title": "Full Stack Open",
+      "provider": "University of Helsinki",
+      "url": "https://fullstackopen.com/en/",
+      "kind": "course",
+      "skills": [
+        "react",
+        "rest api",
+        "typescript"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 150,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A full-stack web app (React front end, Node/Express REST API, TypeScript, tests) in a public repo, plus a free University of Helsinki certificate",
+      "why_picked": "Free university course that builds a React and Node REST app with tests and TypeScript, with exercises each part. Expects solid programming and Git basics first.",
+      "evidence": [
+        {
+          "claim": "About page: course held at the Department of Computer Science, University of Helsinki; 'totally free of charge'; certificate and ECTS credits at no cost (5-14 credits); prerequisites include good programming skills and Git basics; lists partners and affiliates (Houston Inc, Terveystalo, Elisa, Unity Technologies, Konecranes) who give guest lectures",
+          "url": "https://fullstackopen.com/en/about",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Course front page: teaches React, Redux, Node.js, MongoDB, GraphQL and TypeScript; 'No more yearly versions, the course just continues'; material by Matti Luukkainen and others under CC BY-NC-SA 3.0",
+          "url": "https://fullstackopen.com/en/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Part 3: builds a REST API with Node.js and Express backed by MongoDB and deploys it to the internet (part updated 16 March 2025)",
+          "url": "https://fullstackopen.com/en/part3",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Part 5: testing React apps and end to end testing, section updated on March 31, 2026",
+          "url": "https://fullstackopen.com/en/part5",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "princeton-introduction-to-programming-in-java",
+      "title": "Introduction to Programming in Java",
+      "provider": "Princeton University",
+      "url": "https://introcs.cs.princeton.edu/java/home/",
+      "kind": "book",
+      "skills": [
+        "java"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 60,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Java programming assignments (simulations, data processing) solved and kept in a GitHub repo",
+      "why_picked": "Free Princeton booksite with lecture videos, exercises and programming assignments, plus free Coursera courses by the same authors. A computer-science style path into Java.",
+      "evidence": [
+        {
+          "claim": "Booksite: 'Everything on these pages is freely available'; excerpts, lecture videos, Java code, data sets, exercises, programming assignments; mentions the free Coursera MOOCs 'Computer Science: Programming with a Purpose' and 'Algorithms, Theory, and Machines'; last modified September 24, 2024",
+          "url": "https://introcs.cs.princeton.edu/java/home/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2024,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "git-scm-pro-git-book",
+      "title": "Pro Git",
+      "provider": "Scott Chacon and Ben Straub (git-scm.com)",
+      "url": "https://git-scm.com/book/en/v2",
+      "kind": "book",
+      "skills": [
+        "git"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 15,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A repo with a clean branching history and a merged pull request, visible on your GitHub profile",
+      "why_picked": "Free Git book hosted on the Git project's own site: basics, branching, GitHub, tools and internals. Read chapters 1 to 3 first.",
+      "evidence": [
+        {
+          "claim": "Book page: Pro Git 2nd edition by Scott Chacon and Ben Straub, published by Apress, CC BY-NC-SA 3.0, free to read online and download as PDF or EPUB (release 2.1.450 in the download links), updated with corrections from hundreds of contributors; source hosted on GitHub",
+          "url": "https://git-scm.com/book/en/v2",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "git-scm-pro-git-book-uk",
+      "title": "Pro Git (Ukrainian edition)",
+      "provider": "Scott Chacon and Ben Straub (git-scm.com)",
+      "url": "https://git-scm.com/book/uk/v2",
+      "kind": "book",
+      "skills": [
+        "git"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 15,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": false,
+      "output": "A repo with a clean branching history and a merged pull request, visible on your GitHub profile",
+      "why_picked": "Pro Git in a full Ukrainian translation hosted on git-scm.com, free to read. It follows an older text than the English book (examples use master and git checkout), so check commands against English.",
+      "evidence": [
+        {
+          "claim": "git-scm.com lists Українська among the full translations of Pro Git and serves the Ukrainian table of contents at /book/uk/v2/; authors Chacon and Straub, CC BY-NC-SA 3.0, free PDF and EPUB; section list differs from the English table of contents",
+          "url": "https://git-scm.com/book/uk/v2",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "GitHub repository progit/progit2-uk, 'Ukrainian translation', in the progit organisation: AsciiDoc chapters, TRANSLATION_NOTES and an update-plan folder; community translation, individual translators not named on the repository front page",
+          "url": "https://github.com/progit/progit2-uk",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Ukrainian branching chapter: branch examples use master and git checkout -b",
+          "url": "https://git-scm.com/book/uk/v2/%D0%93%D0%B0%D0%BB%D1%83%D0%B6%D0%B5%D0%BD%D0%BD%D1%8F-%D0%B2-git-%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D0%B8-%D0%B3%D0%B0%D0%BB%D1%83%D0%B6%D0%B5%D0%BD%D0%BD%D1%8F-%D1%82%D0%B0-%D0%B7%D0%BB%D0%B8%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "learn-git-branching-interactive-tutorial",
+      "title": "Learn Git Branching",
+      "provider": "learnGitBranching (open source, pcottle)",
+      "url": "https://learngitbranching.js.org/",
+      "kind": "practice",
+      "skills": [
+        "git"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "All branching, merging and rebasing levels completed; the same commands then used on your own repo",
+      "why_picked": "Interactive visual sandbox for branching, merging and rebasing in the browser. Open source (MIT licence, 34k GitHub stars). Use it next to Pro Git.",
+      "evidence": [
+        {
+          "claim": "Repository pcottle/learnGitBranching: 'An interactive git visualization and tutorial', 34.0k stars, MIT license, 30+ contributors credited in the README; 100% client side, no backend",
+          "url": "https://github.com/pcottle/learnGitBranching",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "The site opens an interactive in-browser terminal with level sequences (Introduction, Ramping Up, Moving and Staging Work, A Mixed Bag, Advanced Topics) and a Remote tab",
+          "url": "https://learngitbranching.js.org/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "princeton-algorithms-part-i",
+      "title": "Algorithms, Part I",
+      "provider": "Princeton University (Coursera)",
+      "url": "https://www.coursera.org/learn/algorithms-part1",
+      "kind": "course",
+      "skills": [
+        "algorithms"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 50,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Java implementations of deques, randomized queues, kd-trees and sorting, passing an autograder, in a GitHub repo",
+      "why_picked": "Taught by the textbook authors with weekly autograded Java assignments. Everything is free on Coursera, graded work included; no certificate is offered. Needs Java and some experience.",
+      "evidence": [
+        {
+          "claim": "Course page: Kevin Wayne and Robert Sedgewick of Princeton; 5 weeks at 10 hours a week; weekly autograded programming assignments; FAQ: 'Do I need to pay for this course? No. All features of this course are available for free' and 'no certificates, credentials, or reports are awarded' (Princeton policy)",
+          "url": "https://www.coursera.org/learn/algorithms-part1",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Algorithms 4th edition booksite: 'Everything on these pages is freely available'; says you can take the free Coursera MOOCs Algorithms Part I and Part II",
+          "url": "https://algs4.cs.princeton.edu/home/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": {
+        "value": 4.9,
+        "scale": 5,
+        "count": 12151,
+        "source_url": "https://www.coursera.org/learn/algorithms-part1",
+        "seen": "2026-10-11"
+      },
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "mit-ocw-6-006-introduction-to-algorithms",
+      "title": "Introduction to Algorithms (6.006, Spring 2020)",
+      "provider": "MIT OpenCourseWare",
+      "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/",
+      "kind": "course",
+      "skills": [
+        "algorithms"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 80,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Solved problem sets on sorting, graphs and dynamic programming, with solutions written up in a GitHub repo",
+      "why_picked": "MIT's algorithms course with lecture videos, notes, problem sets and solutions, all free. Heavier on theory than the Princeton course; pair the two.",
+      "evidence": [
+        {
+          "claim": "Course page: MIT 6.006 Spring 2020 by Erik Demaine, Jason Ku and Justin Solomon; lecture videos, notes, quizzes, problem sets with solutions, exams; CC BY-NC-SA 4.0 licence link; © 2001-2026 MIT",
+          "url": "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2020,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "erickson-algorithms-textbook",
+      "title": "Algorithms (free textbook)",
+      "provider": "Jeff Erickson, University of Illinois Urbana-Champaign",
+      "url": "https://jeffe.cs.illinois.edu/teaching/algorithms/",
+      "kind": "book",
+      "skills": [
+        "algorithms"
+      ],
+      "level": "advanced",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 100,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Worked solutions to recursion, dynamic programming and graph problems, kept as notes or code in a repo",
+      "why_picked": "Free CC BY 4.0 textbook behind the University of Illinois CS 374 and 473 courses: recursion, dynamic programming, graphs, flows. For after you know basic data structures.",
+      "evidence": [
+        {
+          "claim": "Page: free electronic version of Jeff Erickson's textbook (1st edition June 2019, 472 pages), 'will remain freely available here indefinitely', textbook CC BY 4.0, primary reference for CS 374 and CS 473 at Illinois (taught Fall 2023 and Fall 2024); assumes discrete maths and basic data structures; the author asks not to be sent exercise solutions",
+          "url": "https://jeffe.cs.illinois.edu/teaching/algorithms/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "donne-martin-system-design-primer",
+      "title": "The System Design Primer",
+      "provider": "donnemartin (GitHub)",
+      "url": "https://github.com/donnemartin/system-design-primer",
+      "kind": "tutorial",
+      "skills": [
+        "system design"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 15,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Two written system designs with diagrams and trade-offs (for example a URL shortener) in a public repo",
+      "why_picked": "Free open repo covering scaling, caching, databases, queues and CAP, with worked interview designs (for example Pastebin) and Anki flashcard decks. Mostly reading.",
+      "evidence": [
+        {
+          "claim": "Repository README: 'Learn how to design large-scale systems. Prep for the system design interview. Includes Anki flashcards'; covers scalability, CAP, load balancers, databases, caching, queues; system design interview questions with solutions; Creative Commons Attribution 4.0 licence (star count not shown to our fetcher)",
+          "url": "https://github.com/donnemartin/system-design-primer",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "docker-get-started-guide",
+      "title": "Build and share a containerized application (Docker Get Started)",
+      "provider": "Docker (docs.docker.com)",
+      "url": "https://docs.docker.com/get-started/tutorials/run-an-app/",
+      "kind": "tutorial",
+      "skills": [
+        "docker"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A to-do app run with Docker Compose, then built into your own image and pushed to Docker Hub",
+      "why_picked": "Official, short, and hands-on: run containers, start a multi-container app with Compose, build an image and share it. Needs Docker Desktop, Git and a Docker account.",
+      "evidence": [
+        {
+          "claim": "Docs page (the old get-started/introduction URL redirects here): a '15-minute tutorial' to run a container, start a multi-container app with Docker Compose (five services), build your own image and share it on Docker Hub; before you start: Docker Desktop, Git and a Docker account",
+          "url": "https://docs.docker.com/get-started/tutorials/run-an-app/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "prakhar-srivastav-docker-curriculum",
+      "title": "Docker Curriculum",
+      "provider": "Prakhar Srivastav",
+      "url": "https://docker-curriculum.com/",
+      "kind": "tutorial",
+      "skills": [
+        "docker"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 6,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A Flask app packaged with a Dockerfile and a multi-container Compose setup, published in a public repo",
+      "why_picked": "Longer step-by-step tutorial than the official guide: Dockerfiles, a Flask app, Compose with Elasticsearch, multi-stage builds. Uses current `docker compose`; no update date shown. Open source.",
+      "evidence": [
+        {
+          "claim": "Tutorial home by Prakhar Srivastav: docker run, Dockerfiles, packaging a Flask app, Compose with Elasticsearch, deploying to AWS; 'No Docker experience required'",
+          "url": "https://docker-curriculum.com/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "'Modern Docker' chapter: multi-stage builds, ARM and x86 builds for Apple Silicon (M1 to M4 Macs), Compose Watch and container hardening, so it covers current Docker practice; the Compose chapter uses the `docker compose up` syntax",
+          "url": "https://docker-curriculum.com/modern-docker/00-introduction/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Repository prakhar1989/docker-curriculum shows 6.1k GitHub stars, MIT license",
+          "url": "https://github.com/prakhar1989/docker-curriculum",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "aws-cloud-practitioner-essentials",
+      "title": "AWS Cloud Practitioner Essentials",
+      "provider": "Amazon Web Services (AWS Skill Builder)",
+      "url": "https://aws.amazon.com/training/learn-about/cloud-practitioner/",
+      "kind": "course",
+      "skills": [
+        "aws"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 13,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Preparation for the AWS Certified Cloud Practitioner exam; list the completed course under training on the CV",
+      "why_picked": "AWS's own beginner course on cloud concepts, core services, security and pricing, and the first step toward the entry-level exam. A free on-demand Skill Builder course; needs a free account.",
+      "evidence": [
+        {
+          "claim": "AWS Cloud practitioner training page (the old training/digital URL redirects here): AWS Cloud Practitioner Essentials, 12 hours 45 minutes, listed under individual on-demand AWS courses next to AWS Cloud Quest: Cloud Practitioner; the course itself runs on Skill Builder, which needs JavaScript and was not opened",
+          "url": "https://aws.amazon.com/training/learn-about/cloud-practitioner/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "AWS Skill Builder page: 'Access over 900 free self-paced digital courses'; Digital Classroom courses need a paid subscription; Individual subscription $29/month for exam prep and immersive labs",
+          "url": "https://aws.amazon.com/training/digital/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "AWS Training and Certification blog (posted 17 Dec 2020, text updated with Nov 2023 figures) lists AWS Cloud Practitioner Essentials under its free digital training offerings",
+          "url": "https://aws.amazon.com/blogs/training-and-certification/make-the-most-of-free-training-from-aws-training-and-certification/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "aws-certified-cloud-practitioner-exam",
+      "title": "AWS Certified Cloud Practitioner exam",
+      "provider": "Amazon Web Services",
+      "url": "https://aws.amazon.com/certification/certified-cloud-practitioner/",
+      "kind": "exam",
+      "skills": [
+        "aws"
+      ],
+      "level": "beginner",
+      "cost": "paid",
+      "price_usd": 100,
+      "price_note": "per exam attempt",
+      "hours": 20,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "AWS Certified Cloud Practitioner credential, valid 3 years, added to the CV and LinkedIn",
+      "why_picked": "AWS's entry-level certification, aimed at people new to cloud. $100 per exam attempt, valid 3 years. Take the free course first; prep hours are our estimate.",
+      "evidence": [
+        {
+          "claim": "Official certification page: 'Cost 100 USD', 90 minutes, 65 questions, valid for 3 years; a starting point for people with no prior IT or cloud experience switching to a cloud career",
+          "url": "https://aws.amazon.com/certification/certified-cloud-practitioner/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "AWS exam policies page: price table lists Foundational exams (the category of Cloud Practitioner) at $100 USD",
+          "url": "https://aws.amazon.com/certification/policies/before-testing/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "aws-hands-on-host-a-static-website",
+      "title": "Host a Static Website on AWS (hands-on tutorial)",
+      "provider": "Amazon Web Services",
+      "url": "https://docs.aws.amazon.com/hands-on/latest/host-static-website/host-static-website.html",
+      "kind": "tutorial",
+      "skills": [
+        "aws",
+        "git"
+      ],
+      "level": "beginner",
+      "cost": "freemium",
+      "price_usd": 3,
+      "price_note": "AWS usage per month after the free tier",
+      "hours": 1,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A static website deployed with AWS Amplify and Git-based continuous deployment, with a live URL for the CV",
+      "why_picked": "10-minute guided project that deploys a real site with AWS Amplify. AWS says about $0.50 a month within Free Tier limits, $1 to $3 a month outside. Delete the app afterwards.",
+      "evidence": [
+        {
+          "claim": "Tutorial page: beginner, 10 minutes, deploys a static site with AWS Amplify and Git-based continuous deployment; 'typically $1-3/mo' outside Free Tier limits and 'typically $0.50/mo' within; 'Last updated July 16, 2024'",
+          "url": "https://docs.aws.amazon.com/hands-on/latest/host-static-website/host-static-website.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "AWS Free Tier page: up to $200 in credits for new customers over 6 months on the Free plan; the account closes after 6 months or when credits run out; no charges unless you convert to a Paid plan",
+          "url": "https://aws.amazon.com/free/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2024,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "linux-foundation-introduction-to-linux-lfs101",
+      "title": "Introduction to Linux (LFS101)",
+      "provider": "The Linux Foundation",
+      "url": "https://training.linuxfoundation.org/training/introduction-to-linux/",
+      "kind": "course",
+      "skills": [
+        "linux"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 60,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Bash scripts and command-line labs completed, plus the Linux Foundation digital badge; scripts kept in a GitHub repo",
+      "why_picked": "Free beginner course from the foundation behind the Linux kernel project: command line, files, processes, networking, Bash scripting. Needs a free Linux Foundation login; 90 days of access.",
+      "evidence": [
+        {
+          "claim": "Course page: provider The Linux Foundation, price $0, 60 hours of course material, 90 days of access, hands-on labs, digital badge, beginner level, 18 chapters including command line operations and Bash scripting; page metadata dateModified 2026-05-28; login required to enrol",
+          "url": "https://training.linuxfoundation.org/training/introduction-to-linux/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "william-shotts-the-linux-command-line",
+      "title": "The Linux Command Line",
+      "provider": "William Shotts (linuxcommand.org)",
+      "url": "https://linuxcommand.org/tlcl.php",
+      "kind": "book",
+      "skills": [
+        "linux"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 30,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A set of Bash scripts that automate real tasks (backups, log parsing), kept in a GitHub repo",
+      "why_picked": "Free full book on the shell, from basic commands to scripting, with a current Internet edition. Hands-on by design: you type the commands as you read.",
+      "evidence": [
+        {
+          "claim": "Page: The Linux Command Line by William Shotts, seventh Internet edition (596 pages, release file version 25.12), free PDF download under a BY-NC-ND Creative Commons licence, print edition from No Starch Press; covers command line basics, shell scripting and common programs",
+          "url": "https://linuxcommand.org/tlcl.php",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "fastapi-tutorial-user-guide",
+      "title": "FastAPI Tutorial - User Guide",
+      "provider": "FastAPI (tiangolo)",
+      "url": "https://fastapi.tiangolo.com/tutorial/",
+      "kind": "tutorial",
+      "skills": [
+        "rest api",
+        "python"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A Python REST API with validation, authentication and tests, with the repo and docs page linked on the CV",
+      "why_picked": "Step-by-step official guide that ends with a working REST API: parameters, validation, auth, a SQL database, testing. The docs page shows the project's sponsor banners and a FastAPI Cloud promo.",
+      "evidence": [
+        {
+          "claim": "Tutorial page: path and query parameters, request bodies, validation, dependencies, OAuth2 with JWT, SQL databases, bigger applications, testing, debugging; the page carries sponsor banners and a 'Deploy on FastAPI Cloud' promo",
+          "url": "https://fastapi.tiangolo.com/tutorial/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "fastapi/fastapi repository on GitHub, MIT license (star count not shown to our fetcher)",
+          "url": "https://github.com/fastapi/fastapi",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "microsoft-web-api-design-best-practices",
+      "title": "Web API Design Best Practices",
+      "provider": "Microsoft (Azure Architecture Center)",
+      "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design",
+      "kind": "tutorial",
+      "skills": [
+        "rest api"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "An OpenAPI-documented design for your project's API (resource names, status codes, versioning, pagination)",
+      "why_picked": "Platform-independent reference on designing RESTful APIs: resources, HTTP methods, status codes, versioning. Read it after building a first API to improve its design.",
+      "evidence": [
+        {
+          "claim": "Microsoft Learn page: best practices for designing RESTful web APIs that support platform independence and loose coupling; covers resources, HTTP methods, status codes, versioning, pagination; metadata date 2025-03-27, 'Last updated on 2025-05-08'",
+          "url": "https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2025,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "react-dev-quick-start-and-tutorial",
+      "title": "React Quick Start and Tic-Tac-Toe tutorial",
+      "provider": "React (react.dev)",
+      "url": "https://react.dev/learn",
+      "kind": "tutorial",
+      "skills": [
+        "react"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 12,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A working tic-tac-toe game with move history, built in React and deployed from a GitHub repo",
+      "why_picked": "The official React docs: components, JSX, props, state and hooks. The tic-tac-toe tutorial gives a first small project with move history.",
+      "evidence": [
+        {
+          "claim": "Quick Start page (React v19.3): creating and nesting components, JSX, lists, events, useState, sharing data between components; links to the tic-tac-toe tutorial",
+          "url": "https://react.dev/learn",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Tutorial page: builds tic-tac-toe with turn alternation, winner detection and a move history you can jump back through; covers props, state, lifting state up, keys, immutability",
+          "url": "https://react.dev/learn/tutorial-tic-tac-toe",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "react-uk-react-dev-documentation",
+      "title": "Документація React (Ukrainian edition of react.dev)",
+      "provider": "React (reactjs/uk.react.dev)",
+      "url": "https://uk.react.dev/learn",
+      "kind": "tutorial",
+      "skills": [
+        "react"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": true,
+      "output": "A small React app with components, props and state, built from the Quick Start examples and kept in a GitHub repo",
+      "why_picked": "Official React docs in Ukrainian, run by the reactjs organisation. Partly in English: Quick Start is translated, but some pages, including the tic-tac-toe tutorial, are still English.",
+      "evidence": [
+        {
+          "claim": "uk.react.dev/learn serves the Ukrainian Quick Start page ('Ласкаво просимо до документації React!'), site header React v19.2 while react.dev shows v19.3",
+          "url": "https://uk.react.dev/learn",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Repository reactjs/uk.react.dev: 'React documentation website in Ukrainian / Офіційна українська версія сайту React', in the reactjs organization, content CC-BY-4.0; translators are not named on the front page",
+          "url": "https://github.com/reactjs/uk.react.dev",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "uk.react.dev/learn/tutorial-tic-tac-toe: the tutorial body is still in English (only the site interface is Ukrainian)",
+          "url": "https://uk.react.dev/learn/tutorial-tic-tac-toe",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "pytest-dev-getting-started",
+      "title": "pytest Getting Started",
+      "provider": "pytest-dev",
+      "url": "https://docs.pytest.org/en/stable/getting-started.html",
+      "kind": "tutorial",
+      "skills": [
+        "software testing",
+        "python"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A pytest test suite for one of your Python projects, run on every push with GitHub Actions, linked on the CV",
+      "why_picked": "Official pytest guide: first test, assertions, exceptions, grouping tests, fixtures. Short and runnable; apply it to a project of your own.",
+      "evidence": [
+        {
+          "claim": "Docs page 'Get Started': installing pytest, creating a first test, running several tests, asserting exceptions, grouping tests in a class, pytest.approx, the tmp_path fixture; official pytest documentation at docs.pytest.org",
+          "url": "https://docs.pytest.org/en/stable/getting-started.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "martin-fowler-the-practical-test-pyramid",
+      "title": "The Practical Test Pyramid",
+      "provider": "Ham Vocke on martinfowler.com",
+      "url": "https://martinfowler.com/articles/practical-test-pyramid.html",
+      "kind": "tutorial",
+      "skills": [
+        "software testing"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A test plan for your project (unit, integration, end-to-end) and tests at each level, shown in the repo README",
+      "why_picked": "Clear guide to which tests to write and how many: unit, integration, contract, UI. The code is a 2018 Java Spring Boot sample, so tool versions have moved on; the ideas still hold.",
+      "evidence": [
+        {
+          "claim": "Article by Ham Vocke (Thoughtworks) on Martin Fowler's site, published 26 February 2018 in installments; covers the test pyramid, unit, integration, contract and UI tests with a sample Spring Boot repo (hamvocke/spring-testing)",
+          "url": "https://martinfowler.com/articles/practical-test-pyramid.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2018,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "google-software-engineering-at-google-testing-overview",
+      "title": "Testing Overview (Software Engineering at Google, chapter 11)",
+      "provider": "Google (Abseil)",
+      "url": "https://abseil.io/resources/swe-book/html/ch11.html",
+      "kind": "book",
+      "skills": [
+        "software testing"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A short written testing strategy for your project: test sizes, what to automate and what to leave manual",
+      "why_picked": "How Google thinks about test size, the pyramid, flaky tests and coverage, free online. A one-hour read that gives you vocabulary for interviews.",
+      "evidence": [
+        {
+          "claim": "Chapter 11 'Testing Overview' by Adam Bender, edited by Tom Manshreck, from Software Engineering at Google; covers test size and scope, Google's version of the test pyramid, coverage, flakiness; publicly readable, CC BY-NC-ND 4.0 licence link",
+          "url": "https://abseil.io/resources/swe-book/html/ch11.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "kaggle-learn-intro-to-machine-learning",
+      "title": "Intro to Machine Learning (Kaggle Learn)",
+      "provider": "Kaggle (Google)",
+      "url": "https://www.kaggle.com/learn/intro-to-machine-learning",
+      "kind": "course",
+      "skills": [
+        "machine learning",
+        "python"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Exercises completed in Kaggle notebooks and a first Kaggle competition entry, with the public notebook linked on the CV",
+      "why_picked": "Short free course of 7 lessons with exercises in Kaggle notebooks: build, validate and improve a first model (overfitting, random forests). Needs Python basics. No update date shown.",
+      "evidence": [
+        {
+          "claim": "Kaggle course page (read with an extraction tool, since the page needs JavaScript): 'Intro to Machine Learning' by Dan Becker, 7 lessons with tutorials and exercises (How Models Work, Basic Data Exploration, Your First Machine Learning Model, Model Validation, Underfitting and Overfitting, Random Forests, Machine Learning Competitions); 3 hours estimated; 'No cost, like all Kaggle Learn Courses'; builds on the Kaggle Python course",
+          "url": "https://www.kaggle.com/learn/intro-to-machine-learning",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "google-machine-learning-crash-course",
+      "title": "Machine Learning Crash Course",
+      "provider": "Google for Developers",
+      "url": "https://developers.google.com/machine-learning/crash-course",
+      "kind": "course",
+      "skills": [
+        "machine learning"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 15,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Completed programming exercises and module quizzes with badges; a trained classifier notebook shared on GitHub",
+      "why_picked": "Google's free 15-hour course, rebuilt in Nov 2024 with LLM and AutoML modules, 130+ exercise questions and module quizzes.",
+      "evidence": [
+        {
+          "claim": "Google blog (Nov 12, 2024): reimagined 'free, online 15-hour self-study course' with LLM and AutoML modules, 130+ exercise questions, quizzes with badges",
+          "url": "https://blog.google/technology/developers/machine-learning-crash-course/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Course page on developers.google.com: fast-paced, practical introduction with animated videos, interactive visualizations and hands-on practice exercises; modules from linear and logistic regression and classification to neural networks, embeddings, large language models, production ML, AutoML and fairness",
+          "url": "https://developers.google.com/machine-learning/crash-course",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2024,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "mit-6-s191-introduction-to-deep-learning",
+      "title": "MIT 6.S191: Introduction to Deep Learning",
+      "provider": "Massachusetts Institute of Technology",
+      "url": "https://introtodeeplearning.com/",
+      "kind": "course",
+      "skills": [
+        "deep learning"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 30,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Three completed labs (music generation, face detection, LLM fine-tuning) as a notebook repo",
+      "why_picked": "MIT's own bootcamp, rerun every year (2026 edition) with public lecture videos and open-source code and labs. Needs linear algebra, calculus and some Python.",
+      "evidence": [
+        {
+          "claim": "Course page: 2026 edition (in person Jan 5-9, 2026; online edition Mar 30 to May 25, 2026), lectures with slides and videos, 3 software labs (music generation, facial detection, LLM fine-tuning), materials under the MIT license, prerequisites calculus and linear algebra, Python helpful; led by Alexander and Ava Amini; the page lists industry sponsors of the programme",
+          "url": "https://introtodeeplearning.com/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "pytorch-learn-the-basics",
+      "title": "Learn the Basics (PyTorch tutorial)",
+      "provider": "PyTorch",
+      "url": "https://docs.pytorch.org/tutorials/beginner/basics/intro.html",
+      "kind": "tutorial",
+      "skills": [
+        "deep learning",
+        "python"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 6,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A PyTorch image classifier for FashionMNIST in a notebook, in a public GitHub repo",
+      "why_picked": "Official, runnable tutorial that takes you through tensors, data loading, building and training a network and saving it. Updated Jan 2026 for PyTorch 2.14.",
+      "evidence": [
+        {
+          "claim": "Tutorial page: tensors, datasets and dataloaders, transforms, model building, autograd, optimization, save and load; trains a FashionMNIST classifier; header PyTorch v2.14.0; 'Last Updated: Jan 20, 2026'; authored by PyTorch contributors",
+          "url": "https://docs.pytorch.org/tutorials/beginner/basics/intro.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "deeplearning-ai-chatgpt-prompt-engineering-for-developers",
+      "title": "ChatGPT Prompt Engineering for Developers",
+      "provider": "DeepLearning.AI with OpenAI",
+      "url": "https://www.deeplearning.ai/courses/chatgpt-prompt-eng",
+      "kind": "course",
+      "skills": [
+        "prompt engineering"
+      ],
+      "level": "beginner",
+      "cost": "free-audit",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Working prompts for summarising, classifying, transforming text and a small chatbot, in a notebook in a GitHub repo",
+      "why_picked": "Short course by Andrew Ng and an OpenAI engineer; examples use the OpenAI API in hosted notebooks. Free for now (page: limited-time beta); the graded work and accomplishment need Pro.",
+      "evidence": [
+        {
+          "claim": "Course page (old short-courses URL redirects here): beginner, 1h40m, 9 video lessons, 7 code examples, 1 graded assignment, instructors Isa Fulford (OpenAI) and Andrew Ng, 'Updated May 20, 2026'; 'Learn for Free', 'Earn an accomplishment with PRO'; 'Course access is free for a limited time during the DeepLearning.AI learning platform beta'; examples use the OpenAI API in a Jupyter notebook environment, the page does not say whether your own API key is needed",
+          "url": "https://www.deeplearning.ai/courses/chatgpt-prompt-eng",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "DeepLearning.AI Pro membership price: $25/month billed annually or $30/month billed monthly",
+          "url": "https://www.deeplearning.ai/specializations/deep-learning",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "anthropic-prompt-engineering-overview",
+      "title": "Prompt engineering overview and interactive tutorial",
+      "provider": "Anthropic",
+      "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview",
+      "kind": "tutorial",
+      "skills": [
+        "prompt engineering"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 6,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A tested prompt with written success criteria and a small set of evaluation cases, saved in a repo",
+      "why_picked": "Vendor docs plus a 9-chapter interactive tutorial (structure, roles, examples, reasoning). Caveat: the tutorial was written for Claude 3 and its exercises need Claude API access.",
+      "evidence": [
+        {
+          "claim": "Docs page: when to prompt engineer, defining success criteria and evals, links to prompting best practices, a GitHub interactive tutorial and a Google Sheets tutorial; the tutorial is noted as written for Claude 3 models; reading the docs is free",
+          "url": "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Repository anthropics/prompt-eng-interactive-tutorial: 9 chapters with exercises plus an appendix, 38.4k GitHub stars; the tutorial runs Claude 3 Haiku and the Sheets version uses the Claude for Sheets extension, so doing the exercises needs API access (the pages state no price)",
+          "url": "https://github.com/anthropics/prompt-eng-interactive-tutorial",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "openai-prompt-engineering-guide",
+      "title": "Prompt engineering guide (OpenAI API)",
+      "provider": "OpenAI",
+      "url": "https://developers.openai.com/api/docs/guides/prompt-engineering",
+      "kind": "tutorial",
+      "skills": [
+        "prompt engineering"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A prompt with few-shot examples and structured output, used in a small script in a GitHub repo",
+      "why_picked": "A current vendor guide to message roles, few-shot examples, adding context and prompting reasoning models. A second view next to the Anthropic docs; trying it needs an API key.",
+      "evidence": [
+        {
+          "claim": "Guide page on developers.openai.com: message roles, few-shot learning, adding context (retrieval), Markdown and XML formatting, differences between prompting reasoning models and GPT models; notes that reusable prompt objects are being deprecated with v1/prompts shutting down on November 30, 2026; reading is free, trying the examples needs an API account",
+          "url": "https://developers.openai.com/api/docs/guides/prompt-engineering",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    }
+  ]
+}

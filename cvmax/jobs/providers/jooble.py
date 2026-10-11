@@ -52,6 +52,7 @@ class Jooble(BaseProvider):
                 salary=as_str(j.get("salary")) or None, snippet=j.get("snippet"),
                 remote=True if "remote" in location.lower() else None,
                 tags=[as_str(j.get("type"))], allow=_own_link,
+                description=j.get("snippet"), description_plain=True,  # the API returns only this excerpt
             )
             if v:
                 out.append(v)

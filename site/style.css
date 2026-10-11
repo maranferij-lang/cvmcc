@@ -111,11 +111,6 @@ section.hero { border-top: 0; padding-block: 56px 72px; }
 .marked .stamp { display: grid; }
 .stamp b { font-size: 2rem; display: block; }
 .stamp small { font-size: .78rem; }
-.locked { position: relative; margin-top: 10px; }
-.locked ul { filter: blur(4.5px); user-select: none; pointer-events: none; }
-.unlock { position: absolute; inset: 0; display: grid; place-items: center; }
-.unlock div { background: var(--sheet-ink); color: #fff; font-family: var(--f-body); border-radius: 6px; padding: 10px 14px; font-size: .92rem; font-weight: 700; display: flex; gap: 10px; align-items: center; box-shadow: 0 10px 24px -10px rgba(0,0,0,.5); }
-.unlock span.p { background: #e0261b; border-radius: 4px; padding: 2px 8px; }
 .sheet-note { margin-top: 18px; font-size: .88rem; color: var(--ink-3); }
 @media (prefers-reduced-motion: no-preference) {
   .marked .del { animation: strike .5s ease both; }
@@ -176,9 +171,9 @@ tbody tr:last-child td { border-bottom: 0; }
 .feat li.off::before { content: "–"; color: var(--ink-3); }
 .plan .btn { justify-content: center; }
 .plan .btn.ghost { box-shadow: inset 0 0 0 2px var(--ink); }
-.scarce { margin-top: 26px; font-weight: 700; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
-.scarce .left { color: var(--red); }
-.after-pay { margin-top: 18px; color: var(--ink-2); font-size: .95rem; max-width: 46rem; }
+.plans.one { grid-template-columns: minmax(0, 520px); }
+@media (max-width: 920px) { .plans.one { max-width: none; } }
+.free-note { margin-top: 22px; color: var(--ink-2); font-size: .95rem; max-width: 46rem; }
 
 /* testimonials */
 .quotes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
@@ -207,11 +202,6 @@ footer a:hover { color: var(--ink); }
 /* waitlist */
 .wl { display: grid; gap: 18px; max-width: 640px; }
 .wl form { display: grid; gap: 14px; }
-.wl .plans-pick { display: flex; flex-wrap: wrap; gap: 8px; border: 0; padding: 0; margin: 0; }
-.wl .plans-pick legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
-.wl .plans-pick label { border: 1.5px solid var(--line); border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: .95rem; }
-.wl .plans-pick input { accent-color: var(--red); margin-right: 6px; }
-.wl .plans-pick label:has(input:checked) { border-color: var(--red); background: var(--red-wash); }
 .wl .row { display: flex; flex-wrap: wrap; gap: 10px; }
 .wl input[type=email] { flex: 1 1 240px; min-width: 0; font: inherit; color: var(--ink); background: var(--paper); border: 1.5px solid var(--ink); border-radius: 6px; padding: 12px 14px; }
 .wl .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }

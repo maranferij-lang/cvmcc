@@ -6,12 +6,14 @@ import hashlib
 import hmac
 import os
 import re
+from typing import Callable
 from urllib.parse import urlsplit
 
 import streamlit as st
 
 from cvmax import config
 from cvmax.jobs import JobQuery, deep_links, demo_search_result, rank_jobs, search_jobs
+from cvmax.jobs.models import Vacancy
 from cvmax.llm import LLMError
 from cvmax.safe_text import md_escape
 from ui.account import log_event, take_limit
@@ -115,7 +117,8 @@ def _applied(key: str, vacancy, fit, role: str, region: str) -> None:
     log_event("job_applied", **_tag_fields(role), region=region, source=vacancy.source, fit=fit.fit if fit else None)
 
 
-def _vacancy(key: str, i: int, vacancy, fit, role: str, region: str) -> None:
+def _vacancy(key: str, i: int, vacancy, fit, role: str, region: str,
+             on_review: Callable[[Vacancy], None] | None = None) -> None:
     with card(f"job-{key}-{i}"):
         st.link_button(plain_label(f"{vacancy.title} · {vacancy.company}"), vacancy.url, type="secondary")
         parts = [vacancy.location, vacancy.source, vacancy.posted_at, vacancy.salary]
@@ -127,13 +130,25 @@ def _vacancy(key: str, i: int, vacancy, fit, role: str, region: str) -> None:
             st.markdown(f"{badge} {md_escape(fit.why)}")
             if fit.missing:
                 st.caption("Missing: " + ", ".join(md_escape(m) for m in fit.missing))
+        # The caller decides what a click does (the review page puts the posting into its form); the callback
+        # runs in this script run, inside the card, so a message it shows appears under this posting.
+        if on_review is not None and st.button(
+            "Review for this posting", key=f"review_{key}_{vacancy.id}", icon=":material/fact_check:",
+            help="Puts this posting into the form, so your CV is reviewed against it.",
+        ):
+            on_review(vacancy)
         st.checkbox("Applied", key=f"applied_{key}_{vacancy.id}", on_change=_applied,
                     args=(key, vacancy, fit, role, region))
 
 
 def render_jobs(*, key: str, role: str, keywords: list[str], region: str, level: str, company: str,
-                cv_text: str, gaps: list[str], feedback_language: str) -> None:
-    """The search button and the list of postings from the session state."""
+                cv_text: str, gaps: list[str], feedback_language: str,
+                on_review: Callable[[Vacancy], None] | None = None) -> None:
+    """The search button and the list of postings from the session state.
+
+    `on_review`: when set, every posting gets a "Review for this posting" button that calls it with the Vacancy.
+    Without it (the career page) there is no such button.
+    """
     kws = _keywords(role, keywords)
     try:
         q = JobQuery(keywords=kws, region=region, level=level, company=company) if kws else None
@@ -154,7 +169,7 @@ def render_jobs(*, key: str, role: str, keywords: list[str], region: str, level:
         if not shown:
             st.caption("No matching postings from our sources right now. Try the links below.")
         for i, (v, f) in enumerate(shown):
-            _vacancy(key, i, v, f, role, region)
+            _vacancy(key, i, v, f, role, region, on_review)
         links = list(result.deep_links)
     else:
         links = deep_links(q) if q else []

@@ -1,0 +1,64 @@
+{
+  "skills": [
+    {
+      "id": "sql",
+      "label": "SQL",
+      "aliases": [
+        "postgresql",
+        "mysql",
+        "joins"
+      ],
+      "programs": [
+        "software_engineering"
+      ]
+    },
+    {
+      "id": "python",
+      "label": "Python",
+      "aliases": [
+        "python3",
+        "numpy",
+        "jupyter"
+      ],
+      "programs": [
+        "software_engineering"
+      ]
+    },
+    {
+      "id": "pandas",
+      "label": "pandas",
+      "aliases": [
+        "dataframes",
+        "data wrangling",
+        "data cleaning"
+      ],
+      "programs": [
+        "economics_big_data"
+      ]
+    },
+    {
+      "id": "power bi",
+      "label": "Power BI",
+      "aliases": [
+        "powerbi",
+        "dax",
+        "bi dashboards"
+      ],
+      "programs": [
+        "economics_big_data"
+      ]
+    },
+    {
+      "id": "ielts",
+      "label": "IELTS",
+      "aliases": [
+        "ielts academic",
+        "band score",
+        "ielts exam"
+      ],
+      "programs": [
+        "other"
+      ]
+    }
+  ]
+}

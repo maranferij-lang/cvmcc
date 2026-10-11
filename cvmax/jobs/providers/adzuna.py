@@ -62,7 +62,8 @@ class Adzuna(BaseProvider):
                 company=company.get("display_name"), location=loc.get("display_name"),
                 source=self.name, posted_at=parse_date(j.get("created")), salary=salary,
                 snippet=j.get("description"), allow=adzuna_url_ok,
-                tags=[as_str(j.get("contract_time"))],
+                tags=[as_str(j.get("contract_time"))], description=j.get("description"),
+                description_plain=True,
             )
             if v:
                 out.append(v)

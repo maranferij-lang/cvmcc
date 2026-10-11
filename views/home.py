@@ -9,6 +9,11 @@ from ui.account import auth_configured, join_waitlist
 
 st.html('<div class="cvx-wide"></div>')  # wider page, see assets/style.css
 ACCOUNTS = auth_configured()
+_REVIEWS_PER_DAY = config.LIMITS["analysis"][0]  # None = no per-person limit; never print it as a number
+MAIN_LIMIT = (
+    "there is no daily limit on CV reviews per person" if _REVIEWS_PER_DAY is None
+    else f"the main limit is {_REVIEWS_PER_DAY} CV reviews a day per person"
+)
 EMAIL = re.compile(r"^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$")
 
 # ---------- Hero ----------
@@ -17,7 +22,7 @@ with left:
     st.markdown(
         """
 <div class="cvx-hero">
-  <span class="cvx-label">free while in beta</span>
+  <span class="cvx-label">free while we launch</span>
   <h1>Your CV has <span class="cvx-mark">7&nbsp;seconds</span> to get you an interview.</h1>
   <p class="lead">Name your dream job. We read your CV like a recruiter in that field, mark every line keep,
   cut or rewrite, and tell you what to learn next to get there. Nothing made up: where a number is missing,
@@ -74,11 +79,11 @@ st.markdown(
   <h2>What fixing a CV usually costs you</h2>
 </div>
 <div class="cvx-bill">
-  <div class="r"><div><b>CV writer</b><span>3 to 7 days, and they don't know your field</span></div><div class="c">$100–300</div></div>
+  <div class="r"><div><b>CV writer</b><span>3 to 7 days, and they don't know your field</span></div><div class="c">hundreds of dollars</div></div>
   <div class="r"><div><b>Career centre</b><span>1 to 2 weeks for a slot, 20 minutes per CV</span></div><div class="c">2 weeks</div></div>
-  <div class="r"><div><b>Resume builder subscription</b><span>Templates and keyword scores, billed every month</span></div><div class="c">$25–30/mo</div></div>
+  <div class="r"><div><b>Resume builder subscription</b><span>Templates and keyword scores, billed every month</span></div><div class="c">every month</div></div>
   <div class="r"><div><b>ChatGPT</b><span>Invents numbers you'll have to defend in the interview</span></div><div class="c">your credibility</div></div>
-  <div class="t"><div>GetCVmax: every line checked, rewritten for the job</div><div class="c">$15 once</div></div>
+  <div class="t"><div>GetCVmax: every line checked, rewritten for the job</div><div class="c">free while we launch</div></div>
 </div>
 """,
     unsafe_allow_html=True,
@@ -119,7 +124,7 @@ st.markdown(
     <tr><td>Finds experience you forgot</td><td class="us">Question interview</td><td class="no">No</td><td class="no">No</td><td>In a call</td></tr>
     <tr><td>Ready PDF and DOCX</td><td class="us">Yes</td><td class="no">No</td><td>Yes</td><td>Yes</td></tr>
     <tr><td>Time</td><td class="us">~10 minutes</td><td class="no">An evening of prompts</td><td class="no">1–2 hours</td><td class="no">3–7 days</td></tr>
-    <tr><td>Price</td><td class="us">$15 once</td><td class="no">$0–20/mo</td><td class="no">$25–30/mo</td><td class="no">$100–300</td></tr>
+    <tr><td>Price</td><td class="us">Free while we launch</td><td class="no">Free or monthly plan</td><td class="no">Monthly fee</td><td class="no">Hundreds of dollars</td></tr>
   </tbody>
 </table></div>
 """,
@@ -146,58 +151,48 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ---------- Pricing ----------
+# ---------- Free launch ----------
 st.markdown(
-    """
-<div class="cvx-section" id="pricing">
-  <span class="cvx-label">pricing</span>
-  <h2>Pay once. No subscription.</h2>
-  <p>Free while we're in beta. When payments open, launch prices go to the first 100 buyers.</p>
+    f"""
+<div class="cvx-section" id="free">
+  <span class="cvx-label">free launch</span>
+  <h2>Free while we launch</h2>
+  <p>No payment, no card, nothing to cancel. {MAIN_LIMIT[0].upper() + MAIN_LIMIT[1:]}, and there are smaller
+  daily limits on the other tools, so it stays free for everyone.</p>
 </div>
-<div class="cvx-plans">
-  <div class="cvx-plan">
-    <h4>Scan</h4><p class="for">See what's wrong with one CV</p>
-    <div class="price"><b>$5</b><span>once</span></div>
-    <ul><li>Score out of 100 on 7 criteria</li><li>Verdict on every line</li><li>The 3 most important rewrites</li>
-      <li class="off">All rewrites for the job ad</li><li class="off">Question interview</li><li class="off">PDF and DOCX download</li></ul>
-  </div>
-  <div class="cvx-plan hot"><span class="tag">Most popular</span>
-    <h4>Full fix</h4><p class="for">One CV, ready to send for one job</p>
-    <div class="price"><s>$25</s><b>$15</b><span>once</span></div>
-    <ul><li>Everything in Scan</li><li>Every rewrite, tailored to the job ad</li><li>Interview that finds results you forgot</li>
-      <li>One-page PDF and DOCX that pass ATS</li><li>What to learn next, with real deadlines</li><li>1 re-scan after your edits</li></ul>
-  </div>
-  <div class="cvx-plan"><span class="tag">Best value</span>
-    <h4>Job hunt</h4><p class="for">You're applying to many jobs</p>
-    <div class="price"><s>$49</s><b>$29</b><span>once</span></div>
-    <ul><li>5 Full fixes, one per job ad</li><li>Which roles fit you, with a fit score</li><li>CV from scratch by interview</li>
-      <li>All results saved</li><li>Credits never expire</li></ul>
+<div class="cvx-plans one">
+  <div class="cvx-plan hot"><span class="tag">Free</span>
+    <h4>Everything included</h4>
+    <ul><li>Score out of 100 on 7 criteria</li><li>A verdict on every line</li><li>Rewrites for your job ad</li>
+      <li>The Q&amp;A interview that finds results you forgot</li><li>One-page PDF and DOCX download</li>
+      <li>Vetted learning resources, each checked by a person</li><li>Live job links</li>
+      <li>A shareable score card</li></ul>
   </div>
 </div>
-<div class="cvx-scarce"><span>Launch price for the first 100 buyers.</span><span class="left">100 left</span></div>
+<p class="cvx-note">Paid options may come later. We will email you before anything changes, and everything you
+made stays yours.</p>
 """,
     unsafe_allow_html=True,
 )
 
 with st.form("waitlist", border=False):
-    st.markdown("**Lock in the launch price.** We'll email you once when payments open.")
-    w1, w2, w3 = st.columns([2, 1.2, 1], vertical_alignment="bottom")
+    st.markdown("**Get one email when something new ships.** No spam.")
+    w1, w3 = st.columns([3, 1], vertical_alignment="bottom")
     email = w1.text_input("Your email", placeholder="you@email.com", max_chars=254, key="waitlist_email")
-    plan = w2.selectbox("Plan", ["full", "scan", "hunt"],
-                        format_func={"scan": "Scan · $5", "full": "Full fix · $15", "hunt": "Job hunt · $29"}.get)
-    sent = w3.form_submit_button("Get the launch price", type="primary", width="stretch")
+    sent = w3.form_submit_button("Notify me", type="primary", width="stretch")
 if sent:
     if not EMAIL.match(email.strip()):
         st.error("Check your email address: it looks incomplete.")
-    elif join_waitlist(email, plan, st.query_params.get("ref")):
-        st.success("You're on the list. We'll email you when payments open.")
+    elif join_waitlist(email, "full", st.query_params.get("ref")):
+        st.success("You're on the list. We'll email you once when something new ships.")
 
 # ---------- FAQ ----------
 st.markdown('<div class="cvx-section"><span class="cvx-label">questions</span><h2>Before you start</h2></div>',
             unsafe_allow_html=True)
 faq = [
-    ("Is it free?", "Right now, yes: GetCVmax is in beta with daily limits. When payments open, it becomes "
-     "pay-once with no subscription, and people on the launch list get the launch price."),
+    ("Is it free?", f"Yes, while we launch. {MAIN_LIMIT[0].upper() + MAIN_LIMIT[1:]}, "
+     "and there are smaller daily limits on the other tools. The limits reset daily. There is no subscription. Paid options may come later; we will email you "
+     "before anything changes, and everything you made stays yours."),
     ("Will it make things up?", "No. It only rewrites what's in your CV or what you tell it in the Q&A. "
      "Where a number is missing, it leaves a gap like [N] and asks you to fill it."),
     ("Do you store my CV?", "Not the file. It is sent to the model only for the review. "

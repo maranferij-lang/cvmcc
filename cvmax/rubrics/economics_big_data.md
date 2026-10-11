@@ -31,3 +31,14 @@ Example bullets (style reference only):
 - Wrote SQL queries on a 4M-row transactions table to segment 60,000 customers by churn risk; findings
   informed a retention campaign.
 - Automated a monthly CPI dashboard in Python (pandas, Plotly), cutting preparation from 2 days to 3 hours.
+- Replicated the main tables of a published trade-policy paper in Stata from 2.1M rows of raw customs data;
+  matched 14 of 15 coefficients and documented the one discrepancy.
+- Forecast quarterly regional inflation in R (ARIMA, gradient boosting); mean absolute error 22% below a
+  random-walk benchmark over 12 test quarters.
+
+## Screening order
+1. First: degree field, economics and quantitative coursework, GPA with scale; RA posts also ask for transcripts (Federal Reserve Board; Tufts Career Center).
+2. Second: Stata, R, Python or SQL, named high on the page and used in bullets (UMD Economics; UVA Economics Career Office).
+3. Third: research or analyst experience; past RA work is "one of the most powerful indicators of success" for predocs (PREDOC).
+- Many predoc posts add a data task of a few hours, so every listed tool must hold up in it (PREDOC).
+- First-pass reject: no statistical software or programming language anywhere on the page (Federal Reserve Board RA qualifications).

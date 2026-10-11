@@ -1,0 +1,829 @@
+{
+  "cluster": "language_career",
+  "resources": [
+    {
+      "id": "british-council-learnenglish",
+      "title": "LearnEnglish free resources (A1 to C1)",
+      "provider": "British Council",
+      "url": "https://learnenglish.britishcouncil.org/",
+      "kind": "course",
+      "skills": [
+        "english"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Study material by CEFR level A1 to C1; confirm your level with a test and list that result on your CV",
+      "why_picked": "Run by the British Council. Free listening, reading, writing, speaking, grammar and vocabulary by CEFR level A1 to C1, plus a free level test. A free account unlocks the full library.",
+      "evidence": [
+        {
+          "claim": "Homepage: 'Created by the British Council'; 'Learn with free resources' (videos, texts, audio with interactive exercises); a free LearnEnglish account gives a free English level test; online courses and IELTS preparation are listed as separate services",
+          "url": "https://learnenglish.britishcouncil.org/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Free resources page lists sections for listening, reading, writing, speaking, grammar, vocabulary, business English and general English; registering unlocks the full library; community events dated up to Sep 2026",
+          "url": "https://learnenglish.britishcouncil.org/free-resources",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Listening section offers five levels: A1, A2, B1, B2 and C1",
+          "url": "https://learnenglish.britishcouncil.org/free-resources/listening",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "bbc-learning-english",
+      "title": "BBC Learning English",
+      "provider": "BBC",
+      "url": "https://www.bbc.co.uk/learningenglish/",
+      "kind": "channel",
+      "skills": [
+        "english"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 30,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Daily listening and vocabulary practice; pair it with a certificate or test result for the CV",
+      "why_picked": "BBC site running since 1943. New weekly programmes (6 Minute English, The English We Speak), easy, medium and hard levels, a level test and a Work English section. Free.",
+      "evidence": [
+        {
+          "claim": "Homepage: 'Inspiring language learning since 1943'; easy, medium and hard levels; new episodes every week of 6 Minute English and The English We Speak; Test Your Level section",
+          "url": "https://www.bbc.co.uk/learningenglish/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Level test page opens without login and routes learners to the matching BBC programmes",
+          "url": "https://www.bbc.co.uk/learningenglish/english/course/test-your-level",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "ef-set-english-certificate",
+      "title": "EF SET free English test and certificate",
+      "provider": "EF Education First",
+      "url": "https://www.efset.org/",
+      "kind": "exam",
+      "skills": [
+        "english"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "An EF SET certificate with a CEFR level and a personal link for your LinkedIn profile or CV",
+      "why_picked": "Free 50 or 90 minute test with a CEFR score and certificate, built with named assessment experts. Vendor-run, unproctored self-assessment, not an admissions or visa test: use IELTS or TOEFL for that.",
+      "evidence": [
+        {
+          "claim": "Homepage: free online English test with certification, 2-skill (50 min) and 4-skill (90 min) versions, a 20-question practice test, results aligned with CEFR levels",
+          "url": "https://www.efset.org/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "FAQ: score per skill and an official EF SET certificate with a personalised URL for LinkedIn or a CV; launched 2015; designed 'primarily as a tool for individuals to evaluate themselves'; not proctored and identity not checked; EF keeps no list of schools or employers that accept it; test design credited to named assessment experts",
+          "url": "https://www.efset.org/faq/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "ielts-official-sample-test-questions",
+      "title": "IELTS official sample test questions",
+      "provider": "IELTS (ielts.org)",
+      "url": "https://ielts.org/take-a-test/preparation-resources/sample-test-questions",
+      "kind": "practice",
+      "skills": [
+        "ielts"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 6,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A baseline band estimate from official questions, so you know what score to aim for before booking",
+      "why_picked": "Official practice and sample questions with answers for IELTS Academic, General Training and UKVI Life Skills, published by the test owners. Free.",
+      "evidence": [
+        {
+          "claim": "Page offers 'Official practice and sample questions and answers' for IELTS Academic, General Training and UKVI Life Skills; footer copyright 2026",
+          "url": "https://ielts.org/take-a-test/preparation-resources/sample-test-questions",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Official preparation hub lists sample tests, writing resources and the trial test, and links partners British Council, IDP and Cambridge English",
+          "url": "https://ielts.org/take-a-test/preparation-resources",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "idp-ielts-free-practice-tests",
+      "title": "IELTS free practice tests (familiarisation tests)",
+      "provider": "IDP IELTS",
+      "url": "https://ielts.idp.com/prepare/free-ielts-practice-tests",
+      "kind": "practice",
+      "skills": [
+        "ielts"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 6,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Computer-style Listening, Reading and Writing practice with answer keys, before you sit the real test",
+      "why_picked": "IDP is one of the three IELTS partners named on ielts.org. Page lists computer-delivered Listening, Reading and Writing familiarisation tests and a Speaking Part 1 recording. Free.",
+      "evidence": [
+        {
+          "claim": "IDP page lists free computer-delivered Listening, Reading and Writing familiarisation tests (answer keys for Listening and Reading) and Speaking Part 1 audio with transcript",
+          "url": "https://ielts.idp.com/prepare/free-ielts-practice-tests",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "ielts.org lists IDP IELTS as an official partner preparation resource",
+          "url": "https://ielts.org/take-a-test/preparation-resources",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "ets-toefl-ibt-free-practice",
+      "title": "TOEFL iBT official free practice tests and prep planner",
+      "provider": "ETS",
+      "url": "https://www.ets.org/toefl/test-takers/ibt/prepare.html",
+      "kind": "practice",
+      "skills": [
+        "toefl"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 24,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Two full-length practice results and a completed 8-week plan, so you can set a target score before booking",
+      "why_picked": "Official ETS page lists free products: an interactive sample, two full-length practice tests for the January 2026 format, and a free 8-week prep planner (PDF). Paid TestReady items are separate.",
+      "evidence": [
+        {
+          "claim": "Prep page lists Free products: Interactive Sample, Full-Length Practice Test 1 and 2 (links named sample-test-jan-2026), and a free 8-week TOEFL iBT Test Prep Planner",
+          "url": "https://www.ets.org/toefl/test-takers/ibt/prepare.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Test content page shows the current task types (Complete the Words, Read in Daily Life, Write an Email, Take an Interview) and about two hours of testing",
+          "url": "https://www.ets.org/toefl/test-takers/ibt/about/content.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "ets-toefl-ibt-test",
+      "title": "TOEFL iBT test",
+      "provider": "ETS",
+      "url": "https://www.ets.org/toefl/test-takers/ibt/about.html",
+      "kind": "exam",
+      "skills": [
+        "toefl"
+      ],
+      "level": "intermediate",
+      "cost": "paid",
+      "price_usd": 170,
+      "price_note": "per test in Ukraine, excluding taxes",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "An English result you can list as 'TOEFL iBT' with your score",
+      "why_picked": "Official ETS admissions test; ETS says 13,500+ institutions in 160+ countries recognise it. About 2 hours. US$170 per test in Ukraine, excluding taxes; US$280 in the US.",
+      "evidence": [
+        {
+          "claim": "ETS TOEFL page: 'Recognized by 13,500+ institutions across 160+ countries'; offers a free practice test link",
+          "url": "https://www.ets.org/toefl.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "ETS fees page is a country selector; prices exclude VAT or other taxes except for EU countries; other fees listed include US$49 express registration and US$29 per extra score report",
+          "url": "https://www.ets.org/toefl/test-takers/ibt/register/fees.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "ETS fee data file behind the fees page lists Ukraine at $170 and United States at $280",
+          "url": "https://www.ets.org/content/dam/ets-org/s/toefl/toefl_ibt_fees_new.json",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Test content page: sections Reading, Listening, Writing, Speaking; 'allow approximately two hours'; adaptive",
+          "url": "https://www.ets.org/toefl/test-takers/ibt/about/content.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "british-council-learnenglish-business-english",
+      "title": "LearnEnglish Business English hub",
+      "provider": "British Council",
+      "url": "https://learnenglish.britishcouncil.org/business-english",
+      "kind": "tutorial",
+      "skills": [
+        "business english"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 15,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Practised workplace emails and interview answers in English that you can reuse in applications",
+      "why_picked": "British Council hub: English for emails (pre-intermediate to intermediate), business magazine, podcasts and You're Hired job-search videos, with tasks. Corporate training is separate.",
+      "evidence": [
+        {
+          "claim": "Page lists a business magazine (intermediate or upper intermediate), podcasts for professionals (upper intermediate), English for emails (pre-intermediate or intermediate) and the You're Hired video series (intermediate or upper intermediate); says activities develop interview skills and email writing, with tasks after each video, podcast or article; corporate training and online courses are listed as separate offers",
+          "url": "https://learnenglish.britishcouncil.org/business-english",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Free resources page includes a Business English section next to the skill sections",
+          "url": "https://learnenglish.britishcouncil.org/free-resources",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "bbc-english-at-work",
+      "title": "English at Work (animated business drama)",
+      "provider": "BBC Learning English",
+      "url": "https://www.bbc.co.uk/learningenglish/english/features/english-at-work",
+      "kind": "video-course",
+      "skills": [
+        "business english"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 5,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Office vocabulary and phrases to use in interviews and workplace chat; no certificate",
+      "why_picked": "BBC animated series on office English, intermediate level, linked from BBC's Business English page. Episodes are dated 2016 and 2017, so use it for phrases, not current trends. Free.",
+      "evidence": [
+        {
+          "claim": "Series page: 'Intermediate level... English communication in the office'; about 67 episodes dated July 2016 to October 2017",
+          "url": "https://www.bbc.co.uk/learningenglish/english/features/english-at-work",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "BBC Business English page lists English at Work under 'English for Work - Business English'",
+          "url": "https://www.bbc.co.uk/learningenglish/english/business-english",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "mit-capd-star-method-behavioral-interview",
+      "title": "Using the STAR method for your next behavioral interview (worksheet included)",
+      "provider": "MIT Career Advising & Professional Development",
+      "url": "https://capd.mit.edu/resources/the-star-method-for-behavioral-interviews/",
+      "kind": "tutorial",
+      "skills": [
+        "interview skills"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "3 to 5 written STAR stories from the worksheet, ready for behavioural interviews",
+      "why_picked": "MIT career office guide: STAR time split (Situation 20%, Task 10%, Action 60%, Result 10%), a sample answer, a worksheet for 3-5 stories, and the thank-you email rule. Public, free.",
+      "evidence": [
+        {
+          "claim": "Guide covers behavioural questions, STAR with suggested time shares, a sample answer, preparing 3-5 stories, a STAR worksheet PDF, mock interviews and a thank-you email within 24 hours",
+          "url": "https://capd.mit.edu/resources/the-star-method-for-behavioral-interviews/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "MIT CAPD interviewing page links this guide in its how-to list and recommends mock interviews",
+          "url": "https://capd.mit.edu/resources/interviewing/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "diia-osvita-interview-simulator",
+      "title": "Симулятор співбесід (Кар'єрна студія)",
+      "provider": "Дія.Освіта (Diia.Osvita)",
+      "url": "https://osvita.diia.gov.ua/career-studio/interview",
+      "kind": "practice",
+      "skills": [
+        "interview skills"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": true,
+      "output": "Rehearsed answers to questions generated from a real vacancy text or link",
+      "why_picked": "State service on Diia.Osvita, launched July 2026. Paste a vacancy and the AI asks recruiter-style questions. Free per the Ministry. Ukrainian interface; the interview language is not stated.",
+      "evidence": [
+        {
+          "claim": "Official Diia.Osvita page (in Ukrainian) lists 'Симулятор співбесід' among the Career Studio tools: practise hard questions, get feedback, argue a salary; next to the CV builder and cover letter tools",
+          "url": "https://osvita.diia.gov.ua/career-studio",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Official interview simulator page opens (title 'Дія.Освіта - Симулятор співбесіди'); its content needs JavaScript",
+          "url": "https://osvita.diia.gov.ua/career-studio/interview",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Kyiv Post (UA), 8 Jul 2026: Ministry of Digital Transformation launched the Career Studio on Diia.Osvita; upload vacancy text or a link and the AI forms questions close to an employer's",
+          "url": "https://www.kyivpost.com/uk/post/79823",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Fakty.com.ua, 8 Jul 2026: the simulator takes a pasted vacancy text or link and the AI plays a recruiter conversation",
+          "url": "https://fakty.com.ua/ua/styl-zhyttia/nauka-tekhnolohii/20260708-na-diya-osvita-zapustyly-servis-dlya-poshuku-roboty-iz-shi-symulyatorom-spivbesidy/amp/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Kosht.media, 9 Jul 2026: headline 'Diia.Osvita launched free AI tools for employment'; the simulator builds an interview from a vacancy text or link",
+          "url": "https://kosht.media/diia-osvita-zapustyla-bezkoshtovni-shi-instrumenty-dlia-pratsevlashtuvannia/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Happy Monday, 8 Jul 2026: Career Studio with free AI tools; the interview simulator builds questions from a vacancy",
+          "url": "https://happymonday.ua/karierna-studiia-diia-osvita",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Borg.expert: the Ministry of Digital Transformation says the service is free; practice can be repeated without limit with analysis of your answers",
+          "url": "https://borgexpert.com/news/diia-osvita-zapustyla-shi-rekrutera-dlia-stvorennia-reziume-ta-pidhotovky-do-spivbesid",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "coursera-penn-english-for-career-development",
+      "title": "English for Career Development",
+      "provider": "University of Pennsylvania on Coursera",
+      "url": "https://www.coursera.org/learn/careerdevelopment",
+      "kind": "course",
+      "skills": [
+        "interview skills"
+      ],
+      "level": "beginner",
+      "cost": "free-audit",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 40,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A US-style resume and cover letter, plus practised networking and interview answers",
+      "why_picked": "Penn course for non-native speakers, US State Dept funded: resume, cover letter, networking, interviews. 4.8 from 17,027 reviews. Free via 'Full Course. No certificate'; certificate paid. US process.",
+      "evidence": [
+        {
+          "claim": "Course page: created by the University of Pennsylvania, funded by the US Department of State; units on job search, resume, cover letter, networking and interviews (about 39 hours of units; 4 weeks at 10 hours a week); 4.8 from 17,027 reviews",
+          "url": "https://www.coursera.org/learn/careerdevelopment",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Same page: 'Anyone may take this course for free' (Enroll now, then 'Full Course. No certificate'); the no-certificate option allows required assessments and a final grade; the Coursera certificate is bought or obtained through financial aid",
+          "url": "https://www.coursera.org/learn/careerdevelopment",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": {
+        "value": 4.8,
+        "scale": 5,
+        "count": 17027,
+        "source_url": "https://www.coursera.org/learn/careerdevelopment",
+        "seen": "2026-10-11"
+      },
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "openlearn-talk-the-talk",
+      "title": "Talk the Talk",
+      "provider": "The Open University (OpenLearn)",
+      "url": "https://www.open.edu/openlearn/education-development/talk-the-talk",
+      "kind": "course",
+      "skills": [
+        "public speaking"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 12,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A written and practised talk with a presentation checklist, and a free OpenLearn statement of participation",
+      "why_picked": "Open University course, 12 hours, level 1, no prior experience: analyse TED Talks, then write and practise your own talk. Free; account needed for the statement. Last updated Dec 2019.",
+      "evidence": [
+        {
+          "claim": "Course page: free; 12 hours study over four weeks; level 1 introductory; no previous experience needed; create and practise your own talk; start without signing up, free statement of participation needs an account; updated 19/12/2019 (first published 02/11/2015); average rating 4.7 from 13 ratings",
+          "url": "https://www.open.edu/openlearn/education-development/talk-the-talk",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2019,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "toastmasters-pathways",
+      "title": "Toastmasters club membership and Pathways",
+      "provider": "Toastmasters International",
+      "url": "https://www.toastmasters.org/education/pathways",
+      "kind": "course",
+      "skills": [
+        "public speaking"
+      ],
+      "level": "beginner",
+      "cost": "paid",
+      "price_usd": 72,
+      "price_note": "per 6 months, plus a one-time $25 fee",
+      "hours": 30,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Several delivered speeches and completed Pathways projects you can list as 'Toastmasters member'",
+      "why_picked": "Live practice with a real audience in 14,000+ clubs, in person or online; visiting is free. Membership dues are US$72 every six months plus a one-time US$25 joining fee.",
+      "evidence": [
+        {
+          "claim": "Pathways page: interactive education program with 300+ competencies and 6 learning paths, online content in several languages",
+          "url": "https://www.toastmasters.org/education/pathways",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "How to join: find a club near you or online, visiting is free; US$72 semiannual dues plus one-time US$25 new member fee; 'over 14,000 clubs worldwide'",
+          "url": "https://www.toastmasters.org/membership/how-to-join",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Dues FAQ: dues are US$72 for each six-month period, one-time new member fee US$25; page last updated 07/2026",
+          "url": "https://www.toastmasters.org/footer/faq/Membership-Dues-and-Payments",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2026,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "purdue-owl-professional-technical-writing",
+      "title": "Professional, Technical Writing (Purdue OWL)",
+      "provider": "Purdue University Online Writing Lab",
+      "url": "https://owl.purdue.edu/owl/subject_specific_writing/professional_technical_writing/index.html",
+      "kind": "tutorial",
+      "skills": [
+        "business writing"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 4,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A business letter, memo and email drafted to the OWL's formats, kept as writing samples",
+      "why_picked": "Purdue University writing lab reference: memos, business letters (block, modified block, semi-block), sample emails, reports and white papers. Free, no login. Reference pages, no exercises.",
+      "evidence": [
+        {
+          "claim": "Section lists memos (audience, parts, format, sample), basic business letters, sample e-mails, activity and postmortem reports, technical reports and white papers",
+          "url": "https://owl.purdue.edu/owl/subject_specific_writing/professional_technical_writing/index.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Basic Business Letter page explains letter parts and the block, modified block and semi-block layouts; run by The On-Campus Writing Lab & The OWL at Purdue; copyright 2026",
+          "url": "https://owl.purdue.edu/owl/subject_specific_writing/professional_technical_writing/basic_business_letters/index.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "google-technical-writing-one",
+      "title": "Technical Writing One",
+      "provider": "Google for Developers",
+      "url": "https://developers.google.com/tech-writing/one",
+      "kind": "course",
+      "skills": [
+        "business writing"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Clear, short documents (READMEs, design notes, emails) to show as writing samples",
+      "why_picked": "Technical writing, not general business writing (Google says so): active voice, clear sentences, lists, short documents. Same course Google engineers take. Pre-class units total 2 hours. Updated 2025.",
+      "evidence": [
+        {
+          "claim": "Course page: clarity, conciseness, active voice, paragraphs, lists, document organisation; pre-class unit times add up to 120 minutes (some optional); last updated 2025-03-28",
+          "url": "https://developers.google.com/tech-writing/one",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Technical Writing landing page: study the same courses Google engineers take, aimed at software engineers, CS students and product managers; 'you don't need to be a strong writer'; 'These courses focus on technical writing, not on general English writing or business writing'",
+          "url": "https://developers.google.com/tech-writing",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2025,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "linkedin-help-create-a-good-profile",
+      "title": "Create a good LinkedIn profile",
+      "provider": "LinkedIn Help",
+      "url": "https://www.linkedin.com/help/linkedin/answer/a554351",
+      "kind": "tutorial",
+      "skills": [
+        "linkedin profile"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A complete LinkedIn profile: photo, headline, About, experience, skills and a custom URL",
+      "why_picked": "LinkedIn's own checklist: photo, headline, summary, experience, skills, recommendations, the profile strength meter and a personal URL. Short, free, no account needed to read.",
+      "evidence": [
+        {
+          "claim": "LinkedIn Help article lists photo and background image, headline, short summary, experience and education, skills, recommendations, profile strength meter and personal URL",
+          "url": "https://www.linkedin.com/help/linkedin/answer/a554351",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "mit-capd-build-your-linkedin-profile",
+      "title": "Build your LinkedIn profile",
+      "provider": "MIT Career Advising & Professional Development",
+      "url": "https://capd.mit.edu/resources/linkedin/",
+      "kind": "tutorial",
+      "skills": [
+        "linkedin profile"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A LinkedIn profile with a keyword headline, an audience-led About section and a custom URL",
+      "why_picked": "University career office guide: the headline is heavily weighted in LinkedIn search, how to write the About section, photo advice, custom URL and privacy settings. Public, free.",
+      "evidence": [
+        {
+          "claim": "Page title 'Build your LinkedIn profile'; says the headline is one of the most highly weighted elements in LinkedIn search; covers photo, About section, custom URL, privacy settings and examples",
+          "url": "https://capd.mit.edu/resources/linkedin/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "yale-ocs-building-your-linkedin-profile",
+      "title": "Building Your LinkedIn Profile",
+      "provider": "Yale Office of Career Strategy",
+      "url": "https://ocs.yale.edu/channels/building-your-linkedin-profile/",
+      "kind": "tutorial",
+      "skills": [
+        "linkedin profile"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 2,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A student LinkedIn profile with a fill-in summary template, up to 50 skills and a top-3 skills line",
+      "why_picked": "Yale career office section-by-section guide with a fill-in-the-blank summary for students (3-5 short paragraphs, a call to action) and skills advice: top three show first. Public, free.",
+      "evidence": [
+        {
+          "claim": "Page covers photo, background image, headline (go beyond 'student'), summary template, experience, skills (up to 50, top three visible), recommendations, education",
+          "url": "https://ocs.yale.edu/channels/building-your-linkedin-profile/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "github-docs-managing-your-profile-readme",
+      "title": "Managing your profile README",
+      "provider": "GitHub Docs",
+      "url": "https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme",
+      "kind": "tutorial",
+      "skills": [
+        "github profile"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A one-page profile README on GitHub, shown at the top of your profile",
+      "why_picked": "GitHub's own steps: create a public repository named after your username, add a README, edit it. Takes minutes. Free.",
+      "evidence": [
+        {
+          "claim": "Docs page steps: new repository named as your username, Public, Add README on, Create repository, then Edit README",
+          "url": "https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Personal profile concept page: the profile README is listed as a customizable element: a customizable section at the top of your profile",
+          "url": "https://docs.github.com/en/account-and-profile/concepts/personal-profile",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "github-docs-pinning-items-to-your-profile",
+      "title": "Pinning items to your profile",
+      "provider": "GitHub Docs",
+      "url": "https://docs.github.com/en/account-and-profile/how-tos/profile-customization/pinning-items-to-your-profile",
+      "kind": "tutorial",
+      "skills": [
+        "github profile"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Up to six pinned repositories that show your best projects first on your GitHub profile",
+      "why_picked": "GitHub's own steps to pin up to six repositories or gists so a recruiter sees your best work first. Pair it with a profile README. Free.",
+      "evidence": [
+        {
+          "claim": "Docs page: pin gists and repositories to your profile; Customize your pins, reorder, Save pins; limit of six pinned repositories and gists combined",
+          "url": "https://docs.github.com/en/account-and-profile/how-tos/profile-customization/pinning-items-to-your-profile",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    }
+  ]
+}

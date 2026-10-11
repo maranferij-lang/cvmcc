@@ -1,0 +1,175 @@
+{
+  "cluster": "data",
+  "resources": [
+    {
+      "id": "northfield-sql-basics",
+      "title": "SQL Basics for Analysts",
+      "provider": "Northfield Open Learning",
+      "url": "https://learn.northfield-example.org/sql-basics/",
+      "kind": "course",
+      "skills": [
+        "sql"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A SQL analysis of a public dataset, with the queries in a GitHub repo",
+      "why_picked": "Interactive queries in the browser, a graded final project, and no sign-up wall.",
+      "evidence": [
+        {
+          "claim": "Claim 1 seen on the provider page",
+          "url": "https://example.org/review/1",
+          "seen": "2026-10-12"
+        },
+        {
+          "claim": "Claim 2 seen on the provider page",
+          "url": "https://example.org/review/2",
+          "seen": "2026-10-12"
+        },
+        {
+          "claim": "Claim 3 seen on the provider page",
+          "url": "https://example.org/review/3",
+          "seen": "2026-10-12"
+        }
+      ],
+      "rating": {
+        "value": 4.8,
+        "scale": 5,
+        "count": 15300,
+        "source_url": "https://example.org/ratings",
+        "seen": "2026-10-12"
+      },
+      "updated_year": 2025,
+      "verified_at": "2026-10-12",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "brightpath-advanced-sql",
+      "title": "Advanced SQL and Window Functions",
+      "provider": "Brightpath Academy",
+      "url": "https://brightpath-example.com/advanced-sql",
+      "kind": "course",
+      "skills": [
+        "sql"
+      ],
+      "level": "advanced",
+      "cost": "paid",
+      "price_usd": 49,
+      "price_note": "per month",
+      "hours": 20,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A reporting query set using window functions on a public dataset",
+      "why_picked": "Covers window functions and query plans with graded exercises; the free options stop at joins.",
+      "evidence": [
+        {
+          "claim": "Claim 1 seen on the provider page",
+          "url": "https://example.org/review/1",
+          "seen": "2026-10-12"
+        },
+        {
+          "claim": "Claim 2 seen on the provider page",
+          "url": "https://example.org/review/2",
+          "seen": "2026-10-12"
+        }
+      ],
+      "rating": {
+        "value": 4.7,
+        "scale": 5,
+        "count": 3000,
+        "source_url": "https://example.org/ratings",
+        "seen": "2026-10-12"
+      },
+      "updated_year": 2025,
+      "verified_at": "2026-10-12",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "kyiv-open-sql-uk",
+      "title": "Бази даних і SQL",
+      "provider": "Kyiv Open Courses",
+      "url": "https://courses.kyiv-example.org/sql-uk/",
+      "kind": "course",
+      "skills": [
+        "sql"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 30,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": false,
+      "output": "A certificate of completion to list under Education",
+      "why_picked": "University-run Ukrainian-language course with graded tests and a public syllabus.",
+      "evidence": [
+        {
+          "claim": "Claim 1 seen on the provider page",
+          "url": "https://example.org/review/1",
+          "seen": "2026-10-12"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2024,
+      "verified_at": "2026-10-12",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "dataworks-power-bi-project",
+      "title": "Power BI Guided Project",
+      "provider": "Dataworks Learning",
+      "url": "https://dataworks-example.com/power-bi-guided-project",
+      "kind": "course",
+      "skills": [
+        "power bi"
+      ],
+      "level": "beginner",
+      "cost": "freemium",
+      "price_usd": 15,
+      "price_note": "one-time, for the full version",
+      "hours": 6,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A Power BI dashboard published to the web",
+      "why_picked": "Short guided build of a sales dashboard; the free tier includes the whole project.",
+      "evidence": [
+        {
+          "claim": "Claim 1 seen on the provider page",
+          "url": "https://example.org/review/1",
+          "seen": "2026-10-12"
+        },
+        {
+          "claim": "Claim 2 seen on the provider page",
+          "url": "https://example.org/review/2",
+          "seen": "2026-10-12"
+        }
+      ],
+      "rating": {
+        "value": 4.6,
+        "scale": 5,
+        "count": 2100,
+        "source_url": "https://example.org/ratings",
+        "seen": "2026-10-12"
+      },
+      "updated_year": 2026,
+      "verified_at": "2026-10-12",
+      "verification": "fetched",
+      "status": "active"
+    }
+  ]
+}

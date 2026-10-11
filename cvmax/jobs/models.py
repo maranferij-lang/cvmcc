@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import re
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from cvmax.profile import LEVELS, REGIONS
 
@@ -41,6 +41,9 @@ class Vacancy:
     snippet: str  # plain text, up to 400 characters
     remote: bool | None
     tags: tuple[str, ...] = ()
+    # Full posting text as plain text, up to 6000 characters (cut by make_vacancy). Kept in memory
+    # only: to_row() leaves it out, and it takes no part in equality, hashing or repr.
+    description: str = field(default="", compare=False, repr=False)
 
     @property
     def id(self) -> str:

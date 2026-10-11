@@ -14,22 +14,21 @@ What recruiters look for:
 - Finance: technical skills (modelling, valuation), markets knowledge, finance club involvement;
   2-4 major entries with specifics and results (Mergers & Inquisitions).
 
-What a strong private equity / M&A student CV looks like (common patterns in CVs of students hired
-into PE and M&A):
-- Every bullet is written in deal language with scale: due diligence, LOI, IOI, CIM, EV/EBITDA multiples,
-  how many companies were screened and how many made the shortlist, how many teasers or CIMs were reviewed.
-- A "Selected Transaction Experience" block under a role: one sub-entry per deal with sector and revenue
-  size, then what was analysed (recurring revenue share, customer concentration, backlog, returns) and the
-  conclusion or concern raised. This shows judgment, not only tasks.
-- Case competitions with placement out of N teams and the quantified recommendation (EBITDA uplift,
-  multiple rerating, NPV, IRR, payback).
+Patterns in CVs of students hired into PE and M&A:
+- Deal language with scale: due diligence, LOI, IOI, CIM, EV/EBITDA multiples; companies screened vs
+  shortlisted; teasers or CIMs reviewed.
+- A "Selected Transaction Experience" block under a role: one sub-entry per deal (sector, revenue size),
+  what was analysed (recurring revenue, customer concentration, backlog, returns) and the conclusion or
+  concern raised, which shows judgment.
+- Case competitions: placement out of N teams and the quantified recommendation (EBITDA uplift,
+  rerating, NPV, IRR, payback).
 - Education with rank and percentile, not process details.
-- Certifications that map to the work (FMVA, Bloomberg Market Concepts, modelling courses) and a
-  Technical line of methods (LBO, DCF, comparable companies, precedent transactions), not software lists.
+- Certifications that map to the work (FMVA, Bloomberg Market Concepts) and a Technical line of methods
+  (LBO, DCF, comparables, precedent transactions), not software lists.
 - A signed incoming role at the top of Experience.
-For finance targets, Grill me should ask whether the candidate has ever valued a company, built a model,
-written a stock pitch or investment memo, screened companies, or taken part in an investment club or case
-competition, even informally.
+For finance targets, Grill me asks whether the candidate has ever valued a company, built a model,
+written a stock pitch or memo, screened companies, or joined an investment club or case competition,
+even informally.
 
 Common mistakes (Bain and BCG recruiters): irrelevant information; key facts hard to find;
 responsibilities instead of achievements; being too general; unsupported self-descriptions; buzzwords;
@@ -48,3 +47,14 @@ Example bullets (style reference only):
 - Benchmarked unit costs of 6 logistics competitors using public filings and 11 expert calls; identified
   $180K in annual savings.
 - Organised a 300-guest charity auction with 5 corporate sponsors, raising UAH 450K for an NGO.
+- Screened 140 mid-cap stocks on growth and EV/EBITDA for a student fund; pitched 2, and the committee
+  approved a $15K position.
+- Rebuilt a 40-seat café's shift schedule from 6 months of till data; cut overtime 18% (UAH 96K a year)
+  with no longer queues.
+
+## Screening order
+1. First (6-8 s): school, major, GPA with scale (Tufts); top third also: test scores, honours (UVA Economics).
+2. Second (30-60 s): experience, activities, languages; reviewers read each bullet's opening, so lead with results (Tufts; Bain/BCG via GMAC).
+3. Third: Big 4 recruiters credit part-time work and extracurriculars (UNC Kenan-Flagler, 2021).
+- Exception: UK Big 4 relaxed grade screens (PwC dropped the 2:1; EY ignores class, weighs online tests; TARGETjobs 2026).
+- First-pass reject: GPA missing or unscaled, or highlights hard to find (Tufts; GMAC).

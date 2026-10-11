@@ -1,0 +1,43 @@
+{
+  "cluster": "language_career",
+  "resources": [
+    {
+      "id": "openprep-ielts-practice",
+      "title": "IELTS Practice Tests",
+      "provider": "OpenPrep",
+      "url": "https://openprep-example.org/ielts",
+      "kind": "practice",
+      "skills": [
+        "ielts"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 12,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A timed practice test with a band score estimate",
+      "why_picked": "Full-length practice papers with marking guides from a recognised exam preparation charity.",
+      "evidence": [
+        {
+          "claim": "Claim 1 seen on the provider page",
+          "url": "https://example.org/review/1",
+          "seen": "2026-10-12"
+        },
+        {
+          "claim": "Claim 2 seen on the provider page",
+          "url": "https://example.org/review/2",
+          "seen": "2026-10-12"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2025,
+      "verified_at": "2026-10-12",
+      "verification": "fetched",
+      "status": "active"
+    }
+  ]
+}

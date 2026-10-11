@@ -25,3 +25,14 @@ Example bullets (style reference only):
   150-question test set rose from 52% to 84% vs the model without retrieval.
 - Served a gradient-boosted churn model through FastAPI and Docker; scored 250K users nightly.
 - Placed in the top 4% (87th of 2,100 teams) in a Kaggle tabular competition.
+- Built a 400-ticket labelled test set for an LLM support-ticket classifier; it caught a 9-point accuracy
+  drop from a prompt change before release.
+- Distilled a 110M-parameter image classifier into a 12M-parameter model; kept 96% of its accuracy and
+  cut CPU inference from 180 ms to 25 ms per image.
+
+## Screening order
+1. First: degree field and academics; CS, statistics, maths or ML with excellent results, plus Python (BCG X). PhD research internships require a PhD in CS, ML or a related field (Meta research intern posting, 2025).
+2. Second: ML systems built and evaluated: framework (PyTorch), experiment setup, analysed results (Meta posting minimum and preferred qualifications).
+3. Third: research output and code: publications at venues such as NeurIPS, ICML, ICLR, ACL; open-source contributions (Meta posting, preferred).
+- Industry DS/ML roles ask for applied data-science experience and Python (BCG X); list only tools a bullet shows in use (GWU Data Science resume guide).
+- First-pass reject: no ML or deep-learning system the candidate built, only courses and tool names; the Meta research-intern posting lists that experience as a minimum qualification.

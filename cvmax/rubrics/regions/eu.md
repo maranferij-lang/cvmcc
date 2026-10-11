@@ -1,0 +1,13 @@
+## Regional conventions: EU
+- Length: one page for students; two at most.
+- Photo optional: a neutral headshot is common in DE, NL, SE, FI; cut it for Ireland and anonymous recruitment.
+- Cut date of birth, marital status, nationality unless asked (GDPR: employers process only data needed to hire; FR bars family questions). City and country only. Poland: add the data-processing consent line if the ad asks.
+- Non-EU candidates: add a right-to-work line, e.g. "EU temporary protection, right to work".
+- Dates as month and year ("09/2023 - 06/2027"), never day-level. Decimal point: "4.7/5", not "4,7".
+- Call it a CV. EU institutions use British spelling (programme, organise); match the ad, never mix.
+- Degree as Bologna cycle: "Bachelor's (Bakalavr), 240 ECTS". Grade with scale, pass mark: "92/100 (pass 60, ECTS A)". For DE add a Bavarian-formula estimate, "approx. German 1.6" (not binding).
+- Languages: CEFR level plus a word, "German B2 (professional)"; many recruiters do not decode bare levels.
+- Screened first (IE survey): internship or placement, then degree discipline; grades and university rank lower.
+- ATS or online forms: single column, text PDF (docx if asked). Some EU agencies require Europass; elsewhere judge content, not template.
+- Germany: photo, date of birth and a dated signature are optional but common; never penalise.
+- Unlike the general rubric: a photo (except IE) or two pages is not an error; a missing language level or (non-EU) right-to-work line is.

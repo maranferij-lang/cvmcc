@@ -49,6 +49,8 @@ class Jobicy(BaseProvider):
                 posted_at=parse_date(j.get("pubDate")), salary=_salary(j),
                 snippet=j.get("jobExcerpt") or j.get("jobDescription"), remote=True,
                 tags=_list(j.get("jobIndustry")) + _list(j.get("jobType")),
+                # The excerpt is only a teaser: the full text comes first when the feed has it.
+                description=j.get("jobDescription") or j.get("jobExcerpt"),
             )
             if v:
                 out.append(v)

@@ -10,7 +10,7 @@ import re
 from types import SimpleNamespace
 from typing import Any
 
-from .schemas import Analysis, JobFit, RankedJobs, BuiltCV, LineVerdict, CVEducation, CVEntry, CVSkillGroup, CareerMatch, CriterionScore, Direction, Edit, EditVerdict, EditVerdicts, Gap, GrillResult, GrillTurn
+from .schemas import Analysis, JobFit, RankedJobs, BuiltCV, LineVerdict, CVEducation, CVEntry, CVSkillGroup, CareerMatch, CriterionScore, Direction, Edit, EditVerdict, EditVerdicts, Gap, GrillResult, GrillTurn, Requirement, VacancyMatch
 
 DEMO_QUESTIONS = [
     ("In your Student Council role, how many events did you organise and how many people came?",
@@ -64,6 +64,8 @@ class _Messages:
             out = demo_built_cv()
         elif fmt is RankedJobs:
             out = demo_ranked_jobs(re.findall(r"id=([0-9a-f]{12})", str(kwargs.get("messages", ""))))
+        elif fmt is VacancyMatch:
+            out = demo_vacancy_match()
         else:
             raise ValueError(f"Unknown output format: {fmt}")
         return SimpleNamespace(stop_reason="end_turn", parsed_output=out)
@@ -215,6 +217,39 @@ Member of Student Council
 PERSONAL
 Date of birth: 01.01.2004
 """
+
+
+def demo_vacancy_match() -> VacancyMatch:
+    """Demo review against a posting: 4 must-haves (2 covered, 1 partial, 1 missing) and 2 nice-to-haves.
+
+    The evidence is quoted from DEMO_CV_TEXT, so it passes cvmax.match.verify_match. The score is always 61:
+    (2 + 0.5) * 1.0 + 1 * 0.3 = 2.8 out of 4 * 1.0 + 2 * 0.3 = 4.6.
+    """
+    return VacancyMatch(
+        role_title="Junior Data Analyst",
+        requirements=[
+            Requirement(text="Currently studying economics, statistics or a related field", kind="must",
+                        status="covered",
+                        evidence="Northbridge University, BSc Economics and Data Science, expected 2027", action=""),
+            Requirement(text="Experience building reports in Excel", kind="must", status="covered",
+                        evidence="Responsible for making reports in Excel", action=""),
+            Requirement(text="Experience working with client or sales data", kind="must", status="partial",
+                        evidence="Helped the team with client database",
+                        action="Say what you did with the client database and what it changed, "
+                        "for example 'Cleaned [N] client records, cutting duplicates by [X]%'."),
+            Requirement(text="SQL for querying and joining tables", kind="must", status="missing", evidence="",
+                        action="Add SQL to your skills only if you have used it. If not, finish a free SQL course "
+                        "and publish one small project on a public dataset."),
+            Requirement(text="Teamwork in a student or business setting", kind="nice", status="covered",
+                        evidence="Member of Student Council", action=""),
+            Requirement(text="Dashboards in Tableau or Power BI", kind="nice", status="missing", evidence="",
+                        action="If you have built a dashboard, add the tool and what it showed. "
+                        "Otherwise a free Tableau Public dashboard is a quick first step."),
+        ],
+        keywords_missing=["SQL", "Tableau"],
+        summary="You cover the education and Excel reporting requirements, but SQL is missing and the client "
+        "data experience needs a concrete result.",
+    )
 
 
 def demo_career() -> CareerMatch:

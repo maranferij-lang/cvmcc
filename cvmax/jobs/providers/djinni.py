@@ -41,6 +41,7 @@ class Djinni(BaseProvider):
                 location=location, source=self.name, domains=self.domains,
                 posted_at=parse_date(it["pubDate"]), salary=_field(text, "Salary") or None,
                 snippet=text, remote=True if "remote" in location.lower() else None,
+                description=it["description"],  # raw: keeps the line structure
             )
             if v:
                 out.append(v)

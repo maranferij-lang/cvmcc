@@ -33,6 +33,7 @@ class Remotive(BaseProvider):
                 domains=self.domains, posted_at=parse_date(j.get("publication_date")),
                 salary=as_str(j.get("salary")) or None, snippet=j.get("description"),
                 remote=True, tags=[as_str(j.get("category")), as_str(j.get("job_type"))],
+                description=j.get("description"),
             )
             if v:
                 out.append(v)

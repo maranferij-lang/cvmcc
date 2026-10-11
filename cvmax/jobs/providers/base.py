@@ -26,11 +26,21 @@ for _r in (US, UK, EU, UA, REMOTE):
 ALL_REGIONS = frozenset(REGIONS)
 
 SNIPPET_LEN = 400
+DESCRIPTION_LEN = 6000  # full posting text kept on Vacancy.description
 # Bounded patterns: no quadratic backtracking on "<script " or an unclosed "<".
 _TAG = re.compile(r"<[^<>]*>")
 _SKIP_BLOCKS = re.compile(
     r"<(script|style)\b[^<]{0,5000}(?:<(?!/\1)[^<]{0,5000}){0,50}</\1\s*>", re.I)
 _MAX_HTML = 20000  # the input is truncated before any regex
+# Description cleaner. Every pattern starts at a literal "<" or is a single character class, so
+# the work stays linear (the input is already capped at _MAX_HTML).
+_BLOCK_TAGS = r"p|ul|ol|div|tr|table|h[1-6]"
+_BLOCK_RUN = re.compile(  # a run of adjacent block tags is one line break (one "- " if it opens an <li>)
+    rf"(?:(?:</(?:{_BLOCK_TAGS}|li)\s*>|<(?:{_BLOCK_TAGS})\b[^<>]*>|<li\b[^<>]*>)[^\S\n]*)+", re.I)
+_BR = re.compile(r"<br\b[^<>]*>", re.I)
+_INLINE = re.compile(r"</?(?:b|i|u|em|strong|span|a|font|small|big|code|mark|sub|sup)\b[^<>]*>", re.I)
+_LOOKS_HTML = re.compile(r"<[a-z/!]|&lt;[a-z/!]", re.I)
+_CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]")  # keeps \t, \n and \r
 _BAD_URL_CHARS = re.compile(r"[\s\\\x00-\x1f\x7f]")
 
 
@@ -105,6 +115,56 @@ def clean_html(s: Any, limit: int | None = SNIPPET_LEN) -> str:
     if limit is not None and len(text) > limit:
         text = text[: limit - 1].rstrip() + "…"
     return text
+
+
+def _structure(text: str) -> str:
+    """One pass of tag handling: block tags and <br> become line breaks, <li> a "- " bullet."""
+    text = _SKIP_BLOCKS.sub(" ", text)
+    text = _BLOCK_RUN.sub(lambda m: "\n- " if "<li" in m.group().lower() else "\n", text)
+    text = _BR.sub("\n", text)
+    text = _INLINE.sub("", text)
+    return _TAG.sub(" ", text)
+
+
+def _cut_description(text: str, limit: int) -> str:
+    """Cut to `limit` characters ending with an ellipsis, at a line boundary when one is near enough."""
+    if len(text) <= limit:
+        return text
+    pos = text.rfind("\n", 0, limit - 1)
+    if pos >= limit // 2:
+        return text[:pos].rstrip() + "\n…"
+    return text[: limit - 1].rstrip() + "…"
+
+
+def clean_description(s: Any, limit: int | None = DESCRIPTION_LEN, plain: bool = False) -> str:
+    """A posting body -> plain text that keeps its line structure (clean_html collapses it).
+
+    Closing p/li/h1-h6/div/tr tags and <br> become line breaks, <li> becomes "- ", every other tag is
+    dropped, entities are decoded (a second pass handles doubly escaped HTML), control characters
+    are removed, spaces and tabs are collapsed inside each line and at most one blank line is kept in a
+    row. Newlines inside HTML source are whitespace, as in a browser; with `plain=True` (or when the
+    input has no tags at all) the newlines of the source are kept as they are."""
+    if not isinstance(s, str):
+        return ""
+    s = _CONTROL.sub("", s[:_MAX_HTML])
+    if plain or not _LOOKS_HTML.search(s):
+        s = s.replace("\r\n", "\n").replace("\r", "\n")
+    else:
+        s = s.translate({10: 32, 13: 32})
+    text = _structure(s)
+    text = _CONTROL.sub("", html.unescape(text)).replace("\r\n", "\n").replace("\r", "\n")
+    text = _structure(text)  # Greenhouse returns escaped HTML
+    out: list[str] = []
+    for line in text.split("\n"):
+        line = " ".join(line.split())
+        if line == "-":  # an empty list item
+            line = ""
+        if line:
+            out.append(line)
+        elif out and out[-1]:
+            out.append("")
+    text = "\n".join(out).strip()
+    return _cut_description(text, limit) if limit is not None else text
 
 
 def as_str(value: Any) -> str:
@@ -206,9 +266,14 @@ def make_vacancy(*, url: Any, title: Any, company: Any = "", location: Any = "",
                  source: str, domains: tuple[str, ...] = (),
                  posted_at: str | None = None, salary: Any = None,
                  snippet: Any = "", remote: bool | None = None,
-                 tags: Any = (), allow: Callable[[str], bool] | None = None
-                 ) -> Vacancy | None:
-    """Builds a Vacancy; None if the address does not pass the allowlist or there is no title."""
+                 tags: Any = (), allow: Callable[[str], bool] | None = None,
+                 description: Any = "", description_plain: bool = False) -> Vacancy | None:
+    """Builds a Vacancy; None if the address does not pass the allowlist or there is no title.
+
+    `snippet` is the short teaser (400 characters, one line, via clean_html); `description` is the full
+    posting text, cleaned by clean_description (line breaks and bullets kept) and cut to DESCRIPTION_LEN.
+    Pass `description_plain=True` when the source is already plain text whose newlines are paragraph
+    breaks. Both are cleaned independently of each other."""
     ok = allow(url) if allow is not None else allowed_url(url, domains)
     if not ok:
         return None
@@ -228,6 +293,7 @@ def make_vacancy(*, url: Any, title: Any, company: Any = "", location: Any = "",
         snippet=clean_html(snippet, SNIPPET_LEN),
         remote=remote,
         tags=tuple(tag_list[:8]),
+        description=clean_description(description, DESCRIPTION_LEN, description_plain),
     )
 
 

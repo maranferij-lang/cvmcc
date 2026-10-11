@@ -1,0 +1,819 @@
+{
+  "cluster": "business",
+  "resources": [
+    {
+      "id": "biws-free-financial-modeling-tutorials",
+      "title": "Free Financial Modeling Tutorials and Knowledge Base",
+      "provider": "Breaking Into Wall Street",
+      "url": "https://breakingintowallstreet.com/kb/",
+      "kind": "tutorial",
+      "skills": [
+        "financial modeling",
+        "valuation"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 15,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A three-statement model and a DCF of a public company, built from the video walkthroughs and shared as a spreadsheet",
+      "why_picked": "Vendor site that sells paid courses. Its free knowledge base has open video tutorials with downloadable Excel files on 3-statement models, DCF and multiples. Bentley and Emory career offices link it.",
+      "evidence": [
+        {
+          "claim": "Knowledge base page lists free tutorials: 3-statement modeling, DCF (unlevered free cash flow, terminal value), equity vs enterprise value, Excel; tutorial pages open without signup, with an embedded YouTube video and downloadable PDFs and an Excel file (checked: unlevered free cash flow and terminal value tutorials)",
+          "url": "https://breakingintowallstreet.com/kb/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Bentley University career centre resource page links 'Breaking into Wall Street's FREE Video Tutorials and Knowledge Base'",
+          "url": "https://careeredge.bentley.edu/resources/breakingintowallstreet-com/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Emory career office page names BIWS's 'Free Resource Vault' of financial modeling tutorials for students who cannot afford paid packages and directs students to the free resources",
+          "url": "https://cpd.emory.edu/resources/breaking-into-wall-street/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "damodaran-valuation-online-class",
+      "title": "Valuation Online Class",
+      "provider": "Aswath Damodaran, NYU Stern",
+      "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/webcastvalonline.htm",
+      "kind": "video-course",
+      "skills": [
+        "valuation"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 8,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A discounted cash flow valuation of a listed company in Excel, with the class spreadsheets and post-class tests as practice",
+      "why_picked": "25 short webcasts by NYU Stern's Aswath Damodaran, with slides, post-class tests and Excel files. Examples date from 2012-13; use current filings. Hours estimated.",
+      "evidence": [
+        {
+          "claim": "Class page: 25 short webcasts (about 12-20 minutes), slides and a post-class test with solution for each session, example spreadsheets; class webcasts are on YouTube; examples include P&G in September 2012 and Walmart 10Ks for 2012 and 2013",
+          "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/webcastvalonline.htm",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Damodaran's online-classes page: Valuation Online mirrors his regular MBA class but replaces the 80-minute classes with shorter 15-20 minute ones with post-class tests; each class has a YouTube version",
+          "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/onlineclass.htm",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "damodaran-valuation-undergraduate-spring-2025",
+      "title": "Valuation, undergraduate class (Spring 2025 webcasts)",
+      "provider": "Aswath Damodaran, NYU Stern",
+      "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/webcasteqUGspr25.htm",
+      "kind": "video-course",
+      "skills": [
+        "valuation"
+      ],
+      "level": "intermediate",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 35,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A full valuation project of a company (DCF plus relative valuation), documented in a spreadsheet and a short report",
+      "why_picked": "The full 28-session class recorded in Spring 2025, with lecture notes, practice problems, a valuation project and spreadsheets. The deeper free option. Hours estimated.",
+      "evidence": [
+        {
+          "claim": "Class page: 28-session equity valuation class recorded starting 22 January 2025, lecture notes marked 'Updated for Spring 2025 class', syllabus, practice problems, past quizzes, a valuation project with data, spreadsheets, webcasts on YouTube and other platforms",
+          "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/webcasteqUGspr25.htm",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Damodaran's home page (shows an implied equity risk premium for 1 October 2026) says he taught valuation to undergraduates in Spring 2025, and links the class pages",
+          "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/home.htm",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2025,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "damodaran-accounting-online-class",
+      "title": "Accounting Online Class",
+      "provider": "Aswath Damodaran, NYU Stern",
+      "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/webcastacctg.htm",
+      "kind": "video-course",
+      "skills": [
+        "accounting"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 5,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A written analysis of a public company's income statement, balance sheet, cash flow and ratios",
+      "why_picked": "Short webcasts on reading the three statements and ratios as an analyst, each with slides and a post-class test. A user's view, not bookkeeping. Page gives no recording year. Hours estimated.",
+      "evidence": [
+        {
+          "claim": "Class page: short webcasts (about 12-20 minutes) introducing accounting 'from the perspective of a user of financial statements': overview of the three statements, income statements, balance sheets, cash flow statements, accounting inconsistencies, ratios, each with slides and a post-class test with solution",
+          "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/webcastacctg.htm",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "accountingcoach-accounting-course",
+      "title": "AccountingCoach: free accounting course",
+      "provider": "AccountingCoach",
+      "url": "https://www.accountingcoach.com/",
+      "kind": "tutorial",
+      "skills": [
+        "accounting"
+      ],
+      "level": "beginner",
+      "cost": "freemium",
+      "price_usd": 99,
+      "price_note": "one-time, for one year of PRO",
+      "hours": 30,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A worked set of journal entries, adjusting entries and the four financial statements for a made-up small business, written from the explanations",
+      "why_picked": "Vendor site. Free explanations of 33 accounting topics in order; quizzes and more practice are in PRO, a one-time $99 for one year of access. A university library guide lists the site.",
+      "evidence": [
+        {
+          "claim": "Home page 'Learn Accounting Online for Free': course outline of 33 topics, from accounting basics and debits and credits to financial statements, costing and present value; the 'Debits and Credits' explanation page opens without signup",
+          "url": "https://www.accountingcoach.com/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "PRO page: 'Yearly $99, PRO access for 1 year', one-time payment, 60-day money-back guarantee; lifetime option also listed; Quick Tests link points to PRO-only content",
+          "url": "https://www.accountingcoach.com/pro",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Arizona State University library accounting guide lists AccountingCoach.com as a free online accounting course with drills/exams and a forum (the guide says 27 topics; the site now lists 33)",
+          "url": "https://libguides.asu.edu/accounting/tutorials",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "acca-x-introductory-intermediate-courses",
+      "title": "ACCA-X introductory and intermediate courses",
+      "provider": "ACCA",
+      "url": "https://www.accaglobal.com/gb/en/student/exam-support-resources/acca-x-intro-inter.html",
+      "kind": "course",
+      "skills": [
+        "acca"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 60,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Completed ACCA-X bookkeeping and management accounting courses, preparing for the ACCA Foundations in Accountancy exams (FA1, MA1, FA2, MA2)",
+      "why_picked": "ACCA's own free online courses, one for each Foundations exam (FA1, MA1, FA2, MA2). A free way to test whether ACCA suits you before paying exam fees. Hours are an estimate.",
+      "evidence": [
+        {
+          "claim": "ACCA page: ACCA-X is online and self-paced; Introductory and Intermediate courses are completely free of charge: Introduction to Bookkeeping (FA1), Introduction to Management Accounting (MA1), Intermediate Bookkeeping (FA2), Intermediate Management Accounting (MA2)",
+          "url": "https://www.accaglobal.com/gb/en/student/exam-support-resources/acca-x-intro-inter.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "ACCA qualification structure page: the ACCA Qualification is built from Applied Knowledge (BT, FA, MA), Applied Skills and Strategic Professional exams, an ethics module and 36 months of practical experience",
+          "url": "https://www.accaglobal.com/us/en/student/getting-started/acca-qualification-structure.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "microsoft-powerpoint-for-windows-training",
+      "title": "PowerPoint for Windows training",
+      "provider": "Microsoft",
+      "url": "https://support.microsoft.com/en-us/powerpoint/powerpoint-for-windows-training",
+      "kind": "tutorial",
+      "skills": [
+        "powerpoint"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A short deck built while following the articles: layouts, pictures and graphics, and a run-through in slide show view",
+      "why_picked": "Microsoft's own help articles in a learning order: create a presentation, slides and layouts, graphics, presenting, sharing. Short and ungraded; teaches the tool, not the message. Hours estimated.",
+      "evidence": [
+        {
+          "claim": "Microsoft Support training page lists the topics Quick start, Intro to PowerPoint, Slides & layouts, Text & slides, Pictures & graphics, Present slideshows, Animation video & audio, Collaborate & share; each opens a short help article (checked: What is PowerPoint, Create a presentation, Slide master, Presenter view)",
+          "url": "https://support.microsoft.com/en-us/powerpoint/powerpoint-for-windows-training",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "ucdavis-market-research-specialization",
+      "title": "Market Research Specialization",
+      "provider": "University of California, Davis (Coursera)",
+      "url": "https://www.coursera.org/specializations/market-research",
+      "kind": "course",
+      "skills": [
+        "market research"
+      ],
+      "level": "beginner",
+      "cost": "paid",
+      "price_usd": 59,
+      "price_note": "per month with Coursera Plus",
+      "hours": 55,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A market research report: research proposal, focus group guide, Qualtrics survey, and an Excel-charted findings presentation",
+      "why_picked": "Four courses (55 hours) ending in a research project: proposal, focus group, Qualtrics survey, report. $59 a month with Coursera Plus, or $399 a year; not free. Rating 4.55.",
+      "evidence": [
+        {
+          "claim": "Specialization page: UC Davis, 4 courses of 8, 14, 18 and 15 hours, beginner; covers a research proposal, focus group, a survey in Qualtrics, analysis and Excel data visualisations; 'Included with Coursera Plus'; FAQ: 'No, you cannot take this course for free.'",
+          "url": "https://www.coursera.org/specializations/market-research",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Coursera Plus pricing page: $59 a month with a 7-day free trial, or $399 a year; individual courses and programs $49 to $79 a month ('Visit a course to purchase')",
+          "url": "https://www.coursera.org/courseraplus",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": {
+        "value": 4.55,
+        "scale": 5,
+        "count": 1534,
+        "source_url": "https://www.coursera.org/specializations/market-research",
+        "seen": "2026-10-11"
+      },
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "bain-case-interview-preparation",
+      "title": "Case interview preparation",
+      "provider": "Bain & Company",
+      "url": "https://www.bain.com/careers/hiring-process/case-interview/",
+      "kind": "practice",
+      "skills": [
+        "case interview"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 4,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "Two solved written practice cases and a personal structuring checklist for case interviews",
+      "why_picked": "The firm's own prep hub: how a Bain case works, two sample cases (Coffee Shop Co., FashionCo.), interview tips and a list of free external practice material.",
+      "evidence": [
+        {
+          "claim": "Bain page: 'one-stop resource for case interview preparation' with Bain-designed materials, practice cases Coffee Shop Co. and FashionCo., interview tips and external resources",
+          "url": "https://www.bain.com/careers/hiring-process/case-interview/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Bain FashionCo. practice case page is publicly readable, with 'A good answer' and 'A better answer' sections",
+          "url": "https://www.bain.com/careers/hiring-process/interviewing/fashion-case-study/",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Bain Coffee Shop Co. practice case page is publicly readable, with a break-even calculation and 'A good answer' and 'A better answer'",
+          "url": "https://www.bain.com/careers/hiring-process/interviewing/coffee-case-study/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "wharton-customer-analytics",
+      "title": "Customer Analytics",
+      "provider": "Wharton, University of Pennsylvania (Coursera)",
+      "url": "https://www.coursera.org/learn/wharton-customer-analytics",
+      "kind": "course",
+      "skills": [
+        "marketing analytics"
+      ],
+      "level": "intermediate",
+      "cost": "paid",
+      "price_usd": 59,
+      "price_note": "per month with Coursera Plus",
+      "hours": 10,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A short write-up applying customer analysis and predictive analytics to a product you know",
+      "why_picked": "Wharton course on using customer data for marketing decisions, 13 assignments. $59 a month with Coursera Plus; Coursera suggests 1 week at 10 hours a week. Rating 4.58 from 11,993.",
+      "evidence": [
+        {
+          "claim": "Course page: instructors Eric Bradlow and 3 more, 5 modules, 1 week at 10 hours a week, 13 assignments, 313,710 enrolled, 'Included with Coursera Plus'; FAQ: materials, assignments and the certificate need the Certificate experience when you enroll; a Free Trial may be offered; 'some courses may also offer a Full Course, No Certificate option' (not stated for this course)",
+          "url": "https://www.coursera.org/learn/wharton-customer-analytics",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Coursera Plus pricing page: $59 a month with a 7-day free trial, or $399 a year; individual courses and programs $49 to $79 a month ('Visit a course to purchase')",
+          "url": "https://www.coursera.org/courseraplus",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": {
+        "value": 4.58,
+        "scale": 5,
+        "count": 11993,
+        "source_url": "https://www.coursera.org/learn/wharton-customer-analytics",
+        "seen": "2026-10-11"
+      },
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "google-project-management-professional-certificate",
+      "title": "Google Project Management Professional Certificate",
+      "provider": "Google Career Certificates (Coursera)",
+      "url": "https://www.coursera.org/professional-certificates/google-project-management",
+      "kind": "certificate",
+      "skills": [
+        "project management"
+      ],
+      "level": "beginner",
+      "cost": "paid",
+      "price_usd": 49,
+      "price_note": "per month after a 7-day trial (US and Canada)",
+      "hours": 140,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A portfolio of project documents and artifacts (plans, risk and stakeholder records) and a Google certificate for the CV",
+      "why_picked": "Seven courses, 140+ hours with practice assessments, traditional and agile methods. $49 a month after a 7-day trial (US and Canada); Coursera says most finish for under $300.",
+      "evidence": [
+        {
+          "claim": "Coursera page: 7 course series, 'over 140 hours of instruction and hundreds of practice-based assessments', 4.8 from 145,593 reviews; FAQ 'How much does this certificate cost?': 'In the U.S. and Canada, Coursera charges $49 per month after the initial 7-day free trial period', most learners finish for under $300",
+          "url": "https://www.coursera.org/professional-certificates/google-project-management",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Google's Grow with Google page: Project Management Certificate teaches traditional and agile methods; 'No experience or degree required'",
+          "url": "https://grow.google/certificates/project-management/",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": {
+        "value": 4.84,
+        "scale": 5,
+        "count": 145593,
+        "source_url": "https://www.coursera.org/professional-certificates/google-project-management",
+        "seen": "2026-10-11"
+      },
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "diia-osvita-proiektnyi-menedzher",
+      "title": "Проєктний менеджер (освітній серіал)",
+      "provider": "Diia.Osvita (Дія.Освіта, Мінцифри України)",
+      "url": "https://osvita.diia.gov.ua/courses/project-manager",
+      "kind": "course",
+      "skills": [
+        "project management"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "uk",
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Orientation in the project manager role: project types, planning, budgeting, risks and tools. A first step, not a credential",
+      "why_picked": "Free Ukrainian series from the Ministry of Digital Transformation with Google.org: PM role, project types, planning. Short (0.1 ECTS, about 3 hours). Needs a free Diia.Osvita account (mobile number).",
+      "evidence": [
+        {
+          "claim": "Course page: series with expert Oleksii Lunkov (Vaimo), made for Diia.Osvita with Google.org and the East Europe Foundation, supported by Stfalcon, Vaimo and Ciklum; 0.1 ECTS; languages Ukrainian and English; episodes ask you to log in ('Авторизуйтесь для продовження')",
+          "url": "https://osvita.diia.gov.ua/courses/project-manager",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Diia.Osvita FAQ: 'Реєстрація абсолютно безкоштовна' (registration by mobile number and SMS code) and 'Доступ до освітніх серіалів є абсолютно безкоштовним для всіх громадян'",
+          "url": "https://osvita.diia.gov.ua/faq",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Diia.Osvita About page: the national platform where everyone can 'безоплатно здобути важливі знання' (gain knowledge free of charge)",
+          "url": "https://osvita.diia.gov.ua/about",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "uva-digital-product-management-modern-fundamentals",
+      "title": "Digital Product Management: Modern Fundamentals",
+      "provider": "University of Virginia (Coursera)",
+      "url": "https://www.coursera.org/learn/uva-darden-digital-product-management",
+      "kind": "course",
+      "skills": [
+        "product management"
+      ],
+      "level": "beginner",
+      "cost": "paid",
+      "price_usd": 59,
+      "price_note": "per month with Coursera Plus",
+      "hours": 10,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A short product plan (customer problem, requirements, success measure) for a product you choose",
+      "why_picked": "University of Virginia course on focusing a product and managing new and existing products. $59 a month with Coursera Plus; Coursera suggests 1 week at 10 hours a week.",
+      "evidence": [
+        {
+          "claim": "Course page: instructor Alex Cowan, 4 modules, 1 week at 10 hours a week, beginner, 3 assignments, 229,996 enrolled, 'Included with Coursera Plus'; FAQ: materials, assignments and the certificate need the Certificate experience when you enroll; a Free Trial may be offered; 'some courses may also offer a Full Course, No Certificate option' (not stated for this course)",
+          "url": "https://www.coursera.org/learn/uva-darden-digital-product-management",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Coursera Plus pricing page: $59 a month with a 7-day free trial, or $399 a year; individual courses and programs $49 to $79 a month ('Visit a course to purchase')",
+          "url": "https://www.coursera.org/courseraplus",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": {
+        "value": 4.7,
+        "scale": 5,
+        "count": 5445,
+        "source_url": "https://www.coursera.org/learn/uva-darden-digital-product-management",
+        "seen": "2026-10-11"
+      },
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "diia-osvita-vstup-do-it-prodakt-menedzhmentu",
+      "title": "Вступ до IT продакт-менеджменту (освітній серіал)",
+      "provider": "Diia.Osvita (Дія.Освіта, Мінцифри України)",
+      "url": "https://osvita.diia.gov.ua/courses/intro-to-it-product-management",
+      "kind": "course",
+      "skills": [
+        "product management"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": false,
+      "output": "Orientation in the product manager role: market and user analysis, metrics, product strategy. A first step, not a credential",
+      "why_picked": "Free Ukrainian video course, 11 short episodes on the PM role, market and user analysis, metrics and strategy. Short (0.1 ECTS), so use it before an English course. Needs a free account.",
+      "evidence": [
+        {
+          "claim": "Course page: basic video course of 11 episodes (about 6-7 minutes each) with expert Oleh Fliak covering the product manager role, market/product/user analysis, metrics, strategy and team management, with test tasks; 0.1 ECTS; language Ukrainian; supported by Projector; episodes ask you to log in",
+          "url": "https://osvita.diia.gov.ua/courses/intro-to-it-product-management",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Diia.Osvita FAQ: 'Реєстрація абсолютно безкоштовна' (registration by mobile number and SMS code) and 'Доступ до освітніх серіалів є абсолютно безкоштовним для всіх громадян'",
+          "url": "https://osvita.diia.gov.ua/faq",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Diia.Osvita About page: the national platform where everyone can 'безоплатно здобути важливі знання' (gain knowledge free of charge)",
+          "url": "https://osvita.diia.gov.ua/about",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "scrum-guide-2020-english",
+      "title": "The Scrum Guide (November 2020)",
+      "provider": "Ken Schwaber and Jeff Sutherland (ScrumGuides.org)",
+      "url": "https://scrumguides.org/scrum-guide.html",
+      "kind": "book",
+      "skills": [
+        "scrum"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Ability to explain Scrum roles, events and artifacts as the creators define them",
+      "why_picked": "The definition of Scrum by its creators. ScrumGuides.org states the November 2020 edition is still the current official version, so its age does not matter.",
+      "evidence": [
+        {
+          "claim": "ScrumGuides.org web version: 'The 2020 Scrum Guide', direct port of the November 2020 PDF, written by Ken Schwaber and Jeff Sutherland",
+          "url": "https://scrumguides.org/scrum-guide.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "ScrumGuides.org download page: 'The current official version of the Scrum Guide was released in November 2020'",
+          "url": "https://scrumguides.org/download.html",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2020,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "scrum-guide-2020-ukrainian",
+      "title": "Посібник зі Скраму, листопад 2020 (український переклад)",
+      "provider": "Ken Schwaber and Jeff Sutherland (ScrumGuides.org), translation by Tetiana Ostroverkh and SoftServe",
+      "url": "https://scrumguides.org/docs/scrumguide/v2020/2020-Scrum-Guide-Ukrainian.pdf",
+      "kind": "book",
+      "skills": [
+        "scrum"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 1,
+      "languages": [
+        "uk"
+      ],
+      "hands_on": false,
+      "output": "Ability to explain Scrum roles, events and artifacts, in Ukrainian terms you can reuse in interviews",
+      "why_picked": "The Scrum Guide in Ukrainian, listed on ScrumGuides.org as a community translation (Tetiana Ostroverkh, SoftServe) of the current November 2020 edition. Opens as a 17-page PDF.",
+      "evidence": [
+        {
+          "claim": "ScrumGuides.org download page lists 'Ukrainian (November 2020)' translated by Tetiana Ostroverkh & SoftServe Inc under Community Translations, linking /docs/scrumguide/v2020/2020-Scrum-Guide-Ukrainian.pdf; the page says the current official version is November 2020",
+          "url": "https://scrumguides.org/download.html",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "The PDF opens: 17 pages in Ukrainian, titled 'Посібник зі Скраму', by Кен Швабер та Джефф Сазерленд, dated 'Листопад 2020'",
+          "url": "https://scrumguides.org/docs/scrumguide/v2020/2020-Scrum-Guide-Ukrainian.pdf",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": 2020,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "atlassian-learn-scrum-with-jira",
+      "title": "Learn scrum with Jira (tutorial)",
+      "provider": "Atlassian",
+      "url": "https://www.atlassian.com/agile/tutorials/how-to-do-scrum-with-jira",
+      "kind": "tutorial",
+      "skills": [
+        "scrum"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 4,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A working Scrum board in Jira: backlog with user stories, a planned sprint and sprint review, shown as screenshots in a portfolio",
+      "why_picked": "Vendor tutorial from the maker of Jira: create a backlog, plan sprints, run scrum ceremonies. Needs a free Jira account; pair it with the Scrum Guide. Hours are an estimate.",
+      "evidence": [
+        {
+          "claim": "Tutorial page: step-by-step scrum project in Jira (backlog, user stories, sprints, scrum ceremonies), for people new to scrum, 10-minute read to complete over 2 weeks, prerequisite is a Jira account, free scrum template",
+          "url": "https://www.atlassian.com/agile/tutorials/how-to-do-scrum-with-jira",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "microsoft-business-analysis-fundamentals",
+      "title": "Business Analysis Fundamentals",
+      "provider": "Microsoft (Coursera)",
+      "url": "https://www.coursera.org/learn/business-analysis-fundamentals",
+      "kind": "course",
+      "skills": [
+        "business analysis"
+      ],
+      "level": "beginner",
+      "cost": "paid",
+      "price_usd": 59,
+      "price_note": "per month with Coursera Plus",
+      "hours": 20,
+      "languages": [
+        "en"
+      ],
+      "hands_on": false,
+      "output": "A stakeholder and business-problem analysis for a sample project, as practice for BA interviews",
+      "why_picked": "Microsoft course on the BA role, business problems and stakeholders; 24 assignments. $59 a month with Coursera Plus; Coursera suggests 2 weeks at 10 hours a week. Rating 4.69.",
+      "evidence": [
+        {
+          "claim": "Course page: offered by Microsoft, part of the Microsoft Business Analyst Professional Certificate, beginner, 4 modules, 2 weeks at 10 hours a week, 24 assignments, 130,256 enrolled, 'Included with Coursera Plus'; FAQ: materials, assignments and the certificate need the Certificate experience when you enroll; a Free Trial may be offered; 'some courses may also offer a Full Course, No Certificate option' (not stated for this course)",
+          "url": "https://www.coursera.org/learn/business-analysis-fundamentals",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Coursera Plus pricing page: $59 a month with a 7-day free trial, or $399 a year; individual courses and programs $49 to $79 a month ('Visit a course to purchase')",
+          "url": "https://www.coursera.org/courseraplus",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": {
+        "value": 4.69,
+        "scale": 5,
+        "count": 1112,
+        "source_url": "https://www.coursera.org/learn/business-analysis-fundamentals",
+        "seen": "2026-10-11"
+      },
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "macquarie-excel-skills-for-business-essentials",
+      "title": "Excel Skills for Business: Essentials",
+      "provider": "Macquarie University (Coursera)",
+      "url": "https://www.coursera.org/learn/excel-essentials",
+      "kind": "course",
+      "skills": [
+        "excel"
+      ],
+      "level": "beginner",
+      "cost": "paid",
+      "price_usd": 59,
+      "price_note": "per month with Coursera Plus",
+      "hours": 30,
+      "languages": [
+        "en"
+      ],
+      "hands_on": true,
+      "output": "A formatted Excel workbook with formulas, functions and charts that solves a business problem",
+      "why_picked": "Hands-on Excel course with 40 assignments, from interface to formulas and charts. $59 a month with Coursera Plus; Coursera suggests 3 weeks at 10 hours a week. Rating 4.87.",
+      "evidence": [
+        {
+          "claim": "Course page: Macquarie University, 7 modules, 3 weeks at 10 hours a week, beginner, 40 assignments, 1,196,777 enrolled, 'Included with Coursera Plus'; FAQ: materials, assignments and the certificate need the Certificate experience when you enroll; a Free Trial may be offered; 'some courses may also offer a Full Course, No Certificate option' (not stated for this course)",
+          "url": "https://www.coursera.org/learn/excel-essentials",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Coursera Plus pricing page: $59 a month with a 7-day free trial, or $399 a year; individual courses and programs $49 to $79 a month ('Visit a course to purchase')",
+          "url": "https://www.coursera.org/courseraplus",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": {
+        "value": 4.87,
+        "scale": 5,
+        "count": 51262,
+        "source_url": "https://www.coursera.org/learn/excel-essentials",
+        "seen": "2026-10-11"
+      },
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    },
+    {
+      "id": "diia-osvita-dataanalityk-vstup-do-excel",
+      "title": "Датааналітик. Вступ до Excel (освітній серіал)",
+      "provider": "Diia.Osvita (Дія.Освіта, Мінцифри України)",
+      "url": "https://osvita.diia.gov.ua/courses/data-analyst-excel",
+      "kind": "course",
+      "skills": [
+        "excel"
+      ],
+      "level": "beginner",
+      "cost": "free",
+      "price_usd": null,
+      "price_note": "",
+      "hours": 3,
+      "languages": [
+        "uk",
+        "en"
+      ],
+      "hands_on": false,
+      "output": "Orientation in data analyst work and Excel basics. A first step before a full Excel course, not a credential",
+      "why_picked": "Free Ukrainian series with EPAM and Google.org: what analysts do, Excel, data visualisation, then SQL and Power BI. Short (0.1 ECTS), so an orientation only. Needs a free account.",
+      "evidence": [
+        {
+          "claim": "Course page: series for Diia.Osvita with Google.org, supported by EPAM and Kunsht; module 1 covers analyst work, Excel and data visualisation, module 2 SQL and Power BI; 0.1 ECTS; languages Ukrainian and English; episodes ask you to log in",
+          "url": "https://osvita.diia.gov.ua/courses/data-analyst-excel",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Diia.Osvita FAQ: 'Реєстрація абсолютно безкоштовна' (registration by mobile number and SMS code) and 'Доступ до освітніх серіалів є абсолютно безкоштовним для всіх громадян'",
+          "url": "https://osvita.diia.gov.ua/faq",
+          "seen": "2026-10-11"
+        },
+        {
+          "claim": "Diia.Osvita About page: the national platform where everyone can 'безоплатно здобути важливі знання' (gain knowledge free of charge)",
+          "url": "https://osvita.diia.gov.ua/about",
+          "seen": "2026-10-11"
+        }
+      ],
+      "rating": null,
+      "updated_year": null,
+      "verified_at": "2026-10-11",
+      "verification": "fetched",
+      "status": "active"
+    }
+  ]
+}

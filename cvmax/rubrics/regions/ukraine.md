@@ -1,0 +1,13 @@
+## Regional conventions: Ukraine / Eastern Europe
+- Length: one A4 page for students; two only with several relevant jobs.
+- Photo: optional (local job boards invite one). Suggest cutting it; never deduct for a neutral headshot.
+- Cut date of birth, marital status, nationality, street address: Ukrainian law bans age, family and residence bias and nationality questions. Header: "Lviv, Ukraine".
+- Ukrainian in the EU: add "Work status: EU temporary protection, right to work". Poland: add the data-processing consent line if the ad asks (common, not legally required).
+- Dates "Sep 2023 - Jun 2027", never "01.09.2023"; decimal point "92.5", never "92,5".
+- Call it a CV; one spelling variant, matching the ad.
+- Education: Bakalavr = Bachelor's, Magistr = Master's; university name in English. Keep the original scale, "GPA 92/100 (60 = pass)" or "4.8/5"; no self-made 4.0 (US employer: see US / Canada). An ECTS letter is not a GPA.
+- Screened first: title, years of experience, English level (Djinni filters); then results: 52% of employers rank experience above the diploma. English and Excel matter for most roles.
+- English: CEFR plus label, "English: B2 (Upper-Intermediate)"; no stars or bars.
+- Salary: Djinni or Work.ua profile field; optional on the CV.
+- ATS: international firms here use ones like Workable. Send text PDF or DOCX; no tables, columns, header/footer text or scans.
+- Unlike the general rubric: a missing CEFR level is a major issue; a professional photo is not.

@@ -22,6 +22,19 @@ def _salary(j: dict) -> str | None:
     return f"{as_str(r.get('currency'))} {int(lo):,}–{int(hi):,}".strip()
 
 
+def _full_text(j: dict, plain: str) -> str:
+    """The opening text, then every list section (title and HTML items: the requirements usually
+    live there) and the closing text. Cleaned later by make_vacancy: blocks are separated by a blank
+    line, a section title stays on the line above its items."""
+    blocks = [plain or as_str(j.get("description"))]
+    for section in dict_items(j.get("lists")):
+        blocks.append(" ".join(p for p in (as_str(section.get("text")), as_str(section.get("content")))
+                               if p.strip()))
+    blocks.append(as_str(j.get("additionalPlain")) or as_str(j.get("additional")))
+    # Plain text separates paragraphs with newlines; in HTML source newlines are only whitespace.
+    return ("\n\n" if plain else "<br><br>").join(b for b in blocks if b.strip())
+
+
 class Lever(BaseProvider):
     name = "Lever"
     kind = "json"
@@ -49,6 +62,7 @@ class Lever(BaseProvider):
                 location=where, source=self.name, domains=self.domains,
                 posted_at=parse_date(j.get("createdAt")), salary=_salary(j),
                 snippet=plain, remote=remote, tags=[team, as_str(cats.get("commitment"))],
+                description=_full_text(j, plain), description_plain=bool(plain),
             )
             if v:
                 out.append(v)

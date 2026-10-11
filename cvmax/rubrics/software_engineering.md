@@ -25,3 +25,14 @@ Example bullets (style reference only):
 - Cut page load time of a React storefront by 38% by code-splitting routes and lazy-loading images.
 - Wrote 140 unit and integration tests (pytest, GitHub Actions CI), raising coverage from 41% to 83%.
 - Won 1st of 27 teams at a 48-hour hackathon with a Telegram bot for shelter locations (TypeScript).
+- Fixed a race condition in an open-source Python task-queue library (4,000 GitHub stars); the patch was
+  merged and shipped in release 2.3.
+- Moved a 3-service student portal to Docker with a CI deploy pipeline; release time fell from 40 to 6
+  minutes and failed deploys from 5 a month to 0.
+
+## Screening order
+1. First: languages and skills against the posting; reviewers scan for keywords (Tech Interview Handbook). Technical Skills sit right under Education (Georgia Tech College of Computing).
+2. Second: experience with employer, role, dates and "Accomplished X as measured by Y by doing Z" bullets (Google recruiters, U of Toronto CS, 2025).
+3. Third: projects with a GitHub link, technologies and data structures; open-source contributions stand out (Google, U of Toronto; Microsoft via UW Bothell).
+- When work experience is unrelated to CS, Projects go above it (Georgia Tech College of Computing).
+- First-pass reject: a layout the ATS cannot parse or no keywords from the posting; such CVs can be filtered out before a human reads them (Tech Interview Handbook).

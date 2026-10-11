@@ -1,0 +1,14 @@
+## Regional conventions: US / Canada
+- Length: one page for students and new grads; Canada accepts up to two.
+- Cut the photo: US employers should not ask for one; not the norm in Canada.
+- Cut age or birth date, marital status, religion, gender, nationality, visa status. Never list an SSN or SIN.
+- Header: city and state/province, or "City, Country" if abroad; no street address.
+- Dates: "Sep 2023 - Jun 2027", never "09.2023" or "01/09/2023" (US reads the month first).
+- Numbers: "$12,000", "GPA 3.85", never "3,85".
+- Spelling: American for the US (center), Canadian for Canada (centre, behaviour); -ize in both; never mix.
+- Call it a resume; a CV here is an academic document.
+- Education: degree in English, university, city, country. Keep the original grade and scale; add a 4.0 figure only as an estimate from a named tool: "GPA 92/100 (approx. [X]/4.0, WES iGPA)". List GPA only if 3.0+.
+- Foreign degree: Bakalavr is a Bachelor's, Magistr a Master's; cite a credential evaluation only if one exists.
+- Screened first: internships in the field, then major and skills shown with examples; 42% of employers screen by GPA.
+- ATS: most employers use one. Single column, standard headings, no header/footer text, text PDF named "First Last Resume"; .docx only if the posting asks.
+- Unlike the general rubric: European date, number and spelling formats are Language quality errors; rank internships above GPA in Target fit; an unmarked 4.0 conversion is an error.

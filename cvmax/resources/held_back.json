@@ -1,0 +1,1077 @@
+{
+  "about": "Entries researched and checked but not shipped. Same fields as the catalog files plus held_back_reason. Nothing here is loaded by the app. To restore one, fix the reason, set status to active, drop held_back_reason and move it to the catalog file of its cluster.",
+  "clusters": {
+    "data": [
+      {
+        "id": "microsoft-excel-help-and-learning",
+        "title": "Excel help and learning",
+        "provider": "Microsoft",
+        "url": "https://support.microsoft.com/en-us/office/excel-video-training-9bc05390-e94c-46af-a5b3-d7c22f6990bb",
+        "kind": "tutorial",
+        "skills": [
+          "excel"
+        ],
+        "level": "beginner",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 3,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "None defined: the page is a help hub with no exercises, so no CV item comes from it",
+        "why_picked": "NOT SHIPPED. Microsoft Support hub of help articles (XLOOKUP, PivotTables, formulas), not a course: no sequence, exercises or videos on the page. Needs a real Excel course instead.",
+        "evidence": [
+          {
+            "claim": "Page 'Excel help & learning' on Microsoft Support loads without sign-in: tiles Get started, Collaborate, Formulas & functions, Import & analyze, Format data, Troubleshoot, and linked help articles (XLOOKUP, VLOOKUP, IF, PivotTables). No videos, no courses, no price or date stated; the only training link points to Microsoft Learn",
+            "url": "https://support.microsoft.com/en-us/office/excel-video-training-9bc05390-e94c-46af-a5b3-d7c22f6990bb",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "A Microsoft Support help hub with no sequence, exercises or videos, so it is not a course; a real Excel course is needed instead."
+      },
+      {
+        "id": "microsoft-learn-get-started-building-with-power-bi",
+        "title": "Get started building with Power BI",
+        "provider": "Microsoft Learn",
+        "url": "https://learn.microsoft.com/en-us/training/modules/get-started-with-power-bi/",
+        "kind": "tutorial",
+        "skills": [
+          "power bi"
+        ],
+        "level": "beginner",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 1,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "No file to show: a 21-minute grounding in how Power BI's service and apps fit together, plus a Learn badge on your profile",
+        "why_picked": "21-minute Microsoft module on how Power BI services and apps fit together, with a short tour of the service. A warm-up, not a portfolio piece; it is also the first module of the longer path.",
+        "evidence": [
+          {
+            "claim": "Module page (ms.date 2026-06-12): 6 units, Beginner, prerequisites None; the 'Tour and use the Power BI service' unit is a 5-minute walkthrough with screenshots, plus a knowledge check; Microsoft's catalogue lists the module as 21 minutes",
+            "url": "https://learn.microsoft.com/en-us/training/modules/get-started-with-power-bi/",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Microsoft Learn FAQ, 'How much does the training cost?': 'Microsoft Learn training is free and available to anyone who has an interest to learn about Microsoft products.' Signing in is optional; certification exams are separate",
+            "url": "https://learn.microsoft.com/en-us/training/support/faq",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": 2026,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "A 21-minute module with no exercise that is also the first module of the Power BI learning path we ship."
+      },
+      {
+        "id": "microsoft-learn-prepare-data-for-analysis-with-power-bi",
+        "title": "Prepare data for analysis with Power BI",
+        "provider": "Microsoft Learn",
+        "url": "https://learn.microsoft.com/en-us/training/paths/prepare-data-power-bi/",
+        "kind": "course",
+        "skills": [
+          "power bi"
+        ],
+        "level": "intermediate",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 5,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "Learn badges on your profile; to get a CV item, repeat the Power Query cleaning steps on your own messy dataset and describe them",
+        "why_picked": "Three Microsoft modules, about 4.5 hours: connect to data, clean and load with Power Query, choose a model framework. Overlaps the first modules of the longer path; take one or the other.",
+        "evidence": [
+          {
+            "claim": "Learning path page (ms.date 2025-01-24): 3 modules (Get data, Clean/transform/load, Choose a Power BI model framework), Intermediate, prerequisites None, 'can help you prepare for the Microsoft Certified: Data Analyst Associate certification'; Microsoft's catalogue lists 273 minutes",
+            "url": "https://learn.microsoft.com/en-us/training/paths/prepare-data-power-bi/",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Microsoft Learn FAQ, 'How much does the training cost?': 'Microsoft Learn training is free and available to anyone who has an interest to learn about Microsoft products.' Signing in is optional; certification exams are separate",
+            "url": "https://learn.microsoft.com/en-us/training/support/faq",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": 2025,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Two of its three modules are also in the longer Power BI learning path we ship, so it duplicates that entry."
+      },
+      {
+        "id": "allen-downey-think-stats-3e",
+        "title": "Think Stats, 3rd edition",
+        "provider": "Allen B. Downey (Green Tea Press)",
+        "url": "https://allendowney.github.io/ThinkStats/",
+        "kind": "book",
+        "skills": [
+          "statistics"
+        ],
+        "level": "intermediate",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 40,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "A Jupyter notebook that explores a real dataset with distributions, estimation and regression, published on GitHub",
+        "why_picked": "Statistics taught through Python code and real data, with a Colab notebook for each of 14 chapters. For readers with basic Python, which the book states it assumes.",
+        "evidence": [
+          {
+            "claim": "Book page: 3rd edition, copyright 2023, by Allen B. Downey; free online version under a Creative Commons licence; aimed at Python programmers with basic skills; 14 chapters (EDA, distributions, estimation, hypothesis testing, least squares, multiple regression, time series, survival analysis) each with a Colab notebook",
+            "url": "https://allendowney.github.io/ThinkStats/",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": 2023,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Statistics was over the cap of three: this book assumes Python, overlaps the Python labs in OpenIntro, and rests on one evidence item."
+      }
+    ],
+    "software": [
+      {
+        "id": "python-docs-the-python-tutorial",
+        "title": "The Python Tutorial",
+        "provider": "Python Software Foundation (docs.python.org)",
+        "url": "https://docs.python.org/3/tutorial/index.html",
+        "kind": "tutorial",
+        "skills": [
+          "python"
+        ],
+        "level": "beginner",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 10,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "Small Python scripts using files, exceptions, modules and classes, kept in a GitHub repo linked on the CV",
+        "why_picked": "The official tutorial from the Python docs (3.15). Written for people who already program in another language; short chapters on the language and library. Read it next to a course.",
+        "evidence": [
+          {
+            "claim": "Official Python 3.15.0 documentation on docs.python.org, openly readable with nothing to pay; copyright Python Software Foundation; a tip on the page says it is designed for programmers new to Python, not beginners new to programming; 'Last updated on Oct 11, 2026'",
+            "url": "https://docs.python.org/3/tutorial/index.html",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": 2026,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Python was over the cap of three; this tutorial is written for people who already program (not beginners as labelled) and has no exercises."
+      },
+      {
+        "id": "university-of-helsinki-java-programming-mooc",
+        "title": "Java Programming (MOOC.fi)",
+        "provider": "University of Helsinki",
+        "url": "https://java-programming.mooc.fi/",
+        "kind": "course",
+        "skills": [
+          "java"
+        ],
+        "level": "beginner",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 140,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "Java exercises auto-checked in a real IDE with Test My Code, and a Java project kept in a GitHub repo",
+        "why_picked": "Free Helsinki Java course, no prior knowledge needed, exercises checked in a real IDE. Legacy: the page says it is no longer updated; core Java is stable. Try the Princeton path first.",
+        "evidence": [
+          {
+            "claim": "Course page: 'A free online course on learning Java' by the Agile Education Research group, University of Helsinki; 14 parts of about 5-20 hours each (reserve 10), exercises tested with Test My Code, no prior programming knowledge needed; states it is a legacy course, no ECTS credits, 'no longer updated or maintained'; certificates per course via a mooc.fi profile",
+            "url": "https://java-programming.mooc.fi/",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "A legacy course: the page says it is no longer updated or maintained; the Princeton Java booksite covers the same ground."
+      },
+      {
+        "id": "bytebytego-system-design-101",
+        "title": "System Design 101",
+        "provider": "ByteByteGo",
+        "url": "https://github.com/ByteByteGoHq/system-design-101",
+        "kind": "tutorial",
+        "skills": [
+          "system design"
+        ],
+        "level": "beginner",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 8,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "A one-page diagram of a system you built (components, data flow, scaling) added to the project README",
+        "why_picked": "Free diagrams that explain common systems in plain terms, a gentler start than the Primer. Published by ByteByteGo, which sells courses; the repo links to its newsletter and website.",
+        "evidence": [
+          {
+            "claim": "Repository shows 90.4k GitHub stars, 'Explain complex systems using visuals and simple terms', CC BY-NC-ND 4.0, public without sign-in; README banner links to the ByteByteGo newsletter and many entries link to bytebytego.com",
+            "url": "https://github.com/ByteByteGoHq/system-design-101",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Published by a company that sells system design courses, and the repo funnels readers to its newsletter and site; the free System Design Primer covers the topic."
+      },
+      {
+        "id": "deeplearning-ai-machine-learning-specialization",
+        "title": "Machine Learning Specialization",
+        "provider": "DeepLearning.AI and Stanford Online (Coursera)",
+        "url": "https://www.coursera.org/specializations/machine-learning-introduction",
+        "kind": "course",
+        "skills": [
+          "machine learning"
+        ],
+        "level": "beginner",
+        "cost": "freemium",
+        "price_usd": 49,
+        "price_note": "",
+        "hours": 95,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "Models in Python (regression, neural networks, trees, recommender) as notebooks in a GitHub repo, plus an optional Coursera certificate",
+        "why_picked": "Andrew Ng's beginner path using NumPy, scikit-learn and TensorFlow. Certificate needs the $49/month Coursera plan. Coursera's own page contradicts itself about free access, so the cost is unconfirmed.",
+        "evidence": [
+          {
+            "claim": "Specialization page: Andrew Ng with three co-instructors, 3 courses of 33, 34 and 28 hours, FAQ 'A Coursera subscription costs $49 / month'; the page shows an 'Enroll for free' button and says 'If you audit the course for free, you will not receive a certificate', but another FAQ says 'No, you cannot take this course for free'",
+            "url": "https://www.coursera.org/specializations/machine-learning-introduction",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Course 1 page: beginner level, about 3 weeks at 10 hours a week, 1,259,458 enrolled, 4.9 from 32,953 reviews; also shows 'Enroll for free' and no audit statement",
+            "url": "https://www.coursera.org/learn/machine-learning",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.9,
+          "scale": 5,
+          "count": 39395,
+          "source_url": "https://www.coursera.org/specializations/machine-learning-introduction",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Coursera's page contradicts itself on whether the course can be taken free, so the cost could not be confirmed."
+      },
+      {
+        "id": "deeplearning-ai-deep-learning-specialization",
+        "title": "Deep Learning Specialization",
+        "provider": "DeepLearning.AI (Andrew Ng)",
+        "url": "https://www.deeplearning.ai/specializations/deep-learning",
+        "kind": "course",
+        "skills": [
+          "deep learning",
+          "machine learning"
+        ],
+        "level": "intermediate",
+        "cost": "paid",
+        "price_usd": 30,
+        "price_note": "",
+        "hours": 127,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "Five courses of graded coding assignments on neural networks, CNNs and sequence models, with a shareable certificate",
+        "why_picked": "Highly reviewed deep learning path by Andrew Ng. DeepLearning.AI Pro is $25 a month billed yearly or $30 monthly. Coursera's page contradicts itself about free access, so the cost is unconfirmed.",
+        "evidence": [
+          {
+            "claim": "DeepLearning.AI page (the old courses/ URL redirects here): 5 courses, 127h29m, 194 video lessons, 43 graded assignments, 'Earn a certificate with PRO', 'Updated Sep 29, 2026'; FAQ: Pro membership costs $25/mo billed annually and $30/mo billed monthly; rated 4.9 by over 120,000 reviewers",
+            "url": "https://www.deeplearning.ai/specializations/deep-learning",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Coursera page: Andrew Ng and two co-instructors, intermediate, 4.8 from 147,269 reviews; shows an 'Enroll for free' button, but the FAQ says 'No, you cannot take this course for free' and no price is stated",
+            "url": "https://www.coursera.org/specializations/deep-learning",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.8,
+          "scale": 5,
+          "count": 147269,
+          "source_url": "https://www.coursera.org/specializations/deep-learning",
+          "seen": "2026-10-11"
+        },
+        "updated_year": 2026,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Coursera's page contradicts itself on free access and the price differs by platform, so the cost could not be confirmed."
+      }
+    ],
+    "business": [
+      {
+        "id": "wharton-business-financial-modeling",
+        "title": "Business and Financial Modeling Specialization",
+        "provider": "Wharton, University of Pennsylvania (Coursera)",
+        "url": "https://www.coursera.org/specializations/wharton-business-financial-modeling",
+        "kind": "course",
+        "skills": [
+          "financial modeling"
+        ],
+        "level": "beginner",
+        "cost": "paid",
+        "price_usd": 59,
+        "price_note": "",
+        "hours": 52,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "A spreadsheet model of a Wharton Research Data Services data set with a recommended business strategy, presented in a PowerPoint deck (the capstone)",
+        "why_picked": "Five Wharton courses from spreadsheet basics to forecasting, risk and a modeling capstone. Not free: Coursera Plus costs $59 a month (7-day trial). Rating 4.53 from 11,481 reviews.",
+        "evidence": [
+          {
+            "claim": "Specialization page: 5 course series by Wharton faculty (courses of 10, 8, 9, 9 and 16 hours), beginner, 'Included with Coursera Plus'; its FAQ answers 'Can I take the course for free?' with 'No, you cannot take this course for free.'",
+            "url": "https://www.coursera.org/specializations/wharton-business-financial-modeling",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Coursera Plus pricing page: $59 a month with a 7-day free trial, or $399 a year; individual courses and programs $49 to $79 a month ('Visit a course to purchase')",
+            "url": "https://www.coursera.org/courseraplus",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.53,
+          "scale": 5,
+          "count": 11481,
+          "source_url": "https://www.coursera.org/specializations/wharton-business-financial-modeling",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Paid ($59 a month) and not clearly better for this skill than the free hands-on BIWS tutorials with Excel files."
+      },
+      {
+        "id": "wharton-introduction-to-financial-accounting",
+        "title": "Introduction to Financial Accounting",
+        "provider": "Wharton, University of Pennsylvania (Coursera)",
+        "url": "https://www.coursera.org/learn/wharton-accounting",
+        "kind": "course",
+        "skills": [
+          "accounting"
+        ],
+        "level": "beginner",
+        "cost": "paid",
+        "price_usd": 59,
+        "price_note": "",
+        "hours": 20,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "Ability to read the three core statements, shown by a short written analysis of a company's financial statements",
+        "why_picked": "Wharton's Brian Bushee teaches debits and credits through to the three statements; 10 assignments. No free access is stated: Coursera Plus costs $59 a month. Rating 4.73 from 8,566 reviews.",
+        "evidence": [
+          {
+            "claim": "Course page: instructor Brian J Bushee, 4 modules, 2 weeks at 10 hours a week, 10 assignments, 421,174 enrolled, 'Included with Coursera Plus'; FAQ: materials, assignments and the certificate need the Certificate experience when you enroll; a Free Trial may be offered; 'some courses may also offer a Full Course, No Certificate option' (not stated for this course)",
+            "url": "https://www.coursera.org/learn/wharton-accounting",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Coursera Plus pricing page: $59 a month with a 7-day free trial, or $399 a year; individual courses and programs $49 to $79 a month ('Visit a course to purchase')",
+            "url": "https://www.coursera.org/courseraplus",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.73,
+          "scale": 5,
+          "count": 8566,
+          "source_url": "https://www.coursera.org/learn/wharton-accounting",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Paid ($59 a month) while Damodaran's free accounting class and AccountingCoach's free lessons cover the basics."
+      },
+      {
+        "id": "acca-applied-skills-exams",
+        "title": "ACCA Applied Skills exams (LW, PM, TX, FR, AA, FM)",
+        "provider": "ACCA",
+        "url": "https://www.accaglobal.com/gb/en/qualifications/glance/acca/how/acca-qualification-applied-skills-exams.html",
+        "kind": "exam",
+        "skills": [
+          "acca"
+        ],
+        "level": "intermediate",
+        "cost": "paid",
+        "price_usd": 212,
+        "price_note": "",
+        "hours": 120,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "A passed ACCA Applied Skills paper, towards the Advanced Diploma in Accounting and Business",
+        "why_picked": "The real exam step: GBP 160 per paper at the December 2026 standard date (check ACCA for your country); approx. USD 212 at 1.322. Hours are an estimate for one paper.",
+        "evidence": [
+          {
+            "claim": "ACCA fees page (Ukraine and neighbouring markets): Applied Skills exam fee is chargeable per exam; December 2026 standard entry GBP 160 (closes 2 November 2026 at 23:59 GMT), late entry GBP 409",
+            "url": "https://www.accaglobal.com/gb/en/qualifications/accountancy-career/fees/fees-charges-am-az-by-ee-ge-kg-md-tj-ua-uz.html",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "ACCA page: six Applied Skills exams (LW, PM, TX, FR, AA, FM); students gain the Advanced Diploma in Accounting and Business after all Applied Knowledge and Applied Skills exams and the Ethics and Professional Skills module, 'could be achieved in 12-18 months'",
+            "url": "https://www.accaglobal.com/gb/en/qualifications/glance/acca/how/acca-qualification-applied-skills-exams.html",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Frankfurter (ECB reference rates) API on 9 October 2026: 1 GBP = 1.322 USD; 160 x 1.322 = 211.5, rounded to 212 as an approximation",
+            "url": "https://api.frankfurter.dev/v1/latest?base=GBP&symbols=USD",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "An exam fee, not a learning resource, and not a first step: ACCA's structure puts the Applied Knowledge exams before Applied Skills."
+      },
+      {
+        "id": "crafting-cases-case-interview-fundamentals",
+        "title": "Case Interview Fundamentals",
+        "provider": "Crafting Cases",
+        "url": "https://students.craftingcases.com/courses/case-interview-fundamentals",
+        "kind": "course",
+        "skills": [
+          "case interview"
+        ],
+        "level": "beginner",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 14,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "Practiced structuring, estimation and chart-reading drills, ready to start full mock cases",
+        "why_picked": "NOT SHIPPED. Vendor site; the free 7-day course needs an account and its lessons are not visible without signup, so contents are unverified. Page says 2-3 hours a day. Bain's page recommends it.",
+        "evidence": [
+          {
+            "claim": "Provider page: Case Interview Fundamentals is a 7-day program with an 'Enroll for free' button; FAQ says to finish in 7 days you need 2-3 hours a day; lessons are not shown without an account",
+            "url": "https://students.craftingcases.com/courses/case-interview-fundamentals",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Bain's case interview preparation page lists Crafting Cases as 'a focused 7-day course' among free, structured external resources",
+            "url": "https://www.bain.com/careers/hiring-process/case-interview/",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "The free course hides its lessons behind signup, so the verifier could not see or check the content."
+      },
+      {
+        "id": "management-consulted-free-case-interview-prep",
+        "title": "Free Case Interview Prep Course (Case Foundations)",
+        "provider": "Management Consulted",
+        "url": "https://managementconsulted.com/free-case-interview-prep/",
+        "kind": "course",
+        "skills": [
+          "case interview"
+        ],
+        "level": "beginner",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 6,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "Working knowledge of frameworks, mental math and case structure; a base before paid practice",
+        "why_picked": "NOT SHIPPED. Vendor site that sells coaching; the free Case Foundations course needs an account and its content is not visible without signup, so it is unverified. Bain's page links it.",
+        "evidence": [
+          {
+            "claim": "Provider page: 'Completely free - create your account to get started'; describes Case Foundations (how cases work, frameworks, mental math, walkthroughs) but the lessons are not shown without an account; the site also sells paid coaching",
+            "url": "https://managementconsulted.com/free-case-interview-prep/",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Bain's case interview preparation page lists Management Consulted among free, structured external resources",
+            "url": "https://www.bain.com/careers/hiring-process/case-interview/",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "The free course hides its lessons behind an account and the site sells coaching, so the content is unverified."
+      },
+      {
+        "id": "iiba-entry-certificate-business-analysis-ecba",
+        "title": "Entry Certificate in Business Analysis (ECBA)",
+        "provider": "IIBA",
+        "url": "https://www.iiba.org/certification/iiba-certifications/ecba/",
+        "kind": "certificate",
+        "skills": [
+          "business analysis"
+        ],
+        "level": "beginner",
+        "cost": "paid",
+        "price_usd": 395,
+        "price_note": "",
+        "hours": 40,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "The ECBA entry certificate from the professional body for business analysis, as a CV line",
+        "why_picked": "NOT SHIPPED (second paid entry for business analysis). IIBA lists ECBA at $395 or less incl. membership, exam and practice exam; student rates from $315. Hours estimated.",
+        "evidence": [
+          {
+            "claim": "ECBA page: '$395 or less' including IIBA membership, exam, practice exam and learning journey; student rates from '$315 or less'; free sample questions; new exam in English",
+            "url": "https://www.iiba.org/certification/iiba-certifications/ecba/",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "IIBA certification fees page lists ECBA at $395 (student rates available) with no application fee",
+            "url": "https://www.iiba.org/certification/certification-fees/",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Not verified for shipping: it would be a second paid entry for business analysis and its study hours are a guess."
+      },
+      {
+        "id": "pwc-effective-business-presentations-powerpoint",
+        "title": "Effective Business Presentations with PowerPoint",
+        "provider": "PwC (Coursera)",
+        "url": "https://www.coursera.org/learn/powerpoint-presentations",
+        "kind": "course",
+        "skills": [
+          "powerpoint"
+        ],
+        "level": "beginner",
+        "cost": "free-audit",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 10,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "A short business deck that tells the story of a data set, built with PowerPoint",
+        "why_picked": "PwC course on presenting data as a business story, about 10 hours. Free audit rests on one line on the page, and Coursera can change or remove it. Rating 4.53 from 1,094.",
+        "evidence": [
+          {
+            "claim": "Course page: offered by PwC, instructor Alex Mannella, part of the PwC Data Analysis and Presentation Skills specialization, beginner, 1 week at 10 hours a week, 116,320 enrolled; final task is a client presentation with peer feedback; description says 'If you'd like to audit the courses in this Specialization, you'll need to enroll in each course separately and then you will see the audit option.'",
+            "url": "https://www.coursera.org/learn/powerpoint-presentations",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.53,
+          "scale": 5,
+          "count": 1094,
+          "source_url": "https://www.coursera.org/learn/powerpoint-presentations",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "free-audit not confirmed on the page; rating margin thin"
+      }
+    ],
+    "language_career": [
+      {
+        "id": "ielts-academic-test",
+        "title": "IELTS Academic test",
+        "provider": "IELTS (ielts.org)",
+        "url": "https://ielts.org/take-a-test/test-types/ielts-academic-test",
+        "kind": "exam",
+        "skills": [
+          "ielts"
+        ],
+        "level": "intermediate",
+        "cost": "paid",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 3,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "An English result you can list as 'IELTS Academic 7.0' (use your own band score)",
+        "why_picked": "Official page: accepted for undergraduate and postgraduate study and professional registration; 2 h 45 min, test centre or online. Fee is set per centre and was not on the page, so none is shown.",
+        "evidence": [
+          {
+            "claim": "Official page: IELTS Academic is for undergraduate and postgraduate study and professional registration; 4 sections, 2 hours 45 minutes; centre or online delivery. No fee on the page",
+            "url": "https://ielts.org/take-a-test/test-types/ielts-academic-test",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Directory of accepting organisations in four types (Education, Employer, Government, Professional Registration); 'trusted by thousands of employers, professional associations, governments and educational institutions'",
+            "url": "https://ielts.org/organisations/ielts-for-organisations/who-accepts-ielts",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "The fee is set by each test centre and was not on the official page, so a paid entry would ship without a price."
+      },
+      {
+        "id": "coursera-uw-business-english-communication-skills",
+        "title": "Business English Communication Skills Specialization",
+        "provider": "University of Washington on Coursera",
+        "url": "https://www.coursera.org/specializations/business-english",
+        "kind": "course",
+        "skills": [
+          "business english"
+        ],
+        "level": "intermediate",
+        "cost": "paid",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 120,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "A shareable Coursera certificate to add to LinkedIn: Business English Communication Skills",
+        "why_picked": "University of Washington, 5 courses, 4.7 from 4,960 reviews. Not free: the page says it cannot be taken free. The page shows no stable USD price (Coursera prices vary by country), so it is held back.",
+        "evidence": [
+          {
+            "claim": "Offered by University of Washington; 5 course series; 4.7 from 4,960 reviews; intermediate; 3 months at 10 hours a week; FAQ: 'you cannot take this course for free' and financial aid exists; the page shows no price",
+            "url": "https://www.coursera.org/specializations/business-english",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Coursera pricing page: individual courses and programs 'US$49 to US$79 per month' as a range; Coursera Plus US$59 per month with a 7-day free trial; no price for this specific program",
+            "url": "https://www.coursera.org/courseraplus",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.7,
+          "scale": 5,
+          "count": 4960,
+          "source_url": "https://www.coursera.org/specializations/business-english",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Paid, and the page shows no stable US dollar price (Coursera prices vary by country), so it cannot ship with a price."
+      },
+      {
+        "id": "coursera-uci-high-impact-business-writing",
+        "title": "High-Impact Business Writing",
+        "provider": "University of California, Irvine on Coursera",
+        "url": "https://www.coursera.org/learn/business-writing",
+        "kind": "course",
+        "skills": [
+          "business writing"
+        ],
+        "level": "beginner",
+        "cost": "paid",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 8,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "Graded business writing assignments and a Coursera certificate to add to LinkedIn",
+        "why_picked": "UC Irvine, 8 hours, covers emails, reports, press releases and proofreading. Certificate needs payment; the page shows no stable USD price (Coursera prices vary by country), so it is held back.",
+        "evidence": [
+          {
+            "claim": "Course page: offered by UC Irvine; 4 modules; 8 hours; beginner; 3,938 reviews, structured-data average 4.48 of 5 (displayed as 4.5); covers emails, presentations, reports, press releases, editing and proofreading; certificate requires purchase; the page shows no price",
+            "url": "https://www.coursera.org/learn/business-writing",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Coursera pricing page: individual courses and programs 'US$49 to US$79 per month' as a range; Coursera Plus US$59 per month with a 7-day free trial; no price for this specific course",
+            "url": "https://www.coursera.org/courseraplus",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Paid certificate, and the page shows no stable US dollar price (Coursera prices vary by country), so it cannot ship with a price."
+      }
+    ],
+    "law_psychology": [
+      {
+        "id": "european-commission-how-to-write-clearly",
+        "title": "How to write clearly",
+        "provider": "European Commission, DG Translation",
+        "url": "https://op.europa.eu/en/publication-detail/-/publication/725b7eb0-d92e-11e5-8fea-01aa75ed71a1",
+        "kind": "book",
+        "skills": [
+          "business writing"
+        ],
+        "level": "beginner",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 2,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "A memo or policy paragraph rewritten in clear English, with before and after versions",
+        "why_picked": "2015 Commission booklet on clear English for reports and official texts, PDF in 24 EU languages. Not a legal drafting manual. The record says a newer edition exists; English one unconfirmed.",
+        "evidence": [
+          {
+            "claim": "EU Publications Office record: 'How to write clearly', DG Translation, European Commission; published 2015, listed 19 Feb 2016; written for Commission staff (legislation, reports, minutes, press releases); PDF in all 24 official EU languages; the page notes a newer edition exists and its 'last edition' link opens a 2023 Czech-only booklet",
+            "url": "https://op.europa.eu/en/publication-detail/-/publication/725b7eb0-d92e-11e5-8fea-01aa75ed71a1",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "European Commission web guide lists 'How to write clearly' as an in-house guide, 'a booklet that can be downloaded as a PDF' from the Publications Office",
+            "url": "https://commission.europa.eu/resources/europa-web-guide/design-content-and-development/content/web-writing-guidelines/other-style-guides_en",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": 2015,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "A 2015 booklet whose record points to a newer edition; the current English edition could not be confirmed."
+      },
+      {
+        "id": "coursera-yale-american-contract-law-i",
+        "title": "American Contract Law I",
+        "provider": "Yale University via Coursera (Ian Ayres)",
+        "url": "https://www.coursera.org/learn/contracts-1",
+        "kind": "course",
+        "skills": [
+          "contract law basics"
+        ],
+        "level": "beginner",
+        "cost": "paid",
+        "price_usd": 59,
+        "price_note": "",
+        "hours": 32,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "A set of case briefs on offer, acceptance, consideration and promissory estoppel, plus a Coursera certificate",
+        "why_picked": "Yale beginner course on contract formation and sales basics under the Uniform Commercial Code. US law. About 32 hours. Course page shows no price; it is included in Coursera Plus ($59 a month).",
+        "evidence": [
+          {
+            "claim": "Course page: Yale University, Ian Ayres, 3 weeks at 10 hours a week (seven modules summing to 32 hours), beginner; covers offer, acceptance, consideration, promissory estoppel and key UCC sections; no dollar price shown ('Included with Coursera Plus'); rating 4.8 from 1,037 reviews",
+            "url": "https://www.coursera.org/learn/contracts-1",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Coursera Plus pricing page: $59 per month (cancel anytime; 7-day free trial on the monthly plan) or $399 per year; the page lists individual courses at $49 to $79 per month; this course page shows no dollar price and says the course is included with Coursera Plus",
+            "url": "https://www.coursera.org/courseraplus",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.8,
+          "scale": 5,
+          "count": 1037,
+          "source_url": "https://www.coursera.org/learn/contracts-1",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Paid ($59 a month) while Harvard's contract law course covers the same basics and can be audited free."
+      },
+      {
+        "id": "coursera-university-of-london-understanding-research-methods",
+        "title": "Understanding Research Methods",
+        "provider": "University of London via Coursera",
+        "url": "https://www.coursera.org/learn/research-methods",
+        "kind": "course",
+        "skills": [
+          "research methods"
+        ],
+        "level": "beginner",
+        "cost": "paid",
+        "price_usd": 59,
+        "price_note": "",
+        "hours": 6,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "A research question and literature-review plan with a short project-management outline, plus a Coursera certificate",
+        "why_picked": "University of London (with SOAS) intro in four modules, about 6 hours; no prior experience needed. Page shows no price; included in Coursera Plus ($59 a month). Free options above cover the basics.",
+        "evidence": [
+          {
+            "claim": "Course page: University of London (with SOAS), 6 hours, 4 modules (research question, literature review, planning and management, reflecting on your research), no prior research experience required; no dollar price shown ('Included with Coursera Plus'); rating 4.7 from 9,009 reviews",
+            "url": "https://www.coursera.org/learn/research-methods",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Coursera Plus pricing page: $59 per month (cancel anytime; 7-day free trial on the monthly plan) or $399 per year; the page lists individual courses at $49 to $79 per month; this course page shows no dollar price and says the course is included with Coursera Plus",
+            "url": "https://www.coursera.org/courseraplus",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.7,
+          "scale": 5,
+          "count": 9009,
+          "source_url": "https://www.coursera.org/learn/research-methods",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Paid ($59 a month) for a 6-hour course; the free USC guide and the 8-hour OpenLearn course cover the same basics."
+      },
+      {
+        "id": "google-ux-design-professional-certificate",
+        "title": "Google UX Design Professional Certificate",
+        "provider": "Google via Coursera",
+        "url": "https://www.coursera.org/professional-certificates/google-ux-design",
+        "kind": "certificate",
+        "skills": [
+          "ux research"
+        ],
+        "level": "beginner",
+        "cost": "paid",
+        "price_usd": 49,
+        "price_note": "",
+        "hours": 112,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "A UX portfolio of three end-to-end projects, with user research and testing from course 4",
+        "why_picked": "Beginner program with three portfolio projects. Only 1 of 8 courses (Conduct UX Research and Test Early Concepts, 15 h) is research. $49 a month after a 7-day trial in US and Canada; about 6 months.",
+        "evidence": [
+          {
+            "claim": "Coursera page: Google, 6 months at about 10 hours a week, beginner, 8 courses listed with hours summing to 112 (course 4 'Conduct UX Research and Test Early Concepts', 15 hours), three portfolio projects, $49 a month after a 7-day free trial in the US and Canada",
+            "url": "https://www.coursera.org/professional-certificates/google-ux-design",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Grow with Google page: foundational level, 5 to 10 hours of study a week, no prior design experience required, three portfolio projects, $49 a month after a 7-day free trial in the US and Canada",
+            "url": "https://grow.google/certificates/ux-design/",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.8,
+          "scale": 5,
+          "count": 100687,
+          "source_url": "https://www.coursera.org/professional-certificates/google-ux-design",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Mostly a design programme: 15 of 112 hours are on research, so about six months at $49 a month is not clearly better for UX research than the free material."
+      },
+      {
+        "id": "coursera-wharton-people-analytics",
+        "title": "People Analytics",
+        "provider": "Wharton Online, University of Pennsylvania via Coursera",
+        "url": "https://www.coursera.org/learn/wharton-people-analytics",
+        "kind": "course",
+        "skills": [
+          "people analytics"
+        ],
+        "level": "beginner",
+        "cost": "paid",
+        "price_usd": 59,
+        "price_note": "",
+        "hours": 12,
+        "languages": [
+          "en"
+        ],
+        "hands_on": false,
+        "output": "A short case write-up on measuring performance and hiring with data, naming biases and causality limits",
+        "why_picked": "Wharton intro to measuring performance, staffing and collaboration networks with data. Conceptual, not complex analysis. Page shows no price; included in Coursera Plus ($59 a month).",
+        "evidence": [
+          {
+            "claim": "Course page: University of Pennsylvania (Wharton Online), instructors Cade Massey, Martine Haas, Matthew Bidwell, 4 modules of about 3 hours; description says it is not intended to prepare learners for complex talent-management data analysis; no dollar price shown ('Included with Coursera Plus'); rating 4.6 from 6,194 reviews",
+            "url": "https://www.coursera.org/learn/wharton-people-analytics",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Coursera Plus pricing page: $59 per month (cancel anytime; 7-day free trial on the monthly plan) or $399 per year; the page lists individual courses at $49 to $79 per month; this course page shows no dollar price and says the course is included with Coursera Plus",
+            "url": "https://www.coursera.org/courseraplus",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.6,
+          "scale": 5,
+          "count": 6194,
+          "source_url": "https://www.coursera.org/learn/wharton-people-analytics",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Paid ($59 a month), conceptual and without hands-on work; the free regression handbook teaches the analysis itself."
+      },
+      {
+        "id": "mit-ocw-introduction-to-probability-and-statistics",
+        "title": "Introduction to Probability and Statistics (18.05)",
+        "provider": "MIT OpenCourseWare",
+        "url": "https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/",
+        "kind": "course",
+        "skills": [
+          "statistics"
+        ],
+        "level": "advanced",
+        "cost": "free",
+        "price_usd": null,
+        "price_note": "",
+        "hours": 60,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "Solved problem sets and R scripts on probability, hypothesis tests and Bayesian inference",
+        "why_picked": "MIT undergraduate course: readings, problem sets with solutions, exams, R tutorials; free without enrolling. Spring 2022. Syllabus prerequisite: multivariable calculus. Far harder than OpenIntro.",
+        "evidence": [
+          {
+            "claim": "MIT OCW page: course 18.05 (Spring 2022), Jeremy Orloff and Jennifer French Kamrin, undergraduate; syllabus, readings, problem sets with solutions, exams, R Studio resources and R tutorials; free to use without enrolling; CC BY-NC-SA 4.0",
+            "url": "https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "MIT OCW syllabus page lists 18.02 Multivariable Calculus as the prerequisite; course covers combinatorics, random variables, distributions, Bayesian inference, hypothesis testing, confidence intervals and linear regression",
+            "url": "https://ocw.mit.edu/courses/18-05-introduction-to-probability-and-statistics-spring-2022/pages/syllabus/",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": null,
+        "updated_year": 2022,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Its syllabus requires multivariable calculus, which most students we serve do not have; statistics was also over the cap of three."
+      },
+      {
+        "id": "coursera-duke-data-analysis-with-r",
+        "title": "Data Analysis with R Specialization",
+        "provider": "Duke University via Coursera (Mine Cetinkaya-Rundel)",
+        "url": "https://www.coursera.org/specializations/statistics",
+        "kind": "course",
+        "skills": [
+          "statistics",
+          "r"
+        ],
+        "level": "beginner",
+        "cost": "paid",
+        "price_usd": 59,
+        "price_note": "",
+        "hours": 42,
+        "languages": [
+          "en"
+        ],
+        "hands_on": true,
+        "output": "A portfolio of R analyses covering exploratory analysis, inference and linear regression, plus a Coursera certificate",
+        "why_picked": "Three Duke courses (probability and data, inference, regression) taught in R, with a project. Its FAQ says it cannot be taken free. Included in Coursera Plus ($59 a month); free options above exist.",
+        "evidence": [
+          {
+            "claim": "Specialization page: Duke University, 3 courses of 15, 16 and 11 hours, beginner; labs and final projects in R and RStudio; builds a portfolio of analyses; FAQ says 'No, you cannot take this course for free'; no dollar price shown ('Included with Coursera Plus'); rating 4.7 from 7,736 reviews",
+            "url": "https://www.coursera.org/specializations/statistics",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "First course page: labs and final project use R through RStudio; covers sampling, exploratory analysis, probability, Bayes' rule, normal and binomial distributions",
+            "url": "https://www.coursera.org/learn/probability-intro",
+            "seen": "2026-10-11"
+          },
+          {
+            "claim": "Coursera Plus pricing page: $59 per month (cancel anytime; 7-day free trial on the monthly plan) or $399 per year; the page lists individual courses at $49 to $79 per month; this course page shows no dollar price and says the course is included with Coursera Plus",
+            "url": "https://www.coursera.org/courseraplus",
+            "seen": "2026-10-11"
+          }
+        ],
+        "rating": {
+          "value": 4.7,
+          "scale": 5,
+          "count": 7736,
+          "source_url": "https://www.coursera.org/specializations/statistics",
+          "seen": "2026-10-11"
+        },
+        "updated_year": null,
+        "verified_at": "2026-10-11",
+        "verification": "fetched",
+        "status": "needs_check",
+        "held_back_reason": "Paid ($59 a month with Coursera Plus) while free options cover the same ground: OpenIntro and jamovi for statistics, R for Data Science and ModernDive for R."
+      }
+    ]
+  }
+}

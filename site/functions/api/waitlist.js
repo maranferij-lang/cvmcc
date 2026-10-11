@@ -5,6 +5,8 @@
 const PLANS = new Set(['scan', 'full', 'hunt']);
 const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
 
+const ALLOWED_ORIGINS = new Set(['https://getcvmax.com', 'https://www.getcvmax.com']);
+
 function json(status, body) {
   return new Response(JSON.stringify(body), {
     status,
@@ -13,12 +15,25 @@ function json(status, body) {
 }
 
 export async function onRequestPost({ request, env }) {
+  // Only a JSON body (a cross-site form or text/plain post would skip the CORS preflight).
+  const type = (request.headers.get('Content-Type') || '').split(';')[0].trim().toLowerCase();
+  if (type !== 'application/json') return json(415, { ok: false });
+
+  // A browser sends Origin on cross-site posts: accept our own site only.
+  const origin = request.headers.get('Origin');
+  if (origin !== null) {
+    let self = '';
+    try { self = new URL(request.url).origin; } catch { /* keep empty */ }
+    if (!ALLOWED_ORIGINS.has(origin) && origin !== self) return json(403, { ok: false });
+  }
+
   let data;
   try {
     data = await request.json();
   } catch {
     return json(400, { ok: false });
   }
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) return json(400, { ok: false });
   // Bots fill the hidden field; pretend it worked.
   if (data.company) return json(200, { ok: true });
 
@@ -27,21 +42,26 @@ export async function onRequestPost({ request, env }) {
   const plan = PLANS.has(data.plan) ? data.plan : 'full';
   const source = String(data.source || '').toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 60) || null;
 
-  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/cvmax_join_waitlist`, {
-    method: 'POST',
-    headers: {
-      apikey: env.SUPABASE_KEY,
-      Authorization: `Bearer ${env.SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      p_token: env.CVMAX_DB_TOKEN,
-      p_email: email,
-      p_plan: plan,
-      p_source: source,
-      p_country: request.cf && request.cf.country ? String(request.cf.country).slice(0, 2) : null,
-    }),
-  });
+  let res;
+  try {
+    res = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/cvmax_join_waitlist`, {
+      method: 'POST',
+      headers: {
+        apikey: env.SUPABASE_KEY,
+        Authorization: `Bearer ${env.SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        p_token: env.CVMAX_DB_TOKEN,
+        p_email: email,
+        p_plan: plan,
+        p_source: source,
+        p_country: request.cf && request.cf.country ? String(request.cf.country).slice(0, 2) : null,
+      }),
+    });
+  } catch {
+    return json(502, { ok: false });
+  }
   if (!res.ok) return json(502, { ok: false });
   return json(200, { ok: true });
 }
