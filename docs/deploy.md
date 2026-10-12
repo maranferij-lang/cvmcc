@@ -1,5 +1,7 @@
 # Deploying GetCVmax to Railway (app.getcvmax.com)
 
+> `docs/launch-guide.md` is the click-by-click guide for the owner (accounts, secrets, domain, launch). This file is the technical reference for the Railway deploy: what the image does, every variable, DNS details, smoke test and rollback.
+
 This is the production deploy: a Docker service on Railway, served at `https://app.getcvmax.com`, that does not sleep.
 
 **Current status: Streamlit Community Cloud is what runs today.** The app is not on Railway yet and `app.getcvmax.com` does not point to it. The privacy text on the site (`site/privacy.html`) already says "Railway (EU): runs the app". That sentence becomes true only after this deploy is finished and the smoke test in step 8 passes. Until then, do not announce the site publicly, or change the privacy text to match what actually runs.
@@ -21,7 +23,7 @@ At start the entrypoint:
 1. If the variable `STREAMLIT_SECRETS_TOML` is set, writes its value to `/app/.streamlit/secrets.toml` with mode 600, removes the variable from the process environment, and checks that the file is valid TOML. It never prints the value. If the TOML is broken the container exits with a short message, so the deploy fails and the previous deployment keeps serving.
 2. Starts `streamlit run app.py` on `$PORT` (default 8501), address `0.0.0.0`, headless, with usage stats off.
 
-Why a file: Google sign-in (`st.login`) reads its `[auth]` section only from `secrets.toml`. Streamlit exposes only top-level secrets as environment variables, never nested sections such as `[auth]` ([secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management), [st.login](https://docs.streamlit.io/develop/api-reference/user/st.login)). The app's own keys (`GEMINI_API_KEY`, `SUPABASE_*`, ...) are read by `ui/common.py` `secret()` from `st.secrets` first and then from plain environment variables, so they are ordinary Railway variables.
+Why a file: Google sign-in (`st.login`) reads its `[auth]` section only from `secrets.toml`. Streamlit exposes only top-level secrets as environment variables, never nested sections such as `[auth]` ([secrets management](https://docs.streamlit.io/develop/concepts/connections/secrets-management), [st.login](https://docs.streamlit.io/develop/api-reference/user/st.login)). The app's own keys (`ANTHROPIC_API_KEY`, `SUPABASE_*`, ...) are read by `ui/common.py` `secret()` from `st.secrets` first and then from plain environment variables, so they are ordinary Railway variables.
 `ui/account.py` `auth_configured()` turns sign-in on only when `[auth.google].client_id` ends with `.apps.googleusercontent.com`.
 
 So the rule is: **Railway variables for keys and settings, `STREAMLIT_SECRETS_TOML` only for the `[auth]` block.**
@@ -31,17 +33,21 @@ So the rule is: **Railway variables for keys and settings, `STREAMLIT_SECRETS_TO
 - The GitHub repository of the app, with the `Dockerfile` on the branch you will deploy (normally `main`).
 - A Railway account. A subscription is required (see [Cost](#cost)).
 - The Supabase project from `supabase/README.md`, with `SUPABASE_URL`, `SUPABASE_KEY` and `CVMAX_DB_TOKEN`.
-- A Gemini API key, and billing enabled on its project (step 1 below).
+- A Claude API key from the Anthropic Console, with a monthly spend limit set (step 1 below). The app uses Claude as its only model provider: set `CVMAX_PROVIDER=claude`.
 - Access to the Cloudflare DNS of `getcvmax.com` and to the Google Cloud project for sign-in.
 
-## 1. Mandatory before public launch: enable billing on the Gemini API project
+## 1. Mandatory before public launch: Claude API key and a monthly spending limit
 
-Do this before the public link goes out. On the unpaid (free) tier Google may use the prompts and responses to improve its products. The paid terms say it does not. The CVs people upload are personal data, so the app must run on a billed project. Terms: <https://ai.google.dev/gemini-api/terms>.
+Do this before the public link goes out. The model calls are billed per use, so a fresh key that only you have seen and a monthly limit are required.
 
-1. Open <https://aistudio.google.com/apikey> and find the project that owns the key you will use in production.
-2. Next to that project click "Set up billing" and link a Cloud Billing account. Wait until the project shows the paid tier.
-3. Open Google Cloud console, Billing, Budgets & alerts, Create budget. Scope it to that project, set an amount you are happy to lose in a month, and add alert thresholds (for example 50%, 90%, 100%) that email you.
-4. Remember: **a budget alert does not cap spend.** It only emails you. The real cap is the per-day limits in `CVMAX_LIMITS` (step 3), which stop requests inside the app. Set them deliberately.
+1. Open <https://console.anthropic.com> and sign in.
+2. Settings, API keys, Create key. Name it `getcvmax-prod`. Copy it once into your password manager. This is the production key.
+3. **Never reuse a key that was pasted anywhere** (a chat, an email, an issue, a file). Treat such a key as exposed: delete or disable it on the same page and use the fresh one.
+4. Settings, Limits (or Billing, Limits): set a monthly spend limit. A reasonable start is 30 USD; raise it later on purpose. Add a payment method and a small credit if the console asks.
+5. Keep the key only in Railway variables (`ANTHROPIC_API_KEY`) and GitHub Actions secrets (for the scheduled jobs). Never put it in a file, the repository, an email or a chat.
+6. Remember: the monthly limit in the Console is the hard stop for the whole account, but it only acts after the money is spent up to that amount. Day-to-day spend is bounded by the per-day limits in `CVMAX_LIMITS` (step 3), which stop requests inside the app. Set both deliberately.
+
+If the app later reports "Invalid API key" and the key starts with `sk-ant-usr`, create a standard API key on the API keys page instead.
 
 ## 2. Create the Railway project
 
@@ -63,7 +69,8 @@ Never paste a value anywhere else (chat, issues, commits).
 | Variable | Value |
 |---|---|
 | `PORT` | `8501` (so the domain target port and the app agree) |
-| `GEMINI_API_KEY` | Key from the billed project in step 1. If you use Claude instead, set `ANTHROPIC_API_KEY` and `CVMAX_PROVIDER=claude`. If both keys are set, Gemini is used. |
+| `ANTHROPIC_API_KEY` | The Claude API key created in step 1. |
+| `CVMAX_PROVIDER` | `claude`. Set it explicitly. With the default `auto`, if both a Gemini and a Claude key are present Gemini wins, so a leftover Gemini key would silently switch the app to Gemini. |
 | `SUPABASE_URL` | `https://<project>.supabase.co` |
 | `SUPABASE_KEY` | The project's public key (`sb_publishable_...`) |
 | `CVMAX_DB_TOKEN` | The site's secret token (`cvmx_...`, see `supabase/README.md`). It also keys the hashed role tag in job-search events unless `CVMAX_EVENT_SALT` is set. |
@@ -76,8 +83,9 @@ Without `STREAMLIT_SECRETS_TOML` the site runs with no sign-in.
 
 | Variable | Value |
 |---|---|
-| `CVMAX_LIMITS` | Daily limits, per user and for the whole site, as `kind=user:site` pairs separated by commas. Example: `analysis=5:60,career=3:40,grill=3:30,builder=2:20,build=4:30,export=5:30,feedback=10:500,jobs=10:300,match=5:60`. A side may be `none` for no limit. Kinds: `analysis`, `career`, `grill`, `builder`, `build`, `export`, `feedback`, `jobs`, `match`. Malformed or unknown entries are ignored, never fatal. **This is the real spending cap**, so set the site-wide numbers to what your Gemini budget can pay for. The defaults in `cvmax/config.py` are sized for the free tier. |
-| `CVMAX_CONTACT` | Email or Telegram shown on the About, Privacy and Terms pages (for example `cvmax.team@gmail.com`) |
+| `CVMAX_LIMITS` | Daily limits, per user and for the whole site, as `kind=user:site` pairs separated by commas. Example: `analysis=5:60,career=3:40,grill=3:30,builder=2:20,build=4:30,export=5:30,feedback=10:500,jobs=10:300,match=5:60`. A side may be `none` for no limit. Kinds: `analysis`, `career`, `grill`, `builder`, `build`, `export`, `feedback`, `jobs`, `match`. Malformed or unknown entries are ignored, never fatal. **This is the real day-to-day spending cap**, so set the site-wide numbers to what your Claude budget can pay for. The defaults in `cvmax/config.py` may be larger than your budget allows, so check them. The launch-guide value is `analysis=5:100,jobs=10:300`. |
+| `CVMAX_CONTACT` | Email or Telegram shown on the About, Privacy and Terms pages (for example `hello@getcvmax.com`) |
+| `CVMAX_HOSTING` | `Railway`. Shown on the privacy page as the place where the app runs. |
 | `CVMAX_EVENT_SALT` | A long random string. Keys the hashed role tag in job-search events (HMAC), so the tag cannot be guessed from a dictionary. Without it the app falls back to `CVMAX_DB_TOKEN`. |
 | `JOOBLE_API_KEY` | Free Jooble key. Without it the Jooble job source is skipped. |
 | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | Free Adzuna keys, both are needed. Without them Adzuna is skipped. |
@@ -86,19 +94,25 @@ Without `STREAMLIT_SECRETS_TOML` the site runs with no sign-in.
 
 | Variable | Default | What it does |
 |---|---|---|
-| `CVMAX_PROVIDER` | `auto` | `gemini`, `claude` or `auto` |
-| `CVMAX_GEMINI_MODELS` | see `cvmax/config.py` | Heavy-task Gemini models, comma-separated, in the order to try |
-| `CVMAX_GEMINI_MODELS_LIGHT` | see `cvmax/config.py` | Light-task (Grill me) Gemini models |
-| `CVMAX_MODEL` | `claude-opus-5-5` | Claude model, used only with Claude |
+| `CVMAX_MODEL` | `claude-sonnet-5-5` | Claude model for heavy tasks (the CV review and edits) |
+| `CVMAX_MODEL_LIGHT` | `claude-haiku-5-5` | Claude model for light tasks: Q&A questions, job ranking, the edit verifier and skill extraction |
 | `CVMAX_FALLBACKS` | `1` | Claude: retry on a fallback model |
 | `CVMAX_EFFORT_ANALYSIS` | `high` | Review depth: low, medium, high |
 | `CVMAX_EFFORT_GRILL` | `low` | Depth for Grill me |
 | `CVMAX_CHECKS` | `1` | `0` turns off the automatic CV checks |
 | `CVMAX_VERIFY` | `1` | `0` turns off the edit verifier |
 | `CVMAX_DEMO` | off | `1` forces demo mode (fake model). Never set it in production. |
-| `ANTHROPIC_API_KEY` | none | Claude key, see `GEMINI_API_KEY` |
 
-Do not set `GOOGLE_API_KEY` unless you mean it: the app uses it as a fallback for `GEMINI_API_KEY`.
+Gemini variables, optional and unused when `CVMAX_PROVIDER=claude`:
+
+| Variable | What it does |
+|---|---|
+| `GEMINI_API_KEY` | Gemini key. Not needed with Claude. Leave it unset in production. |
+| `CVMAX_GEMINI_MODELS` | Heavy-task Gemini models (see `cvmax/config.py`) |
+| `CVMAX_GEMINI_MODELS_LIGHT` | Light-task Gemini models (see `cvmax/config.py`) |
+| `GOOGLE_API_KEY` | Fallback name for `GEMINI_API_KEY`. Do not set it unless you mean it. |
+
+If both a Gemini and a Claude key are set and the provider is `auto`, Gemini wins. That is why `CVMAX_PROVIDER=claude` must be set explicitly.
 Do not set any `PADDLE_*`, `CVMAX_BILLING_TOKEN` or other billing variable: the launch is free and billing code is parked.
 `LEARN_AUTOMERGE`, `LEARN_PR_TOKEN` and `CVMAX_LEARN_TOKEN` belong to GitHub Actions, not to the app service. Do not put them in Railway.
 
@@ -128,7 +142,7 @@ Notes:
 
 ## 5. Google Cloud OAuth client
 
-In <https://console.cloud.google.com>, pick (or create) the project for sign-in. It can be a different project from the Gemini one.
+In <https://console.cloud.google.com>, pick (or create) the project for sign-in. It has nothing to do with the model provider.
 
 1. APIs & Services, OAuth consent screen (in newer consoles: Google Auth Platform, Branding / Audience / Data Access).
 2. App name `GetCVmax`, support email and developer contact email set. App home page `https://getcvmax.com`, privacy policy `https://getcvmax.com/privacy`, terms `https://getcvmax.com/terms`. Add `getcvmax.com` as an authorised domain.
@@ -195,7 +209,16 @@ A broken `STREAMLIT_SECRETS_TOML` or a failing healthcheck never replaces a work
 
 ## Cost
 
-A few dollars to ten dollars a month at launch traffic. Check Railway's current pricing page (<https://railway.com/pricing>) for what applies today: a subscription plus usage (memory, CPU and network) is billed. The Gemini bill is separate and is bounded by `CVMAX_LIMITS`. Set the Cloud budget alert from step 1 and add a usage limit in Railway under the workspace's Usage / billing settings.
+A few dollars to ten dollars a month at launch traffic. Check Railway's current pricing page (<https://railway.com/pricing>) for what applies today: a subscription plus usage (memory, CPU and network) is billed. The Claude bill is separate, and the per-day `CVMAX_LIMITS` bound it. Set the monthly spend limit from step 1 and add a usage limit in Railway under the workspace's Usage / billing settings.
+
+The model prices below are estimates from the launch guide, not measurements. Check the Anthropic pricing page for the current numbers, and measure the real cost per review in the Console (Usage divided by the number of reviews).
+
+| Model | Input | Output |
+|---|---|---|
+| Claude Sonnet 5.5 (heavy tasks) | 2 USD per million tokens | 10 USD per million tokens |
+| Claude Haiku 5.5 (light tasks) | 0.10 USD per million tokens | 0.50 USD per million tokens |
+
+A CV review on Sonnet is on the order of 5 to 15 US cents. With `analysis=5:100` at most 100 reviews a day, so the worst case is roughly 15 USD a day, and the monthly limit stops anything beyond that.
 
 ## Fallback: Streamlit Community Cloud
 
@@ -207,9 +230,9 @@ Use this if Railway is down or while you have not set up the custom domain. It h
 
 ## Checklist before announcing
 
-- [ ] Billing enabled on the Gemini API project and a Cloud budget alert set
+- [ ] Fresh Claude API key created (not one that was ever pasted anywhere) and a monthly spend limit set in the Anthropic Console
 - [ ] `CVMAX_LIMITS` site-wide numbers match what the budget can pay for
-- [ ] `PORT`, `GEMINI_API_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_DB_TOKEN` set; `CVMAX_DEMO` not set
+- [ ] `PORT`, `ANTHROPIC_API_KEY`, `CVMAX_PROVIDER=claude`, `CVMAX_HOSTING`, `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_DB_TOKEN` set; `CVMAX_DEMO` not set; no Gemini key set
 - [ ] `STREAMLIT_SECRETS_TOML` set; Google consent screen In production
 - [ ] `app.getcvmax.com` verified (green check) with a valid certificate
 - [ ] Smoke test passed on the custom domain, including Google sign-in

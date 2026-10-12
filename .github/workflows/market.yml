@@ -59,14 +59,20 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           CVMAX_DB_TOKEN: ${{ secrets.CVMAX_LEARN_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CVMAX_PROVIDER: ${{ vars.CVMAX_PROVIDER }}
       - name: Evals gate
         run: python evals/run_evals.py --runs 2 --json evals/last_run.json --baseline evals/baseline.json
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CVMAX_PROVIDER: ${{ vars.CVMAX_PROVIDER }}
       - name: Evals gate (prompt variants)
         run: python evals/run_evals.py --runs 2 --variants --prune-failing --baseline evals/baseline.json
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CVMAX_PROVIDER: ${{ vars.CVMAX_PROVIDER }}
       - name: Tests
         run: pytest -q
       - name: Upload changed paths

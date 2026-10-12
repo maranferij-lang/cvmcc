@@ -100,7 +100,8 @@ Everything is set through environment variables or Streamlit secrets.
 |---|---|---|
 | `CVMAX_PROVIDER` | `auto` | `gemini`, `claude` or `auto`: Gemini if its key is present |
 | `CVMAX_GEMINI_MODELS` | see above | Gemini models, comma-separated, in the order to try |
-| `CVMAX_MODEL` | `claude-opus-5-5` | Claude model. `claude-sonnet-5-5` is twice as cheap |
+| `CVMAX_MODEL` | `claude-sonnet-5-5` | Claude model for heavy tasks (CV review, edits from Q&A, career, CV builder). Opus costs about twice as much |
+| `CVMAX_MODEL_LIGHT` | `claude-haiku-5-5` | Claude model for light tasks (Q&A questions, job ranking, the edit verifier, skill extraction), about 20 times cheaper than Sonnet |
 | `CVMAX_EFFORT_ANALYSIS` | `high` | Review depth: low, medium, high |
 | `CVMAX_EFFORT_GRILL` | `low` | Depth for the Grill me questions |
 | `CVMAX_FALLBACKS` | `1` | Claude: retry on a fallback model if the main one fails |

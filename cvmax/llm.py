@@ -165,15 +165,17 @@ class ClaudeLLM:
     def ask(self, *, system: str, content: list[dict], output_model: Type[T], effort: str) -> T:
         import anthropic
 
+        # The cheap model for light tasks (effort "low"), the stronger one for everything else.
+        model = config.MODEL_LIGHT if effort == "low" else config.MODEL
         kwargs: dict[str, Any] = dict(
-            model=config.MODEL,
+            model=model,
             max_tokens=config.MAX_TOKENS,
             system=system,
             messages=[{"role": "user", "content": content}],
             output_format=output_model,
             output_config={"effort": effort},
         )
-        if config.USE_FALLBACKS:
+        if config.USE_FALLBACKS and model in config.FALLBACK_MODELS:
             kwargs["extra_headers"] = {"anthropic-beta": "server-side-fallback-2026-07-01"}
             kwargs["extra_body"] = {"fallbacks": "default"}
 

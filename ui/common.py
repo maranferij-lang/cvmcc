@@ -49,6 +49,7 @@ def demo_banner() -> None:
 
 
 PRIVACY_NOTE = {
+    "Claude API (Anthropic)": " Anthropic may not train its models on it and deletes it within 30 days.",
     "Google Gemini API": " On the free tier Google may review submitted data and use it to improve its products, "
     "so remove your phone number and address from the CV first.",
 }

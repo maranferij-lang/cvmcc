@@ -20,7 +20,8 @@ GetCVmax is an AI CV coach for students and early-career people applying to inte
 ## Product decisions already made (do not reopen without the owner)
 
 - The launch is free: no credits and no paywall at launch (owner decision, October 2026). Daily limits stay. Billing code is parked (`docs/plan-launch-build.md` Part C). The paid plan idea for later: pay-once packs, $5 Scan, $15 Full fix, $29 Job hunt for the first 100 buyers, then $9, $25, $49. Do not build or enable it until the owner says so.
-- Paddle would be the merchant of record and RevenueCat the dashboard when payments come. Cloudflare Pages hosts the site, Supabase is the database, the app runs on Streamlit Community Cloud now and Railway later.
+- Paddle would be the merchant of record and RevenueCat the dashboard when payments come. Cloudflare Pages hosts the site, Supabase is the database, the app runs on Streamlit Community Cloud now and Railway for the public launch.
+- The model provider is Claude (owner decision, October 2026): Sonnet 5.5 for heavy tasks, Haiku 5.5 for light ones (effort low). Never default to Opus or any model that costs more without the owner's say; compare cost and quality with the evals before changing a model. The Gemini path stays as an option only. A key the owner pastes into a chat is never written to a file, a command or the repo; tell them to put it in Railway and GitHub secrets and to rotate it afterwards.
 - Learning resources are curated by hand and verified: no sponsors, no affiliate links, no model-written links, a visible "why we picked it" and a verification date on every entry (`docs/plan-resources-and-free-launch.md`).
 - Design is "red pen": paper white, ink `#15171C`, red `#E0261B`, Schibsted Grotesk and Kalam, light and dark following the system theme. Three colours only.
 - No testimonials, no founder photo, no video on the site.

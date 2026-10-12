@@ -6,6 +6,13 @@ from ui.account import auth_configured
 from ui.common import card, provider_name, secret
 
 provider = provider_name()
+# Where the app runs; set CVMAX_HOSTING=Railway in the production variables.
+HOSTING = secret("CVMAX_HOSTING") or "Streamlit Community Cloud (Snowflake, USA)"
+RETENTION_NOTE = {
+    "Google Gemini API": "On the free Gemini tier, Google may keep requests longer than we do.",
+    "Claude API (Anthropic)": "Anthropic deletes inputs and outputs within 30 days, and may keep content longer only if "
+    "its safety systems flag a policy violation. Under its commercial terms it may not train its models on it.",
+}
 contact = secret("CVMAX_CONTACT")
 ACCOUNTS = auth_configured()  # without login nothing is tied to a person
 
@@ -77,7 +84,7 @@ st.write(
 st.header("Who we share data with")
 st.markdown(
     f"- **{provider}:** your CV and answers are sent to the model for review.\n"
-    "- **Streamlit Community Cloud (Snowflake, USA):** hosts the site. All requests go through it.\n"
+    f"- **{HOSTING}:** hosts the site. All requests go through it.\n"
     "- **Job sites' public feeds:** when you press \"Show live vacancies\", the keywords you chose and your "
     "region are sent to them. Never your CV. LinkedIn, Indeed and Glassdoor are plain links that you open "
     "yourself.\n"
@@ -101,8 +108,8 @@ st.markdown(
         else "- **Results:** also until you close the tab.\n"
         "- **Accepted edits, learning events and counters:** kept, but not linked to you (see Your rights).\n"
     )
-    + "- **At the model and hosting providers:** under their own rules. On the free Gemini tier, Google may "
-    "keep requests longer than we do."
+    + "- **At the model and hosting providers:** under their own rules. "
+    + RETENTION_NOTE.get(provider, "")
 )
 
 st.header("How we protect it")

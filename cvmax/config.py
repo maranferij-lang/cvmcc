@@ -5,10 +5,17 @@ import os
 
 # Which model provider: auto | gemini | claude.
 # auto: Gemini if GEMINI_API_KEY is set, otherwise Claude if ANTHROPIC_API_KEY is set, otherwise demo.
-PROVIDER = os.environ.get("CVMAX_PROVIDER", "auto")
+PROVIDER = os.environ.get("CVMAX_PROVIDER") or "auto"  # an empty value (an unset CI variable) means auto
 
 # Claude
-MODEL = os.environ.get("CVMAX_MODEL", "claude-opus-5-5")
+# The model for heavy tasks (CV review, edits from Q&A, career directions, CV builder, weekly lessons) is Sonnet:
+# about half the price of Opus at the same quality bar for structured CV work. Light tasks (effort "low":
+# Q&A questions, job ranking, the edit verifier, skill extraction) run on Haiku, about 20 times cheaper.
+# Set CVMAX_MODEL or CVMAX_MODEL_LIGHT to change either; run evals/run_evals.py before switching.
+MODEL = os.environ.get("CVMAX_MODEL") or "claude-sonnet-5-5"
+MODEL_LIGHT = os.environ.get("CVMAX_MODEL_LIGHT") or "claude-haiku-5-5"
+# Models that accept the server-side refusal fallback. Haiku 5.5 has no such fallback and would reject the field.
+FALLBACK_MODELS = frozenset({"claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"})
 # If Claude refuses because of the safety filter, the API itself retries the request on a fallback model.
 USE_FALLBACKS = os.environ.get("CVMAX_FALLBACKS", "1") == "1"
 

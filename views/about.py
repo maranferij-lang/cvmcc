@@ -3,7 +3,7 @@
 import streamlit as st
 
 from cvmax import config
-from ui.common import card, secret
+from ui.common import card, provider_name, secret
 
 st.title("About GetCVmax")
 st.markdown(
@@ -64,7 +64,7 @@ for row in range(0, len(steps), 2):
 
 st.header("What's inside")
 st.markdown(
-    "- **Model:** Google Gemini (free tier).\n"
+    f"- **Model:** {provider_name()}.\n"
     "- **Criteria:** general rules for a strong CV plus separate ones for each field, built from advice by "
     "recruiters at consulting and tech companies, university career centers and research on how CVs are read.\n"
     "- **Quality checks:** a set of made-up CVs with known problems that we run every change against."
