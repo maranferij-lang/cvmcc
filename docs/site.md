@@ -4,7 +4,7 @@ A static landing page for the free launch, legal pages and an email form ("Get o
 
 ## Deploy
 1. Cloudflare → Workers & Pages → Create → Pages → Connect to Git → repository `cvmcc`, branch `main`.
-2. Build command: empty. Build output directory: `site`. Root directory: empty.
+2. Build command: empty. Root directory: `site`. Build output directory: empty. (Pages finds `functions/` only inside the root directory.) Keep docs out of `site/`: everything in it is served publicly.
 3. Settings → Variables and Secrets (type Secret): `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_DB_TOKEN` (the same as in the app).
 4. Custom domains → `getcvmax.com` and `www.getcvmax.com`.
 5. Metrics → Web Analytics → Enable (counts views without cookies).
