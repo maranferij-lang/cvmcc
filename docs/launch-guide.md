@@ -145,7 +145,7 @@ Check: open `https://app.getcvmax.com`, the home page loads, and "Sign in with G
 Why: this is the page you share. It collects emails for "one email when something new ships".
 
 1. Cloudflare → Workers and Pages → Create → Pages → Connect to Git → choose `cvmcc`, branch `main`.
-2. Build command: leave empty. Build output directory: `site`.
+2. Build command: leave empty. Root directory: `site`. Build output directory: leave empty. Why: Cloudflare looks for `functions/` inside the root directory, so with the root left empty the email form's function (`site/functions/api/waitlist.js`) would not deploy.
 3. Settings → Variables and Secrets: add three (type Secret) `SUPABASE_URL`, `SUPABASE_KEY`, `CVMAX_DB_TOKEN` (same values as the app). Why: the email form writes to your database through a small server function.
 4. Custom domains → add `getcvmax.com` and `www.getcvmax.com`.
 5. Metrics → Web Analytics → Enable. Why: counts visitors without cookies, so no cookie banner is needed.
