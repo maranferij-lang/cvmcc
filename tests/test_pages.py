@@ -60,7 +60,8 @@ def test_feedback_page_sends_anonymous_feedback():
     at = AppTest.from_file(APP, default_timeout=60)
     at.run()
     at.switch_page("views/feedback.py").run()
-    at.text_area[0].input("It told me to cut an important line").run()
+    # Type and submit in one run, like a browser does: since Streamlit 1.66 a rerun between them drops the form's staged text.
+    at.text_area[0].input("It told me to cut an important line")
     next(b for b in at.button if b.label == "Send").click().run()
     assert not at.exception
     assert any("Thank" in s.value for s in at.success)

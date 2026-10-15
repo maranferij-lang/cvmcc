@@ -109,8 +109,9 @@ def test_sql_gap_shows_cards_with_cost_badge_and_reasons():
     assert "**Why we picked it:**" in text
     assert any("Hands\\-on" in c for c in captions(at))
     assert any(e.label == "How we checked this" for e in at.expander)
-    # An expander with an icon is reported by AppTest as a "status" block.
-    assert any(getattr(e.proto, "label", "") == "How we pick resources" for e in at.get("status"))
+    # Streamlit before 1.66 reports an expander with an icon as a "status" block; 1.66+ as an expander.
+    labels_seen = [e.label for e in at.expander] + [getattr(e.proto, "label", "") for e in at.get("status")]
+    assert "How we pick resources" in labels_seen
     assert any(l.proto.label == "Report a bad link or suggest one" for l in at.get("page_link"))
     assert "Not sponsored. No affiliate links." in text
 

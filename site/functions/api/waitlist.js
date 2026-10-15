@@ -42,15 +42,20 @@ export async function onRequestPost({ request, env }) {
   const plan = PLANS.has(data.plan) ? data.plan : 'full';
   const source = String(data.source || '').toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 60) || null;
 
+  // A missing or malformed setting is a deploy mistake: say so (no values) instead of a bare 502.
+  const base = String(env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+  if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(base) || !env.SUPABASE_KEY || !env.CVMAX_DB_TOKEN) {
+    return json(500, { ok: false, error: 'config' });
+  }
+  const headers = { apikey: env.SUPABASE_KEY, 'Content-Type': 'application/json' };
+  // Only the old JWT anon key goes in Authorization too (as in cvmax/db.py); new sb_ keys are not JWTs.
+  if (env.SUPABASE_KEY.split('.').length === 3) headers.Authorization = `Bearer ${env.SUPABASE_KEY}`;
+
   let res;
   try {
-    res = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/cvmax_join_waitlist`, {
+    res = await fetch(`${base}/rest/v1/rpc/cvmax_join_waitlist`, {
       method: 'POST',
-      headers: {
-        apikey: env.SUPABASE_KEY,
-        Authorization: `Bearer ${env.SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         p_token: env.CVMAX_DB_TOKEN,
         p_email: email,
