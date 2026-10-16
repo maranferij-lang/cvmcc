@@ -82,7 +82,7 @@ _KIND_PATTERNS = [
     ("interests", r"interests|інтереси|хобі"),
     ("activities", r"activities|діяльність|активності"),
     ("leadership", r"leadership|лідерство"),
-    ("summary", r"summary|профіль|про себе"),
+    ("summary", r"summary|профіль|про\s+себе|про\s+мене|about\s+me"),
     ("objective", r"objective|мета"),
 ]
 _KIND_RES = [(k, re.compile(r"\b(?:%s)\b" % p, re.I)) for k, p in _KIND_PATTERNS]
@@ -99,6 +99,14 @@ _OTHER_WORDS = frozenset(
 )
 _OTHER_FILLER = frozenset({"and", "&", "key", "selected", "professional", "online", "та", "і", "й"})
 _WORD = re.compile(r"[^\W\d_]+|&")
+_JOINING_WORDS = frozenset("and or of in on for with the a an to та і й або з у в для на".split())
+# "Education Programme Assistant", "Projects Coordinator": a Title Case section word followed by one of these is a job
+# title or a name, not a heading glued to its content.
+_ROLE_WORDS = frozenset(
+    "assistant coordinator manager intern internship officer specialist trainer programme program development "
+    "director lead consultant analyst associate representative ambassador volunteer mentor teacher tutor "
+    "department team centre center fund foundation initiative club office".split()
+)
 
 _DIGIT = re.compile(r"\d")
 _RANGE = re.compile(
@@ -139,6 +147,8 @@ def _heading_label(label: str) -> str:
     s = label.strip(_DECOR)
     if not s or len(s) > 40 or "." in s or "," in s or len(s.split()) > 5:
         return ""
+    if s.split()[0].lower() in _JOINING_WORDS:  # "and creative projects": the tail of a wrapped sentence
+        return ""
     return s
 
 
@@ -153,6 +163,38 @@ def _is_other_section(label: str) -> bool:
     s = _heading_label(label)
     words = [w.lower() for w in _WORD.findall(s)]
     return any(w in _OTHER_WORDS for w in words) and all(w in _OTHER_WORDS or w in _OTHER_FILLER for w in words)
+
+
+def _inline_heading(s: str) -> tuple[str, str] | None:
+    """A heading glued to its content by the PDF text layer: "EDUCATION Kyiv School of Economics ...",
+    "Education Lyceum ...", "ПРО МЕНЕ Студент ...". Returns (heading, rest) or None.
+
+    The heading must be in capitals, or Title Case and followed by a capital letter, so that a sentence such as
+    "Experience in sales" or a sentence ending in a section word is not split.
+    """
+    tokens = s.split()
+    for n in range(1, min(3, len(tokens) - 1) + 1):
+        label = " ".join(tokens[:n]).strip(_DECOR)
+        rest = " ".join(tokens[n:]).strip()
+        if not label or not rest or not (_kinds_of(label) or _is_other_section(label)):
+            continue
+        letters = [c for c in label if c.isalpha()]
+        first = rest.lstrip(_DECOR)[:1]
+        if len(letters) >= 4 and all(c.isupper() for c in letters):
+            # "ACHIEVEMENTS & VOLUNTEERING Rotaract ...": take the rest of the capitalised heading words too.
+            while len(tokens) > n + 1 and (
+                tokens[n] in ("&", "and", "AND", "/", "та", "і")
+                or (tokens[n].isupper() and (_kinds_of(tokens[n]) or _is_other_section(tokens[n])))
+            ):
+                n += 1
+            label = " ".join(tokens[:n]).strip(_DECOR)
+            return label, " ".join(tokens[n:]).strip()
+        following = [w.strip(",.;:()").lower() for w in tokens[n:n + 2]]
+        if (all(w[:1].isupper() and w[1:].islower() for w in label.split() if w.isalpha()) and first.isupper()
+                and not any(w in _ROLE_WORDS for w in following)):
+            return label, rest
+        return None  # the shortest prefix that names a section decides
+    return None
 
 
 def _is_continuation(s: str) -> bool:
@@ -205,6 +247,14 @@ def _parse_lines(text: str) -> list[_Line]:
             section += 1
             kinds = heading_kinds
             out.append(_Line(s, s, "heading", kinds, section))
+            continue
+        inline = _inline_heading(s)
+        if inline:
+            label, rest = inline
+            section += 1
+            kinds = _kinds_of(label)
+            out.append(_Line(label, label, "heading", kinds, section))
+            out.append(_Line(rest, rest, "text", kinds, section))
             continue
         out.append(_Line(s, s, "text", kinds, section))
     return out
@@ -317,7 +367,10 @@ def _check_length(profile: Profile, words: int, pages: int | None, scanned: bool
 
 _WEAK_OPENER = re.compile(
     r"(responsible\s+for|helped|assisted|worked\s+on|participated\s+in|supported|involved\s+in"
-    r"|duties\s+included|tasked\s+with)\b",
+    r"|duties\s+included|tasked\s+with"
+    # Ukrainian: "відповідала за", "допомагав", "брала участь", "займалася", "асистувала"
+    r"|відповідал[аи]?\s+за|відповідальн\w*\s+за|допомага\w*|допоміг|допомогла|брал[аи]?\s+участь|брав\s+участь"
+    r"|займал[аи]?ся|займалась|асистувал\w*)(?!\w)",
     re.I,
 )
 
@@ -492,6 +545,56 @@ _LANG_LEVEL = re.compile(r"\(\s*(?:[abc][12]|native(?:\s+speaker)?|mother\s+tong
 # confirm "Excel" and "Python".
 _LEVEL_WORDS = frozenset({"ms", "microsoft", "advanced", "basic", "intermediate", "beginner", "proficient", "expert"})
 MAX_SKILL_TERMS = 60
+# Languages and language levels are not skills that a bullet can prove: "English: B2" must not be reported.
+_LANGUAGE_NAMES = frozenset(
+    "english ukrainian russian polish german french spanish italian portuguese czech slovak turkish chinese japanese "
+    "korean arabic hebrew dutch swedish norwegian danish finnish greek hungarian romanian "
+    "англійська українська польська німецька французька іспанська італійська російська".split()
+)
+_LANGUAGE_LEVELS = frozenset(
+    "native fluent bilingual elementary intermediate upper-intermediate pre-intermediate speaker proficiency "
+    "a1 a2 b1 b2 c1 c2 рідна вільно".split()
+)
+# Soft skills: no bullet "mentions" them, so they are reported once as a group instead of as missing evidence.
+_SOFT_SKILLS = frozenset({
+    "communication", "teamwork", "team work", "team player", "leadership", "problem solving", "problem-solving",
+    "critical thinking", "analytical thinking", "time management", "adaptability", "flexibility", "creativity",
+    "attention to detail", "organization", "organisation", "collaboration", "responsibility", "multitasking",
+    "public speaking", "negotiation", "interpersonal", "emotional intelligence", "self-motivation", "motivation",
+    "stress resistance", "stress tolerance", "fast learner", "quick learner", "punctuality", "work ethic",
+    "decision making", "decision-making", "initiative", "empathy", "self-discipline", "proactivity",
+    "комунікабельність", "комунікація", "командна робота", "лідерство", "відповідальність", "креативність",
+    "тайм-менеджмент", "критичне мислення", "стресостійкість", "адаптивність", "уважність", "організованість",
+    "пунктуальність", "гнучкість", "ініціативність", "емпатія",
+})
+
+
+def _soft_key(term: str) -> str:
+    low = " ".join(term.lower().split())
+    for suffix in (" skills", " skill", " навички"):
+        low = low.removesuffix(suffix)
+    return low
+
+
+_SKILL_LABEL_WORDS = frozenset({"hard", "soft", "skills", "technical", "professional", "tools", "key", "other"})
+_YEAR_IN_TERM = re.compile(r"(?:19|20)\d\d")
+
+
+def _looks_like_skill(term: str) -> bool:
+    """Drops what a merged PDF line pushes into the skills list: sentences, contacts, dates, sub-headings."""
+    words = term.lower().split()
+    low = term.lower()
+    if len(words) > 4 or any(x in low for x in ("@", "www.", "http", ".com", "<", ">")):
+        return False
+    if _YEAR_IN_TERM.search(term) or all(w.strip(":") in _SKILL_LABEL_WORDS for w in words):
+        return False
+    return not words[0] in ("and", "та", "і", "й", "або", "or")
+
+
+def _is_language_term(term: str) -> bool:
+    """"English: B2", "Ukrainian native", "B2": a language or a level. "React Native" and "Fluent UI" are skills."""
+    words = [w for w in re.split(r"[\s:–—]+", term.lower()) if w]
+    return bool(words) and (words[0] in _LANGUAGE_NAMES or all(w in _LANGUAGE_LEVELS for w in words))
 
 
 def _drop_parens(s: str) -> str:
@@ -500,7 +603,7 @@ def _drop_parens(s: str) -> str:
 
 
 def _evidence_key(term: str) -> str:
-    words = term.lower().split()
+    words = [w for w in term.lower().split() if w not in ("–", "—", "-")]  # "Excel – Advanced" proves "Excel"
     while len(words) > 1 and words[0] in _LEVEL_WORDS:
         words.pop(0)
     while len(words) > 1 and words[-1] in _LEVEL_WORDS:
@@ -533,15 +636,23 @@ def _skill_terms(skill_lines: list[_Line]) -> list[str]:
 
 def _check_skills_evidence(lines: list[_Line]) -> list[Finding]:
     skill_lines = [ln for ln in lines if ln.kind != "heading" and "skills" in ln.kinds]
-    terms = _skill_terms(skill_lines)
+    terms = [t for t in _skill_terms(skill_lines) if _looks_like_skill(t) and not _is_language_term(t)]
+    soft = [t for t in terms if _soft_key(t) in _SOFT_SKILLS]
+    terms = [t for t in terms if _soft_key(t) not in _SOFT_SKILLS]
+    out: list[Finding] = []
+    if len(soft) >= 2:
+        shown_soft = ", ".join(soft[:4])[:QUOTE_CHARS]
+        out.append(Finding("soft_skills_listed", "low",
+                           f"The skills list names soft skills ({shown_soft}); recruiters skip these "
+                           "unless a bullet shows them in action."))
     if not terms:
-        return []
+        return out
     skill_ids = {id(ln) for ln in skill_lines}
     rest = "\n".join(ln.text if ln.kind == "bullet" else ln.raw for ln in lines if id(ln) not in skill_ids).lower()
     missing = [t for t in terms
                if not re.search(r"(?<!\w)" + re.escape(_evidence_key(t)) + r"(?!\w)", rest)]
     if not missing:
-        return []
+        return out
     shown: list[str] = []
     for t in missing[:5]:
         if len(", ".join(shown + [t])) > QUOTE_CHARS:
@@ -549,8 +660,8 @@ def _check_skills_evidence(lines: list[_Line]) -> list[Finding]:
         shown.append(t)
     more = len(missing) - len(shown)
     tail = f" (+{more} more)" if more else ""
-    return [Finding("skills_no_evidence", "low",
-                    f"Skills listed but never mentioned elsewhere in the CV: {', '.join(shown)}{tail}.")]
+    return out + [Finding("skills_no_evidence", "low",
+                          f"Skills listed but never mentioned elsewhere in the CV: {', '.join(shown)}{tail}.")]
 
 
 # ---------------- Main function ----------------

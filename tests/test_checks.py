@@ -568,6 +568,41 @@ def test_missing_education():
     assert not find(run(BASE.replace("EDUCATION", "ОСВІТА")), "missing_education")
 
 
+
+# Real student CVs exported from Canva or Word often glue the heading to its first entry on one text line.
+def test_heading_glued_to_its_content_still_counts_as_education():
+    for glued in ("EDUCATION Kyiv School of Economics, BA in Business Economics, 2024 - 2028",
+                  "Education Kyiv School of Economics, BA in Business Economics, 2024 - 2028",
+                  "ОСВІТА Київська школа економіки, бакалавр, 2024 - 2028"):
+        text = BASE.replace("EDUCATION\nKyiv School of Economics, BA in Business Economics, 2024 - 2028", glued)
+        report = run(text)
+        assert not find(report, "missing_education"), glued
+        assert "education" in report.metrics["sections"]
+
+
+def test_glued_heading_keeps_its_content_and_closing_sections_split_too():
+    text = BASE + "\nACHIEVEMENTS & VOLUNTEERING Example Club, Kyiv, 2024 - 2025\n"
+    headings = [ln.raw for ln in checks._parse_lines(text) if ln.kind == "heading"]
+    assert "ACHIEVEMENTS & VOLUNTEERING" in headings
+    lines = checks._parse_lines(BASE.replace("EDUCATION\n", "EDUCATION "))
+    assert any(ln.kind == "text" and ln.raw.startswith("Kyiv School of Economics") for ln in lines)
+
+
+def test_a_sentence_that_starts_with_a_section_word_is_not_a_heading():
+    for sentence in ("Experience in sales of coffee equipment for two summers",
+                     "Skills development was part of the program",
+                     "and creative projects"):
+        headings = [ln.raw for ln in checks._parse_lines(BASE + sentence + "\n") if ln.kind == "heading"]
+        assert headings == ["EDUCATION", "EXPERIENCE"], sentence
+
+
+def test_ukrainian_weak_openers():
+    for opener in ("Брала участь в організації конференції", "Допомагала команді з аналізом",
+                   "Відповідальна за соцмережі", "Відповідала за звіти", "Займалася документами"):
+        assert find(run(BASE + "- " + opener + "\n"), "weak_opener"), opener
+    assert not find(run(BASE + "- Запустила кампанію для 3 кав'ярень, повторні покупки +8%\n"), "weak_opener")
+
+
 # ---------------- Skills without evidence ----------------
 
 SKILLS_CV = """Taras Bondarenko
@@ -1050,3 +1085,46 @@ def test_pdf_text_with_a_huge_inline_image_stays_fast_and_counts_it():
     result = parse_worker.pdf_text(buf.getvalue(), 5)
     assert result["images"] == 1 and "Olena" in result["text"]
     assert time.process_time() - started < 2.0  # with len(page.images) it was 8-11 s here
+
+
+def test_languages_and_soft_skills_are_not_reported_as_missing_evidence():
+    text = SKILLS_CV.replace("Python, SQL, FastAPI, Docker, Git",
+                             "Python, FastAPI, Communication, Teamwork, Time management\nEnglish: B2, Ukrainian: Native")
+    report = run(text)
+    assert not find(report, "skills_no_evidence")
+    soft = find(report, "soft_skills_listed")
+    assert len(soft) == 1 and soft[0].severity == "low"
+    assert "Communication" in soft[0].message and "Teamwork" in soft[0].message
+
+
+def test_one_soft_skill_is_not_reported():
+    text = SKILLS_CV.replace("Python, SQL, FastAPI, Docker, Git", "Python, FastAPI, Communication")
+    assert not find(run(text), "soft_skills_listed")
+
+
+def test_merged_pdf_lines_do_not_turn_into_skills():
+    text = SKILLS_CV.replace(
+        "Python, SQL, FastAPI, Docker, Git",
+        "Python, FastAPI, Hard skills:, taras@example.com, 2025-2029 Economics at Example University, "
+        "Winner of the Example Town Cup in chess, and took third place, www.example.com",
+    )
+    assert not find(run(text), "skills_no_evidence")
+
+
+def test_skill_with_a_dash_level_is_matched_by_the_tool():
+    text = SKILLS_CV.replace("Python, SQL, FastAPI, Docker, Git", "Microsoft Excel – Advanced, Python, FastAPI")
+    text = text.replace("1,200 bookings\n", "1,200 bookings\n- Cleaned survey data in Excel\n")
+    assert not find(run(text), "skills_no_evidence")
+
+
+def test_review_regressions_lowercase_headings_role_titles_and_framework_names():
+    lower = BASE.replace("EDUCATION", "education").replace("EXPERIENCE", "experience")
+    assert not find(run(lower), "missing_education")
+    for title in ("Education Programme Assistant", "Projects Coordinator", "Leadership Development Intern",
+                  "Skills Trainer"):
+        text = BASE.replace("EDUCATION\nKyiv School of Economics, BA in Business Economics, 2024 - 2028\n\n", "")
+        text += title + ", Example NGO, 2025 - 2026\n- Ran 12 workshops for 300 pupils\n"
+        assert find(run(text), "missing_education"), title
+    skills = SKILLS_CV.replace("Python, SQL, FastAPI, Docker, Git", "Python, FastAPI, React Native, Fluent UI")
+    msg = find(run(skills), "skills_no_evidence")[0].message
+    assert "React Native" in msg and "Fluent UI" in msg

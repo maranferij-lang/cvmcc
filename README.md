@@ -195,7 +195,7 @@ score penalty is built from them. Codes:
 - **medium:** `photo_or_graphics`, `no_email`, `weak_opener`, `few_numbers`, `duplicate_line`,
   `not_reverse_chronological`, `missing_education`, `personal_data` (other regions);
 - **low:** `no_phone`, `no_linkedin`, `first_person`, `references_line`, `cv_title`, `objective_section`,
-  `long_bullet`, `skills_no_evidence`.
+  `long_bullet`, `skills_no_evidence`, `soft_skills_listed`.
 
 To turn them off: `CVMAX_CHECKS=0`. Then there is no `<checks>` block and no penalty, and the score stays weighted.
 
