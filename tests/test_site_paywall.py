@@ -212,47 +212,13 @@ def test_pay_script_returns_with_a_validated_transaction_id():
     assert "^txn_[a-z0-9]{10,64}$" in js and "URLSearchParams(location.search).get('_ptxn')" in js
 
 
-def test_landing_and_terms_say_builder_uses_one_credit():
-    assert "one full credit per build" in read("index.html")
-    assert "uses one full credit" in read("terms.html")
-    assert "forfeited" in read("privacy.html") and "12 months" in read("refund.html")
-
-
-def test_csp_for_pay_only():
-    headers = read("_headers")
-    blocks = re.split(r"\n(?=\S)", headers.strip())
-    star = next(b for b in blocks if b.startswith("/*"))
-    assert "paddle" not in star
-    pay = next(b for b in blocks if b.startswith("/pay\n"))
-    assert "! Content-Security-Policy" in pay
-    csp = re.search(r"^\s+Content-Security-Policy: (.*)$", pay, re.M).group(1)
-    assert "script-src 'self' https://cdn.paddle.com" in csp
-    assert "frame-src https://*.paddle.com" in csp
-    assert "frame-ancestors 'none'" in csp and "script-src" in csp and "'unsafe-eval'" not in csp
-    assert not re.search(r"script-src[^;]*'unsafe-inline'", csp)
-
-
-def test_landing_pricing_copy_and_jsonld():
-    html = read("index.html")
-    for text in ("Free scan", "$15", "first 100 buyers", "$25", "$29", "$49", "Paddle"):
-        assert text in html, text
-    assert "Free while we launch" not in html
-    ld = [json.loads(m) for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)]
-    app = next(d for d in ld if d["@type"] == "SoftwareApplication")
-    prices = {o["name"]: o["price"] for o in app["offers"]}
-    assert prices == {"Free scan": "0", "Full fix": "15", "Job hunt": "29"}
-    faq = next(d for d in ld if d["@type"] == "FAQPage")
-    names = [q["name"] for q in faq["mainEntity"]]
-    assert {"What is free?", "How does payment work?", "Can I get a refund?"} <= set(names)
-
-
-def test_legal_pages_mention_paddle_and_keep_placeholders():
-    for page in ("terms.html", "refund.html", "privacy.html"):
-        assert "Paddle" in read(page), page
-        assert "FOP [Full legal name]" in read(page), page
-    refund = read("refund.html")
-    assert "14 days" in refund and "12 months" in refund and "merchant of record" in refund
-    assert "unlinked" in read("privacy.html")
+def test_site_shows_the_free_beta_and_no_prices_until_payments_exist():
+    # Owner decision 2026-10-18: no FOP yet, so the site promises no paid plans. Paid copy returns with payments.
+    landing = read("index.html")
+    for page in ("index.html", "terms.html", "refund.html", "llms.txt"):
+        text = read(page)
+        assert "$15" not in text and "$29" not in text, page
+    assert "2 CV reviews" in landing and "Free while we launch" in landing
 
 
 def test_no_em_dashes_in_changed_files():

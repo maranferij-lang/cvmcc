@@ -3,8 +3,8 @@
 > GetCVmax reviews English CVs for internships and first jobs the way a recruiter in the target field would: a score out of 100 on 7 criteria, a verdict on every line (keep, cut, rewrite, move), rewrites tailored to a pasted job ad, up to 8 questions that find missing results, vetted learning resources and a one-page PDF or DOCX. It never invents numbers: missing figures are left as [N] and the user is asked for them.
 
 - Fields: business and economics, data, software engineering, AI, psychology, law, general.
-- Pricing: the scan is free (score, summary, criterion scores, line verdicts, automatic checks, the 3 highest-priority edits). Full fix $15 for the first 100 buyers, then $25; Job hunt $29, then $49. One-time payments through Paddle, no subscription. Daily limits apply.
-- Full fix includes: score on 7 criteria, verdict on every line, rewrites for the job ad, the Q&A interview, PDF and DOCX, vetted learning resources (checked by a person, no sponsors, no affiliate links), live job links and a shareable score card.
+- Free while we launch: no payment and no subscription. Limit: 2 CV reviews a day per person. Paid options may come later; users are emailed before anything changes and everything they made stays theirs.
+- Included: score on 7 criteria, verdict on every line, rewrites for the job ad, the Q&A interview, PDF and DOCX, vetted learning resources (checked by a person, no sponsors, no affiliate links), live job links and a shareable score card.
 - Made by Marian, a student in Ukraine.
 
 ## Pages
