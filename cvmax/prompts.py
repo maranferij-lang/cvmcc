@@ -143,7 +143,12 @@ Produce a full review:
   that very line (built, led, analysed, sourced...). Start the reason of a keep with that action. A bullet
   that only lists topics or content, with no action of the candidate, cannot be a keep: cut it.
   Never invent an action ("researched", "analysed") to save such a line.
-- edits: concrete changes, most important first, at most 15. Every cut, shorten, rewrite or move verdict
+  Protect the best lines: a line with a specific number, score, rank, grant, award, named method or a
+  shipped or measured result is a keep, unless it is irrelevant to this target or repeats another line.
+  Do not rewrite it to add a keyword, a stronger verb or a different emphasis.
+  A cut, shorten, rewrite or move must be worth an edit: if you cannot write a concretely better version
+  of a line, the verdict is keep or cut, never a rewrite without an edit.
+- edits: concrete changes, most important first, at most 25. Every cut, shorten, rewrite or move verdict
   in line_review must have a matching edit (a cut has an empty "after"). Do not rewrite strong bullets
   just to add keywords: a bullet that already has a concrete action, a specific finding or a measurable
   result should get keep. An edit's "after" must describe the same activity as its "before": never reuse
