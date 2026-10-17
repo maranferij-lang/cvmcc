@@ -180,7 +180,7 @@ class ClaudeLLM:
             kwargs["extra_body"] = {"fallbacks": "default"}
 
         try:
-            response = self.client.messages.parse(**kwargs)
+            response = self._send(kwargs, output_model, effort)
         except anthropic.AuthenticationError as e:
             raise LLMError("Invalid API key. Check ANTHROPIC_API_KEY.") from e
         except anthropic.RateLimitError as e:
@@ -201,9 +201,40 @@ class ClaudeLLM:
             raise LLMError("The model declined this request. Try changing the text.")
         if response.stop_reason == "max_tokens":
             raise LLMError("The answer was too long and got cut off. Please try again.")
-        if response.parsed_output is None:
-            raise LLMError("The model returned an unexpected format.")
-        return response.parsed_output
+        parsed = getattr(response, "parsed_output", None)
+        if parsed is None:
+            text = "".join(getattr(b, "text", "") for b in getattr(response, "content", None) or []
+                           if getattr(b, "type", "") == "text")
+            if not text:
+                raise LLMError("The model returned an unexpected format.")
+            try:
+                parsed = output_model.model_validate_json(text)
+            except ValidationError as e:  # same rule as above: no pydantic text, it may quote the CV
+                raise LLMError("The model returned a response that does not fit the expected format. "
+                               "Please try again.") from e
+        return parsed
+
+    def _send(self, kwargs: dict[str, Any], output_model: Type[T], effort: str) -> Any:
+        """One request. The real client streams with a high output cap; a fake client (demo, tests) has only parse().
+
+        Real CVs with a full line review and adaptive thinking at effort "high" outgrow 16k output tokens; parse()
+        then validates the cut-off JSON and raises a ValidationError before stop_reason can be checked. Streaming
+        allows a large cap without HTTP timeouts, and the JSON is validated only after stop_reason is checked.
+        """
+        stream = getattr(self.client.messages, "stream", None)
+        if stream is None:
+            return self.client.messages.parse(**kwargs)
+        import anthropic
+
+        body = dict(kwargs)
+        body.pop("output_format")
+        body["max_tokens"] = config.MAX_TOKENS_STREAM
+        body["output_config"] = {
+            "effort": effort,
+            "format": {"type": "json_schema", "schema": anthropic.transform_schema(output_model)},
+        }
+        with stream(**body) as s:
+            return s.get_final_message()
 
 
 # ---------------- Provider selection ----------------

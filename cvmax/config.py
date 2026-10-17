@@ -44,6 +44,9 @@ EFFORT_ANALYSIS = os.environ.get("CVMAX_EFFORT_ANALYSIS", "high")
 EFFORT_GRILL = os.environ.get("CVMAX_EFFORT_GRILL", "low")
 
 MAX_TOKENS = 16000
+# Claude answers stream, so the output cap can be high: a full line review of a long real CV with thinking at effort
+# "high" did not fit in 16k and got cut off. Only the tokens actually generated are billed.
+MAX_TOKENS_STREAM = 64000
 
 # Deterministic CV checks (cvmax.checks) and the edit verifier (cvmax.verify): 1 = on, 0 = off.
 CHECKS_ENABLED = os.environ.get("CVMAX_CHECKS", "1") == "1"

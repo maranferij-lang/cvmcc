@@ -116,3 +116,71 @@ def test_models_can_be_overridden_from_config(monkeypatch):
     ClaudeLLM(client=client).ask(system="s", content=[{"type": "text", "text": "x"}],
                                  output_model=GrillTurn, effort="low")
     assert seen["model"] == "claude-sonnet-5-5" and seen["extra_body"] == {"fallbacks": "default"}
+
+
+# ---------------- The real client streams ----------------
+
+class _Stream:
+    def __init__(self, message, seen):
+        self.message, self.seen = message, seen
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def get_final_message(self):
+        return self.message
+
+
+def _stream_client(message):
+    seen: list[dict] = []
+
+    def stream(**kwargs):
+        seen.append(kwargs)
+        return _Stream(message, seen)
+
+    return seen, SimpleNamespace(messages=SimpleNamespace(stream=stream, parse=None))
+
+
+def _text_message(text, stop_reason="end_turn"):
+    return SimpleNamespace(stop_reason=stop_reason, content=[SimpleNamespace(type="text", text=text)])
+
+
+GOOD = '{"done": false, "kind": "discover", "question": "What changed?", "why_asking": "numbers"}'
+
+
+def test_stream_path_validates_json_after_the_stop_reason():
+    seen, client = _stream_client(_text_message(GOOD))
+    turn = _ask(client)
+    assert isinstance(turn, GrillTurn) and turn.question == "What changed?"
+    body = seen[0]
+    assert "output_format" not in body
+    assert body["max_tokens"] >= 32000
+    assert body["output_config"]["effort"] == "low"
+    assert body["output_config"]["format"]["type"] == "json_schema"
+    assert body["output_config"]["format"]["schema"]["additionalProperties"] is False
+
+
+def test_cut_off_answer_says_too_long_not_wrong_format():
+    _, client = _stream_client(_text_message(GOOD[:30], stop_reason="max_tokens"))
+    with pytest.raises(LLMError, match="too long"):
+        _ask(client)
+
+
+def test_stream_schema_error_hides_the_model_text():
+    bad = '{"done": "maybe", "kind": "%s", "question": 1}' % SECRET
+    _, client = _stream_client(_text_message(bad))
+    with pytest.raises(LLMError) as exc:
+        _ask(client)
+    assert SECRET not in str(exc.value) and "expected format" in str(exc.value)
+
+
+def test_stream_refusal_and_empty_answer():
+    _, client = _stream_client(_text_message("", stop_reason="refusal"))
+    with pytest.raises(LLMError, match="declined"):
+        _ask(client)
+    _, client = _stream_client(SimpleNamespace(stop_reason="end_turn", content=[]))
+    with pytest.raises(LLMError, match="unexpected format"):
+        _ask(client)
