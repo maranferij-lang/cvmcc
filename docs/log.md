@@ -55,5 +55,5 @@ A running log of decisions, state and next steps, so a new session (or a new con
 
 1. Owner: steps 6 (Google OAuth) and 7 (Railway) via Cowork, then tell Claude.
 2. Claude: set `APP_URL`, check the live app, replace `FOP [Full legal name]` once the owner gives the exact name.
-3. Claude (in progress): consent + anonymised samples, weekly judge, judge findings → eval cases and prompt proposals.
+3. Owner: run `supabase/apply-judge.sql` in the Supabase SQL editor (consent saves fail softly until then).
 4. Stranger test, then soft launch.
