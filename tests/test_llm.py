@@ -184,3 +184,33 @@ def test_stream_refusal_and_empty_answer():
     _, client = _stream_client(SimpleNamespace(stop_reason="end_turn", content=[]))
     with pytest.raises(LLMError, match="unexpected format"):
         _ask(client)
+
+
+class _DroppedStream:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def get_final_message(self):
+        raise ConnectionResetError("peer closed connection without sending complete message body")
+
+
+def test_dropped_stream_is_retried_once_then_a_soft_error():
+    calls = []
+
+    def stream(**kwargs):
+        calls.append(1)
+        return _DroppedStream()
+
+    client = SimpleNamespace(messages=SimpleNamespace(stream=stream, parse=None))
+    with pytest.raises(LLMError, match="connection dropped"):
+        _ask(client)
+    assert len(calls) == 2
+
+
+def test_dropped_stream_recovers_on_the_second_attempt():
+    attempts = iter([_DroppedStream(), _Stream(_text_message(GOOD), [])])
+    client = SimpleNamespace(messages=SimpleNamespace(stream=lambda **kw: next(attempts), parse=None))
+    assert _ask(client).question == "What changed?"

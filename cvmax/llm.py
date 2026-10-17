@@ -233,8 +233,18 @@ class ClaudeLLM:
             "effort": effort,
             "format": {"type": "json_schema", "schema": anthropic.transform_schema(output_model)},
         }
-        with stream(**body) as s:
-            return s.get_final_message()
+        # A connection that drops in the middle of a stream raises the HTTP library's own error, not an SDK one, so
+        # it would escape every except above and break the page. One more attempt, then a soft message.
+        for attempt in range(2):
+            try:
+                with stream(**body) as s:
+                    return s.get_final_message()
+            except anthropic.APIError:
+                raise
+            except Exception as e:  # noqa: BLE001 - transport errors of the HTTP library (type only, see CLAUDE.md)
+                if attempt:
+                    raise LLMError("The connection dropped while the answer was coming in. Please try again.") from e
+        raise AssertionError("unreachable")
 
 
 # ---------------- Provider selection ----------------
