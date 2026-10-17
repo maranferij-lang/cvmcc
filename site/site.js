@@ -1,7 +1,7 @@
 // The launch is free. APP_URL is the address of the app (the owner sets it when the app is open to everyone).
 // While it is null, every "Try it free" button leads to the email section ("Get one email when something new ships").
 // When it is set, the buttons open the app and pass the traffic source along.
-var APP_URL = null; // e.g. "https://app.getcvmax.com"
+var APP_URL = "https://app.getcvmax.com";
 
 (function () {
   // Sample CV: before / with red pen
