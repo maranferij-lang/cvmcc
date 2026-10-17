@@ -14,6 +14,8 @@ PROVIDER = os.environ.get("CVMAX_PROVIDER") or "auto"  # an empty value (an unse
 # Set CVMAX_MODEL or CVMAX_MODEL_LIGHT to change either; run evals/run_evals.py before switching.
 MODEL = os.environ.get("CVMAX_MODEL") or "claude-sonnet-5-5"
 MODEL_LIGHT = os.environ.get("CVMAX_MODEL_LIGHT") or "claude-haiku-5-5"
+# The weekly judge (cvmax.judge) reviews samples with its own prompt; same default, separate switch.
+MODEL_JUDGE = os.environ.get("CVMAX_MODEL_JUDGE") or "claude-sonnet-5-5"
 # Models that accept the server-side refusal fallback. Haiku 5.5 has no such fallback and would reject the field.
 FALLBACK_MODELS = frozenset({"claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"})
 # If Claude refuses because of the safety filter, the API itself retries the request on a fallback model.

@@ -12,6 +12,7 @@ import uuid
 import streamlit as st
 
 from cvmax import config
+from cvmax.anonymize import CONSENT_VERSION, anonymize_obj, anonymize_text, collect_names
 from cvmax.learning.events import make_payload
 from cvmax.db import DBError, MemoryDB, SupabaseDB
 from ui.common import card, secret
@@ -64,6 +65,14 @@ def is_logged_in() -> bool:
 
 def current_email() -> str | None:
     return str(st.user.email).lower() if is_logged_in() and st.user.get("email") else None
+
+
+def current_name() -> str | None:
+    """The Google display name of the signed-in user, or None."""
+    if not is_logged_in():
+        return None
+    name = st.user.get("name")
+    return str(name) if name else None
 
 
 def user_row() -> dict | None:
@@ -161,6 +170,24 @@ def save_result(kind: str, title: str, payload: dict) -> None:
     except DBError as e:
         log.warning("save_result failed: %s", e)
         st.toast("Could not save the result, but it is still on this page.")
+
+
+def save_improvement_sample(meta: dict, cv_text: str, analysis: dict) -> bool:
+    """Opt-in copy for the quality review: the CV text and the review without the user's name, email, phones and
+    links. Call only after the user ticked the consent. Never raises; logs only the exception type."""
+    try:
+        email = current_email()
+        if email is None:
+            return False
+        names = collect_names(cv_text, [n for n in (current_name(),) if n])
+        clean_meta = {k: (anonymize_text(v, names, first_line_name=False)[:120] if k == "target_role" else v)
+                      for k, v in meta.items() if isinstance(v, (str, int, float, bool)) or v is None}
+        get_db().save_training_sample(email, CONSENT_VERSION, clean_meta, anonymize_text(cv_text, names),
+                                      anonymize_obj(analysis, names))
+        return True
+    except Exception as e:  # the review must never depend on this
+        log.warning("save_training_sample failed: %s", type(e).__name__)
+        return False
 
 
 def log_edit_feedback(analysis_id: str, target_role: str, program: str, items: list[dict]) -> None:

@@ -7,10 +7,12 @@ limits are counted in the server memory, and results are not saved.
 
 from __future__ import annotations
 
+import copy
 import json
 import logging
 import re
 import threading
+import uuid
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -38,6 +40,31 @@ def _check_event(kind: str, payload: dict) -> None:
         raise ValueError(f"event kind must be 1..{MAX_KIND_LEN} chars")
     if len(json.dumps(payload, ensure_ascii=False, default=str)) > MAX_PAYLOAD_LEN:
         raise ValueError(f"event payload is over {MAX_PAYLOAD_LEN} chars")
+
+
+MAX_SAMPLE_CV_CHARS = 40_000
+MAX_SAMPLE_ANALYSIS_CHARS = 300_000
+MAX_SAMPLE_META_CHARS = 4_000
+MAX_JUDGE_CHARS = 100_000
+JUDGE_BATCH_MAX = 50
+JUDGED_MAX = 200
+SAMPLE_RETENTION_DAYS = 365
+
+
+def _json_len(value: Any) -> int:
+    return len(json.dumps(value, ensure_ascii=False, default=str))
+
+
+def _check_sample(consent_version: str, meta: dict, cv_text: str, analysis: dict) -> None:
+    """Check before the network: the same bounds as in cvmax_save_training_sample."""
+    if not consent_version or len(consent_version) > 40:
+        raise ValueError("consent version must be 1..40 chars")
+    if not cv_text or not cv_text.strip() or len(cv_text) > MAX_SAMPLE_CV_CHARS:
+        raise ValueError(f"cv text must be 1..{MAX_SAMPLE_CV_CHARS} chars")
+    if not isinstance(meta, dict) or _json_len(meta) > MAX_SAMPLE_META_CHARS:
+        raise ValueError("meta must be an object under 4000 chars")
+    if _json_len(analysis) > MAX_SAMPLE_ANALYSIS_CHARS:
+        raise ValueError(f"analysis is over {MAX_SAMPLE_ANALYSIS_CHARS} chars")
 
 
 def _pacific_day() -> str:
@@ -122,6 +149,30 @@ class SupabaseDB:
         """
         return self._rpc("cvmax_learning_export", p_days=days) or {"edit_feedback": [], "feedback": [], "events": []}
 
+    def save_training_sample(self, email: str, consent_version: str, meta: dict, cv_text: str,
+                             analysis: dict) -> str:
+        """An anonymised copy of a CV and its review, saved only with the user's opt-in. Returns the sample id."""
+        _check_sample(consent_version, meta, cv_text, analysis)
+        return str(self._rpc("cvmax_save_training_sample", p_email=email, p_consent_version=consent_version,
+                             p_meta=meta, p_cv_text=cv_text, p_analysis=analysis) or "")
+
+    def training_samples_for_judge(self, days: int = 7, limit: int = 20) -> list[dict]:
+        """Unjudged samples of the last `days`, newest first: [{id, meta, cv_text, analysis}]. Learning token."""
+        return self._rpc("cvmax_training_samples_for_judge", p_days=days, p_limit=limit) or []
+
+    def save_judgement(self, sample_id: str, judge: dict) -> None:
+        if _json_len(judge) > MAX_JUDGE_CHARS:
+            raise ValueError(f"judgement is over {MAX_JUDGE_CHARS} chars")
+        self._rpc("cvmax_save_judgement", p_id=sample_id, p_judge=judge)
+
+    def judged_samples(self, days: int = 90, limit: int = 200) -> list[dict]:
+        """Judged samples: [{id, meta, cv_text, analysis, judge}]. Learning token."""
+        return self._rpc("cvmax_judged_samples", p_days=days, p_limit=limit) or []
+
+    def purge_training_samples(self) -> int:
+        """Deletes samples older than 12 months; returns how many."""
+        return self._rpc("cvmax_purge_training_samples") or 0
+
     def upsert_vacancies(self, items: list[dict]) -> int:
         return self._rpc("cvmax_upsert_vacancies", p_items=items) or 0
 
@@ -149,6 +200,7 @@ class MemoryDB:
         self.feedback: list[dict] = []
         self.waitlist: dict[str, dict] = {}
         self.events: list[dict] = []
+        self.training_samples: list[dict] = []
         self.vacancies: dict[tuple[str, str, str], dict] = {}
         self.skill_demand_rows: dict[tuple[str, str], list[dict]] = {}
 
@@ -185,6 +237,7 @@ class MemoryDB:
         key = email.lower()
         with self._lock:
             self.events = [e for e in self.events if e["user_key"] != key]
+            self.training_samples = [x for x in self.training_samples if x["user_key"] != key]
 
     def log_edit_feedback(self, user_key: str, analysis_id: str, target_role: str, program: str,
                           items: list[dict]) -> int:
@@ -261,6 +314,51 @@ class MemoryDB:
             "events": [{"kind": e["kind"], "payload": dict(e["payload"]), "created_at": e["created_at"].isoformat()}
                        for e in events[:5000]],
         }
+
+    def save_training_sample(self, email: str, consent_version: str, meta: dict, cv_text: str,
+                             analysis: dict) -> str:
+        _check_sample(consent_version, meta, cv_text, analysis)
+        if not email or len(email) > 254:
+            raise ValueError("bad email")
+        sample_id = str(uuid.uuid4())
+        row = {"id": sample_id, "created_at": datetime.now(timezone.utc), "user_key": email.lower(),
+               "consent_version": consent_version, "meta": copy.deepcopy(meta), "cv_text": cv_text,
+               "analysis": copy.deepcopy(analysis), "judged_at": None, "judge": None}
+        with self._lock:
+            self.training_samples.append(row)
+        return sample_id
+
+    def training_samples_for_judge(self, days: int = 7, limit: int = 20) -> list[dict]:
+        since = datetime.now(timezone.utc) - timedelta(days=max(days, 1))
+        with self._lock:
+            rows = [x for x in self.training_samples if x["judged_at"] is None and x["created_at"] >= since]
+        rows.sort(key=lambda x: x["created_at"], reverse=True)
+        return [{k: copy.deepcopy(x[k]) for k in ("id", "meta", "cv_text", "analysis")}
+                for x in rows[:max(min(limit, JUDGE_BATCH_MAX), 1)]]
+
+    def save_judgement(self, sample_id: str, judge: dict) -> None:
+        if _json_len(judge) > MAX_JUDGE_CHARS:
+            raise ValueError(f"judgement is over {MAX_JUDGE_CHARS} chars")
+        with self._lock:
+            for x in self.training_samples:
+                if x["id"] == str(sample_id):
+                    x["judge"], x["judged_at"] = copy.deepcopy(judge), datetime.now(timezone.utc)
+
+    def judged_samples(self, days: int = 90, limit: int = 200) -> list[dict]:
+        since = datetime.now(timezone.utc) - timedelta(days=max(days, 1))
+        with self._lock:
+            rows = [x for x in self.training_samples if x["judged_at"] is not None and x["judged_at"] >= since]
+        rows.sort(key=lambda x: x["judged_at"], reverse=True)
+        return [{k: copy.deepcopy(x[k]) for k in ("id", "meta", "cv_text", "analysis", "judge")}
+                for x in rows[:max(min(limit, JUDGED_MAX), 1)]]
+
+    def purge_training_samples(self) -> int:
+        cutoff = datetime.now(timezone.utc) - timedelta(days=SAMPLE_RETENTION_DAYS)
+        with self._lock:
+            kept = [x for x in self.training_samples if x["created_at"] >= cutoff]
+            removed = len(self.training_samples) - len(kept)
+            self.training_samples = kept
+        return removed
 
     def upsert_vacancies(self, items: list[dict]) -> int:
         count = 0

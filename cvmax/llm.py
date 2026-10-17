@@ -88,7 +88,9 @@ class GeminiLLM:
                 raise ValueError(f"Unsupported block type: {block['type']}")
         return parts
 
-    def ask(self, *, system: str, content: list[dict], output_model: Type[T], effort: str) -> T:
+    def ask(self, *, system: str, content: list[dict], output_model: Type[T], effort: str,
+            model: str | None = None) -> T:
+        # `model` is accepted for interface parity with ClaudeLLM and ignored: Gemini uses its own model chain.
         from google.genai import types
 
         cfg = types.GenerateContentConfig(
@@ -162,11 +164,13 @@ class ClaudeLLM:
             client = anthropic.Anthropic(api_key=api_key) if api_key else anthropic.Anthropic()
         self.client = client
 
-    def ask(self, *, system: str, content: list[dict], output_model: Type[T], effort: str) -> T:
+    def ask(self, *, system: str, content: list[dict], output_model: Type[T], effort: str,
+            model: str | None = None) -> T:
         import anthropic
 
         # The cheap model for light tasks (effort "low"), the stronger one for everything else.
-        model = config.MODEL_LIGHT if effort == "low" else config.MODEL
+        # An explicit `model` (for example the independent judge) overrides this choice.
+        model = model or (config.MODEL_LIGHT if effort == "low" else config.MODEL)
         kwargs: dict[str, Any] = dict(
             model=model,
             max_tokens=config.MAX_TOKENS,
@@ -269,7 +273,8 @@ def make_llm(gemini_key: str | None = None, anthropic_key: str | None = None) ->
 MAX_REQUEST_CHARS = 200_000  # prompt with rubrics ~15k characters, CV up to 40k, the rest of the form up to 15k
 
 
-def ask_structured(llm: Any, *, system: str, content: list[dict], output_model: Type[T], effort: str) -> T:
+def ask_structured(llm: Any, *, system: str, content: list[dict], output_model: Type[T], effort: str,
+                   model: str | None = None) -> T:
     """Sends one request and returns a response validated against the pydantic schema."""
     size = len(system) + sum(len(b.get("text", "")) for b in content)
     if size > MAX_REQUEST_CHARS:  # protection against giant requests bypassing the form limits
@@ -277,4 +282,6 @@ def ask_structured(llm: Any, *, system: str, content: list[dict], output_model: 
     if not hasattr(llm, "ask"):
         # A raw client in the Anthropic SDK style (e.g. the fake client in demo and tests).
         llm = ClaudeLLM(client=llm)
+    if model:  # only passed when set, so clients without the parameter keep working
+        return llm.ask(system=system, content=content, output_model=output_model, effort=effort, model=model)
     return llm.ask(system=system, content=content, output_model=output_model, effort=effort)

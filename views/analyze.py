@@ -27,7 +27,8 @@ from cvmax.scoring import MIN_MATCHED
 from cvmax.share_card import CARD_SIZES, render_card
 from cvmax.structure import changed_bullets, structure_cv
 from ui.account import (
-    limit_caption, log_edit_feedback, log_event, profile_value, require_login, save_result, send_feedback,
+    is_logged_in, limit_caption, log_edit_feedback, log_event, profile_value, require_login, save_improvement_sample,
+    save_result, send_feedback,
     skill_demand_cached, take_limit, variant_stats_cached,
 )
 from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
@@ -464,6 +465,20 @@ with form_box:
     with card("cv"):
         st.header("2. Your CV")
         cv = cv_picker("analyze")
+        if is_logged_in():
+            improve = st.checkbox(
+                "Help improve GetCVmax (optional): keep an anonymised copy of this CV and its review",
+                value=False, key="improve_consent",
+            )
+            st.caption(
+                "If you tick this, we remove your name, email, phone numbers, links and dates of birth, then keep "
+                "the CV text and the review for up to 12 months to check and improve the quality of reviews. It is "
+                "not needed to use GetCVmax. Unticking stops saving new copies; delete saved copies any time with "
+                "\"Delete my data\" on My account. "
+                "[Details](/privacy#improve)"
+            )
+        else:
+            improve = False
 
     can_run = bool(target_role.strip()) and cv is not None
     limit_caption("analysis")
@@ -487,6 +502,12 @@ with form_box:
             save_result("analysis", f"{target_role} · {s.analysis.overall_score}/100",
                         {"analysis_id": s.analysis_id, "role": target_role, "company_type": company_type,
                          "analysis": s.analysis.model_dump(), "score_detail": score_detail})
+            if improve:
+                save_improvement_sample(
+                    {"program": program, "status": status, "level": level, "region": region,
+                     "company_type": company_type, "target_role": target_role[:120],
+                     "prompt_variant": variant, "model": config.MODEL},
+                    cv.text, s.analysis.model_dump())
             s.grill, s.grill_result = None, None
             for k in [k for k in st.session_state if str(k).startswith(("accept_", "match:", "share:"))]:
                 del st.session_state[k]  # the edit ticks, the posting match and the share cards of the previous review

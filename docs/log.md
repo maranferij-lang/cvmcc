@@ -43,6 +43,14 @@ A running log of decisions, state and next steps, so a new session (or a new con
 - "move" verdicts without an edit.
 - A publication line got rewritten in both passes after the prompt change (watch).
 
+### Built after the eval runs (consent, judge, loop)
+
+- Opt-in consent "Help improve GetCVmax" on the review page (signed-in users, default off). When ticked, an anonymised copy of the CV text and its review is saved (`cvmax/anonymize.py`: names from Google and the CV's first line incl. Latin/Cyrillic spellings and inflected forms, emails, phones, links, messenger handles, dates of birth). Kept up to 12 months (enforced in the save function), deleted with "Delete my data". Privacy page section `#improve`.
+- Weekly independent judge (`cvmax/judge.py`, `scripts/judge.py`, `.github/workflows/judge.yml`, Monday 05:00 UTC): Sonnet with its own prompt reviews up to 20 opted-in samples, saves findings, PR with a counts-only report in `docs/judge/`. About $0.05 per sample (estimate).
+- Loop: `python scripts/judge.py --days 90 --limit 0 --export-cases evals/private/judged` turns judged samples into private eval cases; prompt changes are kept only if evals go up.
+- Owner must run `supabase/apply-judge.sql` once in the Supabase SQL editor.
+- Adversarial review found 4 privacy holes (case-sensitive links, messenger handles, Cyrillic/inflected names, retention relying on CI); all fixed and tested. 1503 tests green.
+
 ### Next
 
 1. Owner: steps 6 (Google OAuth) and 7 (Railway) via Cowork, then tell Claude.

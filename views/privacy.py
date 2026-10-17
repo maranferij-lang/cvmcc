@@ -17,7 +17,7 @@ contact = secret("CVMAX_CONTACT")
 ACCOUNTS = auth_configured()  # without login nothing is tied to a person
 
 st.title("Privacy")
-st.caption("Last updated: October 2, 2026")
+st.caption("Last updated: October 17, 2026")
 st.markdown(
     '<p class="cvx-page-lead">A CV contains personal data, so we collect the minimum and store even less. '
     + (
@@ -67,7 +67,10 @@ st.markdown(
     + ("- To save your results so you can come back to them.\n" if ACCOUNTS else "")
     + "- To enforce daily limits so the service stays free.\n"
     "- To see which advice is useful and improve it. For this we only need the text of edits, not CV files.\n"
-    "- To show job postings that fit your goal."
+    "- To show job postings that fit your goal.\n"
+    + ("- Only if you tick the optional box \"Help improve GetCVmax\": to check and improve the quality of "
+       "reviews and instructions, using an anonymised copy of your CV and its review (see below).\n"
+       if ACCOUNTS else "")
 )
 st.write(
     "Once a week an automated learning job takes the accepted and rejected edit texts, removes emails, links "
@@ -76,10 +79,37 @@ st.write(
        if ACCOUNTS else "If you don't want your edits used this way, don't download your CV.")
 )
 st.write(
-    "Legal basis: your consent, which you give before uploading your CV. "
+    "Legal basis: your consent, which you give before uploading your CV"
+    + (", and separately your consent for the optional \"Help improve GetCVmax\" copy. " if ACCOUNTS else ". ")
     + ("You can withdraw it at any time by deleting your data in your account." if ACCOUNTS
        else "Withdrawing it is simple: close the tab, and your CV file and results are gone.")
 )
+
+if ACCOUNTS:
+    st.header("Help improve GetCVmax (optional)", anchor="improve")
+    st.write(
+        "On the CV review page, when you are signed in, there is an unticked box: \"Help improve GetCVmax\". "
+        "It is separate from the service and not a condition of using it. If you leave it unticked, nothing "
+        "below applies to you."
+    )
+    st.markdown(
+        "- **Purpose:** checking and improving the quality of GetCVmax reviews and instructions.\n"
+        "- **Legal basis:** your consent (Article 6(1)(a) GDPR). You can withdraw it at any time, without "
+        "giving a reason.\n"
+        "- **What we store:** the text of your CV and the review, plus your field of study, level, region and "
+        "target role. Before saving we remove: the name from your Google account and the name at the top of your "
+        "CV (including its Latin or Cyrillic spelling and common forms of it), email addresses, phone numbers, "
+        "links and messenger handles, and dates of birth. Other details may remain, for example employers, "
+        "schools or other people's names, so this copy is anonymised only in part.\n"
+        "- **Who sees it:** the founder. Anthropic (Claude API) processes it for our weekly quality review under "
+        "commercial terms that forbid training its models on it.\n"
+        "- **Not sold, not shared:** we do not sell it, share it with anyone else or use it to train "
+        "third-party AI models.\n"
+        "- **How long:** kept up to 12 months; older copies are deleted.\n"
+        "- **Withdraw or delete earlier:** use Delete my data in My account"
+        + (f", or write to {contact}" if contact else "")
+        + ". Untick the box to stop saving new copies."
+    )
 
 st.header("Who we share data with")
 st.markdown(
@@ -104,6 +134,8 @@ st.markdown(
     "- **CV file:** until you close the browser tab.\n"
     + (
         "- **Profile, results, accepted edits, learning events, counters:** until you delete them.\n"
+        "- **Optional anonymised copy of a CV and its review (Help improve GetCVmax):** 12 months, or until "
+        "you delete your data.\n"
         if ACCOUNTS
         else "- **Results:** also until you close the tab.\n"
         "- **Accepted edits, learning events and counters:** kept, but not linked to you (see Your rights).\n"
@@ -129,7 +161,7 @@ st.header("Your rights")
 if ACCOUNTS:
     rights = (
         "- **Delete everything:** My account → Data and sign out. This deletes your profile, results, accepted "
-        "edits, learning events and counters.\n"
+        "edits, learning events, any saved anonymised copy and counters.\n"
         "- **Change your profile:** My account → Profile.\n"
         "- **See what we store about you:** all your results are visible in your account"
         + (f", and for anything else write to {contact}.\n" if contact else ".\n")
