@@ -10,6 +10,7 @@ from .grill import QA, GrillSession, next_question_instruction
 from .llm import ask_structured
 from .profile import PROGRAMS
 from .prompts import load_rubric, today
+from .safe_text import defang
 from .schemas import BuiltCV, GrillTurn
 
 
@@ -31,13 +32,13 @@ class BuilderDraft:
     def to_prompt(self) -> str:
         return (
             "<candidate>\n"
-            f"Full name: {self.full_name}\nEmail: {self.email}\nPhone: {self.phone or '(none)'}\n"
-            f"City: {self.city or '(none)'}\nLinks: {self.links or '(none)'}\n"
+            f"Full name: {defang(self.full_name)}\nEmail: {defang(self.email)}\nPhone: {defang(self.phone) or '(none)'}\n"
+            f"City: {defang(self.city) or '(none)'}\nLinks: {defang(self.links) or '(none)'}\n"
             f"Field of study: {PROGRAMS.get(self.program, self.program)}\n"
-            f"Study status: {self.status}; expected graduation: {self.grad_year or '(unknown)'}; "
-            f"GPA: {self.gpa or '(not given)'}\n"
-            f"Target role: {self.target_role or '(not decided)'}\n"
-            f"<notes_in_own_words>\n{self.notes.strip() or '(empty)'}\n</notes_in_own_words>\n"
+            f"Study status: {self.status}; expected graduation: {defang(self.grad_year) or '(unknown)'}; "
+            f"GPA: {defang(self.gpa) or '(not given)'}\n"
+            f"Target role: {defang(self.target_role) or '(not decided)'}\n"
+            f"<notes_in_own_words>\n{defang(self.notes.strip()) or '(empty)'}\n</notes_in_own_words>\n"
             "</candidate>"
         )
 

@@ -722,7 +722,9 @@ def previous_score_was(at, score: int) -> None:
     at.session_state["last_analysis"] = {**at.session_state["last_analysis"], "score": score}
 
 
-def test_rerun_of_the_same_cv_and_role_is_not_progress():
+def test_rerun_of_the_same_cv_and_role_is_not_progress(monkeypatch):
+    from cvmax import config
+    monkeypatch.setitem(config.LIMITS, "analysis", (5, 60))  # three reviews in one day; the default is 2
     at = review_demo()
     first = at.session_state["analysis_id"]
     score = at.session_state["analysis"].overall_score
@@ -783,7 +785,9 @@ def test_progress_ignores_letter_case_and_spaces_in_the_role():
     assert len(events_of("rescan", at.session_state["analysis_id"])) == 1  # the same goal for the learning events too
 
 
-def test_a_new_goal_or_a_lower_score_is_not_progress():
+def test_a_new_goal_or_a_lower_score_is_not_progress(monkeypatch):
+    from cvmax import config
+    monkeypatch.setitem(config.LIMITS, "analysis", (5, 60))  # three reviews in one day; the default is 2
     at = review_demo()
     review_again(at, "Data Analyst")  # another role: not a rescan
     assert "**Share your score**" in [m.value for m in at.markdown]

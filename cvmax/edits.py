@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 
 from docx import Document
 
+from .safe_text import md_escape
 from .schemas import Edit
 
 
@@ -99,11 +100,12 @@ def apply_edits(cv_text: str, edits: list[Edit]) -> ApplyReport:
 def changes_markdown(edits: list[Edit]) -> str:
     lines = ["# GetCVmax: accepted edits", ""]
     for i, e in enumerate(edits, 1):
-        lines.append(f"## {i}. {e.section}")
+        # Model text is data: escaped, so links, images, autolinks and headings in it stay plain text.
+        lines.append(f"## {i}. {md_escape(e.section.strip())}")
         if e.before.strip():
-            lines.append(f"**Before:** {e.before.strip()}")
-        lines.append(f"**After:** {e.after.strip() or '(remove)'}")
-        lines.append(f"_Why:_ {e.reason.strip()}")
+            lines.append(f"**Before:** {md_escape(e.before.strip())}")
+        lines.append(f"**After:** {md_escape(e.after.strip()) or '(remove)'}")
+        lines.append(f"_Why:_ {md_escape(e.reason.strip())}")
         lines.append("")
     return "\n".join(lines)
 

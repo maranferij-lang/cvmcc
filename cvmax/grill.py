@@ -12,6 +12,7 @@ from .cv_input import CVFile
 from .llm import ask_structured
 from .profile import Profile
 from .prompts import grill_finalize_system, grill_system
+from .safe_text import defang
 from .schemas import GrillResult, GrillTurn
 from .verify import Verification, verify_edits
 
@@ -44,7 +45,7 @@ class GrillSession:
             return "(no questions asked yet)"
         lines = []
         for i, t in enumerate(self.turns, 1):
-            lines.append(f"Q{i}: {t.question}\nA{i}: {t.answer or '(no answer)'}")
+            lines.append(f"Q{i}: {defang(t.question)}\nA{i}: {defang(t.answer) or '(no answer)'}")
         return "\n\n".join(lines)
 
 
@@ -97,7 +98,7 @@ def next_question_instruction(session: GrillSession) -> str:
             "These CV items are already covered. Do NOT ask about any of them again, in any form, "
             "even if the answer was short or vague:"
         )
-        lines += [f"- {t.question}" for t in session.turns]
+        lines += [f"- {defang(t.question)}" for t in session.turns]
         lines.append("Pick a different experience, project or section of the CV.")
     lines.append("Ask the next question, or set done=true if nothing important is left.")
     return "\n".join(lines)

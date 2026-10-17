@@ -12,7 +12,7 @@ import streamlit as st
 
 from cvmax import config
 from cvmax.analyze import AnalysisRun, analyze_full
-from cvmax.cv_render import has_placeholders, pdf_preview, render_docx, render_pdf
+from cvmax.cv_render import has_placeholders
 from cvmax.learning.bandit import choose_variant, variant_text
 from cvmax.learning.version import knowledge_version, lessons_version
 from cvmax.edits import apply_edits, changed_action, changes_markdown, lost_facts, unverified_terms
@@ -25,7 +25,7 @@ from cvmax.safe_text import md_escape
 from cvmax.schemas import Requirement, VacancyMatch
 from cvmax.scoring import MIN_MATCHED
 from cvmax.share_card import CARD_SIZES, render_card
-from cvmax.structure import changed_bullets, structure_cv
+from cvmax.structure import format_cv
 from ui.account import (
     is_logged_in, limit_caption, log_edit_feedback, log_event, profile_value, require_login, save_improvement_sample,
     save_result, send_feedback,
@@ -521,6 +521,7 @@ with form_box:
                      "prompt_variant": variant, "model": config.MODEL},
                     cv.text, s.analysis.model_dump())
             s.grill, s.grill_result = None, None
+            s.pop("finalize_failed", None)
             for k in [k for k in st.session_state if str(k).startswith(("accept_", "match:", "share:"))]:
                 del st.session_state[k]  # the edit ticks, the posting match and the share cards of the previous review
             st.rerun()  # collapse the form and show the result on top
@@ -659,13 +660,13 @@ with tab_edits:
             dropped = lost_facts(e.before, e.after)
             if dropped:
                 st.warning(
-                    "This edit drops facts from the line: " + ", ".join(dropped)
+                    "This edit drops facts from the line: " + ", ".join(md_escape(d) for d in dropped)
                     + ". If they're true and important, skip this edit or add them back into the text."
                 )
             flagged = unverified_terms(e.after, facts)
             if flagged:
                 st.warning(
-                    "This isn't in your CV or your answers: " + ", ".join(flagged)
+                    "This isn't in your CV or your answers: " + ", ".join(md_escape(t) for t in flagged)
                     + ". Keep only what's true."
                 )
             if not locked:
@@ -780,7 +781,8 @@ with tab_grill:
                     st.rerun()
             elif not g.finished and g.turns and len(g.turns) < g.max_questions and s.grill_result is None:
                 # The next question did not arrive (the model was busy): we let the user try again.
-                if st.button("Next question"):
+                # This button only appears after a failure, so every click is a retry and is counted.
+                if st.button("Next question") and take_limit("grill_retry"):
                     try:
                         with st.spinner("Next question..."):
                             next_question(get_client(), s.profile, s.cv, g)
@@ -788,12 +790,16 @@ with tab_grill:
                     except LLMError as e:
                         st.error(str(e))
             if s.grill_result is None and any(t.answer for t in g.turns):
-                if st.button("Finish and get edits", type="primary" if g.pending is None else "secondary"):
+                if st.button("Finish and get edits", type="primary" if g.pending is None else "secondary") and (
+                    not s.get("finalize_failed") or take_limit("grill_retry")  # after an error every click is a retry
+                ):
                     try:
                         with st.spinner("Turning your answers into edits..."):
                             s.grill_result = finalize(get_client(), s.profile, s.cv, g)
+                        s.pop("finalize_failed", None)
                         st.rerun()
                     except LLMError as e:
+                        s["finalize_failed"] = True
                         st.error(str(e))
             if s.grill_result is not None:
                 st.success(f"Done: {plural(len(s.grill_result.edits), 'new edit')} added to the Edits tab.")
@@ -824,18 +830,18 @@ with tab_export:
             st.subheader("Formatted CV")
             st.caption("One recruiter-tested template: sans-serif font, clear sections, dates on the right.")
             formatted = s.get("formatted_cv")
-            if formatted is None or formatted[0] != text:
+            if formatted is None or formatted.text != text:
                 if st.button("Format my CV (PDF and DOCX)", type="primary") and take_limit("export"):
                     try:
                         with st.spinner("Splitting your CV into sections..."):
-                            s["formatted_cv"] = (text, structure_cv(get_client(), text))
+                            s["formatted_cv"] = format_cv(get_client(), text)
                         log_accepted_edits(s)
                         st.rerun()
                     except LLMError as e:
                         st.error(str(e))
             else:
-                built = formatted[1]
-                changed = changed_bullets(text, built)
+                built = formatted.built
+                changed = formatted.changed  # computed once, when the CV was formatted
                 if changed:
                     st.warning(
                         "These lines in the formatted CV differ from your text. Check them before you send it:\n\n"
@@ -844,15 +850,16 @@ with tab_export:
                 holes = has_placeholders(built)
                 if holes:
                     st.warning("Replace or remove the placeholders in these lines:\n\n" + "\n".join(f"- {md_escape(h)}" for h in holes))
-                pdf = render_pdf(built)
+                formatted.render()  # PDF, DOCX and preview images are made once per formatted CV
+                pdf = formatted.pdf
                 with card("export-preview"):
-                    for page in pdf_preview(pdf):
+                    for page in formatted.pages:
                         st.image(page, width="stretch")
                 name = built.full_name.replace(" ", "_") or "cv"
                 c1, c2 = st.columns(2)
                 c1.download_button("Download PDF", pdf, f"{name}_CV.pdf", mime="application/pdf",
                                    type="primary", on_click=log_export, args=(s, "pdf"))
-                c2.download_button("Download DOCX", render_docx(built), f"{name}_CV.docx",
+                c2.download_button("Download DOCX", formatted.docx, f"{name}_CV.docx",
                                    on_click=log_export, args=(s, "docx"))
                 st.caption("Open the DOCX in Word or Google Docs if you want to change anything by hand.")
 

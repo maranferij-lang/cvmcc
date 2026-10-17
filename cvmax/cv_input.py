@@ -10,9 +10,15 @@ import threading
 from dataclasses import dataclass
 from pathlib import Path
 
+from .safe_text import defang
+
 
 class CVReadError(ValueError):
     pass
+
+
+class CVBusyError(CVReadError):
+    """All parser slots stayed busy: a soft, temporary error (not a problem with the file)."""
 
 
 @dataclass
@@ -41,12 +47,14 @@ class CVFile:
                     "title": self.filename,
                 }
             ]
-        return [{"type": "text", "text": f"<cv filename=\"{self.filename}\">\n{self.text}\n</cv>"}]
+        name = defang(self.filename).replace('"', "'")
+        return [{"type": "text", "text": f"<cv filename=\"{name}\">\n{defang(self.text)}\n</cv>"}]
 
 
 MAX_PAGES = 5  # A student CV is 1-2 pages. More is almost always not a CV.
 MAX_TEXT_CHARS = 40_000  # ~6000 words, three times more than the longest reasonable CV.
 PARSE_TIMEOUT_S = 12
+SLOT_WAIT_S = 20  # how long a request waits for a parser slot before it gives up softly
 ROOT = Path(__file__).resolve().parents[1]
 # No more than two parsings at once, so several heavy files together do not take all the server memory.
 _PARSE_SLOTS = threading.BoundedSemaphore(2)
@@ -55,8 +63,10 @@ _PARSE_SLOTS = threading.BoundedSemaphore(2)
 def _parse(kind: str, data: bytes) -> dict:
     """Parses the file in a separate process with a memory and time limit."""
     label = kind.upper()
+    if not _PARSE_SLOTS.acquire(timeout=SLOT_WAIT_S):
+        raise CVBusyError("GetCVmax is busy reading other CVs. Try again in a minute.")
     try:
-        with _PARSE_SLOTS:
+        try:
             proc = subprocess.run(
                 [sys.executable, "-m", "cvmax.parse_worker", kind, str(MAX_PAGES)],
                 input=data,
@@ -64,6 +74,8 @@ def _parse(kind: str, data: bytes) -> dict:
                 timeout=PARSE_TIMEOUT_S,
                 cwd=ROOT,
             )
+        finally:
+            _PARSE_SLOTS.release()
         result = json.loads(proc.stdout or b"{}")
     except (subprocess.TimeoutExpired, ValueError) as e:
         raise CVReadError(f"Could not read {label}: the file is too large or damaged.") from e

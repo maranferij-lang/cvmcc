@@ -14,6 +14,21 @@ _MD_SPECIAL = re.compile(r"([\\`*_{}\[\]()#+\-.!|<>~$:])")
 _URL = re.compile(r"(?:https?|ftp)://\S+|www\.\S+", re.IGNORECASE)
 
 
+# Delimiter tags we use to build prompts. Wherever they appear in user, CV, vacancy or model text, they are data:
+# unescaped, the text could close its own block or forge one the model trusts (<checks>).
+BASE_TAGS = re.compile(r"<(\s*/?\s*(?:checks|cv|length|candidate_profile|target|vacancy_text)\b)", re.I)
+REQUEST_TAGS = re.compile(
+    r"<(\s*/?\s*(?:checks|cv|length|candidate_profile|target|vacancy_text|interview_so_far|interview|candidate|"
+    r"notes_in_own_words|candidate_preferences)\b)",
+    re.I,
+)
+
+
+def defang(text: str | None, tags: re.Pattern[str] = REQUEST_TAGS) -> str:
+    """A delimiter tag in untrusted text becomes "\u2039tag": the content stays, but it is no longer a tag."""
+    return tags.sub("\u2039\\1", text or "")
+
+
 def md_escape(text: str | None) -> str:
     """The text is displayed verbatim: no links, images, HTML or formatting.
 

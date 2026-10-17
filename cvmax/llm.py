@@ -7,6 +7,7 @@ it passes the CV and the text as blocks and gets a ready pydantic object.
 from __future__ import annotations
 
 import base64
+import logging
 import os
 import time
 from typing import Any, Type, TypeVar
@@ -16,6 +17,8 @@ from pydantic import BaseModel, ValidationError
 from . import config
 
 T = TypeVar("T", bound=BaseModel)
+
+log = logging.getLogger(__name__)
 
 
 class LLMError(RuntimeError):
@@ -134,7 +137,10 @@ class GeminiLLM:
                     continue
                 if e.code in (401, 403) or "API key" in str(e):
                     raise LLMError("Invalid Gemini key. Check GEMINI_API_KEY.") from e
-                raise LLMError(f"Gemini rejected the request ({e.code}): {e.message}") from e
+                log.warning("Gemini rejected the request (%s, %s)", type(e).__name__, e.code)
+                raise LLMError(
+                    f"The AI service could not process this request ({e.code}). Shorten the text and try again."
+                ) from e
             except Exception as e:  # network
                 raise LLMError("Cannot reach the Gemini API. Try again in a minute.") from e
 
@@ -190,7 +196,9 @@ class ClaudeLLM:
         except anthropic.RateLimitError as e:
             raise LLMError("Too many requests. Try again in a minute.") from e
         except anthropic.BadRequestError as e:
-            raise LLMError(f"Request rejected: {e.message}") from e
+            # The message may echo the request (CV text): show a generic text, log only the type.
+            log.warning("Request rejected by the API (%s)", type(e).__name__)
+            raise LLMError("The AI service could not process this request. Shorten the text and try again.") from e
         except anthropic.APIConnectionError as e:
             raise LLMError("Cannot reach the API. Try again in a minute.") from e
         except anthropic.APIStatusError as e:

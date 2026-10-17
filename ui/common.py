@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 
 import streamlit as st
 
 from cvmax import config
-from cvmax.cv_input import CVFile, CVReadError, load_cv
+from cvmax.cv_input import CVBusyError, CVFile, CVReadError, load_cv
 from cvmax.demo import DEMO_CV_TEXT, FakeClient
 from cvmax.llm import LLMError, make_llm
 
@@ -97,10 +98,25 @@ def cv_picker(page: str) -> CVFile | None:
         data = uploaded.getvalue()
         if len(data) > config.MAX_FILE_MB * 1024 * 1024:
             raise CVReadError(f"The file is larger than {config.MAX_FILE_MB} MB.")
-        cv = load_cv(uploaded.name, data)
+        digest = hashlib.sha256(uploaded.name.encode() + b"\0" + data).hexdigest()
+        failed = st.session_state.get("cv_parse_failed")
+        if failed and failed[0] == digest:  # a rerun of the same bad file: no new parse, no new limit use
+            raise CVReadError(failed[1])
+        from ui.account import take_limit  # late import: ui.account imports this module
+
+        if not take_limit("upload"):
+            return None
+        try:
+            cv = load_cv(uploaded.name, data)
+        except CVBusyError:
+            raise
+        except CVReadError as e:
+            st.session_state["cv_parse_failed"] = (digest, str(e))
+            raise
     except CVReadError as e:
         st.error(str(e))
         return None
+    st.session_state.pop("cv_parse_failed", None)
     st.session_state["cv_file"] = cv
     return cv
 

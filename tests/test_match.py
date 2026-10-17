@@ -553,7 +553,7 @@ def test_schema_rejects_unknown_status_and_kind():
 
 
 def test_match_limit_is_configured():
-    assert config.LIMITS["match"] == (5, 60)
+    assert config.LIMITS["match"] == (2, 30)
 
 
 def test_match_done_payload_accepts_the_new_fields():

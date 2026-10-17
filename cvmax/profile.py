@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .safe_text import defang
+
 # Fields of study that have their own rubrics. Key = file name in cvmax/rubrics/.
 PROGRAMS: dict[str, str] = {
     "economics_big_data": "Economics & data science",
@@ -73,17 +75,17 @@ class Profile:
 
     def to_prompt(self) -> str:
         program = PROGRAMS.get(self.program, self.program)
-        vacancy = self.vacancy_text.strip() or "(not provided)"
+        vacancy = defang(self.vacancy_text.strip()) or "(not provided)"
         return (
             "<candidate_profile>\n"
             f"Field of study: {program}\n"
             f"Study status: {self.status}\n"
-            f"Background in their own words: {self.background.strip() or '(not provided)'}\n"
+            f"Background in their own words: {defang(self.background.strip()) or '(not provided)'}\n"
             "</candidate_profile>\n"
             "<target>\n"
-            f"Target role: {self.target_role.strip() or '(not provided)'}\n"
+            f"Target role: {defang(self.target_role.strip()) or '(not provided)'}\n"
             f"Company type: {self.company_type}\n"
-            f"Company / industry details: {self.company_details.strip() or '(not provided)'}\n"
+            f"Company / industry details: {defang(self.company_details.strip()) or '(not provided)'}\n"
             f"Level: {self.level}\n"
             f"Region / market: {self.region}\n"
             f"<vacancy_text>\n{vacancy}\n</vacancy_text>\n"

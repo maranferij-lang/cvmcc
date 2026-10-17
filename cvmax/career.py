@@ -10,6 +10,7 @@ from .cv_input import CVFile
 from .llm import ask_structured
 from .profile import COMPANY_TYPES, PROGRAMS
 from .prompts import load_rubric, today
+from .safe_text import defang
 from .schemas import CareerMatch
 
 DEFAULT_COMPANY_TYPE = COMPANY_TYPES[0]
@@ -30,8 +31,8 @@ class CareerPrefs:
             "<candidate_preferences>\n"
             f"Field of study: {PROGRAMS.get(self.program, self.program)}\n"
             f"Study status: {self.status}\n"
-            f"Interests: {self.interests.strip() or '(not provided)'}\n"
-            f"Does not want: {self.avoid.strip() or '(not provided)'}\n"
+            f"Interests: {defang(self.interests.strip()) or '(not provided)'}\n"
+            f"Does not want: {defang(self.avoid.strip()) or '(not provided)'}\n"
             f"Level: {self.level}\n"
             f"Region / market: {self.region}\n"
             "</candidate_preferences>"

@@ -4,6 +4,7 @@ from __future__ import annotations
 from cvmax import config
 from cvmax.jobs.models import Vacancy
 from cvmax.llm import ask_structured
+from cvmax.safe_text import defang
 from cvmax.schemas import JobFit, RankedJobs
 
 CV_LIMIT = 6000
@@ -12,8 +13,11 @@ CV_LIMIT = 6000
 def listing(vacancies: list[Vacancy]) -> str:
     lines = []
     for v in vacancies:
-        snippet = " ".join(v.snippet.split())[:220]
-        lines.append(f"id={v.id} | {v.title} | {v.company} | {v.location} | {v.posted_at or ''} | {snippet}")
+        def one(text: str) -> str:  # a single line with no delimiter tags: this is text from the internet
+            return defang(" ".join(str(text).split()))
+
+        snippet = one(v.snippet)[:220]
+        lines.append(f"id={v.id} | {one(v.title)} | {one(v.company)} | {one(v.location)} | {v.posted_at or ''} | {snippet}")
     return "\n".join(lines)
 
 
@@ -32,10 +36,10 @@ Write every explanation in {feedback_language}. In Ukrainian, address the studen
 
 def _user_text(cv_text: str, role: str, gaps: list[str], keywords: list[str], vacancies: list[Vacancy]) -> str:
     return (
-        f"CANDIDATE CV:\n{cv_text[:CV_LIMIT]}\n\n"
-        f"TARGET DIRECTION: {role}\n"
-        f"KEYWORDS: {', '.join(keywords)}\n"
-        f"KNOWN GAPS: {'; '.join(gaps) if gaps else 'none'}\n\n"
+        f"CANDIDATE CV:\n{defang(cv_text[:CV_LIMIT])}\n\n"
+        f"TARGET DIRECTION: {defang(role)}\n"
+        f"KEYWORDS: {defang(', '.join(keywords))}\n"
+        f"KNOWN GAPS: {defang('; '.join(gaps)) if gaps else 'none'}\n\n"
         f"VACANCIES:\n{listing(vacancies)}"
     )
 

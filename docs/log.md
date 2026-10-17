@@ -9,6 +9,16 @@ A running log of decisions, state and next steps, so a new session (or a new con
 
 ---
 
+## 2026-10-18 (later): no FOP, free beta, security audit
+
+- Owner has no FOP and does not want a legal name on the site yet: site back to free-beta copy (no prices); operator named as "Marian, an individual based in Ukraine". Payments stay built but off. Before payments or a big public launch a legal entity (FOP) is needed.
+- Limits tightened in code (per user / site per day): analysis 2/30, match 2/30, grill 2/30, career 1/15, builder 1/10, build 2/20, export 3/40, jobs 5/150, upload 10/400, grill_retry 6/120; plus a per-IP limit of 3x the account limit (salted hash, last X-Forwarded-For entry). Owner should delete `CVMAX_LIMITS` in Railway so these apply.
+- Pre-launch audit (Opus) fixed: Export tab CPU stall (15 s per rerun → computed once), model text escaped in warnings and .md export, parser slot wait capped, upload limit, delimiter defanging in all prompts, Q&A retry limit, generic API error text. 1643 tests green.
+- Known remaining: waitlist form can be spammed by script (add Cloudflare Turnstile or a rate-limit rule later); PDF bytes sent to the model are not defanged (text is).
+- Cost per review: estimate $0.10-0.15 (owner to confirm from Anthropic Usage: spend / ~85 eval reviews).
+
+---
+
 ## 2026-10-18: live, paywall built
 
 - **Live:** app at `app.getcvmax.com` on Railway with Google sign-in (owner via Cowork); site buttons open the app. First real run by the owner: 1 user, 1 result, 1 consented sample with name/email/links/phone removed (checked by markers only).

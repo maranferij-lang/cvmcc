@@ -6,7 +6,9 @@ limits are counted per browser tab, and results are not saved.
 
 from __future__ import annotations
 
+import hashlib
 import logging
+import os
 import uuid
 
 import streamlit as st
@@ -29,6 +31,8 @@ LIMIT_NAMES = {
     "feedback": "feedback messages",
     "jobs": "job searches",
     "match": "posting matches",
+    "upload": "CV uploads",
+    "grill_retry": "Q&A retries",
 }
 
 
@@ -140,14 +144,55 @@ def _user_key() -> str:
     return st.session_state["anon_id"]
 
 
-def take_limit(kind: str) -> bool:
-    """Spends one use. If the limit is used up, shows an explanation and returns False."""
-    user_limit, global_limit = config.LIMITS[kind]
+def _client_ip() -> str | None:
+    """The last X-Forwarded-For entry, or None when there is no such header (then no per-IP check).
+
+    The last entry is the one our own proxy (Railway) appended; a visitor can prepend anything they like.
+    """
     try:
-        result = get_db().consume(_user_key(), kind, user_limit, global_limit)
+        raw = st.context.headers.get("X-Forwarded-For")
+    except Exception:
+        return None
+    last = str(raw or "")[-1000:].split(",")[-1].strip()[:64]
+    return last or None
+
+
+def _ip_key() -> str | None:
+    """A salted hash of the client IP. The raw address is never stored or logged."""
+    ip = _client_ip()
+    if ip is None:
+        return None
+    salt = os.environ.get("CVMAX_EVENT_SALT") or os.environ.get("CVMAX_DB_TOKEN") \
+        or secret("CVMAX_EVENT_SALT") or secret("CVMAX_DB_TOKEN") or ""
+    return "ip:" + hashlib.sha256((salt + ip).encode()).hexdigest()[:24]
+
+
+IP_LIMIT_FACTOR = 3  # one address may use up to this many times the per-account limit
+
+
+def _consume(key: str, kind: str, user_limit: int | None, global_limit: int | None) -> dict:
+    try:
+        return get_db().consume(key, kind, user_limit, global_limit)
     except DBError as e:
         log.warning("consume failed, counting in memory: %s", e)
-        result = _fallback_db().consume(_user_key(), kind, user_limit, global_limit)
+        return _fallback_db().consume(key, kind, user_limit, global_limit)
+
+
+def take_limit(kind: str) -> bool:
+    """Spends one use. If the limit is used up, shows an explanation and returns False.
+
+    Besides the account counter there is a per-IP counter (3x the account limit), so a few free accounts
+    cannot drain the site-wide cap from one address. IP rows use their own kind ("ip_<kind>") and no site-wide
+    limit, so they do not count twice towards the site-wide cap.
+    """
+    user_limit, global_limit = config.LIMITS[kind]
+    ip_key = _ip_key() if user_limit is not None else None
+    if ip_key is not None:
+        ip_result = _consume(ip_key, "ip_" + kind, user_limit * IP_LIMIT_FACTOR, None)
+        if not ip_result.get("allowed"):
+            st.warning("Too many requests from your network today. Come back tomorrow.")
+            return False
+    result = _consume(_user_key(), kind, user_limit, global_limit)
     if result.get("allowed"):
         return True
     what = LIMIT_NAMES.get(kind, "requests")

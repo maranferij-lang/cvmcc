@@ -68,15 +68,17 @@ MAX_FILE_MB = 10
 # Daily usage limits: (per user, for the whole site). None = no limit.
 # The site-wide limits are chosen for free Gemini, so the site does not hit the model limits.
 LIMITS = {
-    "analysis": (5, 60),
-    "career": (3, 40),
-    "grill": (3, 30),
-    "builder": (2, 20),
-    "build": (4, 30),
-    "export": (5, 30),
+    "analysis": (2, 30),
+    "career": (1, 15),
+    "grill": (2, 30),
+    "builder": (1, 10),
+    "build": (2, 20),
+    "export": (3, 40),
     "feedback": (10, 500),
-    "jobs": (10, 300),
-    "match": (5, 60),
+    "jobs": (5, 150),
+    "match": (2, 30),
+    "upload": (10, 400),
+    "grill_retry": (6, 120),  # retries of a failed Q&A step; a first try is covered by "grill"
 }
 
 

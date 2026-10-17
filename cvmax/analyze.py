@@ -13,6 +13,7 @@ from .cv_input import CVFile
 from .llm import ask_structured
 from .profile import Profile
 from .prompts import analysis_system
+from .safe_text import BASE_TAGS, defang
 from .schemas import Analysis
 from .scoring import ScoreDetail, compute_score
 from .verify import Verification, verify_edits
@@ -97,16 +98,13 @@ def length_note(cv: CVFile) -> str:
     )
 
 
-# Delimiter tags we use to build the request. Wherever they appear in the CV or vacancy, they are the candidate's text:
-# unescaped, it could close its own block or forge <checks>, which the model trusts.
-_REQUEST_TAGS = re.compile(r"<(\s*/?\s*(?:checks|cv|length|candidate_profile|target|vacancy_text)\b)", re.I)
 # Free-text profile fields that the user fills in and that go into the request ahead of the <checks> block.
 _PROFILE_FREE_TEXT = ("background", "target_role", "company_details", "vacancy_text")
 
 
 def _defang(text: str) -> str:
-    """A delimiter tag in the candidate's text becomes "‹tag": the content stays, but it is no longer a tag."""
-    return _REQUEST_TAGS.sub("\u2039\\1", text)
+    """The review's own tags only (the shared helper in cvmax/safe_text.py with the review's tag set)."""
+    return defang(text, BASE_TAGS)
 
 
 def _request_copies(profile: Profile, cv: CVFile) -> tuple[Profile, CVFile]:
