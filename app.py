@@ -3,11 +3,15 @@
 import streamlit as st
 
 from ui.account import auth_configured, is_logged_in, needs_onboarding
+from ui import billing
 from ui.common import inject_css
 
 st.set_page_config(page_title="GetCVmax: AI CV coach", page_icon="assets/icon.png", layout="wide")
 st.logo("assets/logo.png", size="large")
 inject_css()
+
+if st.query_params.get("paid") == "1":
+    billing.on_return()  # back from the Paddle checkout: verify, grant, unlock (never raises)
 
 home = st.Page("views/home.py", title="Home", icon=":material/home:", default=True)
 

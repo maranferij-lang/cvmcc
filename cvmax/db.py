@@ -8,6 +8,7 @@ limits are counted in the server memory, and results are not saved.
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import logging
 import re
@@ -65,6 +66,37 @@ def _check_sample(consent_version: str, meta: dict, cv_text: str, analysis: dict
         raise ValueError("meta must be an object under 4000 chars")
     if _json_len(analysis) > MAX_SAMPLE_ANALYSIS_CHARS:
         raise ValueError(f"analysis is over {MAX_SAMPLE_ANALYSIS_CHARS} chars")
+
+
+# Billing (docs/plan-paywall.md): credits granted per plan, the same as in cvmax_grant_purchase.
+PLAN_CREDITS = {"full": 1, "hunt": 5}
+MAX_ID_LEN = 100
+
+
+def norm_role(role: str | None) -> str:
+    """Lower-case, trimmed, inner whitespace collapsed, at most 200 chars. The SQL functions do the same."""
+    return " ".join((role or "").lower().split())[:200]
+
+
+PURPOSES = ("review", "builder")
+CREDIT_MONTHS = 12
+
+
+def _expiry_cutoff(now: datetime | None = None) -> datetime:
+    """Purchases created before this moment have expired (12 months, like `now() - interval '12 months'`)."""
+    now = now or datetime.now(timezone.utc)
+    day = now.day
+    while True:
+        try:
+            return now.replace(year=now.year - 1, day=day)
+        except ValueError:  # 29 February
+            day -= 1
+
+
+def _check_billing_ids(**ids: str) -> None:
+    for name, value in ids.items():
+        if not isinstance(value, str) or not value.strip() or len(value) > (254 if name == "user_key" else MAX_ID_LEN):
+            raise ValueError(f"bad {name}")
 
 
 def _pacific_day() -> str:
@@ -187,6 +219,45 @@ class SupabaseDB:
     def skill_demand(self, program: str, region: str) -> list[dict]:
         return self._rpc("cvmax_skill_demand", p_program=program, p_region=region) or []
 
+    # --- Billing (docs/plan-paywall.md). grant/refund_purchase also work with the 'billing' scope token. ---
+
+    def grant_purchase(self, user_key: str, plan: str, transaction_id: str, amount_cents: int | None = None,
+                       currency: str | None = None) -> dict:
+        """Idempotent on transaction_id. {"granted": True, ...} or {"granted": False, "reason": "duplicate"}."""
+        if plan not in PLAN_CREDITS:
+            raise ValueError("bad plan")
+        _check_billing_ids(user_key=user_key, transaction_id=transaction_id)
+        return self._rpc("cvmax_grant_purchase", p_user_key=user_key.lower(), p_plan=plan,
+                         p_transaction_id=transaction_id, p_amount_cents=amount_cents, p_currency=currency) or {}
+
+    def refund_purchase(self, transaction_id: str) -> dict:
+        """Marks the purchase refunded and removes its unconsumed credits: {"refunded": bool, "removed": n}."""
+        _check_billing_ids(transaction_id=transaction_id)
+        return self._rpc("cvmax_refund_purchase", p_transaction_id=transaction_id) or {}
+
+    def credits(self, user_key: str) -> dict:
+        """{"full": n, "has_hunt": bool, "last_use": {...} | None, "rescan_roles": [normalized roles]}."""
+        _check_billing_ids(user_key=user_key)
+        return self._rpc("cvmax_credits", p_user_key=user_key.lower()) or {
+            "full": 0, "has_hunt": False, "last_use": None, "rescan_roles": []}
+
+    def use_credit(self, user_key: str, analysis_id: str, target_role: str, purpose: str = "review") -> dict:
+        """Spends one credit on this analysis (once per analysis_id), or a free re-scan of the same target role.
+
+        purpose: "review" (a CV review, may be re-scanned once) or "builder" (a CV build: never re-scans).
+        {"allowed": True, "mode": "credit" | "rescan", "duplicate": bool} or {"allowed": False, "reason": ...}.
+        """
+        if purpose not in PURPOSES:
+            raise ValueError("bad purpose")
+        _check_billing_ids(user_key=user_key, analysis_id=analysis_id)
+        return self._rpc("cvmax_use_credit", p_user_key=user_key.lower(), p_analysis_id=analysis_id,
+                         p_target_role=norm_role(target_role), p_purpose=purpose) or {"allowed": False, "reason": "error"}
+
+    def refund_credit(self, user_key: str, analysis_id: str) -> dict:
+        """Gives the credit (or the re-scan) back after a model failure: {"refunded": bool}."""
+        _check_billing_ids(user_key=user_key, analysis_id=analysis_id)
+        return self._rpc("cvmax_refund_credit", p_user_key=user_key.lower(), p_analysis_id=analysis_id) or {}
+
 
 class MemoryDB:
     """A fallback without Supabase: limits in process memory, nothing is stored long-term."""
@@ -203,6 +274,8 @@ class MemoryDB:
         self.training_samples: list[dict] = []
         self.vacancies: dict[tuple[str, str, str], dict] = {}
         self.skill_demand_rows: dict[tuple[str, str], list[dict]] = {}
+        self.purchases: list[dict] = []
+        self.credit_uses: list[dict] = []
 
     def touch_user(self, email: str, name: str | None) -> dict:
         return self._users.setdefault(email.lower(), {"email": email.lower(), "name": name, "onboarded_at": None})
@@ -238,6 +311,11 @@ class MemoryDB:
         with self._lock:
             self.events = [e for e in self.events if e["user_key"] != key]
             self.training_samples = [x for x in self.training_samples if x["user_key"] != key]
+            # Credit uses are deleted. Purchases are accounting records: kept, with the owner replaced by a hash.
+            self.credit_uses = [u for u in self.credit_uses if u["user_key"] != key]
+            for p in self.purchases:
+                if p["user_key"] == key:
+                    p["user_key"] = "deleted:" + hashlib.md5(key.encode()).hexdigest()  # noqa: S324 (not a secret)
 
     def log_edit_feedback(self, user_key: str, analysis_id: str, target_role: str, program: str,
                           items: list[dict]) -> int:
@@ -406,6 +484,121 @@ class MemoryDB:
     def skill_demand(self, program: str, region: str) -> list[dict]:
         rows = self.skill_demand_rows.get((program, region), [])
         return sorted(rows, key=lambda r: (-r["postings"], r["skill"]))[:20]
+
+    # --- Billing: the same semantics as the cvmax_* billing functions in supabase/schema.sql ---
+    # Every credit use is linked to the purchase it consumed (oldest first). Balance = per purchase that is not
+    # refunded and younger than 12 months: credits minus the live uses linked to it.
+
+    def _live(self, p: dict) -> bool:
+        return p["status"] == "paid" and p["created_at"] > _expiry_cutoff()
+
+    def _remaining(self, p: dict) -> int:
+        used = sum(1 for u in self.credit_uses
+                   if u["purchase"] is p and u["mode"] == "credit" and not u["refunded"])
+        return max(p["full_credits"] - used, 0)
+
+    def _balance(self, user_key: str) -> int:
+        return sum(self._remaining(p) for p in self.purchases if p["user_key"] == user_key and self._live(p))
+
+    def _next_purchase(self, user_key: str) -> dict | None:
+        rows = [p for p in self.purchases if p["user_key"] == user_key and self._live(p) and self._remaining(p) > 0]
+        return min(rows, key=lambda p: p["created_at"]) if rows else None  # min() keeps the first of equal dates
+
+    def _review_uses(self, user_key: str) -> list[dict]:
+        return [u for u in self.credit_uses
+                if u["user_key"] == user_key and u["mode"] == "credit" and u["purpose"] == "review"
+                and not u["refunded"]]
+
+    def _rescannable(self, user_key: str, role: str | None = None) -> list[dict]:
+        return [u for u in self._review_uses(user_key)
+                if u["rescans_left"] > 0 and u["purchase"]["status"] == "paid"
+                and (role is None or u["target_role"] == role)]
+
+    def grant_purchase(self, user_key: str, plan: str, transaction_id: str, amount_cents: int | None = None,
+                       currency: str | None = None) -> dict:
+        if plan not in PLAN_CREDITS:
+            raise ValueError("bad plan")
+        _check_billing_ids(user_key=user_key, transaction_id=transaction_id)
+        with self._lock:
+            if any(p["transaction_id"] == transaction_id for p in self.purchases):
+                return {"granted": False, "reason": "duplicate"}
+            self.purchases.append({"user_key": user_key.lower(), "plan": plan, "transaction_id": transaction_id,
+                                   "full_credits": PLAN_CREDITS[plan], "amount_cents": amount_cents,
+                                   "currency": currency, "status": "paid",
+                                   "created_at": datetime.now(timezone.utc)})
+        return {"granted": True, "plan": plan, "full_credits": PLAN_CREDITS[plan]}
+
+    def refund_purchase(self, transaction_id: str) -> dict:
+        _check_billing_ids(transaction_id=transaction_id)
+        with self._lock:
+            row = next((p for p in self.purchases if p["transaction_id"] == transaction_id), None)
+            if row is None:
+                return {"refunded": False, "reason": "unknown"}
+            if row["status"] == "refunded":
+                return {"refunded": False, "reason": "already_refunded"}
+            before = self._balance(row["user_key"])
+            row["status"] = "refunded"  # only this purchase's unspent credits go; uses linked to it stay consumed
+            return {"refunded": True, "plan": row["plan"], "removed": before - self._balance(row["user_key"])}
+
+    def credits(self, user_key: str) -> dict:
+        _check_billing_ids(user_key=user_key)
+        key = user_key.lower()
+        with self._lock:
+            reviews = self._review_uses(key)
+            last = reviews[-1] if reviews else None
+            return {"full": self._balance(key),
+                    "has_hunt": any(p["user_key"] == key and p["plan"] == "hunt" and p["status"] == "paid"
+                                    for p in self.purchases),
+                    "rescan_roles": sorted({u["target_role"] for u in self._rescannable(key)}),
+                    "last_use": None if last is None else {
+                        "analysis_id": last["analysis_id"], "target_role": last["target_role"],
+                        "rescans_left": last["rescans_left"], "created_at": last["created_at"].isoformat()}}
+
+    def use_credit(self, user_key: str, analysis_id: str, target_role: str, purpose: str = "review") -> dict:
+        if purpose not in PURPOSES:
+            raise ValueError("bad purpose")
+        _check_billing_ids(user_key=user_key, analysis_id=analysis_id)
+        key, role = user_key.lower(), norm_role(target_role)
+        with self._lock:
+            existing = next((u for u in self.credit_uses if u["analysis_id"] == analysis_id), None)
+            if existing is not None:
+                if existing["user_key"] != key:
+                    return {"allowed": False, "reason": "conflict"}
+                if not existing["refunded"]:
+                    return {"allowed": True, "mode": existing["mode"], "duplicate": True}
+                self.credit_uses.remove(existing)  # refunded earlier (model failure): this retry spends again
+            now = datetime.now(timezone.utc)
+            if purpose == "review":
+                # A free re-scan: an earlier review use with the same role that still has one and is not refunded.
+                earlier = self._rescannable(key, role)
+                if earlier:
+                    parent = earlier[-1]
+                    parent["rescans_left"] -= 1
+                    self.credit_uses.append({"user_key": key, "analysis_id": analysis_id, "mode": "rescan",
+                                             "purpose": "review", "target_role": role, "rescans_left": 0,
+                                             "parent": parent, "purchase": None, "refunded": False,
+                                             "created_at": now})
+                    return {"allowed": True, "mode": "rescan", "duplicate": False}
+            purchase = self._next_purchase(key)
+            if purchase is None:
+                return {"allowed": False, "reason": "no_credit"}
+            self.credit_uses.append({"user_key": key, "analysis_id": analysis_id, "mode": "credit",
+                                     "purpose": purpose, "target_role": role,
+                                     "rescans_left": 1 if purpose == "review" else 0, "parent": None,
+                                     "purchase": purchase, "refunded": False, "created_at": now})
+            return {"allowed": True, "mode": "credit", "duplicate": False}
+
+    def refund_credit(self, user_key: str, analysis_id: str) -> dict:
+        _check_billing_ids(user_key=user_key, analysis_id=analysis_id)
+        key = user_key.lower()
+        with self._lock:
+            row = next((u for u in self.credit_uses if u["analysis_id"] == analysis_id and u["user_key"] == key), None)
+            if row is None or row["refunded"]:
+                return {"refunded": False}
+            row["refunded"] = True
+            if row["mode"] == "rescan" and row["parent"] is not None:
+                row["parent"]["rescans_left"] += 1
+            return {"refunded": True, "mode": row["mode"]}
 
 
 def _as_count(value: Any) -> int | None:

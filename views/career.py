@@ -8,6 +8,7 @@ from cvmax.career import CareerPrefs, match_careers
 from cvmax.llm import LLMError
 from cvmax.profile import FEEDBACK_LANGUAGES, LEVELS, PROGRAMS, REGIONS, STATUSES
 from cvmax.safe_text import md_escape
+from ui import billing
 from ui.account import limit_caption, profile_value, require_login, save_result, take_limit
 from ui.jobs import render_jobs
 from ui.common import card, consent, cv_picker, demo_banner, get_llm
@@ -27,6 +28,15 @@ st.caption(
     "where you have the best shot at an offer right now."
 )
 demo_banner()
+if billing.billing_enabled():
+    billing.show_notice()
+    cr = billing.credits()
+    if cr is None:
+        st.info("We could not check your plan right now. Try again in a minute.")
+        st.stop()
+    if not cr.get("has_hunt"):
+        billing.hunt_gate("career")
+        st.stop()
 if not consent("career"):
     st.stop()
 

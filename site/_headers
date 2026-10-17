@@ -5,3 +5,11 @@
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+
+/pay
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.paddle.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.paddle.com; font-src https://fonts.gstatic.com https://cdn.paddle.com; img-src 'self' data: https://*.paddle.com; connect-src 'self' https://cloudflareinsights.com https://*.paddle.com; frame-src https://*.paddle.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+
+/pay.html
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.paddle.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.paddle.com; font-src https://fonts.gstatic.com https://cdn.paddle.com; img-src 'self' data: https://*.paddle.com; connect-src 'self' https://cloudflareinsights.com https://*.paddle.com; frame-src https://*.paddle.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'

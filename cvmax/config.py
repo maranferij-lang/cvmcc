@@ -124,3 +124,36 @@ JOBS_MAX_RESULTS = 40
 JOBS_CACHE_TTL_S = 1800
 # How many requests to sources we run in parallel.
 JOBS_WORKERS = 6
+
+# Paywall prices shown in the app, in whole US dollars (docs/plan-paywall.md). The real charge is the Paddle price;
+# these are only labels. Format: `full=15,hunt=29`. Unknown plans and malformed numbers are ignored.
+PRICE_DEFAULTS = {"full": 15, "hunt": 29}
+PLAN_KEYS = ("full", "hunt")
+
+
+def parse_prices(raw: str | None) -> dict[str, int]:
+    """Applies `CVMAX_PRICES` over the defaults. Never raises: a typo must not take the site down."""
+    prices = dict(PRICE_DEFAULTS)
+    for part in (raw or "").split(","):
+        plan, _, value = part.partition("=")
+        plan, value = plan.strip().lower(), value.strip()
+        if plan in PLAN_KEYS and value.isdigit() and 0 < int(value) <= 100_000:
+            prices[plan] = int(value)
+    return prices
+
+
+PRICES = parse_prices(os.environ.get("CVMAX_PRICES"))
+
+
+def paddle_settings() -> dict[str, str]:
+    """Paddle variables, read from the environment at call time (secrets: never log the result).
+
+    Keys: api_key, env ("sandbox" | "live", default sandbox), price_full, price_hunt. Missing values are "".
+    """
+    env = (os.environ.get("PADDLE_ENV") or "sandbox").strip().lower()
+    return {
+        "api_key": (os.environ.get("PADDLE_API_KEY") or "").strip(),
+        "env": env if env in ("sandbox", "live") else "sandbox",
+        "price_full": (os.environ.get("PADDLE_PRICE_FULL") or "").strip(),
+        "price_hunt": (os.environ.get("PADDLE_PRICE_HUNT") or "").strip(),
+    }

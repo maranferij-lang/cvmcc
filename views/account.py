@@ -9,6 +9,7 @@ from cvmax.db import DBError
 from cvmax.profile import PROGRAMS, STATUSES
 from cvmax.safe_text import md_escape
 from cvmax.schemas import Analysis, BuiltCV, CareerMatch
+from ui import billing
 from ui.account import current_email, get_db, log_event, save_profile, user_row
 
 row = user_row() or {}
@@ -45,7 +46,11 @@ def result_analysis_id(item: dict) -> str:
 
 KIND_LABEL = {"analysis": "CV review", "career": "Where to apply", "builder": "CV builder"}
 
-tab_history, tab_profile, tab_data = st.tabs(["My results", "Profile", "Data and sign out"])
+billing_on = billing.billing_enabled()
+billing.show_notice() if billing_on else None
+names = ["My results", "Profile", "Data and sign out"] + (["Credits"] if billing_on else [])
+tabs = st.tabs(names)
+tab_history, tab_profile, tab_data = tabs[:3]
 
 with tab_history:
     if not get_db().persistent:
@@ -83,8 +88,33 @@ with tab_history:
                     a = Analysis.model_validate(payload["analysis"])
                     st.metric("CV fit", f"{a.overall_score}/100")
                     st.markdown(md_escape(a.summary))
-                    for e in a.edits:
+                    aid = str(payload.get("analysis_id") or "")
+                    # A result saved before the paywall has no tier and counts as full; a scan shows 3 edits only.
+                    full_tier = (not billing_on or payload.get("tier", "full") == "full"
+                                 or aid in billing.unlocked_ids())
+                    edits = a.edits if full_tier else billing.free_edits(a.edits)
+                    for e in edits:
                         st.markdown(f"- **{md_escape(e.section)}:** {md_escape(e.after) or '(remove)'}")
+                    if not full_tier:
+                        hidden = len(a.edits) - len(edits)
+                        if hidden > 0:
+                            st.caption(f"{hidden} more {'edit is' if hidden == 1 else 'edits are'} locked.")
+                        if aid and st.button("Unlock the full fix", key=f"unlock_{item['id']}"):
+                            outcome = billing.spend(aid, str(payload.get("role") or ""))
+                            if outcome == "ok":
+                                try:
+                                    get_db().save_result(email, "analysis", f"{item['title']} · full fix",
+                                                         {**payload, "tier": "full"})
+                                except DBError:
+                                    pass  # the unlock itself is recorded; only the saved copy is missing
+                                st.rerun()
+                            if outcome == "no_credit":
+                                st.session_state["no_credit_result"] = item["id"]
+                            else:
+                                st.info("We could not unlock this review right now. Try again in a minute.")
+                        if st.session_state.get("no_credit_result") == item["id"] and aid:
+                            st.info("No credit left. Pick a plan to unlock this review.")
+                            billing.plan_cards(f"acct_{item['id']}", aid)
                 elif item["kind"] == "career" and "career" in payload:
                     c = CareerMatch.model_validate(payload["career"])
                     st.markdown(md_escape(c.general_advice))
@@ -117,6 +147,8 @@ with tab_profile:
 
 with tab_data:
     st.write("You can delete all your data at any time: your profile, saved results and usage history.")
+    if billing_on:
+        st.caption("Your purchases are unlinked from your account, so unspent credits are forfeited.")
     confirm = st.checkbox("Yes, I want to permanently delete my data")
     if st.button("Delete my data", disabled=not confirm):
         try:
@@ -128,3 +160,18 @@ with tab_data:
             st.error(str(e))
     st.divider()
     st.button("Sign out", icon=":material/logout:", on_click=st.logout)
+
+if billing_on:
+    with tabs[3]:
+        cr = billing.credits()
+        if cr is None:
+            st.info("We could not load your credits right now. Try again in a minute.")
+        else:
+            n = int(cr.get("full") or 0)
+            st.metric("Full credits", n)
+            st.write("Job hunt: " + ("active (Where to apply is open)." if cr.get("has_hunt") else "not purchased."))
+            last = cr.get("last_use") or {}
+            if int(last.get("rescans_left") or 0) > 0:
+                st.write("You have one free re-scan of the same target role left.")
+            st.caption("Payments are handled by Paddle, our merchant of record; it emails your receipt. "
+                       "GetCVmax never sees or stores your card. A new payment can take a minute to show up here.")

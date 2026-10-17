@@ -191,6 +191,27 @@ Open `https://app.getcvmax.com` in a private window, then check:
 6. In Supabase, the new user row and the usage counter appear. Run the same action until the per-user limit message shows, to confirm limits work.
 7. Railway Metrics: memory stays reasonably flat after the test. Deploy logs show no stack traces and no secret values.
 
+## Payments (Paddle)
+
+Do this in the sandbox first, then repeat in live. Billing in the app switches on only when `PADDLE_API_KEY`, `PADDLE_ENV`, `PADDLE_PRICE_FULL` and `PADDLE_PRICE_HUNT` are all set. Spec: `docs/plan-paywall.md`.
+
+1. Sandbox account: open <https://sandbox-vendors.paddle.com> and sign up. Live needs a separate account at <https://vendors.paddle.com> with business verification (the FOP details); start the verification early, it can take days.
+2. Products and prices: Catalog, Products, **+ New product**.
+   - Product "GetCVmax Full fix", price **15.00 USD**, one-time. Copy its price id (`pri_...`).
+   - Product "GetCVmax Job hunt", price **29.00 USD**, one-time. Copy its price id.
+   - After the first 100 buyers, change the prices to 25 and 49 in Paddle (edit the price or add a new price and switch the variable), and update `CVMAX_PRICES` (for example `full=25,hunt=49`) so the app labels match.
+3. Default payment link: Checkout, Checkout settings, **Default payment link**: `https://getcvmax.com/pay`. Paddle asks you to approve the domain (Checkout, Website approval); submit `getcvmax.com` and wait for approval. In the sandbox it works without approval.
+4. Client-side token: Developer tools, Authentication, **Client-side tokens**, New token. Open `site/pay.html` and set `data-paddle-token` on `<main id="pay">` to this token (it starts with `test_` in sandbox, `live_` in live; it is public by design) and `data-paddle-env` to `sandbox` or `live`. Commit and push; Cloudflare Pages redeploys. Never put the API key here.
+5. API key: Developer tools, Authentication, **API keys**, New API key. Permissions: transactions read and write, customers read and write. Put it only in Railway (next step).
+6. Railway variables on the app service: `PADDLE_API_KEY`, `PADDLE_ENV` (`sandbox` or `live`), `PADDLE_PRICE_FULL`, `PADDLE_PRICE_HUNT`, and `CVMAX_PRICES` (default `full=15,hunt=29`). Deploy.
+7. Billing token in Supabase: follow the "billing" step in `supabase/README.md` (run `supabase/apply-billing.sql` in the SQL editor first). You get a token value; keep it for the next step.
+8. Cloudflare Pages variables (Workers & Pages, getcvmax project, Settings, Variables and Secrets, Production, add as **Secret** for the secrets): `PADDLE_WEBHOOK_SECRET` (step 9), `PADDLE_PRICE_FULL`, `PADDLE_PRICE_HUNT` (the same ids as in Railway), `CVMAX_BILLING_TOKEN` (step 7). `SUPABASE_URL` and `SUPABASE_KEY` are already there for the waitlist. Redeploy after changing variables (Deployments, latest, Retry deployment).
+9. Notification destination: Developer tools, Notifications, **New destination**. Type webhook, URL `https://getcvmax.com/api/paddle-webhook`. Subscribe to `transaction.completed`, `transaction.payment_failed`, `adjustment.created`, `adjustment.updated`. Save, open the destination, copy the **secret key** into `PADDLE_WEBHOOK_SECRET` (step 8), redeploy.
+10. Test in the sandbox: sign in to the app, run a review, click Unlock, pay with Paddle's test card `4242 4242 4242 4242` (any future date, any CVC). You return to the app with `?paid=1` and the credit is spent. In Paddle, Developer tools, Notifications, Logs, the delivery should show status 200. In Supabase, `cvmax_purchases` has one row. Refund the transaction from the Paddle dashboard (Transactions, the payment, Refund) and check the row turns `refunded`.
+11. Check the `/pay` page: open `https://getcvmax.com/pay` (it shows a calm message without `?_ptxn=`). If the checkout overlay does not open on a real transaction, open the browser console: a blocked resource means the Content-Security-Policy for `/pay` in `site/_headers` needs the named host added.
+12. Go live: repeat steps 1 to 9 in the live account (new price ids, new client-side token, new API key, new webhook secret), set `data-paddle-env="live"`, `PADDLE_ENV=live`, and make one real purchase with a small test price or your own card, then refund it.
+13. Before the first sale: fill the `FOP [Full legal name]` placeholders in `site/terms.html`, `site/refund.html` and `site/privacy.html`, and check that the refund page matches what you will really do.
+
 ## Logs
 
 - Railway: service, Deployments tab, click a deployment, then Build Logs (image build) or Deploy Logs (what the app prints). The Observability / Logs view of the project lets you search and filter across deployments.

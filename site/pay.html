@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Checkout · GetCVmax</title>
+<meta name="description" content="Secure checkout for GetCVmax, handled by Paddle.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://getcvmax.com/pay">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800;900&family=Kalam:wght@700&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="GetCVmax home"><i>Get</i>CVmax<span>.</span></a>
+  </div>
+</header>
+<!--
+  OWNER: set data-paddle-token to your Paddle client-side token (starts with test_ in sandbox, live_ in production;
+  it is public by design, never put an API key here) and data-paddle-env to "sandbox" or "live".
+  Steps: docs/deploy.md, section "Payments".
+-->
+<main class="wrap legal" id="pay" data-paddle-token="REPLACE_WITH_CLIENT_SIDE_TOKEN" data-paddle-env="sandbox">
+  <span class="label">checkout</span>
+  <h1>Checkout</h1>
+  <p id="pay-msg" role="status">Opening the secure checkout.</p>
+  <noscript><p>Checkout needs JavaScript. Please enable it and reload this page.</p></noscript>
+  <p class="muted">Payments are processed by Paddle, our merchant of record. See the <a href="/terms">Terms</a> and the <a href="/refund">Refund policy</a>.</p>
+  <p><a href="https://app.getcvmax.com/">Back to GetCVmax</a></p>
+</main>
+<footer>
+  <div class="wrap">
+    <span>GetCVmax · FOP [Full legal name], Ukraine</span>
+    <nav><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund">Refunds</a><span>hello@getcvmax.com</span></nav>
+  </div>
+</footer>
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<script src="/pay.js"></script>
+</body>
+</html>

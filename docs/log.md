@@ -9,6 +9,22 @@ A running log of decisions, state and next steps, so a new session (or a new con
 
 ---
 
+## 2026-10-18: live, paywall built
+
+- **Live:** app at `app.getcvmax.com` on Railway with Google sign-in (owner via Cowork); site buttons open the app. First real run by the owner: 1 user, 1 result, 1 consented sample with name/email/links/phone removed (checked by markers only).
+- **Decision (owner):** free scan + paid fix replaces the free launch (CLAUDE.md updated). Full $15 (first 100 buyers, then $25), Job hunt $29 (then $49). Paddle as merchant of record. Spec `docs/plan-paywall.md`.
+- **Built:** `cvmax/billing.py`, billing methods in `cvmax/db.py`, `supabase/apply-billing.sql` (creates the billing token, shown once), `ui/billing.py`, locked rendering in the review/builder/career/account pages, `site/pay.html` + `pay.js`, Paddle webhook as a Pages Function `site/functions/api/paddle-webhook.js`, pricing and legal copy.
+- **Reviewed:** adversarial review found 8 defects (refund ate other purchases' credits, unlimited builder builds, builder credit as a free re-scan, return flow broken across tabs, re-scan rules, role normalisation, Jobs tab leaking gaps, copy claims); all fixed with tests. Real SQL now tested in a local Postgres (`tests/test_sql_live.py`); it caught older apply files reverting "Delete my data". 1625 tests green.
+- **Billing is off** until the Paddle variables are set; the app stays free until then.
+
+### Owner to do for payments
+1. Apply to Paddle (Billing), ask about payouts to a Ukrainian FOP; open a Sandbox account.
+2. Give Claude the exact FOP name (UA + Latin) for the legal pages.
+3. Run `supabase/apply-billing.sql` once in the SQL editor and save the `cvmx_bill_` token it prints.
+4. Follow "Payments (Paddle)" in `docs/launch-guide.md` (products, prices, default payment link, client token, webhook, variables in Railway and Cloudflare).
+
+---
+
 ## 2026-10-17: launch prep, real-CV evals, learning loop
 
 ### State

@@ -17,11 +17,12 @@ SHARE_CARD = "share_card"
 RESOURCE_CLICKED = "resource_clicked"
 RESOURCE_RATED = "resource_rated"
 RESOURCE_MISSING = "resource_missing"
+CHECKOUT_STARTED = "checkout_started"
 
 KINDS = frozenset({
     ANALYSIS_DONE, ANALYSIS_RATED, EDITS_DECIDED, GRILL_TURN, EXPORT,
     RESCAN, JOBS_SHOWN, JOB_APPLIED, OUTCOME, MATCH_DONE, SHARE_CARD,
-    RESOURCE_CLICKED, RESOURCE_RATED, RESOURCE_MISSING,
+    RESOURCE_CLICKED, RESOURCE_RATED, RESOURCE_MISSING, CHECKOUT_STARTED,
 })
 
 ALLOWED_FIELDS: dict[str, frozenset[str]] = {
@@ -47,6 +48,8 @@ ALLOWED_FIELDS: dict[str, frozenset[str]] = {
     RESOURCE_CLICKED: frozenset({"skill", "resource_id", "rank"}),
     RESOURCE_RATED: frozenset({"skill", "resource_id", "rank", "helpful"}),
     RESOURCE_MISSING: frozenset({"skill"}),
+    # Paywall: which plan card was clicked and from which page; never a CV, a role or an email.
+    CHECKOUT_STARTED: frozenset({"plan", "source"}),
 }
 
 MAX_PAYLOAD_CHARS = 4000

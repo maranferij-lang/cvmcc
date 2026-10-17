@@ -31,6 +31,7 @@ from ui.account import (
     save_result, send_feedback,
     skill_demand_cached, take_limit, variant_stats_cached,
 )
+from ui import billing
 from ui.common import BOT_AVATAR, card, consent, cv_picker, demo_banner, get_llm
 from ui.jobs import render_jobs
 from ui.resources import render_controls, render_how_we_pick, render_resources, SOFT_ERROR
@@ -376,6 +377,15 @@ def render_share(s) -> None:
         st.caption("The card shows only the score and your target role: no name, no CV text.")
 
 
+def mark_full(s) -> None:
+    """The review is unlocked: remember the tier and save the full tier with the saved result."""
+    s["tier"] = "full"
+    payload = s.get("result_payload")
+    if payload:
+        save_result("analysis", f"{payload['role']} · {s.analysis.overall_score}/100 · full fix",
+                    {**payload, "tier": "full"})
+
+
 # ---------- Header ----------
 require_login("CV review")
 s = state()
@@ -491,6 +501,7 @@ with form_box:
                 s["variant"] = variant
             s.cv, s.profile = cv, profile
             s.analysis_id = uuid.uuid4().hex
+            s["tier"] = "scan" if billing.billing_enabled() else "full"  # a review always runs as a scan first
             s.pop("feedback_sent", None)
             from_jobs = bool(vacancy_text.strip()) and same_text(vacancy_text, s.get("jobs_pasted", ""))
             s["match_source"] = "jobs" if from_jobs else "form"  # for the match_done event
@@ -499,9 +510,10 @@ with form_box:
             s.pop("open_form", None)
             # score_detail: score components as a plain dict (criteria tuples become lists).
             score_detail = {**asdict(run.score), "items": [list(item) for item in run.score.items]}
+            s["result_payload"] = {"analysis_id": s.analysis_id, "role": target_role, "company_type": company_type,
+                                   "analysis": s.analysis.model_dump(), "score_detail": score_detail}
             save_result("analysis", f"{target_role} · {s.analysis.overall_score}/100",
-                        {"analysis_id": s.analysis_id, "role": target_role, "company_type": company_type,
-                         "analysis": s.analysis.model_dump(), "score_detail": score_detail})
+                        {**s["result_payload"], "tier": s["tier"]})
             if improve:
                 save_improvement_sample(
                     {"program": program, "status": status, "level": level, "region": region,
@@ -522,9 +534,19 @@ if s.analysis is None:
 
 # ---------- Results ----------
 a = s.analysis
+billing.show_notice()
+if billing.billing_enabled() and s.get("tier") != "full" and s.analysis_id in billing.unlocked_ids():
+    mark_full(s)  # unlocked on return from the checkout (app.py) or on another page
+locked = billing.is_locked(s)
 st.header("Results")
 company = "" if s.profile.company_type == ANY_COMPANY else s.profile.company_type
 st.caption(" · ".join(md_escape(x) for x in (s.profile.target_role, company, s.cv.filename) if x))
+shown_edits = billing.free_edits(a.edits) if locked else all_edits(s)  # locked edits are never rendered
+if locked:
+    if billing.unlock_panel(s, len(a.edits) - len(shown_edits)):
+        mark_full(s)
+        st.toast("Unlocked. All edits are below.", icon=":material/lock_open:")
+        st.rerun()
 tab_overview, tab_grill, tab_edits, tab_gaps, tab_jobs, tab_export = st.tabs(
     ["Overview", "Q&A", "Edits", "Skills to build", "Jobs", "Final CV"]
 )
@@ -538,7 +560,10 @@ with tab_overview:
         st.caption(caption)
     render_share(s)
     st.write(md_escape(a.summary))
-    if len((s.profile.vacancy_text or "").strip()) >= MATCH_MIN_CHARS:
+    if locked:
+        if len((s.profile.vacancy_text or "").strip()) >= MATCH_MIN_CHARS:
+            billing.locked_note("Matching your CV to the posting")
+    elif len((s.profile.vacancy_text or "").strip()) >= MATCH_MIN_CHARS:
         render_match(s)
     else:
         st.caption("Tip: paste a job posting into the form above to see how well your CV matches it.")
@@ -567,7 +592,7 @@ with tab_overview:
         st.subheader("What already works")
         for x in a.strengths:
             st.markdown(f"- {md_escape(x)}")
-    if s.grill is None:
+    if s.grill is None and not locked:
         st.info(
             f"**Next: Q&A.** Up to {config.GRILL_MAX_QUESTIONS} short questions about your experience. "
             "GetCVmax uses your answers to find numbers and facts missing from your CV and turns them into stronger edits.",
@@ -598,7 +623,9 @@ with tab_edits:
     note = verification_caption(removed_edits, trimmed_edits)
     if note:
         st.caption(note)
-    if not all_edits(s) and s.grill_result is None:
+    if locked:
+        pass
+    elif not all_edits(s) and s.grill_result is None:
         st.info(
             "No edits yet: your CV already reads well for this goal. To get edits, do the **Q&A** "
             "(previous tab): GetCVmax will turn your answers into numbers and facts for your CV.",
@@ -609,10 +636,10 @@ with tab_edits:
             "These edits come from your CV text only. The strongest ones appear after the **Q&A** (previous tab).",
             icon=":material/forum:",
         )
-    if all_edits(s):
+    if shown_edits and not locked:
         st.caption("Tick the edits you accept. Replace anything in [brackets] with your own details, or remove it if it isn't true.")
     facts = known_facts(s)
-    for i, e in enumerate(all_edits(s)):
+    for i, e in enumerate(shown_edits):
         with card(f"edit-{i}"):
             st.markdown(f"**{md_escape(e.section)}** · {PRIORITY_LABEL[e.priority]}")
             c1, c2 = st.columns(2)
@@ -641,39 +668,48 @@ with tab_edits:
                     "This isn't in your CV or your answers: " + ", ".join(flagged)
                     + ". Keep only what's true."
                 )
-            st.checkbox("Accept", key=f"accept_{i}")
+            if not locked:
+                st.checkbox("Accept", key=f"accept_{i}")
+    if locked:
+        hidden = len(a.edits) - len(shown_edits)
+        if hidden > 0:
+            st.info(f"{hidden} more {'edit is' if hidden == 1 else 'edits are'} locked. Unlock the full fix above to see "
+                    "them.", icon=":material/lock:")
 
 with tab_gaps:
-    demand = skill_demand_cached(s.profile.program, s.profile.region)
-    if demand and demand[0].get("total_postings"):
-        total = demand[0]["total_postings"]
-        top = ", ".join(f"{md_escape(str(d['skill']))} {round(100 * d['postings'] / total)}%" for d in demand[:8])
-        st.caption(f"In the last {demand[0].get('window_days')} days, of {total} postings for your field in "
-                   f"{md_escape(s.profile.region)}: {top}")
-    st.caption("What to do beyond your CV to boost your chances, most important first.")
-    with st.expander("How we pick resources", icon=":material/verified:"):
-        render_how_we_pick()
-    try:
-        gap_skill_ids = [match_skills(f"{g.item}. {g.how_to_close}") for g in a.gaps]
-    except CatalogError:
-        gap_skill_ids = None
-        st.info(SOFT_ERROR, icon=":material/info:")
-    learn_key = f"learn_{s.analysis_id}"
-    budget, hours = ("free", 5)
-    if gap_skill_ids is not None and a.gaps:
-        budget, hours = render_controls(learn_key)
-    for j in order_gaps(a.gaps, gap_skill_ids or [[] for _ in a.gaps], demand):
-        g = a.gaps[j]
-        with card(f"gap-{j}"):
-            st.markdown(f"**{md_escape(g.item)}** · {PRIORITY_LABEL[g.impact]} · {md_escape(g.time_estimate)}")
-            st.markdown(md_escape(g.why_it_matters))
-            st.markdown(f"**How:** {md_escape(g.how_to_close)}")
-            if gap_skill_ids is not None:
-                st.markdown("**Learn it**")
-                render_resources(
-                    gap_skill_ids[j], key=f"{learn_key}_g{j}", feedback_language=s.profile.feedback_language,
-                    budget=budget, hours_per_week=hours, demand=demand, missing_text=g.item, scope=learn_key,
-                )
+    if locked:
+        billing.locked_note("The skills plan")
+    else:
+        demand = skill_demand_cached(s.profile.program, s.profile.region)
+        if demand and demand[0].get("total_postings"):
+            total = demand[0]["total_postings"]
+            top = ", ".join(f"{md_escape(str(d['skill']))} {round(100 * d['postings'] / total)}%" for d in demand[:8])
+            st.caption(f"In the last {demand[0].get('window_days')} days, of {total} postings for your field in "
+                       f"{md_escape(s.profile.region)}: {top}")
+        st.caption("What to do beyond your CV to boost your chances, most important first.")
+        with st.expander("How we pick resources", icon=":material/verified:"):
+            render_how_we_pick()
+        try:
+            gap_skill_ids = [match_skills(f"{g.item}. {g.how_to_close}") for g in a.gaps]
+        except CatalogError:
+            gap_skill_ids = None
+            st.info(SOFT_ERROR, icon=":material/info:")
+        learn_key = f"learn_{s.analysis_id}"
+        budget, hours = ("free", 5)
+        if gap_skill_ids is not None and a.gaps:
+            budget, hours = render_controls(learn_key)
+        for j in order_gaps(a.gaps, gap_skill_ids or [[] for _ in a.gaps], demand):
+            g = a.gaps[j]
+            with card(f"gap-{j}"):
+                st.markdown(f"**{md_escape(g.item)}** · {PRIORITY_LABEL[g.impact]} · {md_escape(g.time_estimate)}")
+                st.markdown(md_escape(g.why_it_matters))
+                st.markdown(f"**How:** {md_escape(g.how_to_close)}")
+                if gap_skill_ids is not None:
+                    st.markdown("**Learn it**")
+                    render_resources(
+                        gap_skill_ids[j], key=f"{learn_key}_g{j}", feedback_language=s.profile.feedback_language,
+                        budget=budget, hours_per_week=hours, demand=demand, missing_text=g.item, scope=learn_key,
+                    )
 
 with tab_jobs:
     st.caption("Live postings for this goal, ranked by fit to your CV.")
@@ -686,136 +722,142 @@ with tab_jobs:
     render_jobs(
         key="analyze", role=s.profile.target_role, keywords=[s.profile.target_role], region=s.profile.region,
         level=s.profile.level, company=board, cv_text=s.cv.text,
-        gaps=[g.item for g in a.gaps], feedback_language=s.profile.feedback_language,
+        gaps=[] if locked else [g.item for g in a.gaps], feedback_language=s.profile.feedback_language,
         on_review=review_for_posting,
     )
 
 with tab_grill:
-    st.caption(
-        f"Up to {config.GRILL_MAX_QUESTIONS} questions about your experience: numbers, scale and what's missing from your CV. "
-        "Your answers become stronger edits. Nothing is made up, GetCVmax only uses what you say. "
-        "You can skip questions and finish at any time."
-    )
-    if s.get("grill_error"):  # an error from the previous pass, before st.rerun()
-        st.error(s.pop("grill_error"))
-    if s.grill is None:
-        if st.button("Start Q&A", type="primary") and take_limit("grill"):
-            g = GrillSession()
-            try:
-                with st.spinner("Thinking of the first question..."):
-                    next_question(get_client(), s.profile, s.cv, g)
-                s.grill = g
-                st.rerun()
-            except LLMError as e:
-                st.error(str(e))
+    if locked:
+        billing.locked_note("The Q&A")
     else:
-        g = s.grill
-        if g.finished and not g.turns:
-            st.info("GetCVmax found nothing to ask about: your CV already has numbers and details. "
-                    "Go to the Edits tab.")
-        for i, t in enumerate(g.turns, 1):
-            if g.finished and not t.answer:
-                continue
-            with st.chat_message("assistant", avatar=BOT_AVATAR):
-                st.markdown(f"**{i}.** {md_escape(t.question)}")
-                st.caption(md_escape(t.why_asking))
-            if t.answer:
-                with st.chat_message("user"):
-                    st.markdown(md_escape(t.answer))
-        if g.pending is not None:
-            with st.form("grill_answer", clear_on_submit=True):
-                reply = st.text_area("Your answer", max_chars=1500)
-                c1, c2 = st.columns(2)
-                send = c1.form_submit_button("Answer", type="primary")
-                skip = c2.form_submit_button("Skip")
-            if send or skip:
-                # We take the question kind before asking for the next one.
-                asked_kind = g.turns[-1].kind
-                log_event("grill_turn", analysis_id=s.analysis_id, kind=asked_kind, answered=not skip)
-                answer(g, "" if skip else reply)
+        st.caption(
+            f"Up to {config.GRILL_MAX_QUESTIONS} questions about your experience: numbers, scale and what's missing from your CV. "
+            "Your answers become stronger edits. Nothing is made up, GetCVmax only uses what you say. "
+            "You can skip questions and finish at any time."
+        )
+        if s.get("grill_error"):  # an error from the previous pass, before st.rerun()
+            st.error(s.pop("grill_error"))
+        if s.grill is None:
+            if st.button("Start Q&A", type="primary") and take_limit("grill"):
+                g = GrillSession()
                 try:
-                    with st.spinner("Next question..."):
+                    with st.spinner("Thinking of the first question..."):
                         next_question(get_client(), s.profile, s.cv, g)
-                except LLMError as e:
-                    s["grill_error"] = str(e)
-                st.rerun()
-        elif not g.finished and g.turns and len(g.turns) < g.max_questions and s.grill_result is None:
-            # The next question did not arrive (the model was busy): we let the user try again.
-            if st.button("Next question"):
-                try:
-                    with st.spinner("Next question..."):
-                        next_question(get_client(), s.profile, s.cv, g)
-                    st.rerun()
-                except LLMError as e:
-                    st.error(str(e))
-        if s.grill_result is None and any(t.answer for t in g.turns):
-            if st.button("Finish and get edits", type="primary" if g.pending is None else "secondary"):
-                try:
-                    with st.spinner("Turning your answers into edits..."):
-                        s.grill_result = finalize(get_client(), s.profile, s.cv, g)
-                    st.rerun()
-                except LLMError as e:
-                    st.error(str(e))
-        if s.grill_result is not None:
-            st.success(f"Done: {plural(len(s.grill_result.edits), 'new edit')} added to the Edits tab.")
-
-with tab_export:
-    edits = all_edits(s)
-    accepted = latest_per_line([e for i, e in enumerate(edits) if st.session_state.get(f"accept_{i}")])
-    if not accepted:
-        st.info("First, accept at least one edit in the Edits tab.")
-    elif not s.cv.text.strip():
-        st.warning("Couldn't extract text from this PDF (it looks like a scan). Use the list of edits below.")
-        st.download_button("Download list of edits (.md)", changes_markdown(accepted), "cvmax_changes.md",
-                           on_click=log_accepted_edits, args=(s,))
-    else:
-        report = apply_edits(s.cv.text, accepted)
-        if report.not_found:
-            st.warning(
-                f"Couldn't place {plural(len(report.not_found), 'edit')} in the text automatically. "
-                "Add them by hand, they're in the list of edits."
-            )
-        with st.expander("CV text with edits", expanded=False):
-            text = st.text_area("You can tweak it before formatting", report.text, height=400, max_chars=40_000,
-                                key=f"export_text_{hash(report.text)}")
-
-        st.subheader("Formatted CV")
-        st.caption("One recruiter-tested template: sans-serif font, clear sections, dates on the right.")
-        formatted = s.get("formatted_cv")
-        if formatted is None or formatted[0] != text:
-            if st.button("Format my CV (PDF and DOCX)", type="primary") and take_limit("export"):
-                try:
-                    with st.spinner("Splitting your CV into sections..."):
-                        s["formatted_cv"] = (text, structure_cv(get_client(), text))
-                    log_accepted_edits(s)
+                    s.grill = g
                     st.rerun()
                 except LLMError as e:
                     st.error(str(e))
         else:
-            built = formatted[1]
-            changed = changed_bullets(text, built)
-            if changed:
-                st.warning(
-                    "These lines in the formatted CV differ from your text. Check them before you send it:\n\n"
-                    + "\n".join(f"- {md_escape(b)}" for b in changed)
-                )
-            holes = has_placeholders(built)
-            if holes:
-                st.warning("Replace or remove the placeholders in these lines:\n\n" + "\n".join(f"- {md_escape(h)}" for h in holes))
-            pdf = render_pdf(built)
-            with card("export-preview"):
-                for page in pdf_preview(pdf):
-                    st.image(page, width="stretch")
-            name = built.full_name.replace(" ", "_") or "cv"
-            c1, c2 = st.columns(2)
-            c1.download_button("Download PDF", pdf, f"{name}_CV.pdf", mime="application/pdf",
-                               type="primary", on_click=log_export, args=(s, "pdf"))
-            c2.download_button("Download DOCX", render_docx(built), f"{name}_CV.docx",
-                               on_click=log_export, args=(s, "docx"))
-            st.caption("Open the DOCX in Word or Google Docs if you want to change anything by hand.")
+            g = s.grill
+            if g.finished and not g.turns:
+                st.info("GetCVmax found nothing to ask about: your CV already has numbers and details. "
+                        "Go to the Edits tab.")
+            for i, t in enumerate(g.turns, 1):
+                if g.finished and not t.answer:
+                    continue
+                with st.chat_message("assistant", avatar=BOT_AVATAR):
+                    st.markdown(f"**{i}.** {md_escape(t.question)}")
+                    st.caption(md_escape(t.why_asking))
+                if t.answer:
+                    with st.chat_message("user"):
+                        st.markdown(md_escape(t.answer))
+            if g.pending is not None:
+                with st.form("grill_answer", clear_on_submit=True):
+                    reply = st.text_area("Your answer", max_chars=1500)
+                    c1, c2 = st.columns(2)
+                    send = c1.form_submit_button("Answer", type="primary")
+                    skip = c2.form_submit_button("Skip")
+                if send or skip:
+                    # We take the question kind before asking for the next one.
+                    asked_kind = g.turns[-1].kind
+                    log_event("grill_turn", analysis_id=s.analysis_id, kind=asked_kind, answered=not skip)
+                    answer(g, "" if skip else reply)
+                    try:
+                        with st.spinner("Next question..."):
+                            next_question(get_client(), s.profile, s.cv, g)
+                    except LLMError as e:
+                        s["grill_error"] = str(e)
+                    st.rerun()
+            elif not g.finished and g.turns and len(g.turns) < g.max_questions and s.grill_result is None:
+                # The next question did not arrive (the model was busy): we let the user try again.
+                if st.button("Next question"):
+                    try:
+                        with st.spinner("Next question..."):
+                            next_question(get_client(), s.profile, s.cv, g)
+                        st.rerun()
+                    except LLMError as e:
+                        st.error(str(e))
+            if s.grill_result is None and any(t.answer for t in g.turns):
+                if st.button("Finish and get edits", type="primary" if g.pending is None else "secondary"):
+                    try:
+                        with st.spinner("Turning your answers into edits..."):
+                            s.grill_result = finalize(get_client(), s.profile, s.cv, g)
+                        st.rerun()
+                    except LLMError as e:
+                        st.error(str(e))
+            if s.grill_result is not None:
+                st.success(f"Done: {plural(len(s.grill_result.edits), 'new edit')} added to the Edits tab.")
 
-        st.divider()
-        c1, c2 = st.columns(2)
-        c1.download_button("CV text (.txt)", text, "cv_cvmax.txt", on_click=log_accepted_edits, args=(s,))
-        c2.download_button("List of edits (.md)", changes_markdown(accepted), "cvmax_changes.md",
-                           on_click=log_accepted_edits, args=(s,))
+with tab_export:
+    if locked:
+        billing.locked_note("The final CV and exports")
+    else:
+        edits = all_edits(s)
+        accepted = latest_per_line([e for i, e in enumerate(edits) if st.session_state.get(f"accept_{i}")])
+        if not accepted:
+            st.info("First, accept at least one edit in the Edits tab.")
+        elif not s.cv.text.strip():
+            st.warning("Couldn't extract text from this PDF (it looks like a scan). Use the list of edits below.")
+            st.download_button("Download list of edits (.md)", changes_markdown(accepted), "cvmax_changes.md",
+                               on_click=log_accepted_edits, args=(s,))
+        else:
+            report = apply_edits(s.cv.text, accepted)
+            if report.not_found:
+                st.warning(
+                    f"Couldn't place {plural(len(report.not_found), 'edit')} in the text automatically. "
+                    "Add them by hand, they're in the list of edits."
+                )
+            with st.expander("CV text with edits", expanded=False):
+                text = st.text_area("You can tweak it before formatting", report.text, height=400, max_chars=40_000,
+                                    key=f"export_text_{hash(report.text)}")
+
+            st.subheader("Formatted CV")
+            st.caption("One recruiter-tested template: sans-serif font, clear sections, dates on the right.")
+            formatted = s.get("formatted_cv")
+            if formatted is None or formatted[0] != text:
+                if st.button("Format my CV (PDF and DOCX)", type="primary") and take_limit("export"):
+                    try:
+                        with st.spinner("Splitting your CV into sections..."):
+                            s["formatted_cv"] = (text, structure_cv(get_client(), text))
+                        log_accepted_edits(s)
+                        st.rerun()
+                    except LLMError as e:
+                        st.error(str(e))
+            else:
+                built = formatted[1]
+                changed = changed_bullets(text, built)
+                if changed:
+                    st.warning(
+                        "These lines in the formatted CV differ from your text. Check them before you send it:\n\n"
+                        + "\n".join(f"- {md_escape(b)}" for b in changed)
+                    )
+                holes = has_placeholders(built)
+                if holes:
+                    st.warning("Replace or remove the placeholders in these lines:\n\n" + "\n".join(f"- {md_escape(h)}" for h in holes))
+                pdf = render_pdf(built)
+                with card("export-preview"):
+                    for page in pdf_preview(pdf):
+                        st.image(page, width="stretch")
+                name = built.full_name.replace(" ", "_") or "cv"
+                c1, c2 = st.columns(2)
+                c1.download_button("Download PDF", pdf, f"{name}_CV.pdf", mime="application/pdf",
+                                   type="primary", on_click=log_export, args=(s, "pdf"))
+                c2.download_button("Download DOCX", render_docx(built), f"{name}_CV.docx",
+                                   on_click=log_export, args=(s, "docx"))
+                st.caption("Open the DOCX in Word or Google Docs if you want to change anything by hand.")
+
+            st.divider()
+            c1, c2 = st.columns(2)
+            c1.download_button("CV text (.txt)", text, "cv_cvmax.txt", on_click=log_accepted_edits, args=(s,))
+            c2.download_button("List of edits (.md)", changes_markdown(accepted), "cvmax_changes.md",
+                               on_click=log_accepted_edits, args=(s,))

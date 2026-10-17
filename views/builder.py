@@ -1,5 +1,7 @@
 """CV builder: a first CV from scratch."""
 
+import uuid
+
 import streamlit as st
 
 from cvmax import config
@@ -9,6 +11,7 @@ from cvmax.grill import GrillSession, answer
 from cvmax.llm import LLMError
 from cvmax.profile import FEEDBACK_LANGUAGES, PROGRAMS, STATUSES
 from cvmax.safe_text import md_escape
+from ui import billing
 from ui.account import current_email, limit_caption, profile_value, require_login, save_result, take_limit
 from ui.common import BOT_AVATAR, card, consent, demo_banner, get_llm
 
@@ -20,6 +23,20 @@ st.caption(
     "and GetCVmax builds an English CV with the right structure."
 )
 demo_banner()
+if billing.billing_enabled():
+    # The builder is part of the full fix: every CV build uses one full credit (never a re-scan).
+    billing.show_notice()
+    cr = billing.credits()
+    if cr is None:
+        st.info("We could not check your credits right now. Try again in a minute.")
+        st.stop()
+    # One credit per CV build. A CV already built in this session stays visible; building again needs a credit.
+    if not (int(cr.get("full") or 0) > 0 or s.get("builder_cv") is not None):
+        with card("builder-gate"):
+            st.subheader("The CV builder is part of the full fix")
+            st.write("Buy the Full fix to build your CV. It also unlocks every edit of a review.")
+            billing.plan_cards("builder")
+        st.stop()
 if not consent("builder"):
     st.stop()
 
@@ -113,12 +130,27 @@ if g.pending is not None:
     st.caption(f"Question {len(g.turns)} of {config.GRILL_MAX_QUESTIONS}. You can build your CV at any time.")
 
 if st.button("Build my CV", type="primary" if g.pending is None else "secondary") and take_limit("build"):
-    try:
-        with st.spinner("Building your CV, this takes up to a minute..."):
-            s["builder_cv"] = build_cv(get_llm(), draft, g)
-        save_result("builder", draft.target_role or draft.full_name, {"cv": s["builder_cv"].model_dump()})
-    except LLMError as e:
-        st.error(str(e))
+    spent_id = ""
+    can_build = True
+    if billing.billing_enabled():
+        spent_id = "builder-" + uuid.uuid4().hex  # a new id per build: each build uses one credit
+        outcome = billing.spend(spent_id, "builder", purpose="builder")
+        if outcome != "ok":
+            spent_id, can_build = "", False
+            if outcome == "no_credit":
+                st.info("No full credit left. Buy the Full fix to build another CV.")
+                billing.plan_cards("builder_again")
+            else:
+                st.info("We could not use your credit right now. Try again in a minute.")
+    if can_build:
+        try:
+            with st.spinner("Building your CV, this takes up to a minute..."):
+                s["builder_cv"] = build_cv(get_llm(), draft, g)
+            save_result("builder", draft.target_role or draft.full_name, {"cv": s["builder_cv"].model_dump()})
+        except LLMError as e:
+            if spent_id:
+                billing.refund(spent_id)  # the model failed: the credit comes back
+            st.error(str(e))
 
 # ---------- 4. Result ----------
 cv = s.get("builder_cv")
@@ -139,7 +171,7 @@ c1, c2, c3 = st.columns(3)
 c1.download_button("Download PDF", pdf, f"{name}_CV.pdf", mime="application/pdf", type="primary")
 c2.download_button("Download DOCX", render_docx(cv), f"{name}_CV.docx")
 if c3.button("Start over"):
-    for k in ("builder_grill", "builder_draft", "builder_cv"):
+    for k in ("builder_grill", "builder_draft", "builder_cv", "builder_paid"):
         s.pop(k, None)
     st.rerun()
 st.caption(

@@ -128,7 +128,19 @@ begin
   delete from public.cvmax_usage where user_key = lower(p_email) and created_at < cvmax_private.day_start();
   delete from public.cvmax_edit_feedback where user_key = lower(p_email);
   delete from public.cvmax_events where user_key = lower(p_email);
-  delete from public.cvmax_training_samples where user_key = lower(p_email);
+  -- Same deletes as the final version in schema.sql. The tables of later files are checked first, so this file is
+  -- safe to run in any order: running it again after apply-judge.sql or apply-billing.sql must not drop their deletes.
+  if to_regclass('public.cvmax_training_samples') is not null then
+    execute 'delete from public.cvmax_training_samples where user_key = $1' using lower(p_email);
+  end if;
+  if to_regclass('public.cvmax_credit_use') is not null then
+    execute 'delete from public.cvmax_credit_use where user_key = $1' using lower(p_email);
+  end if;
+  if to_regclass('public.cvmax_purchases') is not null then
+    -- Purchases are accounting records: kept, but no longer linked to the person.
+    execute 'update public.cvmax_purchases set user_key = ''deleted:'' || md5(user_key) where user_key = $1'
+      using lower(p_email);
+  end if;
   delete from public.cvmax_waitlist where email = lower(p_email);
   delete from public.cvmax_users where email = lower(p_email);
 end $$;
