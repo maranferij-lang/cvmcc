@@ -9,6 +9,15 @@ A running log of decisions, state and next steps, so a new session (or a new con
 
 ---
 
+## 2026-10-19: press outreach prep
+
+- Owner decision: keep the code closed for now (if opened later: AGPL-3.0, a new repo with one clean commit, because one old commit carries the owner's full name). History scan: no keys, no real CVs ever committed.
+- Owner decision: Claude budget up to $15 a day after press. Site-wide caps raised in code: analysis 2/80, match 2/20, career 1/10, grill 2/60, export 3/80 (per-user limits unchanged, so site copy stays true).
+- Pitch letters drafted for DOU (news@dou.ua, from dou.ua/contacts) and AIN (feedback@ain.ua); owner sends them himself.
+- Before sending: owner fast-forwards `main` (production was missing the security-audit commit), deletes `CVMAX_LIMITS` in Railway, sets a monthly spend limit in the Anthropic console.
+
+---
+
 ## 2026-10-18 (later): no FOP, free beta, security audit
 
 - Owner has no FOP and does not want a legal name on the site yet: site back to free-beta copy (no prices); operator named as "Marian, an individual based in Ukraine". Payments stay built but off. Before payments or a big public launch a legal entity (FOP) is needed.

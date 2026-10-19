@@ -66,17 +66,18 @@ GRILL_MAX_QUESTIONS = 8
 MAX_FILE_MB = 10
 
 # Daily usage limits: (per user, for the whole site). None = no limit.
-# The site-wide limits are chosen for free Gemini, so the site does not hit the model limits.
+# The site-wide caps keep the Claude bill near $15 a day at the estimated $0.10-0.15 per review (owner decision,
+# 2026-10-19): about 80 reviews plus the smaller tools.
 LIMITS = {
-    "analysis": (2, 30),
-    "career": (1, 15),
-    "grill": (2, 30),
+    "analysis": (2, 80),
+    "career": (1, 10),
+    "grill": (2, 60),
     "builder": (1, 10),
     "build": (2, 20),
-    "export": (3, 40),
+    "export": (3, 80),
     "feedback": (10, 500),
     "jobs": (5, 150),
-    "match": (2, 30),
+    "match": (2, 20),
     "upload": (10, 400),
     "grill_retry": (6, 120),  # retries of a failed Q&A step; a first try is covered by "grill"
 }
